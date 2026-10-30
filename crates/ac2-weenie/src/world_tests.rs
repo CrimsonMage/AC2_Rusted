@@ -422,3 +422,22 @@ fn a_script_edit_replaces_the_objects_local_description() {
     assert_eq!(kept.visual, Some(0x1F00_0023));
     assert!(!world.objects.set_local_appearance(1, edited));
 }
+
+/// `CPhysicsObj::unset_parent` (the first step of `SyncPositionSimple` for a held object): the
+/// object leaves its holder's child list and is no longer held; an object that was not held
+/// reports so.
+#[test]
+fn unsetting_the_parent_takes_the_object_off_its_holder() {
+    let npc = 0x7000_0000_0000_0042;
+    let mut world = world_with(npc);
+    assert!(!world.objects.unset_parent(npc), "not held");
+    assert!(world.stick_object(npc, PLAYER, 3, ac2_physics::ChildFrame::IDENTITY));
+    assert_eq!(world.objects.links().parent_of(npc), Some(PLAYER));
+    assert!(world.objects.unset_parent(npc));
+    assert_eq!(world.objects.links().parent_of(npc), None);
+    assert!(world.objects.children(PLAYER).is_empty());
+    assert!(
+        !world.objects.unset_parent(0x7000_0000_0000_0099),
+        "unknown object"
+    );
+}

@@ -32,7 +32,7 @@ impl ClientView {
             .map(|child| child.held.and_then(|(id, _, _)| index.get(&id).copied()))
             .collect();
         // `CPhysicsObj::GetTotalScale`: a held object's scale carries its holder's total scale
-        // (and the holder representation's `m_fChildScale`, 1.0 as `PHYSICSOBJREP` makes it).
+        // (and the holder representation's `m_fChildScale`).
         let mut totals: Vec<Option<ac2_math::Vec3>> = drawn
             .iter()
             .map(|d| self.scene.object_rig(d.key).map(|(_, scale)| *scale))
@@ -61,7 +61,8 @@ impl ClientView {
                 .unwrap_or(Ac2Transform::IDENTITY);
             let at = held_place_offset(frames[holder], holder_scale, bone, &point, offset);
             frames[i] = at;
-            let child_scale = totals[i].map(|own| scaled_by_parent(own, holder_scale, 1.0));
+            let child_scale =
+                totals[i].map(|own| scaled_by_parent(own, holder_scale, drawn[holder].child_scale));
             totals[i] = child_scale;
             placed[i] = match (placed[i].take(), child_scale) {
                 (Some((key, _, pose)), Some(scale)) => Some((key, world_matrix(scale, at), pose)),
@@ -137,6 +138,7 @@ mod tests {
             child_poses: Vec::new(),
             anim_scale: [1.0; 4],
             body_scale: [1.0; 3],
+            child_scale: 1.0,
             adaptive_degrade: true,
         }
     }
@@ -156,6 +158,7 @@ mod tests {
             appearance: Arc::new(Appearance::default()),
             hidden: false,
             anim_scale: [1.0; 4],
+            child_scale: 1.0,
         }
     }
 

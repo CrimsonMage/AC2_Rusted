@@ -16,6 +16,7 @@ use crate::motion_interp::{
 use crate::objects::ObjectShape;
 use crate::physics_obj_missile::{MissileEnv, MissileEvent, NoObjects};
 use crate::position::Position;
+use crate::target::TargetRequest;
 use crate::terrain::Terrain;
 use crate::vector::{Plane, Quaternion, Sphere, Vector};
 
@@ -179,6 +180,9 @@ pub(crate) struct PhysicsObj {
     pub(crate) wind: Vector,
     /// `TargetManager`'s target id as the missile code sets it (0 is `INVALID_IID`).
     pub(crate) target_id: u64,
+    /// The `CPhysicsObj::SetTarget(0, id, radius, quantum)` calls the missile code made, taken
+    /// by the owner of the target managers.
+    pub(crate) target_requests: Vec<TargetRequest>,
     /// `m_iidFXTarget` (0 is `INVALID_IID`): the object the effect triggers target, set by a
     /// behaviour's params (`CPhysicsObj::DoBehavior`) or by an FX that made an object
     /// (`PHYSICSOBJREP::SetFXTarget`), cleared by `ClearFXTarget`.
@@ -274,6 +278,7 @@ impl PhysicsObj {
             missile_events: Vec::new(),
             wind: Vector::ZERO,
             target_id: 0,
+            target_requests: Vec::new(),
             fx_target: 0,
             vdesc_to_clone: 0,
             cloned_apr: 0,

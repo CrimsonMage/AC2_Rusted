@@ -56,6 +56,7 @@ fn in_world_remote(bits: Option<u64>) -> Remote {
         listed_cell: None,
         ethereal: false,
         alpha_moves: None,
+        behavior: 0,
         fx_follow: None,
     }
 }
@@ -198,4 +199,98 @@ fn a_synced_position_becomes_the_previous_position() {
     remotes.sync_position_simple(7, position, &records, &mut terrain);
     let body = remotes.get(7).unwrap().body.as_ref().unwrap();
     assert_eq!(body.previous_position(), position);
+}
+
+fn record_of(held: bool) -> super::ObjectRecord {
+    super::ObjectRecord {
+        position: None,
+        held,
+        visual: None,
+        entity: None,
+    }
+}
+
+fn place_at(cell: u32) -> ac2_physics::Position {
+    let mut frame = ac2_physics::Frame::IDENTITY;
+    frame.origin = ac2_physics::Vector::new(70.0, 70.0, 50.0);
+    ac2_physics::Position::new(cell, frame)
+}
+
+#[test]
+fn a_position_for_a_held_object_takes_it_off_its_holder_and_places_it() {
+    use super::ResidencyEffect::{QueueDestroy, Unparent};
+    let mut terrain = ac2_physics::Terrain::new();
+    terrain.insert_heights(0x7F7F_FFFF, &[50.0; 17 * 17], |_, _| false);
+    let mut remotes = Remotes::<()>::default();
+    remotes.insert(7, in_world_remote(None));
+    // `CPhysicsObj::SyncPositionSimple` on a held object: `unset_parent`, `LeaveWorld`, then
+    // `EnterWorldSimple` at the position (placing needs resident cells, so the object stays out here).
+    let records = |_: u64| Some(record_of(true));
+    let effects = remotes.sync_position_simple(7, place_at(0x7F7F_001C), &records, &mut terrain);
+    assert_eq!(effects[..2], [Unparent(7), QueueDestroy(7)]);
+    // The leave told the target managers.
+    assert!(matches!(
+        remotes.take_target_log().as_slice(),
+        [super::TargetLog::Left(left)] if left.owner.id == 7
+    ));
+}
+
+#[test]
+fn a_position_for_an_object_that_is_not_held_does_not_unparent_it() {
+    use super::ResidencyEffect::Unparent;
+    let mut terrain = ac2_physics::Terrain::new();
+    terrain.insert_heights(0x7F7F_FFFF, &[50.0; 17 * 17], |_, _| false);
+    let mut remotes = Remotes::<()>::default();
+    remotes.insert(7, in_world_remote(None));
+    let records = |_: u64| Some(record_of(false));
+    let effects = remotes.sync_position_simple(7, place_at(0x7F7F_001C), &records, &mut terrain);
+    assert!(!effects.contains(&Unparent(7)));
+    assert!(remotes.take_target_log().is_empty());
+}
+
+/// `DoCreateObjectFX`'s `DoBehavior` on the object it made: its result comes back once the body
+/// exists, for the FX to keep an object whose behaviour did not start.
+#[test]
+fn a_local_object_with_a_behaviour_reports_whether_it_started() {
+    let mut remotes = Remotes::<Arc<crate::BodyData>>::default();
+    let shape = ac2_physics::BodyShape {
+        spheres: Vec::new(),
+        height: 1.0,
+        step_up_height: 0.1,
+        step_down_height: 0.1,
+        scale: 1.0,
+        allow_free_heading: false,
+    };
+    remotes.store_body(
+        Some(0x1F00_0797),
+        Ok(Arc::new(crate::BodyData {
+            shape,
+            motion: None,
+            radius: 0.5,
+            animation: None,
+            object: None,
+            parts: None,
+        })),
+    );
+    let local = super::LocalObject {
+        visual: 0x1F00_0797,
+        position: Default::default(),
+        fx_follow: None,
+        alpha_moves: [(0.0, 0.0), (1.0, 0.25)],
+        behavior: 0x4100_0086,
+    };
+    let mut terrain = ac2_physics::Terrain::new();
+    let records = |_: u64| None;
+    remotes.create_local(9, local, &records, &mut terrain, &|_, _| {});
+    assert!(remotes.get(9).is_some_and(|r| r.body().is_some()));
+    let results = remotes.take_behavior_results();
+    assert_eq!(results.len(), 1);
+    assert_eq!(results[0].0, 9);
+    // An object without a behaviour reports nothing.
+    let plain = super::LocalObject {
+        behavior: 0,
+        ..local
+    };
+    remotes.create_local(10, plain, &records, &mut terrain, &|_, _| {});
+    assert!(remotes.take_behavior_results().is_empty());
 }

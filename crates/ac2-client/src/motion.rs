@@ -34,6 +34,11 @@ pub(crate) fn behavior(params: &BehaviorParams) -> Ac2BehaviorParams {
     out.lock_actions = flag(0x800, params.lock_actions, out.lock_actions);
     out.send_event = flag(0x200, params.send_event, out.send_event);
     out.leave_idle_alone = flag(0x2_0000, params.leave_idle_alone, out.leave_idle_alone);
+    out.destroy_on_completion = flag(
+        0x8000,
+        params.destroy_on_completion,
+        out.destroy_on_completion,
+    );
     out.fade_children = flag(0x100, params.fade_children, out.fade_children);
     out.camera_parent = flag(0x80, params.camera_parent, out.camera_parent);
     out.camera_target = flag(0x40, params.camera_target_flag, out.camera_target);

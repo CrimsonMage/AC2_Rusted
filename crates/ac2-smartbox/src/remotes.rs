@@ -21,6 +21,7 @@ use crate::collision_traffic::Touch;
 use crate::membership::CellMembership;
 use crate::remote_membership::sync_membership;
 use crate::BodyData;
+pub use targets::{LeftBody, TargetLog};
 
 /// `FXManager::DoCreateObjectFX`'s `CollisionParameters` bit for an FX object.
 pub const FX_OBJECT_COLLISION_BIT: u32 = 0x10;
@@ -70,6 +71,17 @@ pub struct LocalObject {
     pub fx_follow: Option<FxFollow>,
     /// The alpha moves an FX object makes once its body exists (`DoCreateObjectFX`'s sliders).
     pub alpha_moves: [(f32, f32); 2],
+    /// The behaviour the created object runs and destroys itself after (`FXNode::m_behavior`,
+    /// `DoCreateObjectFX`; 0 for none).
+    pub behavior: u32,
+}
+
+/// How a client-made object starts: its two alpha moves and the behaviour it runs and destroys
+/// itself after (`FXManager::DoCreateObjectFX`; 0 for none).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct LocalStart {
+    pub alpha_moves: [(f32, f32); 2],
+    pub behavior: u32,
 }
 
 /// The session's view of the objects, by id: `None` for an object the session does not have.
@@ -83,6 +95,9 @@ pub enum ResidencyEffect {
     QueueDestroy(u64),
     /// `CBookKeep::RemoveObjectToBeDestroyed` (`CBookKeep::HandleEnterWorld`).
     CancelDestroy(u64),
+    /// `CPhysicsObj::unset_parent`: the held object leaves its holder's child list
+    /// (`CPhysicsObj::SyncPositionSimple`).
+    Unparent(u64),
 }
 
 /// One object other than the player.
@@ -116,6 +131,9 @@ pub struct Remote {
     pub ethereal: bool,
     /// The alpha moves an FX object makes once its body exists (`DoCreateObjectFX`'s sliders).
     pub alpha_moves: Option<[(f32, f32); 2]>,
+    /// The behaviour an FX object runs once its body exists, destroying itself on completion
+    /// (`DoCreateObjectFX`'s `m_behavior`; 0 for none).
+    pub behavior: u32,
     /// The emitter and attach point of an FX object that hangs from one (`FXSetParent`).
     pub fx_follow: Option<FxFollow>,
 }
@@ -282,6 +300,10 @@ pub struct Remotes<B> {
     temporary_ids: crate::temporary_ids::TemporaryIds,
     /// What the remotes' collisions left for the client to apply (see `collision_traffic`).
     traffic: crate::collision_traffic::CollisionTraffic,
+    /// What the remotes asked of the client's target managers (see `remote_targets`).
+    target_log: Vec<TargetLog>,
+    /// Whether the behaviour of each FX object started (`DoCreateObjectFX`), taken by the client.
+    behavior_results: Vec<(u64, bool)>,
 }
 
 impl<B> Default for Remotes<B> {
@@ -298,6 +320,8 @@ impl<B> Default for Remotes<B> {
             membership: CellMembership::new(),
             temporary_ids: Default::default(),
             traffic: Default::default(),
+            target_log: Vec::new(),
+            behavior_results: Vec::new(),
         }
     }
 }
@@ -462,6 +486,12 @@ impl<B> Remotes<B> {
     /// `CObjectMaint::DestroyObjectInternal` removed the object: its entry leaves the world's
     /// object lists.
     pub fn removed(&mut self, id: u64, terrain: &mut Terrain) {
+        // The object leaves the world as it is destroyed (`CPhysicsObj::LeaveWorld`).
+        if self.get(id).is_some_and(|r| r.in_world) {
+            self.note_left(id);
+            self.end_all_collisions(id, terrain);
+        }
+        self.target_log.push(TargetLog::Gone(id));
         self.remove_from_lost_cell(id);
         if let Some(remote) = self.objects.remove(&id) {
             if let Some(cell) = remote.listed_cell {
@@ -622,6 +652,15 @@ impl<B> Remotes<B> {
                 if let Some(body) = &mut remote.body {
                     body.set_time(cur_time);
                     body.step_quantum_in(terrain, &mut env);
+                    // A missile's `CPhysicsObj::SetTarget` goes to the target managers.
+                    for request in body.take_target_requests() {
+                        self.target_log.push(TargetLog::SetTarget {
+                            owner: guid,
+                            object_id: request.object_id,
+                            radius: request.radius,
+                            quantum: request.quantum,
+                        });
+                    }
                     // `CPhysicsObj::handle_all_collisions`: each object the body hit hears of it.
                     let mover = ConflictPeer {
                         id: guid,
@@ -682,6 +721,12 @@ impl<B> Remotes<B> {
             }
         }
         events
+    }
+
+    /// Whether the behaviour of each FX object started, since the last call
+    /// (`FXManager::DoCreateObjectFX`'s `DoBehavior` result): `(object, started)`.
+    pub fn take_behavior_results(&mut self) -> Vec<(u64, bool)> {
+        std::mem::take(&mut self.behavior_results)
     }
 
     /// The collision reports the remotes with a collision manager made since the last call, by
@@ -791,6 +836,7 @@ impl<B: AsRef<BodyData>> Remotes<B> {
                 listed_cell: None,
                 ethereal: false,
                 alpha_moves: None,
+                behavior: 0,
                 fx_follow: None,
             },
         );
@@ -824,6 +870,7 @@ impl<B: AsRef<BodyData>> Remotes<B> {
                 listed_cell: None,
                 ethereal: true,
                 alpha_moves: Some(local.alpha_moves),
+                behavior: local.behavior,
                 fx_follow: local.fx_follow,
             },
         );
@@ -875,6 +922,7 @@ impl<B: AsRef<BodyData>> Remotes<B> {
         let ethereal = remote.ethereal;
         let stored = remote.stored;
         let alpha_moves = remote.alpha_moves.take();
+        let behavior = std::mem::take(&mut remote.behavior);
         remote.object = data.object;
         let mut body = PhysicsBody::new(start, data.shape, data.motion);
         body.set_radius(data.radius);
@@ -901,6 +949,16 @@ impl<B: AsRef<BodyData>> Remotes<B> {
             for (pos, time) in moves {
                 body.do_slider(0, crate::fx_objects::ALPHA_SLIDER, pos, time);
             }
+        }
+        // `DoCreateObjectFX`'s last step: the node's behaviour runs on the object and destroys it
+        // on completion (`mDestroyOnCompletion`, context 1); one that does not start leaves the
+        // object to the FX (the client's list of its objects).
+        if behavior != 0 {
+            let mut params = ac2_anim::Ac2BehaviorParams::new(behavior);
+            params.destroy_on_completion = true;
+            params.context = 1;
+            let started = body.do_behavior(&params);
+            self.behavior_results.push((id, started));
         }
         if let Some(remote) = self.get_mut(id) {
             remote.body = Some(body);
@@ -939,16 +997,30 @@ impl<B: AsRef<BodyData>> Remotes<B> {
     pub fn target_info(&self, id: u64) -> Option<(Position, f32, f32)> {
         let remote = self.objects.get(&id).filter(|r| r.in_world)?;
         let body = remote.body.as_ref()?;
-        let data = self.bodies.get(&remote.visual)?.as_ref().ok()?.as_ref();
+        let (radius, height) = self.sizes_of(remote)?;
+        Some((body.position(), radius, height))
+    }
+
+    /// `GetRadius` and `GetHeight` of the remote's Setup, scaled.
+    pub(crate) fn sizes_of(&self, remote: &Remote) -> Option<(f32, f32)> {
+        self.sizes_of_visual(remote.visual)
+    }
+
+    /// `GetRadius` and `GetHeight` of the Setup of `visual`, scaled.
+    pub(crate) fn sizes_of_visual(&self, visual: Option<u32>) -> Option<(f32, f32)> {
+        let data = self.bodies.get(&visual)?.as_ref().ok()?.as_ref();
         let scale = f64::from(data.shape.scale);
         let radius = (f64::from(data.radius) * scale) as f32;
         let height = (f64::from(data.shape.height) * scale) as f32;
-        Some((body.position(), radius, height))
+        Some((radius, height))
     }
 }
 
 #[path = "remote_residency.rs"]
 mod residency;
+
+#[path = "remote_targets.rs"]
+mod targets;
 
 #[cfg(test)]
 #[path = "remotes_tests.rs"]

@@ -1,13 +1,15 @@
 //! `CPhysicsObj::ApplyVisualDesc`'s part rebuild: when an object's drawn description (its local
 //! one with the FX's appearance keys merged on) changes what its part groups are, the body's
 //! part-group tree follows it (`CPartGroup::CompareAndModify`, on a loader thread), so the
-//! holding locations, bones and physics BSP flag are those of the object as drawn. A change that
+//! holding locations, bones and physics BSP flag are those of the object as drawn, and the body
+//! takes the description's behaviour table, scale, child scale and particle scale
+//! (`PHYSICSOBJREP::CompareAndModify`). A change that
 //! only moves an appearance key's scalar (an FX ramping) changes no group and asks nothing.
 
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use ac2_physics::{Appearance, PartGroupTree};
+use ac2_physics::{Appearance, RebuiltVisual};
 
 use crate::client::Client;
 use crate::loader::{PartTreeJob, Request};
@@ -20,6 +22,15 @@ fn structure_key(visual: u32, appearance: &Appearance) -> u64 {
     visual.hash(&mut hasher);
     appearance.parent.hash(&mut hasher);
     appearance.root.hash(&mut hasher);
+    // What `PHYSICSOBJREP::CompareAndModify` takes besides the groups.
+    appearance.behavior_table.hash(&mut hasher);
+    for value in appearance
+        .scale
+        .iter()
+        .chain([&appearance.child_scale, &appearance.particle_scale])
+    {
+        value.to_bits().hash(&mut hasher);
+    }
     for group in std::iter::once(&appearance.global).chain(&appearance.part_groups) {
         (
             group.key,
@@ -38,10 +49,15 @@ fn structure_key(visual: u32, appearance: &Appearance) -> u64 {
     hasher.finish()
 }
 
-/// Whether the description names no part group and no appearance key: the tree the visual
-/// builds already follows it.
+/// Whether the description names no part group and no appearance key, no behaviour table of its
+/// own and no scale: the tree the visual builds already follows it.
 fn is_plain(appearance: &Appearance) -> bool {
-    appearance.part_groups.is_empty() && appearance.global.appearance.is_empty()
+    appearance.part_groups.is_empty()
+        && appearance.global.appearance.is_empty()
+        && appearance.behavior_table == 0
+        && appearance.scale == [1.0; 3]
+        && appearance.child_scale == 1.0
+        && appearance.particle_scale == 1.0
 }
 
 impl Client {
@@ -61,9 +77,9 @@ impl Client {
             if known == Some(key) {
                 continue;
             }
-            let Some(tree) = self
+            let Some((tree, current_table)) = self
                 .script_body_mut(id)
-                .and_then(|b| b.part_group().cloned())
+                .and_then(|b| Some((b.part_group().cloned()?, b.behavior_table_did())))
             else {
                 continue;
             };
@@ -79,6 +95,7 @@ impl Client {
                     tree,
                     visual,
                     local: ac2_physics::local_visual_desc(&drawn),
+                    current_table,
                 }),
             ));
         }
@@ -89,17 +106,20 @@ impl Client {
         &mut self,
         id: u64,
         key: u64,
-        tree: Result<Option<PartGroupTree>, String>,
+        tree: Result<Option<RebuiltVisual>, String>,
     ) {
         if self.part_keys.get(&id) != Some(&key) {
             return;
         }
-        let Ok(Some(tree)) = tree else {
+        let Ok(Some(rebuilt)) = tree else {
             return;
         };
         if let Some(body) = self.script_body_mut(id) {
-            body.set_part_group(std::sync::Arc::new(tree));
+            body.set_part_group(std::sync::Arc::new(rebuilt.tree));
             body.cache_has_physics_bsp();
+            // `PHYSICSOBJREP::CompareAndModify`: the new behaviour table, scale, child scale and
+            // particle scale.
+            body.compare_and_modify(rebuilt.facts);
         }
     }
 }
@@ -111,5 +131,17 @@ impl Client {
     pub fn part_group_count(&mut self, id: u64) -> Option<usize> {
         let body = self.script_body_mut(id)?;
         Some(body.part_group()?.indices().len())
+    }
+
+    /// What object `id`'s body took from its total description (`PHYSICSOBJREP::CompareAndModify`):
+    /// the behaviour table DID, `VisualDesc` scale, child scale and particle scale. For tests.
+    pub fn body_visual_facts(&mut self, id: u64) -> Option<(u32, [f32; 3], f32, f32)> {
+        let body = self.script_body_mut(id)?;
+        Some((
+            body.behavior_table_did(),
+            body.vdesc_scale(),
+            body.child_scale(),
+            body.particle_scale(),
+        ))
     }
 }

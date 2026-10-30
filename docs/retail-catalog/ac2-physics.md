@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 1130 done, 5 partial, 0 to do, 989 skipped.
+2124 retail functions: 1135 done, 0 partial, 0 to do, 989 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (7/9)
@@ -1242,7 +1242,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `FXMap_FromFileNode` · 006a8b00 — admin FXMap text tool, not used by the client
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (30/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (31/44)
 
 ### DecalEffectDesc
 - [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
@@ -1305,7 +1305,7 @@ Legend and workflow: [README](README.md).
 - [x] `ChannelPrefs::HandleChange` · 00506be0 — ac2-smartbox fx_prefs.rs apply/channel_prefs: each registered preference value (enum choice, bool as 1/0) goes under its channel key into the table ac2-assets keeps (set_fx_channel_prefs); the client calls it at startup and with every applied option (Client::apply_live_preferences), the bank apply being the handler
 
 ### FXManager
-- [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — object created on the emitter and attached by its node (Ac2FxObjectAttach, re-placed each frame; ac2-physics fx_follow.rs); it becomes the FX target and the emitters (FxObjects new_targets -> PhysicsBody::set_fx_target); slot 0x9c is DoSlider on 0x4000001a (create_alpha_moves); the water-plane branch stands at the emitter; a node naming a bone the emitter lacks is dropped (retail leaves the matrix unset: undefined). Not ported: a node behaviour (m_behavior) run on the created object with mDestroyOnCompletion, so the object destroys itself when it ends (needs Ac2BehaviorParams.destroy_on_completion, a DeleteSelf event and a pending behaviour on the local Remote, in shared remotes.rs)
+- [x] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — object created on the emitter and attached by its node (Ac2FxObjectAttach, re-placed each frame; ac2-physics fx_follow.rs); it becomes the FX target and the emitters (FxObjects new_targets -> PhysicsBody::set_fx_target); slot 0x9c is DoSlider on 0x4000001a (create_alpha_moves); the water-plane branch stands at the emitter; a node naming a bone the emitter lacks is dropped (retail leaves the matrix unset: undefined). The node behaviour (m_behavior) runs on the object once its body exists (Remotes try_create_into: Ac2BehaviorParams destroy_on_completion, context 1), the FX keeps the object only when it does not start (FxObjects::behavior_result), and BehaviorTracker::ProcessRampingDownParamFlags raises Ac2AnimEvent::DeleteSelf(0, 3.0) -> Remotes::delete_self + FxObjects::delete_after. Tested on the real DATs (fx_object_behavior_tests: object 0x1F000797, behaviour 0x41000086) and in ac2-anim / ac2-smartbox
 - [x] `FXManager::StopFX` · 00507650 · legions 004f5870 — FxObjects::stop/teardown: objects faded, targets unhidden, colour restored, appearances removed, target FX stopped on the FX target (TargetCall::StopFx); sound and particle stop in client_audio, streaks in fx_streaks stop_streaks; Legions StopFX gets the camera manager but does nothing with it (StopAllCameraFX is admin-only)
 - [-] `FXManager::FXManager` · 00507d10 · legions 004f5e80 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::Destroy` · 00507db0 · legions 004f5f20 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (401/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (404/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2407,7 +2407,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::SetPlacementPosition` · 004e2030 · legions 004d4a80 — ported: PhysicsObj::set_placement_position (previous and animation positions, CMotionInterp::TurnTo to the heading, mode set again); run by PLACEMENT_SPF and SyncPositionSimple
 - [x] `CPhysicsObj::EnterWorld` · 004e20b0 — ENTER_WORLD_FLAGS (PLACEMENT|SLIDE) through PhysicsBody::set_position_struct/place: ac2-smartbox Remotes::enter_world and the client player entry, then PhysicsBody::handle_enter_world
 - [x] `CPhysicsObj::EnterWorldSimple` · 004e2100 — ENTER_WORLD_FLAGS (PLACEMENT|SLIDE) through PhysicsBody::set_position_struct/place: ac2-smartbox Remotes::enter_world and the client player entry, then PhysicsBody::handle_enter_world
-- [~] `CPhysicsObj::HandleTeleportStart` · 004e2160 · legions 004d4bb0 — PhysicsBody::handle_teleport_start (StopInterpolating, UnConstrain) wired in client_teleport.rs, the TELEPORT stamp ported; TargetHub::teleport_start (ClearTarget + Teleported voyeur notice) is ported but the client keeps no TargetHub yet
+- [x] `CPhysicsObj::HandleTeleportStart` · 004e2160 · legions 004d4bb0 — PhysicsBody::handle_teleport_start (StopInterpolating, UnConstrain) then TargetHub::teleport_start (ClearTarget, Teleported voyeur notice) in Client::player_teleport_start_targets (ac2-client client_targets.rs; the client now keeps a TargetHub), then the TELEPORT stamp; tested (ac2-client tests/target_wiring_7160.rs: a teleport lets go of the target and ends the move-to)
 - [-] `CPhysicsObj::OnCellAddedToFreelist` · 004e21c0 — retail cell freelist bookkeeping; Rust cells are Arc-owned and freed on last drop
 - [-] `CPhysicsObj::OnCellRemovedFromFreelist` · 004e21d0 — retail cell freelist bookkeeping; Rust cells are Arc-owned and freed on last drop
 - [x] `CPhysicsObj::LeaveVisibility` · 004e21e0 · legions 004d4c30 — ac2-client remote.rs
@@ -2723,7 +2723,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::RecvEvt_ReleaseBehavior` · 004ec290 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 - [x] `CPhysicsObj::GetTriggerUpdate` · 004ec310 · legions 004dec80 — structural: the TriggerUpdate is owned by the mode tracker (ac2-anim ModeTracker::triggers_mut), made at creation
 - [x] `CPhysicsObj::SetPositionInternal` · 004ec350 · legions 004decc0 — ported: SetPositionStruct, PhysicsBody::set_position_struct (SCATTER_SPF after a failed exact try, RANDOMSCATTER_SPF straight away, num_tries rolls of Random::roll_dice_f32 on x then y, PLACEMENT_SPF then SetPlacementPosition); PhysicsBody::place is the no-scatter form. Scripts cannot build one yet (no gSetPositionStruct natives)
-- [~] `CPhysicsObj::HandleLeaveWorld` · 004ec400 · legions 004ded70 — ported: motion part (CMotionInterp::HandleLeaveWorld), clear_transient_states, script CWInterface hooks in ac2-script. Missing: TargetManager::HandleLeaveWorld (TargetHub::leave_world exists, TargetHub is not wired in the client), CDetectionManager (not ported), EndAllCollisions at leave, CleanupMarkerObjects (admin marker objects)
+- [x] `CPhysicsObj::HandleLeaveWorld` · 004ec400 · legions 004ded70 — ported: script CWInterface hooks (ac2-script), the target manager (ac2-smartbox Remotes TargetLog::Left -> TargetHub::leave_world in Client::apply_target_log; the player in Client::player_handle_leave_world at teleport), CMotionInterp::HandleLeaveWorld + clear_transient_states (PhysicsBody::leave_world), EndAllCollisions (Remotes::end_all_collisions, player: PhysicsBody::end_all_collisions, the report to the script); the bookkeeping part is Remotes::leave_world (QueueDestroy). Not ported: CDetectionManager (unreachable in 7160, see its row) and CleanupMarkerObjects (marker objects exist only after the admin TogglePlaceMarkerObjects command). Tested: tests/target_wiring_7160.rs, smartbox collision_traffic tests
 
 ### _STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>
 - [-] `_STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>::~map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>` · 004ec4a0 · legions 004dee10 — STL/MSVC or archive template helper; Rust collections replace it
@@ -2737,12 +2737,12 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::set_description` · 004ec830 — physics half in PhysicsBody::set_description_physics; the missile branch (bitfield 0xC00: manager made, SetTargetPos, SetActivated, SetMoving, SetTargetID with offset and use_target_scale bit 0x4000, missile velocity) is PhysicsObj::describe_missile via DescPhysics::missile built by ac2-weenie desc_missile; target_height is never streamed so retail uses 0 (also in the Legions caller at 0x4df9ee); tested
 - [x] `CPhysicsObj::makeObject` · 004ed160 · legions 004dfac0 — Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
 - [x] `CPhysicsObj::SetPositionSimple` · 004ed190 · legions 004dfaf0 — PhysicsBody::place with SYNC_POSITION_FLAGS (0x1010)
-- [~] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — SetPositionSimple + SetPlacementPosition (also out of the world) ported in Remotes::sync_position_simple; the HasParent branch (unset_parent then LeaveWorld) is not there: the child graph (children.rs) owns parent links and the caller drives it
+- [x] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — ac2-smartbox Remotes::sync_position_simple: a held object first leaves its holder (ResidencyEffect::Unparent -> OnlineSession::unset_object_parent -> ChildGraph::unset_parent) and LeaveWorld, then SetPositionSimple / EnterWorldSimple and SetPlacementPosition; tested (remotes_tests, ac2-weenie world_tests)
 - [x] `CPhysicsObj::makeObject` · 004ed270 · legions 004dfbd0 — Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (146/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (147/171)
 
 ### BehaviorTable
 - [x] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
@@ -2934,7 +2934,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::InitFXManager` · 004f4090 · legions 004e68d0 — PHYSICSOBJREP::InitFXManager - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [x] `PHYSICSOBJREP::InitVisualDescObject` · 004f4240 · legions 004e6a80 — PHYSICSOBJREP::InitVisualDescObject - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [x] `PHYSICSOBJREP::CreateVisualDesc` · 004f4300 · legions 004e6b40 — Part tree built from a DID / VisualDesc: ac2-physics part_load::load_part_group_tree (PartGroupTree::init_visual_desc, CPartGroup::InitSetup for a Setup DID); a changed description is a new total description (ac2_assets::total_visual_desc) drawn by ac2-render; AssemblePartGroupObject = PhysicsBody::new + init_object_begin + load
-- [~] `PHYSICSOBJREP::CompareAndModify` · 004f4360 · legions 004e6ba0 — part group follows a new description (PartGroup::compare_and_modify via ac2-client part_tree_loaded), MIDESC changes by request_motion_desc. Not ported: a live body taking the total description new behaviour table, scale, child scale and particle scale (the rebuild job returns only the tree; needs an animation-table loader round trip and a particle-scale path in ac2-render)
+- [x] `PHYSICSOBJREP::CompareAndModify` · 004f4360 · legions 004e6ba0 — part group follows a new description (PartGroup::compare_and_modify via ac2-client part_tree_loaded), MIDESC changes by request_motion_desc, and the live body takes the total description new behaviour table (the table animation re-initialises the mode tracker: rebuild_visual_desc -> VisualFacts -> PhysicsBody::compare_and_modify), VisualDesc scale, child scale (also drawn: held children scale by the holder) and particle scale (the scene reloads the model under the new description). Tested on the real DATs (ac2-client tests/part_tree_7160.rs a_description_gives_the_body_its_table_and_scales)
 - [x] `PHYSICSOBJREP::InitVisualDescObject` · 004f4400 · legions 004e6c40 — PHYSICSOBJREP::InitVisualDescObject - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [x] `PHYSICSOBJREP::InitDataIDObject` · 004f44c0 · legions 004e6ce0 — Part tree built from a DID / VisualDesc: ac2-physics part_load::load_part_group_tree (PartGroupTree::init_visual_desc, CPartGroup::InitSetup for a Setup DID); a changed description is a new total description (ac2_assets::total_visual_desc) drawn by ac2-render; AssemblePartGroupObject = PhysicsBody::new + init_object_begin + load
 - [x] `PHYSICSOBJREP::CreateDataID` · 004f4510 · legions 004e6d30 — structural: the loader shares the decoded Setup/table by Arc (the shared rep) and each PhysicsBody is made with its animation; startup FX at InitObjectEnd
@@ -3113,13 +3113,13 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/physobj/target/targetmanager.cpp.c` (15/25)
 
 ### TargetVoyeur
-- [x] `TargetVoyeur::TargetVoyeur` · 00515520 · legions 00503530 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetVoyeur::TargetVoyeur` · 00515520 · legions 00503530 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
 - [-] `TargetVoyeur::GetPackSize` · 00515580 · legions 00503590 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [-] `TargetVoyeur::Pack` · 005155a0 · legions 005035b0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [-] `TargetVoyeur::UnPack` · 00515600 · legions 00503610 — archive unpack of a runtime voyeur record (PackObj state), never read from a stream by the client
 
 ### TargetManager
-- [x] `TargetManager::GetInterpolatedPosition` · 00515690 · legions 005036a0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::GetInterpolatedPosition` · 00515690 · legions 005036a0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
 
 ### TargetInfo
 - [-] `TargetInfo::TargetInfo` · 00515710 · legions 00503720 — C++ constructor/destructor; Rust constructor and Drop replace it
@@ -3128,29 +3128,29 @@ Legend and workflow: [README](README.md).
 - [-] `TargetInfo::UnPack` · 00515950 — DBO/archive serialisation of runtime state
 
 ### TargetManager
-- [x] `TargetManager::ClearTarget` · 00515ab0 · legions 00503ac0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
-- [x] `TargetManager::SetTargetQuantum` · 00515b00 · legions 00503b10 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
-- [x] `TargetManager::ReceiveUpdate` · 00515b60 · legions 00503b70 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
-- [x] `TargetManager::SendVoyeurUpdate` · 00515d50 · legions 00503d60 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
-- [x] `TargetManager::CheckAndUpdateVoyeur` · 00515e90 · legions 00503ea0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
-- [x] `TargetManager::SetTarget` · 00515f70 · legions 00503f80 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::ClearTarget` · 00515ab0 · legions 00503ac0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
+- [x] `TargetManager::SetTargetQuantum` · 00515b00 · legions 00503b10 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
+- [x] `TargetManager::ReceiveUpdate` · 00515b60 · legions 00503b70 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
+- [x] `TargetManager::SendVoyeurUpdate` · 00515d50 · legions 00503d60 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
+- [x] `TargetManager::CheckAndUpdateVoyeur` · 00515e90 · legions 00503ea0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
+- [x] `TargetManager::SetTarget` · 00515f70 · legions 00503f80 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
 
 ### TargetVoyeur
-- [x] `TargetVoyeur::TargetVoyeur` · 005160e0 · legions 005040f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetVoyeur::TargetVoyeur` · 005160e0 · legions 005040f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
 
 ### TargetManager
-- [x] `TargetManager::HandleTargetting` · 005161e0 · legions 005041f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
-- [x] `TargetManager::NotifyVoyeurOfEvent` · 005162b0 · legions 005042c0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
-- [x] `TargetManager::HandleLeaveWorld` · 00516330 · legions 00504340 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
-- [x] `TargetManager::RemoveVoyeur` · 005163d0 · legions 005043e0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::HandleTargetting` · 005161e0 · legions 005041f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
+- [x] `TargetManager::NotifyVoyeurOfEvent` · 005162b0 · legions 005042c0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
+- [x] `TargetManager::HandleLeaveWorld` · 00516330 · legions 00504340 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
+- [x] `TargetManager::RemoveVoyeur` · 005163d0 · legions 005043e0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
 - [-] `TargetManager::~TargetManager` · 00516580 · legions 00504590 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [x] `TargetManager::AddVoyeur` · 005165e0 · legions 005045f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::AddVoyeur` · 005165e0 · legions 005045f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
 
 ### PHashTable<InstanceID,TargetVoyeur>
 - [-] `PHashTable<InstanceID,TargetVoyeur>::StreamPack` · 005166a0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
 ### TargetVoyeur
-- [x] `TargetVoyeur::TargetVoyeur` · 005168e0 · legions 005048f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetVoyeur::TargetVoyeur` · 005168e0 · legions 005048f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (the client's TargetHub is the object table: ac2-client client_targets.rs)
 
 ### TargetManager
 - [-] `TargetManager::TargetManager` · 00516940 · legions 00504970 — C++ constructor/destructor; Rust constructor and Drop replace it

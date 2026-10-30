@@ -84,6 +84,15 @@ pub enum TargetEffect {
     Notice(Box<TargetInfo>),
 }
 
+/// A `CPhysicsObj::SetTarget(0, object_id, radius, quantum)` a body asked for: it is the owner
+/// of the target managers that applies it.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TargetRequest {
+    pub object_id: u64,
+    pub radius: f32,
+    pub quantum: f64,
+}
+
 /// `TargetManager`.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct TargetManager {

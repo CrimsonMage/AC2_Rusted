@@ -225,6 +225,17 @@ impl ObjectTable {
         self.links.sticky_set_parent(child, parent, bone, offset)
     }
 
+    /// `CPhysicsObj::unset_parent` on the table: the object leaves its parent's child list and
+    /// is no longer held. False when it was not held.
+    pub fn unset_parent(&mut self, id: u64) -> bool {
+        let Some(object) = self.objects.get_mut(&id) else {
+            return false;
+        };
+        let held = object.parent.take().is_some() || self.links.has_parent(id);
+        self.links.unset_parent(id);
+        held
+    }
+
     /// The physics child lists (`CPhysicsObj::m_pParent`, `m_pChildren`).
     pub fn links(&self) -> &ac2_physics::ChildGraph {
         &self.links

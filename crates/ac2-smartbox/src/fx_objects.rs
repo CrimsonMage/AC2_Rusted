@@ -169,6 +169,8 @@ pub struct PendingObject {
     pub attach: Ac2FxObjectAttach,
     /// The node's `m_ramp_time`, which sets how long the object takes to fade in.
     pub ramp_time: f32,
+    /// The node's `m_behavior`: run on the object, which destroys itself after it (0 for none).
+    pub behavior: u32,
 }
 
 /// The target an FX starts with (`FXManager::DoTargettedFX`'s `_target_id`, and
@@ -248,6 +250,11 @@ pub struct FxObjects {
     hidden: BTreeSet<u64>,
     fades: BTreeMap<u64, Fade>,
     pending: Vec<PendingObject>,
+    /// The objects whose node runs a behaviour (`DoCreateObjectFX`): until it starts they are
+    /// not on their FX's object list, with the FX they belong to.
+    behavior_objects: HashMap<u64, (u64, u32)>,
+    /// Objects that delete themselves (`CPhysicsObj::DeleteSelf`) and when they go.
+    deletions: BTreeMap<u64, f64>,
     /// Each emitter's effects description (`CPhysicsObj::m_effects_vdesc`): the appearance keys
     /// its FX applied.
     appearances: HashMap<u64, ac2_physics::Appearance>,
@@ -268,8 +275,8 @@ impl FxObjects {
     /// `FXManager::DoTargettedFX` for a new FX, its object part: each node's colour
     /// (`DoColorFX`), the object it creates (`DoCreateObjectFX`, which hands the object to the
     /// target), and the target's hide and destruction (`DoTargetAndCloningFXs`). A node that
-    /// creates an object without a behaviour keeps it on the FX; a behaviour is not run here, so
-    /// its object is kept as the retail fallback keeps a failed one (`DoCreateObjectFX`).
+    /// creates an object without a behaviour keeps it on the FX; with one the client runs the
+    /// behaviour on the object and [`Self::behavior_result`] says whether it started.
     /// Returns without a record when no node has an object fact, or when the FX is running
     /// already (`DoTargettedFX` only updates a running FX's scalar).
     pub fn start(
@@ -367,7 +374,14 @@ impl FxObjects {
             // becomes the FX's target and the emitter's (`SetFXTarget`).
             if let Some(id) = (node.vdesc != 0).then(&mut *ids).flatten() {
                 self.new_object(id, emitter, node);
-                record.objects.push(id);
+                // `DoCreateObjectFX`: a node with a behaviour runs it on the object, which then
+                // destroys itself; the FX keeps the object only when that behaviour does not
+                // start (`behavior_result`). Without one the FX keeps it.
+                if node.behavior == 0 {
+                    record.objects.push(id);
+                } else {
+                    self.behavior_objects.insert(id, (emitter, fx));
+                }
                 self.new_targets.push((emitter, id));
                 target = id;
             }
@@ -455,6 +469,7 @@ impl FxObjects {
                     Ac2FxObjectAttach::Unplaced
                 },
                 ramp_time: 0.0,
+                behavior: 0,
             });
             if fx_target.apr != 0 {
                 for &(key, scalar) in &fx_target.apr_keys {
@@ -676,7 +691,35 @@ impl FxObjects {
             visual: node.vdesc,
             attach: node.attach,
             ramp_time: node.ramp_time,
+            behavior: node.behavior,
         });
+    }
+
+    /// `FXManager::DoCreateObjectFX`'s `DoBehavior` result for the object `id` once its body
+    /// exists: a behaviour that did not start leaves the object on its FX (it goes with the FX);
+    /// one that started destroys the object itself (`delete_self`). An FX already gone takes the
+    /// failed object with it at once.
+    pub fn behavior_result(&mut self, id: u64, started: bool, now: f64) {
+        let Some((emitter, fx)) = self.behavior_objects.remove(&id) else {
+            return;
+        };
+        if started {
+            return;
+        }
+        match self
+            .records
+            .get_mut(&emitter)
+            .and_then(|fxs| fxs.get_mut(&fx))
+        {
+            Some(record) => record.objects.push(id),
+            None => self.fade_and_destroy(id, now),
+        }
+    }
+
+    /// `CPhysicsObj::DeleteSelf(fade, delay)` of an FX object: it is deleted `seconds` from
+    /// `now` (the opacity slider's move is the body's, `Remotes::delete_self`).
+    pub fn delete_after(&mut self, id: u64, now: f64, seconds: f64) {
+        self.deletions.insert(id, now + seconds);
     }
 
     /// `FXManager::DestroyObject`: an object with a temporary id (`IIDUtils::VerifyTemporary`,
@@ -778,10 +821,25 @@ impl FxObjects {
             .filter(|(_, fade)| now >= fade.destroy_at)
             .map(|(id, _)| *id)
             .collect();
+        let mut gone = gone;
+        let deleted: Vec<u64> = self
+            .deletions
+            .iter()
+            .filter(|(_, at)| now >= **at)
+            .map(|(id, _)| *id)
+            .collect();
+        for id in deleted {
+            self.deletions.remove(&id);
+            if !gone.contains(&id) {
+                gone.push(id);
+            }
+        }
         for id in &gone {
             self.fades.remove(id);
             self.hidden.remove(id);
             self.appearances.remove(id);
+            self.behavior_objects.remove(id);
+            self.deletions.remove(id);
         }
         gone
     }

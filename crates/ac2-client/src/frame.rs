@@ -31,6 +31,8 @@ pub struct PlayerFrame {
     /// The colour scale the body's sliders give it (`PHYSICSOBJREP::Draw`: r, g, b and alpha),
     /// as for other objects.
     pub anim_scale: [f32; 4],
+    /// `PHYSICSOBJREP::m_fChildScale` ([`ObjectFrame::child_scale`]).
+    pub child_scale: f32,
 }
 
 /// An object other than the player: where its physics object is (in the client's world), or
@@ -91,6 +93,9 @@ pub struct ObjectFrame {
     /// The body's own scale (`CPhysicsObj::GetScale`, which `CWRepository::SetScale` changes at
     /// run time) over the model's: the drawn size is their product. One with no body.
     pub body_scale: [f32; 3],
+    /// `PHYSICSOBJREP::m_fChildScale`: what the objects it holds are scaled by, over its own
+    /// total scale (one until its description sets it).
+    pub child_scale: f32,
     /// `CPhysicsObj::Draw`'s `_bUseAdaptiveDegrade`: a server object (not temporary) whose body
     /// is mobile and not static (`is_mobile`, `is_dynamic`).
     pub adaptive_degrade: bool,

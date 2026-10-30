@@ -67,13 +67,16 @@ pub trait WorldServices: Send + Sync {
         Vec::new()
     }
     /// `CPhysicsObj::ApplyVisualDesc`'s part rebuild: `tree` followed to the total description
-    /// of `visual` with `local` on top. `None` where nothing is followed.
+    /// of `visual` with `local` on top, with what `PHYSICSOBJREP::CompareAndModify` takes of it
+    /// (the animation of a behaviour table that is not `current_table`). `None` where nothing is
+    /// followed.
     fn rebuild_parts(
         &self,
         _tree: &ac2_physics::PartGroupTree,
         _visual: u32,
         _local: &ac2_assets::Ac2VisualDesc,
-    ) -> Result<Option<ac2_physics::PartGroupTree>, String> {
+        _current_table: u32,
+    ) -> Result<Option<ac2_physics::RebuiltVisual>, String> {
         Ok(None)
     }
 }
@@ -174,9 +177,16 @@ impl WorldServices for DatWorld {
         tree: &ac2_physics::PartGroupTree,
         visual: u32,
         local: &ac2_assets::Ac2VisualDesc,
-    ) -> Result<Option<ac2_physics::PartGroupTree>, String> {
-        ac2_physics::rebuild_part_group_tree(&self.store, tree, DataId::new(visual), local)
-            .map_err(|e| e.to_string())
+        current_table: u32,
+    ) -> Result<Option<ac2_physics::RebuiltVisual>, String> {
+        ac2_physics::rebuild_visual_desc(
+            &self.store,
+            tree,
+            DataId::new(visual),
+            local,
+            current_table,
+        )
+        .map_err(|e| e.to_string())
     }
 
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {

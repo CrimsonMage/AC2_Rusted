@@ -10,6 +10,9 @@ impl<B> Remotes<B> {
     /// the world and its lost cell.
     pub fn object_action(&mut self, id: u64, records: Records<'_>) {
         let placed = records(id).is_some_and(|r| r.position.is_some());
+        if !placed && self.get(id).is_some_and(|r| r.in_world) {
+            self.note_left(id);
+        }
         let Some(remote) = self.get_mut(id) else {
             return;
         };
@@ -107,11 +110,11 @@ impl<B> Remotes<B> {
         effects
     }
 
-    /// `CPhysicsObj::SyncPositionSimple(pos, sliding = 1)`: in the world, `SetPositionSimple`;
-    /// out of it, `ReEnterVisibility(pos)` (`EnterWorldSimple`, sliding); then
-    /// `SetPlacementPosition(pos)`. (Retail first takes a held object off its parent,
-    /// `unset_parent` and `LeaveWorld`; the parent links live in the child graph, which the
-    /// caller drives.)
+    /// `CPhysicsObj::SyncPositionSimple(pos, sliding = 1)`: a held object first leaves its
+    /// holder (`unset_parent`, then `LeaveWorld`); then in the world, `SetPositionSimple`; out of
+    /// it, `ReEnterVisibility(pos)` (`EnterWorldSimple`, sliding); then
+    /// `SetPlacementPosition(pos)`. The holder's child list is the session's: the unparenting
+    /// comes back as [`ResidencyEffect::Unparent`].
     pub fn sync_position_simple(
         &mut self,
         id: u64,
@@ -120,6 +123,20 @@ impl<B> Remotes<B> {
         terrain: &mut Terrain,
     ) -> Vec<ResidencyEffect> {
         let mut effects = Vec::new();
+        if records(id).is_some_and(|r| r.held) && self.get(id).is_some() {
+            effects.push(ResidencyEffect::Unparent(id));
+            self.leave_world(id, &mut effects);
+        }
+        // From here the object is no longer held, though the session applies that afterwards.
+        let free = |other: u64| {
+            records(other).map(|mut record| {
+                if other == id {
+                    record.held = false;
+                }
+                record
+            })
+        };
+        let records: Records<'_> = &free;
         let Some(remote) = self.get_mut(id) else {
             return effects;
         };
@@ -221,6 +238,11 @@ impl<B> Remotes<B> {
             return;
         };
         if remote.in_world {
+            // `HandleLeaveWorld`'s target manager call (the body still has its place).
+            self.note_left(id);
+            let Some(remote) = self.get_mut(id) else {
+                return;
+            };
             remote.in_world = false;
             if let Some(body) = &mut remote.body {
                 body.leave_world();

@@ -216,6 +216,7 @@ impl Walk {
             }),
             hidden: false,
             anim_scale: player.physics.draw_scale(),
+            child_scale: player.physics.child_scale(),
         })
     }
 

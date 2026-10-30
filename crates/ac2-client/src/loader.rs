@@ -46,6 +46,8 @@ pub(crate) struct PartTreeJob {
     pub tree: ac2_physics::PartGroupTree,
     pub visual: u32,
     pub local: ac2_assets::Ac2VisualDesc,
+    /// The body's behaviour table DID (`PHYSICSOBJREP::m_behaviorTableDID`).
+    pub current_table: u32,
 }
 
 /// Finished work.
@@ -78,7 +80,7 @@ pub(crate) enum Loaded {
     ),
     /// A rebuilt part tree: object, the structure key it was asked for, the tree (`None` where
     /// nothing was followed).
-    PartTree(u64, u64, Result<Option<ac2_physics::PartGroupTree>, String>),
+    PartTree(u64, u64, Result<Option<ac2_physics::RebuiltVisual>, String>),
 }
 
 /// The client's loader threads over one `WorldData` (`ac2_db::LoaderPool`, named `ac2-loader`).
@@ -121,7 +123,7 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
         Request::PartTree(object, key, job) => Loaded::PartTree(
             object,
             key,
-            data.rebuild_parts(&job.tree, job.visual, &job.local),
+            data.rebuild_parts(&job.tree, job.visual, &job.local, job.current_table),
         ),
         Request::EntityMask(object, did) => {
             Loaded::EntityMask(object, data.entity_ethereal_mask(did))

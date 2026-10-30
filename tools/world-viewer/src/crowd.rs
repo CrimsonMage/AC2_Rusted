@@ -73,6 +73,7 @@ pub fn objects(
                 child_poses: Vec::new(),
                 anim_scale: [1.0; 4],
                 body_scale: [1.0; 3],
+                child_scale: 1.0,
                 adaptive_degrade: true,
             }
         })
@@ -110,6 +111,7 @@ mod tests {
             appearance: Arc::default(),
             hidden: false,
             anim_scale: [1.0; 4],
+            child_scale: 1.0,
         };
         let crowd = objects(&models, 16, &player, |_| None);
         assert_eq!(crowd.len(), 16);

@@ -106,7 +106,7 @@ mod transition;
 mod turn_tests;
 mod vector;
 
-pub use anim_rep::{BodyAnimation, ChildGroupAnimation};
+pub use anim_rep::{BodyAnimation, ChildGroupAnimation, VisualFacts};
 pub use appearance::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
 pub use appearance_delta::local_visual_desc;
 pub use body::{
@@ -142,7 +142,7 @@ pub use loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_object_scale,
     load_object_shape, load_terrain_block,
 };
-pub use loader_anim::load_body_animation;
+pub use loader_anim::{load_body_animation, load_body_animation_with};
 pub use look_at::{LookCamera, LookTarget};
 pub use los::{LosParameters, Ray, RayIntersection};
 pub use missile::{
@@ -163,7 +163,10 @@ pub use object_visual::{is_visible, ObjectVisualDesc, VISUAL_DESC_TYPE};
 pub use objects::{BBox, ObjectShape, StaticObject};
 pub use part_array::{PartArray, PartMesh, PartSetup, HAS_PHYSICS_BSP_STATE};
 pub use part_group::{FoundHolding, PartGroup, PartGroupTree};
-pub use part_load::{load_part_group_tree, load_part_setup, rebuild_part_group_tree};
+pub use part_load::{
+    load_part_group_tree, load_part_setup, rebuild_part_group_tree, rebuild_visual_desc,
+    RebuiltVisual,
+};
 pub use part_pose::{child_part_poses, drawn_place, led_drawn_place, part_poses, PartPose};
 pub use physics_material::{load_physics_material, PhysicsMaterial};
 pub use physics_obj::{BodyShape, DescSlider};
@@ -178,7 +181,7 @@ pub use pushers::{PusherSum, PusherValues, Pushers};
 pub use shapes::cylsphere::CylSphere;
 pub use story::{StoryManager, StoryStep, STORY_ANIM_HOOK};
 pub use target::{
-    TargetEffect, TargetInfo, TargetManager, TargetOwner, TargetStatus, TargetVoyeur,
+    TargetEffect, TargetInfo, TargetManager, TargetOwner, TargetRequest, TargetStatus, TargetVoyeur,
 };
 pub use terrain::Terrain;
 pub use vector::{Plane, Quaternion, Sphere, Vector};

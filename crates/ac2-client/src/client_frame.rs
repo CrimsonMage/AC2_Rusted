@@ -39,6 +39,7 @@ impl Client {
                 ),
                 hidden: self.avatar_hidden(),
                 anim_scale: body.physics.draw_scale(),
+                child_scale: body.physics.child_scale(),
             })
         });
         let objects = self.object_frames();

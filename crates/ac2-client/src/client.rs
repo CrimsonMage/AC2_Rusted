@@ -196,6 +196,11 @@ pub struct Client {
     pub(crate) story_queue: Vec<ac2_ui::StoryEvent>,
     /// Streaks a missile's body started or stopped, applied with the next FX events.
     pub(crate) pending_streaks: Vec<(u64, bool)>,
+    /// Every object's `CPhysicsObj::m_pTargetManager` (`client_targets`).
+    pub(crate) targets: ac2_smartbox::TargetHub,
+    /// Collision reports a body made when it left the world (`EndAllCollisions`), for its script
+    /// with the next quantum's.
+    pub(crate) pending_collision_reports: Vec<(u64, ac2_physics::CollisionReport)>,
     /// The description structure each object's part tree was last asked to follow
     /// (`CPhysicsObj::ApplyVisualDesc`'s rebuild).
     pub(crate) part_keys: std::collections::HashMap<u64, u64>,
@@ -297,6 +302,8 @@ impl Client {
             story_scenes: Vec::new(),
             story_queue: Vec::new(),
             pending_streaks: Vec::new(),
+            targets: ac2_smartbox::TargetHub::new(),
+            pending_collision_reports: Vec::new(),
             part_keys: std::collections::HashMap::new(),
             stories: Default::default(),
             story_outbox: Vec::new(),
@@ -723,6 +730,7 @@ impl Client {
             let mut reports = Vec::new();
             let mut remote_reports = Vec::new();
             let player_id = self.player.as_ref().map_or(0, |p| p.id);
+            self.apply_target_log();
             for _ in 0..quanta {
                 self.track_move_to_target();
                 let player = self
@@ -780,7 +788,9 @@ impl Client {
                 );
                 self.missile_events_taken(&missile_events);
                 self.remote_collisions(&mut remote_reports);
+                self.apply_target_log();
             }
+            remote_reports.append(&mut self.pending_collision_reports);
             // `CPhysicsObj::ReportCollisions` for the player: its script hears each report.
             if let Some(id) = self.player.as_ref().map(|p| p.id) {
                 for report in reports {
@@ -957,6 +967,8 @@ impl Client {
             .camera
             .update_camera(ENTRY_CAMERA_QUANTUM, subject.as_ref(), &target);
         self.set_camera_position(desired, true);
+        // `CPhysicsObj::LeaveWorld` -> `HandleLeaveWorld` on the player.
+        self.player_handle_leave_world();
         if let Some(player) = &mut self.player {
             player.in_world = false;
             match &mut player.body {

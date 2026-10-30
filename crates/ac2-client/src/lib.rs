@@ -39,6 +39,7 @@ mod client_objects;
 mod client_radar;
 mod client_story;
 mod client_story_missiles;
+mod client_targets;
 mod client_teleport;
 mod sound_ids;
 mod sound_space;

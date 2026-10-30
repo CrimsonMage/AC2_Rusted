@@ -225,6 +225,12 @@ impl MissileFlightHost for Ctx<'_> {
     }
     fn set_target(&mut self, id: u64) {
         self.obj.target_id = id;
+        // `CMissileManager`'s call: `SetTarget(0, id, 1.0, 0.0)` (radius one metre, no quantum).
+        self.obj.target_requests.push(crate::TargetRequest {
+            object_id: id,
+            radius: 1.0,
+            quantum: 0.0,
+        });
     }
     fn parent_start_position(&self) -> Option<Position> {
         self.obj.parent_drawing_position

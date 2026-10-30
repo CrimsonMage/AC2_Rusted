@@ -255,6 +255,7 @@ pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
         })))
     };
     crate::anim_rep::BodyAnimation {
+        table_did: 0x3000_0001,
         table: Arc::new(table),
         template: Arc::new(template),
         animators: HashMap::from([(1, clip(0.25)), (2, clip(0.5))]),

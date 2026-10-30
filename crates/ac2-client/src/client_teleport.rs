@@ -65,12 +65,12 @@ impl Client {
     pub(crate) fn teleport_started(&mut self) {
         // CPhysicsObj::HandleTeleportStart: the motion interpreter stops its interpolation
         // (vtable 0x78, CMotionInterp::StopInterpolating) and its constraint ends (0x84,
-        // CMotionInterp::UnConstrain). Its TargetManager calls (ClearTarget, NotifyVoyeurOfEvent
-        // with Teleported_TargetStatus) are `TargetHub::teleport_start`; the client keeps no
-        // TargetHub yet, so they wait for the targeting wiring.
+        // CMotionInterp::UnConstrain), then the TargetManager lets go of its target
+        // (ClearTarget) and tells its voyeurs Teleported_TargetStatus (NotifyVoyeurOfEvent).
         if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
             body.physics.handle_teleport_start();
         }
+        self.player_teleport_start_targets();
         // The vtable 0x53C call: CPhysicsObj::inc_update_time(StampID::TELEPORT = 1).
         self.session.inc_player_update_time(STAMP_TELEPORT);
         self.teleporting = true;

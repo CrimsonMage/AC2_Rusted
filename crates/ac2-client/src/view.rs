@@ -57,6 +57,8 @@ struct Drawn<'a> {
     tint: [f32; 4],
     /// The body's own scale over the model's ([`ObjectFrame::body_scale`]; one for the player).
     body_scale: Vec3,
+    /// What the objects it holds are scaled by (`PHYSICSOBJREP::m_fChildScale`).
+    child_scale: f32,
     /// The emitter and attach point of an FX object that hangs from one: it is placed on the
     /// emitter's posed bone each frame.
     follow: Option<FxFollow>,
@@ -185,6 +187,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                 p.anim_scale,
             ),
             body_scale: Vec3::ONE,
+            child_scale: p.child_scale,
             follow: None,
             held: None,
             placement: None,
@@ -221,6 +224,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                     o.anim_scale,
                 ),
                 body_scale: Vec3::from(o.body_scale),
+                child_scale: o.child_scale,
                 follow: o.fx_follow,
                 held: o
                     .holder

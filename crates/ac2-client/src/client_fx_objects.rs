@@ -12,6 +12,7 @@ use ac2_physics::placed_at;
 use ac2_smartbox::fx_objects::{
     camera_fx_starts, create_alpha_moves, fx_nodes, FxTarget, TargetCall,
 };
+use ac2_smartbox::remotes::LocalStart;
 use ac2_world::{land_block_size, GameClock};
 
 use crate::client::Client;
@@ -131,6 +132,13 @@ impl Client {
                         self.fx_streaks.stop_streaks(*id, fx);
                         self.fx_repulsors.stop(*id, fx);
                         self.fx_decals.stop(*id, fx);
+                    }
+                    // `CPhysicsObj::DeleteSelf(fade, delay)` of an FX object whose behaviour
+                    // ended (`mDestroyOnCompletion`): its opacity slider moves and
+                    // `CObjectMaint` deletes it after the delay.
+                    Ac2AnimEvent::DeleteSelf { fade, delay } => {
+                        let seconds = self.remotes.delete_self(*id, f64::from(fade), delay);
+                        self.fx_objects.delete_after(*id, now, seconds);
                     }
                     _ => {}
                 }
@@ -355,9 +363,16 @@ impl Client {
                 object.visual,
                 position,
                 follow,
-                create_alpha_moves(object.ramp_time),
+                LocalStart {
+                    alpha_moves: create_alpha_moves(object.ramp_time),
+                    behavior: object.behavior,
+                },
                 &mut cx,
             );
+        }
+        // `DoCreateObjectFX`'s `DoBehavior` results for the objects whose bodies came in.
+        for (id, started) in self.remotes.take_behavior_results() {
+            self.fx_objects.behavior_result(id, started, now);
         }
         for id in self.fx_objects.step(now) {
             if self.remotes.is_local(id) {
@@ -465,3 +480,7 @@ impl Client {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "fx_object_behavior_tests.rs"]
+mod behavior_tests;

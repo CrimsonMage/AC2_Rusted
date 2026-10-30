@@ -408,3 +408,35 @@ fn a_behaviour_fades_the_children_and_drives_the_players_camera() {
         }]
     );
 }
+
+/// `BehaviorTracker::ProcessRampingDownParamFlags`'s `mDestroyOnCompletion`: when the behaviour
+/// ramps down the object deletes itself (`DeleteSelf(0, 3.0)`), after the children fade back in.
+#[test]
+fn a_behaviour_that_destroys_on_completion_deletes_its_object_when_it_ends() {
+    let mut params = Ac2BehaviorParams::new(WAVE);
+    params.destroy_on_completion = true;
+    params.fade_children = true;
+    let mut object = tracker();
+    assert!(object.do_behavior(&params, &SOURCE));
+    object.take_events();
+    assert_eq!(object.stop_behavior(WAVE, &SOURCE), 0);
+    let events = object.take_events();
+    let delete = events
+        .iter()
+        .position(|e| matches!(e, Ac2AnimEvent::DeleteSelf { fade, delay } if *fade == 0.0 && *delay == 3.0))
+        .expect("the object deletes itself");
+    let fade_in = events
+        .iter()
+        .position(|e| matches!(e, Ac2AnimEvent::ChildrenOpacity { opacity, .. } if *opacity == 1.0))
+        .expect("the children fade back in");
+    assert!(fade_in < delete, "{events:?}");
+    // Without the parameter nothing is deleted.
+    let mut kept = tracker();
+    assert!(kept.do_behavior(&Ac2BehaviorParams::new(WAVE), &SOURCE));
+    kept.take_events();
+    assert_eq!(kept.stop_behavior(WAVE, &SOURCE), 0);
+    assert!(!kept
+        .take_events()
+        .iter()
+        .any(|e| matches!(e, Ac2AnimEvent::DeleteSelf { .. })));
+}

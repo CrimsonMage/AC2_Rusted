@@ -81,6 +81,7 @@ mod tests {
             shadow: None,
             ethereal: false,
             alpha_moves: None,
+            behavior: 0,
             fx_follow: None,
             listed_cell: None,
         }
@@ -123,5 +124,63 @@ mod tests {
         assert!(remotes.take_collision_reports().is_empty());
         assert!(remotes.take_collision_drops().is_empty());
         assert!(remotes.take_collision_touches().is_empty());
+    }
+
+    #[test]
+    fn an_object_destroyed_in_the_world_logs_its_leave_then_its_end() {
+        use crate::remotes::TargetLog;
+        let mut terrain = Terrain::new();
+        let mut remotes = Remotes::<()>::default();
+        remotes.insert(WATCHER, remote(false));
+        remotes.removed(WATCHER, &mut terrain);
+        let log = remotes.take_target_log();
+        assert_eq!(log.len(), 2);
+        match &log[0] {
+            TargetLog::Left(left) => {
+                assert_eq!(left.owner.id, WATCHER);
+                assert_eq!(left.owner.position.frame.origin.x, 70.0);
+            }
+            other => panic!("expected the leave, got {other:?}"),
+        }
+        assert_eq!(log[1], TargetLog::Gone(WATCHER));
+        assert!(remotes.take_target_log().is_empty());
+    }
+
+    #[test]
+    fn an_object_out_of_the_world_logs_no_leave() {
+        use crate::remotes::TargetLog;
+        let mut terrain = Terrain::new();
+        let mut remotes = Remotes::<()>::default();
+        let mut out = remote(false);
+        out.in_world = false;
+        remotes.insert(WATCHER, out);
+        remotes.removed(WATCHER, &mut terrain);
+        assert_eq!(remotes.take_target_log(), vec![TargetLog::Gone(WATCHER)]);
+    }
+
+    #[test]
+    fn ending_all_collisions_reports_the_end_of_what_touched_the_object() {
+        let mut terrain = Terrain::new();
+        terrain.insert_heights(BLOCK, &[50.0; 17 * 17], |_, _| false);
+        let mut remotes = Remotes::<()>::default();
+        remotes.insert(WATCHER, remote(true));
+        let peer = ac2_physics::ConflictPeer {
+            id: VISITOR,
+            ..remote(false).body().expect("body").conflict_peer()
+        };
+        remotes
+            .body_mut(WATCHER)
+            .expect("body")
+            .touched_by(&peer, false, None);
+        let mut random = Random::default();
+        remotes.step_quantum(&mut terrain, 1.0, &mut random, &[]);
+        remotes.take_collision_reports();
+        // `CPhysicsObj::EndAllCollisions` (the body leaving the world): the visitor's record ends.
+        remotes.end_all_collisions(WATCHER, &terrain);
+        let reports = remotes.take_collision_reports();
+        assert_eq!(reports.len(), 1);
+        assert_eq!(reports[0].0, WATCHER);
+        assert_eq!(reports[0].1.objects[0].id, VISITOR);
+        assert_eq!(reports[0].1.objects[0].state, RecordState::End);
     }
 }

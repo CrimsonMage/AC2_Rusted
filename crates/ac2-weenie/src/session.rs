@@ -403,6 +403,12 @@ impl OnlineSession {
         self.world.stick_object(child, parent, bone, offset)
     }
 
+    /// `CPhysicsObj::unset_parent` (`CPhysicsObj::SyncPositionSimple`'s first step for a held
+    /// object): it leaves its holder's child list and is no longer held.
+    pub fn unset_object_parent(&mut self, id: u64) -> bool {
+        self.world.objects.unset_parent(id)
+    }
+
     /// `CBookKeep::RemoveObjectToBeDestroyed` (`CBookKeep::HandleEnterWorld`).
     pub fn remove_object_to_be_destroyed(&mut self, id: u64) {
         self.world.remove_object_to_be_destroyed(id);

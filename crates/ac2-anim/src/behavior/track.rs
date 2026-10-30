@@ -3,7 +3,7 @@
 
 /// `BehaviorParams` (the fields the animation state machine reads, and the camera and
 /// child-fade parameters it hands to the object, and the FX target and clone parameters
-/// `CPhysicsObj::DoBehavior` keeps; the destroy and FX-script parameters are not modelled).
+/// `CPhysicsObj::DoBehavior` keeps; the FX-script parameter is not modelled).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2BehaviorParams {
     pub behavior: u32,
@@ -43,6 +43,9 @@ pub struct Ac2BehaviorParams {
     pub vdesc_to_clone: u32,
     pub cloned_apr: u32,
     pub cloned_app_apr: Vec<(u32, f32)>,
+    /// `mDestroyOnCompletion`: the object deletes itself once the behaviour ramps down
+    /// (`FXManager::DoCreateObjectFX` sets it on the behaviour of an object it made).
+    pub destroy_on_completion: bool,
 }
 
 impl Ac2BehaviorParams {
@@ -71,6 +74,7 @@ impl Ac2BehaviorParams {
             vdesc_to_clone: 0,
             cloned_apr: 0,
             cloned_app_apr: Vec::new(),
+            destroy_on_completion: false,
         }
     }
 }

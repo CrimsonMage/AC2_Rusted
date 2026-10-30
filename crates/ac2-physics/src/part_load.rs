@@ -124,6 +124,14 @@ pub fn load_part_group_tree(
     Ok(Some(tree))
 }
 
+/// What following a changed description gave: the part tree, and what
+/// `PHYSICSOBJREP::CompareAndModify` takes beside it (see [`crate::VisualFacts`]).
+#[derive(Debug, Clone)]
+pub struct RebuiltVisual {
+    pub tree: PartGroupTree,
+    pub facts: crate::VisualFacts,
+}
+
 /// `CPhysicsObj::ApplyVisualDesc`'s part rebuild: the object's total description (its DAT chain
 /// with `local` on top, `GetTotalVisualDesc`) is followed by the tree
 /// (`CPartGroup::CompareAndModify`): changed Setups are reloaded, new groups made, groups the
@@ -135,6 +143,29 @@ pub fn rebuild_part_group_tree(
     visual: DataId,
     local: &ac2_assets::Ac2VisualDesc,
 ) -> ResourceResult<Option<PartGroupTree>> {
+    Ok(rebuild(store, tree, visual, local, None)?.map(|rebuilt| rebuilt.tree))
+}
+
+/// [`rebuild_part_group_tree`] with the rest of `PHYSICSOBJREP::CompareAndModify`'s inputs: the
+/// total description's behaviour table, scale, child scale and particle scale, and, when its
+/// table is not the body's (`current_table`, 0 for none), the animation that table gives.
+pub fn rebuild_visual_desc(
+    store: &ResourceStore,
+    tree: &PartGroupTree,
+    visual: DataId,
+    local: &ac2_assets::Ac2VisualDesc,
+    current_table: u32,
+) -> ResourceResult<Option<RebuiltVisual>> {
+    rebuild(store, tree, visual, local, Some(current_table))
+}
+
+fn rebuild(
+    store: &ResourceStore,
+    tree: &PartGroupTree,
+    visual: DataId,
+    local: &ac2_assets::Ac2VisualDesc,
+    current_table: Option<u32>,
+) -> ResourceResult<Option<RebuiltVisual>> {
     let visual = ac2_assets::resolve_ac2_entity_visual(store, visual)?;
     if visual.raw() & 0xFF00_0000 != 0x1F00_0000 {
         return Ok(None);
@@ -165,5 +196,27 @@ pub fn rebuild_part_group_tree(
     }
     tree.cache_has_physics_bsp(0);
     tree.check_refresh_matrices();
-    Ok(Some(tree))
+    let table = total.behavior_table.map(|did| did.raw());
+    // A table that is not the body's re-initialises its mode tracker over that table's animation.
+    let animation = match (current_table, total.behavior_table) {
+        (Some(current), Some(did)) if did.raw() != current => {
+            crate::loader_anim::load_body_animation_with(
+                store,
+                visual,
+                Some(did),
+                Some(total.scale),
+            )?
+        }
+        _ => None,
+    };
+    Ok(Some(RebuiltVisual {
+        tree,
+        facts: crate::VisualFacts {
+            behavior_table: table,
+            scale: [total.scale.x, total.scale.y, total.scale.z],
+            child_scale: total.child_scale,
+            particle_scale: total.particle_scale,
+            animation,
+        },
+    }))
 }

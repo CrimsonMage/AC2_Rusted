@@ -104,3 +104,64 @@ fn a_move_to_without_move_or_turn_ends_at_once() {
     let results = body.take_move_to_results();
     assert_eq!((results[0].context, results[0].error), (4, 0));
 }
+
+fn reported(position: Position, status: crate::target::TargetStatus) -> crate::target::TargetInfo {
+    crate::target::TargetInfo {
+        object_id: 7,
+        target_position: position,
+        object_radius: 0.4,
+        object_height: 1.8,
+        status,
+        ..Default::default()
+    }
+}
+
+fn walk_to_object() -> MovementParameters {
+    MovementParameters {
+        flags: MOVE_TO_MOVE | MOVE_TO_USE_CYLINDERS | MOVE_TO_OBJECT,
+        target_object: Some(7),
+        ..walk_to(Position::default())
+    }
+}
+
+#[test]
+fn a_move_to_an_object_waits_for_the_target_managers_first_word() {
+    use crate::target::TargetStatus;
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 30.0, 50.0);
+    body.set_radius(0.4);
+    run(&mut body, &ground, 0.5);
+    let target = at(&body, 70.0, 40.0, 0.0);
+    assert!(body.move_to(walk_to_object()));
+    // `MoveToManager::UpdateMoveTo`: status undefined, so it stands still.
+    run(&mut body, &ground, 1.0);
+    assert!((body.movement_state().origin[1] - 30.0).abs() < 0.01);
+    assert!(body.is_moving_to());
+    // The voyeur update arrives (`UpdateTargetInfo`) and it walks.
+    body.update_target_info(&reported(target, TargetStatus::Ok));
+    run(&mut body, &ground, 2.0);
+    assert!(body.movement_state().origin[1] > 32.0);
+}
+
+#[test]
+fn a_target_manager_status_other_than_ok_ends_the_move_to_with_error_0x37() {
+    use crate::target::TargetStatus;
+    for status in [
+        TargetStatus::ExitWorld,
+        TargetStatus::Teleported,
+        TargetStatus::TimedOut,
+    ] {
+        let ground = terrain(|_, _| 50.0);
+        let mut body = body_at(70.0, 30.0, 50.0);
+        run(&mut body, &ground, 0.5);
+        let target = at(&body, 70.0, 60.0, 0.0);
+        assert!(body.move_to(walk_to_object()));
+        body.update_target_info(&reported(target, TargetStatus::Ok));
+        run(&mut body, &ground, 0.5);
+        body.update_target_info(&reported(target, status));
+        run(&mut body, &ground, 0.2);
+        assert!(!body.is_moving_to(), "{status:?}");
+        let results = body.take_move_to_results();
+        assert_eq!((results[0].context, results[0].error), (9, 0x37));
+    }
+}

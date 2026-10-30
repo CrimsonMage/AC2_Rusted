@@ -81,6 +81,20 @@ impl MoveToManager {
         self.target_status = TargetStatus::Ok;
     }
 
+    /// `MoveToManager::UpdateTargetInfo`: the target manager's record (position, size, status)
+    /// replaces what the move-to knows of its object target.
+    pub(crate) fn update_target_info(&mut self, info: &crate::target::TargetInfo) {
+        use crate::target::TargetStatus as Reported;
+        self.target_position = info.target_position;
+        self.target_radius = info.object_radius;
+        self.target_height = info.object_height;
+        self.target_status = match info.status {
+            Reported::Ok => TargetStatus::Ok,
+            Reported::Undef => TargetStatus::Undefined,
+            _ => TargetStatus::Lost,
+        };
+    }
+
     /// `UpdateTargetInfo` with a status other than `Ok`.
     pub(crate) fn lose_target(&mut self) {
         self.target_status = TargetStatus::Lost;

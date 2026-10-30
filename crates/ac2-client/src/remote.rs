@@ -76,6 +76,9 @@ fn apply_effects(session: &mut OnlineSession, effects: Vec<ResidencyEffect>) {
         match effect {
             ResidencyEffect::QueueDestroy(id) => session.add_object_to_be_destroyed(id),
             ResidencyEffect::CancelDestroy(id) => session.remove_object_to_be_destroyed(id),
+            ResidencyEffect::Unparent(id) => {
+                session.unset_object_parent(id);
+            }
         }
     }
 }
@@ -122,7 +125,7 @@ pub(crate) trait RemoteCalls {
         visual: u32,
         position: Position,
         fx_follow: Option<FxFollow>,
-        alpha_moves: [(f32, f32); 2],
+        start: ac2_smartbox::remotes::LocalStart,
         cx: &mut Context<'_>,
     );
     /// `CObjectMaint::ReleaseObjCell` for every cell of a released block.
@@ -192,14 +195,15 @@ impl RemoteCalls for Remotes {
         visual: u32,
         position: Position,
         fx_follow: Option<FxFollow>,
-        alpha_moves: [(f32, f32); 2],
+        start: ac2_smartbox::remotes::LocalStart,
         cx: &mut Context<'_>,
     ) {
         let local = LocalObject {
             visual,
             position,
             fx_follow,
-            alpha_moves,
+            alpha_moves: start.alpha_moves,
+            behavior: start.behavior,
         };
         let effects = {
             let describe = describer(cx.session);

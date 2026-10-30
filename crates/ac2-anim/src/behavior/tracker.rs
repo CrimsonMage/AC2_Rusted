@@ -21,6 +21,8 @@ pub const AC2_STOP_LAYER_BUSY: u32 = 0x55;
 pub const AC2_STOP_NOT_ACTIVE: u32 = 0x57;
 pub const AC2_STOP_NOT_PLAYING: u32 = 0x58;
 /// Behaviour callback errors.
+/// `ProcessRampingDownParamFlags`'s `DeleteSelf` delay for `mDestroyOnCompletion` (seconds).
+const DESTROY_ON_COMPLETION_DELAY: f64 = 3.0;
 const ERROR_ALREADY_PLAYING: u32 = 0x56;
 const ERROR_INVALID_COMBO: u32 = 0x54;
 const ERROR_UNKNOWN_BEHAVIOR: u32 = 0x59;
@@ -175,8 +177,8 @@ impl Ac2BehaviorTracker {
         }
     }
 
-    /// `BehaviorTracker::ProcessRampingDownParamFlags` (the destroy parameter is not modelled):
-    /// the children fade back in, the FX target and clone are cleared, the player's camera is restored, the behaviour's FX
+    /// `BehaviorTracker::ProcessRampingDownParamFlags`: the children fade back in, an
+    /// object that destroys itself on completion is deleted (`DeleteSelf(0, 3.0)`), the FX target and clone are cleared, the player's camera is restored, the behaviour's FX
     /// stops and weenie behaviours count down, restarting idle once none play. The count is
     /// unsigned and wraps as retail's does.
     fn process_ramping_down_param_flags(&mut self, env: &mut Env, track: &Ac2BehaviorTrack) {
@@ -184,6 +186,12 @@ impl Ac2BehaviorTracker {
             env.events.push(Ac2AnimEvent::ChildrenOpacity {
                 opacity: 1.0,
                 ramp_time: track.ramp_time,
+            });
+        }
+        if track.params.destroy_on_completion {
+            env.events.push(Ac2AnimEvent::DeleteSelf {
+                fade: 0.0,
+                delay: DESTROY_ON_COMPLETION_DELAY,
             });
         }
         if track.params.target != 0 || track.params.vdesc_to_clone != 0 {

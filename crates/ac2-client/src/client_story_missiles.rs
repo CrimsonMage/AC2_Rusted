@@ -309,7 +309,10 @@ impl Client {
             visual,
             position,
             None,
-            [(1.0, 0.0), (1.0, 0.0)],
+            ac2_smartbox::remotes::LocalStart {
+                alpha_moves: [(1.0, 0.0), (1.0, 0.0)],
+                behavior: 0,
+            },
             &mut cx,
         );
         self.request_remote_bodies();

@@ -118,6 +118,7 @@ mod tests {
             shadow: None,
             ethereal: false,
             alpha_moves: None,
+            behavior: 0,
             fx_follow: None,
             listed_cell: None,
         }

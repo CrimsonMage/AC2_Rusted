@@ -351,6 +351,7 @@ impl Client {
             SessionEvent::ObjectRemoved(id) => remotes.removed(*id, cx.terrain),
             _ => {}
         }
+        let mut move_to_started = None;
         // The player's body takes its motion events too, and only it moves to (`RecvEvt_MoveTo`;
         // the session keeps the move-to stamp).
         if let SessionEvent::ObjectAction { object, action } = event {
@@ -367,8 +368,13 @@ impl Client {
                         MoveTarget::Object(id) => Some(id),
                         MoveTarget::Position(_) => None,
                     };
+                    move_to_started = Some(player.move_to_target);
                 }
             }
+        }
+        // `MoveToManager::MoveToEvent`'s `SetTarget`.
+        if let Some(target) = move_to_started {
+            self.start_move_to_target(target);
         }
         if let SessionEvent::ObjectAction {
             object,
@@ -435,38 +441,6 @@ impl Client {
             .collect();
         self.remotes
             .children_do_behavior(&children, own.behavior, own.time_scale);
-    }
-
-    /// `TargetManager` for the player's move-to an object: each physics quantum the target's
-    /// position and size (`MoveToManager::HandleUpdateTarget`, the target being
-    /// `MoveToManager::GetTargetObj`'s top-level object); a target no longer in the world is
-    /// lost. Ended move-tos are let go: the weenie's move-to callback is not modelled.
-    pub(crate) fn track_move_to_target(&mut self) {
-        let Some(player) = self.player.as_mut() else {
-            return;
-        };
-        let Some(body) = player.body.as_mut() else {
-            return;
-        };
-        body.physics.take_move_to_results();
-        let Some(id) = player.move_to_target else {
-            return;
-        };
-        if !body.physics.is_moving_to() {
-            player.move_to_target = None;
-            return;
-        }
-        // `MoveToManager::GetTargetObj`: the target's top-level object, when it is in the world.
-        let top = self.session.objects().links().top_parent(id).unwrap_or(id);
-        match self.remotes.target_info(top) {
-            Some((position, radius, height)) => {
-                body.physics.update_move_to_target(position, radius, height)
-            }
-            None => {
-                body.physics.lose_move_to_target();
-                player.move_to_target = None;
-            }
-        }
     }
 
     /// A Setup for other objects arrived.
@@ -611,6 +585,7 @@ impl Client {
                         let s = b.effects_scale();
                         [s.x, s.y, s.z]
                     }),
+                    child_scale: body.map_or(1.0, |b| b.child_scale()),
                     adaptive_degrade: body.is_some_and(|b| b.is_mobile() && !b.is_static()),
                 })
             })
@@ -690,6 +665,7 @@ impl Client {
                         let s = body.effects_scale();
                         [s.x, s.y, s.z]
                     },
+                    child_scale: body.child_scale(),
                     // Client-made objects have temporary ids (`IIDUtils::VerifyTemporary`).
                     adaptive_degrade: false,
                 })

@@ -499,3 +499,52 @@ fn a_made_object_becomes_the_emitters_fx_target() {
     assert_eq!(fx.take_new_targets(), vec![(7, id)]);
     assert_eq!(fx.current_fx(7)[0].1.target, 0);
 }
+
+/// `DoCreateObjectFX` with a node behaviour: the object runs it and destroys itself, so the FX
+/// does not keep it; stopping the FX leaves it alone.
+#[test]
+fn an_object_with_a_behaviour_is_not_kept_by_its_fx() {
+    let mut fx = FxObjects::default();
+    let node = Ac2FxObject {
+        behavior: 0x4000_0123,
+        ..vdesc_node(0.0)
+    };
+    fx.start(7, 9, &[node], 10.0, 1.0, &|_| None, &mut ids());
+    let pending = fx.take_pending();
+    assert_eq!(pending[0].behavior, 0x4000_0123);
+    let id = pending[0].id;
+    // The behaviour started: the object is the behaviour's.
+    fx.behavior_result(id, true, 10.0);
+    fx.stop(7, 9, &[], 11.0);
+    assert!(
+        fx.step(20.0).is_empty(),
+        "the FX's stop does not destroy it"
+    );
+    // `DeleteSelf(0, 3.0)` when the behaviour ended: gone three seconds on.
+    fx.delete_after(id, 21.0, 3.0);
+    assert!(fx.step(23.9).is_empty());
+    assert_eq!(fx.step(24.0), vec![id]);
+    assert!(fx.step(30.0).is_empty(), "once");
+}
+
+/// A behaviour that does not start leaves the object on the FX's list (the retail fallback).
+#[test]
+fn an_object_whose_behaviour_fails_goes_with_its_fx() {
+    let mut fx = FxObjects::default();
+    let node = Ac2FxObject {
+        behavior: 0x4000_0123,
+        ..vdesc_node(0.0)
+    };
+    fx.start(7, 9, &[node], 10.0, 1.0, &|_| None, &mut ids());
+    let id = fx.take_pending()[0].id;
+    fx.behavior_result(id, false, 10.0);
+    fx.stop(7, 9, &[], 11.0);
+    assert_eq!(fx.step(14.0), vec![id]);
+    // An FX that is gone before the body is made takes the failed object at once.
+    let mut late = FxObjects::default();
+    late.start(7, 9, &[node], 10.0, 1.0, &|_| None, &mut ids());
+    let id = late.take_pending()[0].id;
+    late.stop(7, 9, &[], 11.0);
+    late.behavior_result(id, false, 12.0);
+    assert_eq!(late.step(15.0), vec![id]);
+}

@@ -21,6 +21,8 @@ use crate::motion_interp_behaviors::MotionRep;
 /// plays through the body's `AnimMap`, and the Setup whose bones the animators pose.
 #[derive(Debug, Clone)]
 pub struct BodyAnimation {
+    /// `PHYSICSOBJREP::m_behaviorTableDID`: the DID `table` was read from.
+    pub table_did: u32,
     pub table: Arc<Ac2BehaviorTable>,
     pub template: Arc<Ac2CharTemplate>,
     pub animators: HashMap<u32, Arc<Ac2DbAnimator>>,
@@ -82,6 +84,22 @@ impl From<ChildGroupAnimation> for ChildGroupRep {
     }
 }
 
+/// What `PHYSICSOBJREP::CompareAndModify` takes from an object's new total `VisualDesc`: its
+/// behaviour table (read when it differs from the body's, `animation`), scale, child scale and
+/// particle scale.
+#[derive(Debug, Clone)]
+pub struct VisualFacts {
+    /// `m_behaviortable_did` of the total description.
+    pub behavior_table: Option<u32>,
+    /// `m_scale`.
+    pub scale: [f32; 3],
+    /// `m_child_scale` and `m_particle_scale`.
+    pub child_scale: f32,
+    pub particle_scale: f32,
+    /// The animation of the new table, when it is not the body's (`ModeTracker::Init`).
+    pub animation: Option<BodyAnimation>,
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct AnimRep {
     pub(crate) modes: Ac2ModeTracker,
@@ -92,8 +110,13 @@ pub(crate) struct AnimRep {
     /// The child part groups with their own `AnimMap`, and their bones.
     pub(crate) child_groups: Vec<ChildGroupRep>,
     pub(crate) table: Option<Arc<Ac2BehaviorTable>>,
+    /// `PHYSICSOBJREP::m_behaviorTableDID` (0 without a table).
+    pub(crate) table_did: u32,
     pub(crate) setup: Option<Arc<Ac2Setup>>,
     pub(crate) vdesc_scale: [f32; 3],
+    /// `PHYSICSOBJREP::m_fChildScale` and `m_fParticleScale` (one until a description sets them).
+    pub(crate) child_scale: f32,
+    pub(crate) particle_scale: f32,
     /// The bone `TransformBase`s of the last `DoAnimation`, and the local time of that refresh.
     pub(crate) bones: Vec<Ac2BoneTransform>,
     pub(crate) bones_at: f64,
@@ -239,8 +262,11 @@ impl AnimRep {
             animators: Arc::new(HashMap::new()),
             child_groups: Vec::new(),
             table: None,
+            table_did: 0,
             setup: None,
             vdesc_scale: [1.0; 3],
+            child_scale: 1.0,
+            particle_scale: 1.0,
             bones: Vec::new(),
             bones_at: 0.0,
             prev_bones: Vec::new(),
@@ -261,8 +287,11 @@ impl AnimRep {
             animators: Arc::new(animation.animators),
             child_groups: animation.child_groups.into_iter().map(Into::into).collect(),
             table: Some(Arc::clone(&animation.table)),
+            table_did: animation.table_did,
             setup: animation.setup,
             vdesc_scale: animation.vdesc_scale,
+            child_scale: 1.0,
+            particle_scale: 1.0,
             bones: Vec::new(),
             bones_at: 0.0,
             prev_bones: Vec::new(),
@@ -279,6 +308,30 @@ impl AnimRep {
 
     pub(crate) fn is_player(&self) -> bool {
         self.player
+    }
+
+    /// `PHYSICSOBJREP::CompareAndModify` for an unshared representation: a new behaviour table
+    /// re-initialises the mode tracker (`ModeTracker::Init`) over the table's animators, and the
+    /// scale, child scale and particle scale are the description's.
+    pub(crate) fn compare_and_modify(&mut self, facts: VisualFacts) {
+        self.vdesc_scale = facts.scale;
+        self.child_scale = facts.child_scale;
+        self.particle_scale = facts.particle_scale;
+        let Some(animation) = facts.animation else {
+            return;
+        };
+        if facts.behavior_table != Some(animation.table_did)
+            || animation.table_did == self.table_did
+        {
+            return;
+        }
+        self.animators = Arc::new(animation.animators);
+        self.child_groups = animation.child_groups.into_iter().map(Into::into).collect();
+        self.setup = animation.setup;
+        self.table_did = animation.table_did;
+        self.table = Some(Arc::clone(&animation.table));
+        let table = Some(animation.table);
+        self.with_modes(|modes, source| modes.init(table, source));
     }
 
     pub(crate) fn set_player(&mut self, player: bool) {

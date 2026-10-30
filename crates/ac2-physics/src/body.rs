@@ -487,6 +487,12 @@ impl PhysicsBody {
         self.object.missile_current_velocity()
     }
 
+    /// The `CPhysicsObj::SetTarget` calls the body's missile made since the last call, for the
+    /// owner of the target managers to apply.
+    pub fn take_target_requests(&mut self) -> Vec<crate::TargetRequest> {
+        std::mem::take(&mut self.object.target_requests)
+    }
+
     /// What the missile code told the weenie and the streaks since the last call.
     pub fn take_missile_events(&mut self) -> Vec<crate::MissileEvent> {
         std::mem::take(&mut self.object.missile_events)
@@ -591,6 +597,15 @@ impl PhysicsBody {
     pub fn update_move_to_target(&mut self, position: Position, radius: f32, height: f32) {
         if let Some(manager) = self.object.move_to.as_mut() {
             manager.update_target(position, radius, height);
+        }
+    }
+
+    /// `CPhysicsObj::HandleUpdateTarget` -> `CMotionInterp::UpdateTargetInfo`: the target
+    /// manager's notice about the body's own target (a voyeur update, or its timeout) reaches the
+    /// move-to. A status other than `Ok` ends the move-to with 0x37 once it next updates.
+    pub fn update_target_info(&mut self, info: &crate::target::TargetInfo) {
+        if let Some(manager) = self.object.move_to.as_mut() {
+            manager.update_target_info(info);
         }
     }
 

@@ -79,6 +79,12 @@ pub enum Ac2AnimEvent {
     StopFx {
         fx: u32,
     },
+    /// `CPhysicsObj::DeleteSelf(fade, delay)` (`BehaviorTracker::ProcessRampingDownParamFlags`
+    /// for `mDestroyOnCompletion`: no fade, destroyed three seconds on).
+    DeleteSelf {
+        fade: f32,
+        delay: f64,
+    },
     /// `CPhysicsObj::ClearFXTarget` (`BehaviorTracker::ProcessRampingDownParamFlags` when the
     /// behaviour carried an FX target or a description to clone): the body drops them.
     ClearFxTarget,

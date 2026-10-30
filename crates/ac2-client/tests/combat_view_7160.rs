@@ -425,7 +425,7 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         step(&mut client, &server, &FrameInput::default());
         let missiles = client.story_missiles();
         assert!(missiles.len() <= 1, "one arrow: {missiles:?}");
-        let Some(&(_, holder, Some(at), flying)) = missiles.first() else {
+        let Some(&(arrow, holder, Some(at), flying)) = missiles.first() else {
             continue;
         };
         // Once it sticks the body is out of the world, left where it detonated and drawn on the
@@ -441,6 +441,10 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
             assert!(flat(at, player) < 0.5, "made at the player: {at:?}");
             continue;
         }
+        // `CMissileManager::TargetUpdate`'s `SetTarget(0, target, 1.0, 0.0)`: the arrow watches
+        // the drudge, which has it as a voyeur.
+        assert_eq!(client.target_of(arrow), Some(CREATURE_ONE));
+        assert!(client.voyeurs_of(CREATURE_ONE).contains(&arrow));
         distances.push(flat(at, drudge));
         heights.push(at[2] - drudge[2]);
         if i % 4 == 0 {
@@ -471,6 +475,9 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
     // the world, drawn on that bone.
     let missiles = client.story_missiles();
     assert_eq!(missiles.first().map(|m| m.1), Some(Some(CREATURE_ONE)));
+    // Leaving the world to hang there (`HandleLeaveWorld`) lets go of its target.
+    assert_eq!(client.target_of(missiles[0].0), None);
+    assert!(!client.voyeurs_of(CREATURE_ONE).contains(&missiles[0].0));
     let frame = client.frame();
     let arrow = frame
         .objects

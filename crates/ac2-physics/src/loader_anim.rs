@@ -35,7 +35,22 @@ pub fn load_body_animation(
     store: &ResourceStore,
     visual: DataId,
 ) -> ResourceResult<Option<BodyAnimation>> {
-    let (Some(table_did), Some(anim_map)) = resolve_ac2_visual_animation(store, visual)? else {
+    load_body_animation_with(store, visual, None, None)
+}
+
+/// [`load_body_animation`] for a total description that names its own behaviour table
+/// (`table`) and `VisualDesc` scale (`scale`) over the visual's chain
+/// (`PHYSICSOBJREP::CompareAndModify`'s new table).
+pub fn load_body_animation_with(
+    store: &ResourceStore,
+    visual: DataId,
+    table: Option<DataId>,
+    scale: Option<ac2_math::Vec3>,
+) -> ResourceResult<Option<BodyAnimation>> {
+    let (chain_table, Some(anim_map)) = resolve_ac2_visual_animation(store, visual)? else {
+        return Ok(None);
+    };
+    let Some(table_did) = table.or(chain_table) else {
         return Ok(None);
     };
     let Some(table) = load::<Ac2BehaviorTable>(store, table_did)? else {
@@ -53,8 +68,12 @@ pub fn load_body_animation(
         Some(&(setup, _)) => load::<Ac2Setup>(store, setup)?,
         None => None,
     };
-    let scale = resolve_ac2_visual_scale(store, visual)?;
+    let scale = match scale {
+        Some(scale) => scale,
+        None => resolve_ac2_visual_scale(store, visual)?,
+    };
     Ok(Some(BodyAnimation {
+        table_did: table_did.raw(),
         table,
         template,
         animators,

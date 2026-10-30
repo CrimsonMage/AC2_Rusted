@@ -35,6 +35,33 @@ impl PhysicsBody {
         self.object.set_animation(animation);
     }
 
+    /// `PHYSICSOBJREP::CompareAndModify` on the body's own representation: the object's new total
+    /// description gives it the behaviour table (its animation re-initialises the mode tracker),
+    /// the `VisualDesc` scale, the child scale and the particle scale.
+    pub fn compare_and_modify(&mut self, facts: crate::VisualFacts) {
+        self.object.anim.compare_and_modify(facts);
+    }
+
+    /// `PHYSICSOBJREP::m_behaviorTableDID` (0 without a behaviour table).
+    pub fn behavior_table_did(&self) -> u32 {
+        self.object.anim.table_did
+    }
+
+    /// `PHYSICSOBJREP::GetVdescScale`.
+    pub fn vdesc_scale(&self) -> [f32; 3] {
+        self.object.anim.vdesc_scale
+    }
+
+    /// `PHYSICSOBJREP::m_fChildScale`: a held child's size is scaled by it.
+    pub fn child_scale(&self) -> f32 {
+        self.object.anim.child_scale
+    }
+
+    /// `PHYSICSOBJREP::m_fParticleScale` (`CPhysicsObj::GetParticleScale`).
+    pub fn particle_scale(&self) -> f32 {
+        self.object.anim.particle_scale
+    }
+
     /// One animation step (`CPhysicsObj::UpdateAnimation`) of `quantum` seconds, at the steps
     /// an [`AnimationClock`](crate::AnimationClock) gives, at `local_time`
     /// (`Timer::local_time`, the clock's `now`). Bodies past a quarter of their minimum visible
