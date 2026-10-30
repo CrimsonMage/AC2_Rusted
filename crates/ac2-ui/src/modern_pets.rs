@@ -111,6 +111,10 @@ impl ModernPets {
             if tree.el(title).parent != Some(self.panel) {
                 tree.set_parent(title, Some(self.panel));
             }
+            // Gold small caps as the windows' titles (`text_title.rs`).
+            if !tree.bool_attribute(title, crate::text_title::MODERN_TITLE) {
+                crate::modern_windows::mark_title(tree, title);
+            }
         }
         let w = tree.el(self.panel).rect.width();
         let well = if compact {

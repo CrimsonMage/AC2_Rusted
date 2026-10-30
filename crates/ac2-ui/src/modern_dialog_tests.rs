@@ -69,7 +69,13 @@ fn each_modern_dialog_has_a_header_and_gold_title_above_its_text_and_classic_has
                         .collect::<String>()
                 })
                 .unwrap();
-            assert_eq!(words, title);
+            // Set in small caps (`text_title.rs`): each word's first letter capital, the rest the
+            // small-caps face's lower case.
+            assert_eq!(words.to_uppercase(), title);
+            assert!(
+                words.chars().nth(1).is_some_and(char::is_lowercase),
+                "{words}"
+            );
         }
     }
 }

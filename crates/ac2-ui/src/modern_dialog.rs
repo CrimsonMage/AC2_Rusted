@@ -22,8 +22,6 @@ const INSET: i32 = 2;
 const HEIGHT: i32 = 26;
 /// The top the body's text keeps clear under the band.
 const BODY_TOP: i32 = 31;
-/// The design's gold (`#d9c27a`), the title's colour.
-const GOLD: [f32; 3] = [217.0 / 255.0, 194.0 / 255.0, 122.0 / 255.0];
 
 /// A dialog's title.
 fn title(kind: u32) -> Option<&'static str> {
@@ -95,12 +93,9 @@ pub(crate) fn dress(
         for child in tree.children(label).to_vec() {
             tree.resize_to(child, width - 2 * INSET, HEIGHT);
             tree.set_bool(child, MOUSE_INVISIBLE, true);
-            if let Some(t) = tree.el_mut(child).text.as_mut() {
-                t.color = [GOLD[0], GOLD[1], GOLD[2], 1.0];
-                let colour = t.color;
-                for glyph in &mut t.glyphs {
-                    glyph.color = colour;
-                }
+            if tree.el(child).text.is_some() {
+                // Gold small caps as the windows' titles (`text_title.rs`).
+                crate::modern_windows::mark_title(tree, child);
             }
         }
     }

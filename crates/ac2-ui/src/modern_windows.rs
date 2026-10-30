@@ -244,6 +244,16 @@ const HEADED: [u32; 7] = [
 /// The design's gold (`#d9c27a`), the titles' colour.
 pub(crate) const TITLE_GOLD: [f32; 3] = [217.0 / 255.0, 194.0 / 255.0, 122.0 / 255.0];
 
+/// `title` (a client part's or a window's title text, already made) drawn as the windows' titles
+/// are: gold, centred up and down, in small caps (`text_title.rs`).
+pub(crate) fn mark_title(tree: &mut crate::element::UiTree, title: usize) {
+    for (channel, value) in ["red", "green", "blue"].into_iter().zip(TITLE_GOLD) {
+        tree.set_float(title, tokenize(&format!("font_color_{channel}")), value);
+    }
+    tree.set_bool(title, crate::token::TEXT_CENTER_VERTICALLY, true);
+    tree.set_bool(title, MODERN_TITLE, true);
+}
+
 /// A frame's title: a text in its header (its top `WIN_HEADER_HEIGHT` rows), or a reference
 /// there (retail's titles refer to a shared text; a colour on a reference to anything else is
 /// read by nothing).

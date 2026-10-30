@@ -96,6 +96,10 @@ pub(crate) fn adopt(tree: &mut UiTree, root: usize, fonts: &[&Arc<LayoutDesc>]) 
     {
         text.justification = crate::text::Justification::Center;
     }
+    // Gold small caps as the windows' titles (`text_title.rs`).
+    if let Some(title) = find(tree, tokenize("ExternalContainerLabel")) {
+        crate::modern_windows::mark_title(tree, title);
+    }
     let close = find(tree, tokenize("ExternalContainerCloseButton"));
     if let Some(c) = close {
         remap_art(tree, c, &CLOSE_ART, false);
