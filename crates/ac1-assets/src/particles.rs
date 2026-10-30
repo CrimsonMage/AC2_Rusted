@@ -57,6 +57,11 @@ impl crate::Ac1Dats {
         self.decode(did, crate::formats::Setup::decode)
     }
 
+    /// `CMotionTable` `did`.
+    pub fn motion_table(&self, did: u32) -> Ac1Result<crate::formats::MotionTable> {
+        self.decode(did, crate::formats::MotionTable::decode)
+    }
+
     /// `ParticleEmitterInfo` `did`.
     pub fn emitter_info(&self, did: u32) -> Ac1Result<ParticleEmitterInfo> {
         self.decode(did, ParticleEmitterInfo::decode)

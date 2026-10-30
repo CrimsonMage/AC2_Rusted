@@ -471,6 +471,19 @@ impl State {
             self.model_visual(),
             self.time_of_day,
         );
+        if let Some(showcase) = self.ac1.as_mut() {
+            let body = self
+                .panel
+                .models
+                .get(self.panel.model)
+                .map(|m| (m.race, m.sex));
+            let on = self.panel.ac1_motion.get_or_insert(false);
+            if let (true, Some((race, sex)), Some(player)) = (*on, body, frame.player.as_mut()) {
+                let applied = showcase.motion.apply(player, race, sex, &input, time);
+                self.panel.ac1_motion_note =
+                    (!applied).then(|| "no AC1 body for this race".to_string());
+            }
+        }
         if let Some(hud) = &mut self.hud_input {
             hud.frame(&mut self.view, &mut self.walk);
         }

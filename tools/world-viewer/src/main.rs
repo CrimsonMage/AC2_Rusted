@@ -52,6 +52,9 @@
 //! `--hud-panel NAME` logs the snapshot's HUD on to the session (as the window's) and opens that
 //! toolbar panel (`inventory`, `skill`, `quest`, ...); `--equip N` then equips AC1 weapon N in
 //! the primary hand as the paper doll does (the session's server wields it).
+//! `--ac1-motion MOVE` (`ready`, `run`, `back`, `strafe`, `turn`) poses the snapshot's player
+//! with that movement's AC1 cycle, retargeted (`ac1_motion.rs`; the window's panel toggle), at
+//! `--ac1-motion-time` seconds (default 0.3).
 //! `--orbit SECONDS` turns the snapshot's player camera about the player that long after the walk
 //! (the camera's rotate-left action), to see the player from the side.
 //! The player walks the world with collision (`ac2-physics`) under the player camera
@@ -70,6 +73,7 @@
 mod ac1;
 mod ac1_fx;
 mod ac1_held;
+mod ac1_motion;
 mod bench;
 mod crowd;
 mod fly;
@@ -154,6 +158,10 @@ struct Args {
     ac1_weapon_placement: Option<u32>,
     /// `--ac1-weapon-scale S`: the held weapons' scale over their weenies' (default 0.75).
     ac1_weapon_scale: Option<f32>,
+    /// `--ac1-motion MOVE`: the snapshot's player takes the AC1 motion of that movement
+    /// (`ready`, `run`, `back`, `strafe` or `turn`), `--ac1-motion-time` seconds into it.
+    ac1_motion: Option<walk::WalkInput>,
+    ac1_motion_time: f64,
     /// `--orbit SECONDS`: the player camera turns about the player that long after the walk.
     orbit: f32,
     /// `--hud-panel NAME`: the snapshot logs on to the HUD's session and opens that toolbar panel.
@@ -201,6 +209,8 @@ fn parse_args() -> Result<Args, String> {
         ac1_weapon: 0,
         ac1_weapon_placement: None,
         ac1_weapon_scale: None,
+        ac1_motion: None,
+        ac1_motion_time: 0.3,
         orbit: 0.0,
         hud_panel: None,
         equip: None,
@@ -307,6 +317,23 @@ fn parse_args() -> Result<Args, String> {
             "--ac1-weapons" => args.ac1_weapons = Some(value()?.into()),
             "--ac1-weapon" => {
                 args.ac1_weapon = value()?.parse().map_err(|e| format!("--ac1-weapon: {e}"))?;
+            }
+            "--ac1-motion" => {
+                let mut input = walk::WalkInput::default();
+                match value()?.as_str() {
+                    "ready" => {}
+                    "run" => input.forward = 1.0,
+                    "back" => input.forward = -1.0,
+                    "strafe" => input.strafe = 1.0,
+                    "turn" => input.turn = -1.0,
+                    other => return Err(format!("--ac1-motion: no movement {other}")),
+                }
+                args.ac1_motion = Some(input);
+            }
+            "--ac1-motion-time" => {
+                args.ac1_motion_time = value()?
+                    .parse()
+                    .map_err(|e| format!("--ac1-motion-time: {e}"))?;
             }
             "--ac1-weapon-scale" => {
                 args.ac1_weapon_scale = Some(
@@ -637,6 +664,22 @@ fn snapshot(
         });
         frame.objects.extend(creatures);
         showcase.weapons.hold(&mut frame);
+        if let (Some(input), Some(model), Some(player)) =
+            (args.ac1_motion, model, frame.player.as_mut())
+        {
+            // The cycle starts at 0; the snapshot shows it `--ac1-motion-time` seconds in.
+            showcase
+                .motion
+                .apply(&mut player.clone(), model.race, model.sex, &input, 0.0);
+            let applied =
+                showcase
+                    .motion
+                    .apply(player, model.race, model.sex, &input, args.ac1_motion_time);
+            println!(
+                "ac1 motion: {}",
+                if applied { "retargeted" } else { "no AC1 body" }
+            );
+        }
     }
     if let Some(camera) = frame.camera.as_mut() {
         camera.flash = args.flash;

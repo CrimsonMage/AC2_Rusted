@@ -20,6 +20,7 @@ ac2-math = { path = "../../crates/ac2-math" }
 ac2-dat = { path = "../../crates/ac2-dat" }
 ac2-db = { path = "../../crates/ac2-db" }
 ac2-assets = { path = "../../crates/ac2-assets" }
+ac2-anim = { path = "../../crates/ac2-anim" }
 ac2-physics = { path = "../../crates/ac2-physics" }
 ac2-smartbox = { path = "../../crates/ac2-smartbox" }
 ac2-ui = { path = "../../crates/ac2-ui" }

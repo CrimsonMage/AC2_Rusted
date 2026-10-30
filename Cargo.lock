@@ -4486,6 +4486,7 @@ name = "world-viewer"
 version = "0.1.0"
 dependencies = [
  "ac1-assets",
+ "ac2-anim",
  "ac2-assets",
  "ac2-client",
  "ac2-core",

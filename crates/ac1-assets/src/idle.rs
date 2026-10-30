@@ -173,6 +173,23 @@ impl IdlePlayer {
 }
 
 impl Ac1Dats {
+    /// The cycle motion table `table` plays for `motion` in its default style
+    /// (`(style << 16) | (motion & 0xFFFFFF)`), as poses for `parts` parts; `None` when the
+    /// table has no such cycle.
+    pub fn motion_cycle(
+        &self,
+        table: u32,
+        motion: u32,
+        parts: usize,
+    ) -> Ac1Result<Option<MotionClip>> {
+        let table = self.decode(table, MotionTable::decode)?;
+        let key = (table.default_style << 16) | (motion & 0x00FF_FFFF);
+        match table.cycles.get(&key) {
+            Some(anims) => self.clip(anims, parts),
+            None => Ok(None),
+        }
+    }
+
     /// `weenie`'s idle behaviour over `motion_table` for a Setup of `parts` parts; `None` when
     /// the table has no default cycle.
     pub(crate) fn idle_behaviour(

@@ -161,6 +161,19 @@ impl Ac1Dats {
         Ok(decode_rgba(&render, &palette, false).map(|rgba| (render.width, render.height, rgba)))
     }
 
+    /// Setup `setup`'s rest pose (placement 0) as object-space part transforms, and its part
+    /// count.
+    pub fn rest_pose(&self, setup: u32) -> Ac1Result<Vec<Ac2Transform>> {
+        let setup = self.decode(setup, Setup::decode)?;
+        let rest = setup
+            .placement(0)
+            .map(<[Frame]>::to_vec)
+            .unwrap_or_default();
+        Ok((0..setup.parts.len())
+            .map(|i| transform(rest.get(i).copied().unwrap_or(Frame::IDENTITY)))
+            .collect())
+    }
+
     /// A particle's GfxObj `gfx` as a model drawn under `visual`: one part at the origin, its
     /// surfaces' own palettes.
     pub fn particle_model(&self, gfx: u32, visual: DataId) -> Ac1Result<(ObjectModel, Images)> {

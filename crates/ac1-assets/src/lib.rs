@@ -15,6 +15,7 @@ pub mod formats;
 pub mod idle;
 mod image;
 pub mod particles;
+pub mod retarget;
 pub mod weenie;
 
 pub use creature::{Ac1Creature, Ac1Models};

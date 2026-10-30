@@ -26,6 +26,10 @@ pub struct Panel {
     pub models: Vec<PlayerModel>,
     pub model: usize,
     pub speed: u32,
+    /// The "AC1 motion" toggle (`ac1_motion.rs`): `None` hides it (no AC1 DATs), else whether
+    /// it is on; and why it does nothing for this body, when it does not.
+    pub ac1_motion: Option<bool>,
+    pub ac1_motion_note: Option<String>,
     block: String,
     x: f32,
     y: f32,
@@ -48,6 +52,8 @@ impl Panel {
             models,
             model: 0,
             speed: 1,
+            ac1_motion: None,
+            ac1_motion_note: None,
             block: format!("{:02X}{:02X}", landing.block.0, landing.block.1),
             x: landing.x,
             y: landing.y,
@@ -111,6 +117,12 @@ impl Panel {
                         .text("speed ×")
                         .logarithmic(true),
                 );
+                if let Some(on) = self.ac1_motion.as_mut() {
+                    ui.checkbox(on, "AC1 motion (retargeted)");
+                    if let Some(note) = self.ac1_motion_note.as_deref().filter(|_| *on) {
+                        ui.label(note);
+                    }
+                }
                 ui.separator();
                 ui.label("Teleport");
                 ui.horizontal(|ui| {

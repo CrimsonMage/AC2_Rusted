@@ -79,6 +79,8 @@ pub struct Ac1Showcase {
     pub weapons: crate::ac1_held::Ac1Weapons,
     /// The creatures' and weapons' particles (their Setups' default scripts).
     pub fx: crate::ac1_fx::Ac1Fx,
+    /// The player's AC1 motion (the panel's toggle).
+    pub motion: crate::ac1_motion::Ac1Motion,
     /// The ring's centre: the cell and block-relative origin the player first stood at.
     anchor: Option<(u32, [f32; 3])>,
 }
@@ -146,6 +148,7 @@ impl Ac1Showcase {
             lineup: false,
             creatures,
             models: Arc::new(models),
+            motion: crate::ac1_motion::Ac1Motion::new(dats.clone(), Arc::clone(&store)),
             weapons: crate::ac1_held::Ac1Weapons::new(weapons, &icons, store),
             fx,
             anchor: None,
