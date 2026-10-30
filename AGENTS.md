@@ -191,6 +191,12 @@ game rules and server-visible behaviour exactly retail.
   (`gmMoneyBagUI::HandleMoneyBagDrop`'s stack question and confirmation), and Equip (`EquipItem`
   at the preferred location) or, for a worn item, Unequip (`UnEquipItem` into the first page with
   room); an action that does not apply is dimmed. Retail had no such ring.
+  The stack dialog (`gmStackUI`'s `StackableField`) is the design's popover on the drawer's glass
+  (`ac2_ui::modern_stack`): its title and the question at the left, a slider beside the amount's
+  entry, the error line, then the all / half toggle, the most allowed (`max N`) and OK and Cancel.
+  The slider is the client's: dragging it writes the amount into `AmountEntry` as the toggle does
+  (`SetAmount`) and typing moves it, so OK still reads the entry (`wcstoul`, base 0) and answers
+  with `StackUIDone`; retail had only the entry.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

@@ -366,9 +366,11 @@ pub fn build_styled_hud(
         reticle.precluded_top = top;
     }
     let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
-    let stack = layouts[&LAYOUT_GAMEPLAY]
-        .as_ref()
-        .map(|gameplay| StackUi::create(&mut tree, gameplay));
+    let stack = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
+        let fonts: Vec<&Arc<LayoutDesc>> =
+            [&layouts[&LAYOUT_TOOLBAR]].into_iter().flatten().collect();
+        StackUi::create_styled(&mut tree, gameplay, style, &fonts)
+    });
     let external_container = match (&layouts[&LAYOUT_GAMEPLAY], &layouts[&LAYOUT_TOOLBAR]) {
         (Some(gameplay), Some(toolbar)) => {
             Some(ExternalContainerUi::create(&mut tree, gameplay, toolbar))

@@ -43,6 +43,16 @@ pub const CHIP_BORDER: i32 = 8;
 /// The search pill's art keeps corners this size when stretched.
 pub const SEARCH_PILL_BORDER: i32 = 10;
 
+/// The stack dialog's parts (`modern_stack`): the slider's track and filled part (stretched in
+/// nine pieces with `SLIDER_BORDER` corners), its knob, and the amount's entry box.
+pub const SLIDER_TRACK: u32 = 0x7E01_0090;
+pub const SLIDER_FILL: u32 = 0x7E01_0091;
+pub const SLIDER_KNOB: u32 = 0x7E01_0092;
+pub const ENTRY_BOX: u32 = 0x7E01_0093;
+pub const SLIDER_BORDER: i32 = 3;
+pub const ENTRY_BORDER: i32 = 4;
+pub const KNOB: i32 = 14;
+
 /// The item ring's buttons (`modern_item_ring`): one per action, each at rest, lit (under the
 /// pointer) and dimmed (the action does not apply), `RING_ART` square.
 pub const RING_ACTIONS: usize = 6;
@@ -247,6 +257,47 @@ fn item_well(slot: &UiPixels) -> UiPixels {
     c.finish()
 }
 
+/// The slider's track: a dark groove in a bronze line; `fill`: the design's gold
+/// (`accent-color: #c9a94a`).
+fn slider_bar(fill: bool) -> UiPixels {
+    let (w, h) = (12usize, 6usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 3.0);
+    if fill {
+        c.paint(&shape, |_, _, d| (rgb(0xC9A94A, 1.0), inside(d)));
+    } else {
+        c.paint(&shape, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
+        c.paint(&shape, |_, _, d| (rgb(0x8B846C, 1.0), band(d, 0.0, 1.0)));
+    }
+    c.finish()
+}
+
+/// The slider's knob: a gold disc with a light top and a dark rim.
+fn slider_knob() -> UiPixels {
+    let side = KNOB as usize;
+    let mut c = Canvas::new(side, side);
+    let half = KNOB as f32 / 2.0;
+    let disc = circle(half, half, half - 1.0);
+    c.paint(&disc, |_, y, d| {
+        (
+            mix(rgb(0xF0DCA0, 1.0), rgb(0xA8862E, 1.0), y / KNOB as f32),
+            inside(d),
+        )
+    });
+    c.paint(&disc, |_, _, d| (rgb(0x1A1408, 1.0), band(d, -0.5, 1.0)));
+    c.finish()
+}
+
+/// The amount's entry box: dark glass in a bronze line, corners 3.
+fn entry_box() -> UiPixels {
+    let (w, h) = (16usize, 16usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 3.0);
+    c.paint(&shape, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
+    c.paint(&shape, |_, _, d| (rgb(0x8B846C, 1.0), band(d, 0.0, 1.0)));
+    c.finish()
+}
+
 /// The ring icons' strokes in the design's 24-unit box (its SVG paths as polylines and circles).
 enum Stroke {
     Line(&'static [(f32, f32)]),
@@ -411,6 +462,10 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>, item_slot: Option<&UiPix
     if let Some(slot) = item_slot {
         images.insert(ITEM_WELL, item_well(slot));
     }
+    images.insert(SLIDER_TRACK, slider_bar(false));
+    images.insert(SLIDER_FILL, slider_bar(true));
+    images.insert(SLIDER_KNOB, slider_knob());
+    images.insert(ENTRY_BOX, entry_box());
     for (action, icon) in RING_ICONS.iter().enumerate() {
         for (look, (lit, dim)) in [(false, false), (true, false), (false, true)]
             .into_iter()

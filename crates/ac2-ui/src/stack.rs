@@ -43,6 +43,8 @@ pub struct StackUi {
     from: u64,
     target: u64,
     context: u32,
+    /// The modern style's popover (`modern_stack`); `None` in the classic style.
+    modern: Option<crate::modern_stack::ModernStack>,
 }
 
 /// `NumberInputFilter`: `isdigit`.
@@ -52,7 +54,7 @@ fn number_input_filter(ch: u16) -> bool {
 
 /// `PSUtils::is_uint32` and the `wcstoul(text, NULL, 0)` read after it: the value when the
 /// whole text is one (an empty text reads as 0; out of range is not one).
-fn read_uint32(text: &str) -> Option<u32> {
+pub(crate) fn read_uint32(text: &str) -> Option<u32> {
     let units: Vec<u16> = text.encode_utf16().chain(std::iter::once(0)).collect();
     let mut at = 0;
     while matches!(units[at], 0x09..=0x0D | 0x20) {
@@ -127,6 +129,23 @@ impl StackUi {
         ui
     }
 
+    /// [`Self::create`] in `style`: the modern style lays the dialog out as the design's popover
+    /// with a slider (`modern_stack`); `layouts` give its small font.
+    pub fn create_styled(
+        tree: &mut UiTree,
+        layout: &Arc<LayoutDesc>,
+        style: crate::HudStyle,
+        layouts: &[&Arc<LayoutDesc>],
+    ) -> Self {
+        let mut ui = Self::create(tree, layout);
+        if style == crate::HudStyle::Modern {
+            ui.modern = ui
+                .field
+                .map(|field| crate::modern_stack::ModernStack::adopt(tree, field, layouts));
+        }
+        ui
+    }
+
     /// The shown dialog's context, if one is up.
     pub fn shown(&self) -> Option<u32> {
         (self.context != 0).then_some(self.context)
@@ -168,6 +187,9 @@ impl StackUi {
             tree.set_bool(toggle, BUTTON_HIGHLIGHTED, false);
         }
         self.set_amount(tree, self.default);
+        if let Some(modern) = &self.modern {
+            modern.init(tree, max);
+        }
         self.position_window(tree);
         if let Some(field) = self.field {
             tree.set_visible(field, true);
@@ -273,6 +295,20 @@ impl StackUi {
         message: &UiMessage,
         strings: &dyn UiStrings,
     ) -> Option<StackUiDone> {
+        // The modern slider: a drag sets the amount (as the toggle does), and the knob follows
+        // what the entry holds.
+        if self.context != 0 {
+            if let Some(modern) = self.modern.clone() {
+                if let Some(amount) = modern.message(tree, message, self.max) {
+                    self.set_amount(tree, amount);
+                    if let Some(error) = self.error_text {
+                        tree.set_text(error, "");
+                    }
+                }
+                modern.sync(tree, self.max);
+                self.modern = Some(modern);
+            }
+        }
         if message.message != MSG_BUTTON_RELEASE_ON || self.context == 0 {
             return None;
         }

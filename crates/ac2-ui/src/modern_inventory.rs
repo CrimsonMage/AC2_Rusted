@@ -219,8 +219,8 @@ const SCROLL_ART: [(u32, u32); 11] = [
     (0x4100_02BA, art::SCROLL_TRACK),
 ];
 
-/// A copy of `desc` whose images in every state are the thin bar's (`SCROLL_ART`), drawn over.
-fn thin_bar(desc: &ElementDesc) -> ElementDesc {
+/// A copy of `desc` whose images in every state are swapped by `map` (from, to), drawn over.
+fn remapped(desc: &ElementDesc, map: &[(u32, u32)]) -> ElementDesc {
     let mut desc = desc.clone();
     for state in &mut desc.states {
         for media in &mut state.media {
@@ -228,7 +228,7 @@ fn thin_bar(desc: &ElementDesc) -> ElementDesc {
                 file, draw_mode, ..
             } = media
             {
-                if let Some(&(_, to)) = SCROLL_ART.iter().find(|(from, _)| from == file) {
+                if let Some(&(_, to)) = map.iter().find(|(from, _)| from == file) {
                     *file = to;
                     *draw_mode = DRAW_OVER;
                 }
@@ -238,29 +238,31 @@ fn thin_bar(desc: &ElementDesc) -> ElementDesc {
     desc
 }
 
-/// `element` and everything under it drawn as the thin bar: their states' art replaced
-/// (`thin_bar`, in the description and its referent, so a state change keeps it) and the image
-/// shown now swapped, each `SCROLL` wide.
-fn restyle_scroll(tree: &mut UiTree, element: usize) {
+/// `element` (and, when `recursive`, everything under it) drawn with the client's art: its
+/// states' images swapped by `map` (in the description and its referent, so a state change keeps
+/// them) and the image shown now swapped.
+pub(crate) fn remap_art(tree: &mut UiTree, element: usize, map: &[(u32, u32)], recursive: bool) {
     let (reference, desc) = {
         let el = tree.el(element);
         (Arc::clone(&el.reference), Arc::clone(&el.desc))
     };
-    let new_reference = Arc::new(thin_bar(&reference));
+    let new_reference = Arc::new(remapped(&reference, map));
     let new_desc = if Arc::ptr_eq(&reference, &desc) {
         Arc::clone(&new_reference)
     } else {
-        Arc::new(thin_bar(&desc))
+        Arc::new(remapped(&desc, map))
     };
     let el = tree.el_mut(element);
     el.reference = new_reference;
     el.desc = new_desc;
     let shown = tree.el(element).image().map(|i| i.file);
-    if let Some(&(_, to)) = SCROLL_ART.iter().find(|(from, _)| Some(*from) == shown) {
+    if let Some(&(_, to)) = map.iter().find(|(from, _)| Some(*from) == shown) {
         tree.set_image(element, to, DRAW_OVER);
     }
-    for child in tree.children(element).to_vec() {
-        restyle_scroll(tree, child);
+    if recursive {
+        for child in tree.children(element).to_vec() {
+            remap_art(tree, child, map, true);
+        }
     }
 }
 
@@ -371,7 +373,7 @@ impl Drawer {
                 // The page's scroll bar drawn thin.
                 for part in tree.children(*container).to_vec() {
                     if tree.el(part).id() != tokenize("ContainerListBox") {
-                        restyle_scroll(tree, part);
+                        remap_art(tree, part, &SCROLL_ART, true);
                     }
                 }
                 // The page's list `COLUMNS` wide (`UIElement_ListBox::SetAttribute_Int`).

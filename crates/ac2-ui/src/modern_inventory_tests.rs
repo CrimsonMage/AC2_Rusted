@@ -405,3 +405,91 @@ fn the_item_ring_opens_on_the_selected_slot_with_its_actions() {
     hud.toolbar.drawer_tick(tree, &pack, None, &Pack);
     assert!(buttons.iter().all(|&b| !tree.el(b).visible));
 }
+
+/// The modern stack popover: a drag on its slider writes the amount into the entry, typing moves
+/// the knob, and OK answers with what the entry holds, as retail's dialog does.
+#[test]
+fn the_stack_sliders_drag_sets_the_amount_and_ok_answers_it() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let stack = hud.stack.as_mut().unwrap();
+    stack.init(tree, 7, "Split Healing Potions: how many?", 10, 10, 0, 0);
+    let track = named(tree, "ModernStackTrack").unwrap();
+    let knob = named(tree, "ModernStackKnob").unwrap();
+    let entry = named(tree, "AmountEntry").unwrap();
+    let at = tree.screen_box(track);
+    // At ten, the knob sits at the track's right end.
+    let k = tree.screen_box(knob);
+    assert!(((k.x0 + k.x1) / 2 - at.x1).abs() <= 2, "{k:?} {at:?}");
+    let global = |message, element: Option<usize>| crate::mouse::UiMessage {
+        element_id: 0,
+        element,
+        message,
+        data: 0,
+        item: None,
+    };
+    tree.pointer = (at.x0 + at.width() * 3 / 10, (at.y0 + at.y1) / 2);
+    let strings = NoStrings;
+    stack.message(
+        tree,
+        &global(crate::token::MSG_MOUSE_PRESS_TOP, Some(track)),
+        &strings,
+    );
+    assert_eq!(tree.el(entry).text().unwrap(), "3");
+    tree.pointer.0 = at.x0 + at.width() * 6 / 10;
+    stack.message(
+        tree,
+        &global(crate::mouse::GLOBAL_MOUSE_MOVE, None),
+        &strings,
+    );
+    stack.message(tree, &global(crate::mouse::GLOBAL_MOUSE_UP, None), &strings);
+    assert_eq!(tree.el(entry).text().unwrap(), "6");
+    // Typing moves the knob.
+    tree.set_text(entry, "1");
+    stack.message(
+        tree,
+        &global(crate::mouse::GLOBAL_MOUSE_MOVE, None),
+        &strings,
+    );
+    let k = tree.screen_box(knob);
+    assert!(
+        ((k.x0 + k.x1) / 2 - (at.x0 + at.width() / 10)).abs() <= 2,
+        "{k:?}"
+    );
+    if let Ok(out) = std::env::var("ZZ_OUT") {
+        let dataset = ac2_dat::test_support::env_dataset().unwrap();
+        let store = Arc::new(ResourceStore::new(dataset));
+        let mut images = crate::load_ui_images(&store, tree).unwrap();
+        let icons = crate::load_images(&store, &art::SOURCE_ICONS).unwrap();
+        art::bake(&mut images, &icons);
+        let field = stack.field().unwrap();
+        let _ = tree.compose(&images);
+        let s = tree.compose_root(field, &images);
+        let f = std::fs::File::create(out).unwrap();
+        let mut e = png::Encoder::new(std::io::BufWriter::new(f), s.width, s.height);
+        e.set_color(png::ColorType::Rgba);
+        e.set_depth(png::BitDepth::Eight);
+        e.write_header().unwrap().write_image_data(&s.rgba).unwrap();
+    }
+    let ok = named(tree, "StackOkButton").unwrap();
+    let release = crate::mouse::UiMessage {
+        element_id: tokenize("StackOkButton"),
+        element: Some(ok),
+        message: crate::token::MSG_BUTTON_RELEASE_ON,
+        data: 0,
+        item: None,
+    };
+    let done = stack.message(tree, &release, &strings).unwrap();
+    assert_eq!((done.context, done.amount), (7, 1));
+}
+
+/// Renders every string as nothing.
+struct NoStrings;
+
+impl crate::ui_string::UiStrings for NoStrings {
+    fn render_string(&self, _: &crate::ui_string::UiString) -> String {
+        String::new()
+    }
+}

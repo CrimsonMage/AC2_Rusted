@@ -276,6 +276,7 @@ mod modern_inventory;
 #[cfg(test)]
 mod modern_inventory_tests;
 mod modern_item_ring;
+mod modern_stack;
 mod modern_strip;
 mod modern_toolbar;
 #[cfg(test)]
