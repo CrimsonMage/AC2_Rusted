@@ -305,6 +305,13 @@ impl State {
             KeyCode::BracketLeft => self.time_of_day -= step,
             KeyCode::BracketRight => self.time_of_day += step,
             KeyCode::F1 => self.panel.visible = !self.panel.visible,
+            KeyCode::PageUp | KeyCode::PageDown => {
+                if let Some(showcase) = self.ac1.as_mut() {
+                    showcase
+                        .weapons
+                        .cycle(if code == KeyCode::PageUp { 1 } else { -1 });
+                }
+            }
             KeyCode::KeyM => self.map_open = !self.map_open,
             KeyCode::KeyG => self.view.toggle_guide(),
             KeyCode::KeyT => self.view.toggle_tracker(),
@@ -473,6 +480,7 @@ impl State {
                 walk.ground_height(cell, origin)
             });
             frame.objects.extend(creatures);
+            showcase.weapons.hold(&mut frame);
         }
         self.view.update(&self.gpu, &frame, LOAD_BUDGET);
         let Some(output) = acquire_frame(&self.surface, &self.gpu.device, &self.config) else {

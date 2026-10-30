@@ -7,6 +7,7 @@
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR] [--ac1-heartbeat SECONDS] [--ac1-lineup]
+//! world-viewer ... --ac1-weapons DIR [--ac1-weapon N] [--ac1-weapon-placement P] [--orbit SECONDS]
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
@@ -44,6 +45,11 @@
 //! each idling through its motion table's default cycle and its weenie's HeartBeat emote actions
 //! (`ac1.rs`); `--ac1-heartbeat` rolls those every SECONDS instead of the weenie's interval, and
 //! `--ac1-lineup` stands them in a row 6 m north of the player (or a `--fly` camera) facing it.
+//! `--ac1-weapons DIR` puts the ACE weapons of DIR, built from the AC1 DATs, in the player's
+//! right hand (`ac1_held.rs`): weapon N first (default 0), in the AC1 placement frame P (default
+//! 1, `RightHandCombat`); PageUp and PageDown step through them, past the session's AC2 sword.
+//! `--orbit SECONDS` turns the snapshot's player camera about the player that long after the walk
+//! (the camera's rotate-left action), to see the player from the side.
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -58,6 +64,7 @@
 //! keys, Enter for the chat, typing in its fields and the wheel over a panel work as in the client.
 
 mod ac1;
+mod ac1_held;
 mod bench;
 mod crowd;
 mod fly;
@@ -135,6 +142,13 @@ struct Args {
     ac1_dat_dir: Option<PathBuf>,
     ac1_heartbeat: Option<f64>,
     ac1_lineup: bool,
+    /// ACE weapon patch files for the player's right hand, the one in hand first, and the AC1
+    /// placement frame it takes there.
+    ac1_weapons: Option<PathBuf>,
+    ac1_weapon: usize,
+    ac1_weapon_placement: Option<u32>,
+    /// `--orbit SECONDS`: the player camera turns about the player that long after the walk.
+    orbit: f32,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -172,6 +186,10 @@ fn parse_args() -> Result<Args, String> {
         ac1_dat_dir: std::env::var_os(ac1_assets::AC1_DAT_DIR_ENV).map(PathBuf::from),
         ac1_heartbeat: None,
         ac1_lineup: false,
+        ac1_weapons: None,
+        ac1_weapon: 0,
+        ac1_weapon_placement: None,
+        orbit: 0.0,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -261,6 +279,18 @@ fn parse_args() -> Result<Args, String> {
             "--ace-weenies" => args.ace_weenies = Some(value()?.into()),
             "--ac1-dat-dir" => args.ac1_dat_dir = Some(value()?.into()),
             "--ac1-lineup" => args.ac1_lineup = true,
+            "--orbit" => args.orbit = value()?.parse().map_err(|e| format!("--orbit: {e}"))?,
+            "--ac1-weapons" => args.ac1_weapons = Some(value()?.into()),
+            "--ac1-weapon" => {
+                args.ac1_weapon = value()?.parse().map_err(|e| format!("--ac1-weapon: {e}"))?;
+            }
+            "--ac1-weapon-placement" => {
+                args.ac1_weapon_placement = Some(
+                    value()?
+                        .parse()
+                        .map_err(|e| format!("--ac1-weapon-placement: {e}"))?,
+                );
+            }
             "--ac1-heartbeat" => {
                 args.ac1_heartbeat = Some(
                     value()?
@@ -306,8 +336,8 @@ fn parse_args() -> Result<Args, String> {
     if args.crowd > 0 && args.snapshot.is_none() && args.bench == 0 {
         return Err("--crowd needs --snapshot or --bench".into());
     }
-    if args.ace_weenies.is_some() && args.ac1_dat_dir.is_none() {
-        return Err("--ace-weenies needs --ac1-dat-dir or AC1_DAT_DIR".into());
+    if (args.ace_weenies.is_some() || args.ac1_weapons.is_some()) && args.ac1_dat_dir.is_none() {
+        return Err("--ace-weenies and --ac1-weapons need --ac1-dat-dir or AC1_DAT_DIR".into());
     }
     Ok(args)
 }
@@ -330,11 +360,24 @@ fn main() {
         Ok(models) => (models, None),
         Err(error) => (Vec::new(), Some(error)),
     };
-    let ac1 = match (&args.ace_weenies, &args.ac1_dat_dir) {
-        (Some(weenies), Some(dats)) => match ac1::Ac1Showcase::load(dats, weenies) {
+    let wanted = args.ace_weenies.is_some() || args.ac1_weapons.is_some();
+    let ac1 = match (&args.ac1_dat_dir, wanted) {
+        (Some(dats), true) => match ac1::Ac1Showcase::load(
+            dats,
+            args.ace_weenies.as_deref(),
+            args.ac1_weapons.as_deref(),
+            Arc::clone(&store),
+        ) {
             Ok(mut showcase) => {
                 showcase.heartbeat = args.ac1_heartbeat;
                 showcase.lineup = args.ac1_lineup;
+                let weapons = &mut showcase.weapons;
+                weapons.current = weapons
+                    .current
+                    .map(|_| args.ac1_weapon.min(weapons.weapons.len() - 1));
+                if let Some(placement) = args.ac1_weapon_placement {
+                    weapons.placement = placement;
+                }
                 Some(showcase)
             }
             Err(error) => {
@@ -514,7 +557,10 @@ fn snapshot(
             y,
         });
         walk.speed = args.speed;
-        walk_for(&mut view, &mut walk, &gpu, args.walk_seconds, model.visual);
+        let walked = walk_for(&mut view, &mut walk, &gpu, args.walk_seconds, model.visual);
+        if args.orbit > 0.0 {
+            orbit(&mut walk, args.orbit, walked);
+        }
         if let Some(message) = &walk.message {
             println!("walk: {message}");
         }
@@ -549,6 +595,7 @@ fn snapshot(
             walk.ground_height(cell, origin)
         });
         frame.objects.extend(creatures);
+        showcase.weapons.hold(&mut frame);
     }
     if let Some(camera) = frame.camera.as_mut() {
         camera.flash = args.flash;
@@ -623,15 +670,29 @@ fn snapshot(
     println!("wrote {}", path.display());
 }
 
+/// Holds the camera's `ROTATE_LEFT` action for `seconds` of simulated 60 Hz time, turning the
+/// player camera about the standing player (`--orbit`: the snapshot sees the player's side).
+fn orbit(walk: &mut walk::Walk, seconds: f32, mut now: f64) {
+    const STEP: f32 = 1.0 / 60.0;
+    walk.camera_action(walk::actions::ROTATE_LEFT, true);
+    let mut turned = 0.0;
+    while turned < seconds {
+        now += f64::from(STEP);
+        turned += STEP;
+        walk.update(STEP, now, walk::WalkInput::default());
+    }
+    walk.camera_action(walk::actions::ROTATE_LEFT, false);
+}
+
 /// Runs the player in simulated 60 Hz time: until it is in the world (the cells load on their
-/// own threads), then `seconds` of walking forward.
+/// own threads), then `seconds` of walking forward. Returns the simulated time reached.
 fn walk_for(
     view: &mut ClientView,
     walk: &mut walk::Walk,
     gpu: &Gpu,
     seconds: f32,
     visual: ac2_core::DataId,
-) {
+) -> f64 {
     const STEP: f32 = 1.0 / 60.0;
     let started = std::time::Instant::now();
     let mut now = 0.0_f64;
@@ -653,9 +714,10 @@ fn walk_for(
         } else {
             if started.elapsed() > std::time::Duration::from_secs(120) || walk.message.is_some() {
                 println!("walk: the player never entered the world");
-                return;
+                return now;
             }
             std::thread::sleep(std::time::Duration::from_millis(5));
         }
     }
+    now
 }

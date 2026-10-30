@@ -24,6 +24,46 @@ const LINEUP_SPACING: f32 = 3.0;
 /// How far north of the anchor the line-up stands.
 const LINEUP_AHEAD: f32 = 6.0;
 
+/// The first visual DID of the creatures and of the weapons (`AC1_VISUAL_BASE` onwards).
+const WEENIE_VISUALS: u32 = 0;
+const WEAPON_VISUALS: u32 = 0x800;
+
+/// Every ACE weenie patch file in `dir`, sorted, built from `dats` under visual DIDs from
+/// `AC1_VISUAL_BASE + first`, their models added to `models`.
+fn build_dir(
+    dats: &Ac1Dats,
+    dir: &Path,
+    first: u32,
+    models: &mut Ac1Models,
+) -> Result<Vec<Ac1Creature>, String> {
+    let mut paths: Vec<_> = std::fs::read_dir(dir)
+        .map_err(|e| format!("{}: {e}", dir.display()))?
+        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+        .filter(|path| path.extension().is_some_and(|ext| ext == "sql"))
+        .collect();
+    paths.sort();
+    let mut built = Vec::new();
+    for path in paths {
+        let weenie = match AceWeenie::load(&path) {
+            Ok(weenie) => weenie,
+            Err(error) => {
+                eprintln!("world-viewer: {error}");
+                continue;
+            }
+        };
+        let visual =
+            DataId::new(ac1_assets::creature::AC1_VISUAL_BASE + first + built.len() as u32);
+        match dats.creature(&weenie, visual) {
+            Ok(creature) => {
+                models.insert(&creature);
+                built.push(creature);
+            }
+            Err(error) => eprintln!("world-viewer: {}: {error}", weenie.name),
+        }
+    }
+    Ok(built)
+}
+
 /// The creatures and where they stand.
 pub struct Ac1Showcase {
     creatures: Vec<Ac1Creature>,
@@ -35,56 +75,50 @@ pub struct Ac1Showcase {
     /// facing south towards it.
     pub lineup: bool,
     models: Arc<Ac1Models>,
+    /// `--ac1-weapons`: the weapons for the player's hand.
+    pub weapons: crate::ac1_held::Ac1Weapons,
     /// The ring's centre: the cell and block-relative origin the player first stood at.
     anchor: Option<(u32, [f32; 3])>,
 }
 
 impl Ac1Showcase {
-    /// Builds every weenie in `weenies` from the AC1 DATs in `dat_dir`; a weenie that does not
-    /// build is reported and left out.
-    pub fn load(dat_dir: &Path, weenies: &Path) -> Result<Self, String> {
+    /// Builds every weenie in `weenies` (creatures) and `weapons` from the AC1 DATs in
+    /// `dat_dir`; a weenie that does not build is reported and left out.
+    pub fn load(
+        dat_dir: &Path,
+        weenies: Option<&Path>,
+        weapons: Option<&Path>,
+        store: Arc<ac2_db::ResourceStore>,
+    ) -> Result<Self, String> {
         let dats = Ac1Dats::open(dat_dir).map_err(|e| format!("AC1 DATs: {e:?}"))?;
-        let mut paths: Vec<_> = std::fs::read_dir(weenies)
-            .map_err(|e| format!("{}: {e}", weenies.display()))?
-            .filter_map(|entry| entry.ok().map(|entry| entry.path()))
-            .filter(|path| path.extension().is_some_and(|ext| ext == "sql"))
-            .collect();
-        paths.sort();
-        let mut creatures = Vec::new();
         let mut models = Ac1Models::default();
-        for path in paths {
-            let weenie = match AceWeenie::load(&path) {
-                Ok(weenie) => weenie,
-                Err(error) => {
-                    eprintln!("world-viewer: {error}");
-                    continue;
-                }
-            };
-            let visual =
-                DataId::new(ac1_assets::creature::AC1_VISUAL_BASE + creatures.len() as u32);
-            match dats.creature(&weenie, visual) {
-                Ok(creature) => {
-                    models.insert(&creature);
-                    creatures.push(creature);
-                }
-                Err(error) => eprintln!("world-viewer: {}: {error}", weenie.name),
+        let creatures = match weenies {
+            Some(dir) => build_dir(&dats, dir, WEENIE_VISUALS, &mut models)?,
+            None => Vec::new(),
+        };
+        let weapons = match weapons {
+            Some(dir) => build_dir(&dats, dir, WEAPON_VISUALS, &mut models)?,
+            None => Vec::new(),
+        };
+        for (kind, list) in [("creatures", &creatures), ("weapons", &weapons)] {
+            if !list.is_empty() {
+                println!(
+                    "ac1: {} {kind} ({})",
+                    list.len(),
+                    list.iter()
+                        .map(|c| c.weenie.name.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                );
             }
         }
-        println!(
-            "ac1: {} creatures ({})",
-            creatures.len(),
-            creatures
-                .iter()
-                .map(|c| c.weenie.name.as_str())
-                .collect::<Vec<_>>()
-                .join(", ")
-        );
         Ok(Self {
             players: vec![None; creatures.len()],
             heartbeat: None,
             lineup: false,
             creatures,
             models: Arc::new(models),
+            weapons: crate::ac1_held::Ac1Weapons::new(weapons, store),
             anchor: None,
         })
     }

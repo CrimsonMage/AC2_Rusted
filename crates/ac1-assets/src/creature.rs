@@ -114,14 +114,30 @@ impl Ac1Dats {
                 };
                 bones
             ]),
-            placements: Arc::from(vec![Ac2PlacementFrame {
-                kind: 0,
-                bones: Arc::from(
-                    (0..bones)
-                        .map(|i| transform(rest.get(i).copied().unwrap_or(Frame::IDENTITY)))
-                        .collect::<Vec<_>>(),
-                ),
-            }]),
+            // Placement 0 (the rest frame above), then every other `placement_frames` entry by
+            // its AC1 `Placement` key (`RightHandCombat` 1, `RightHandNonCombat` 2, `LeftHand` 3,
+            // ...), which a holder's `SetPlacementFrame` picks.
+            placements: Arc::from(
+                std::iter::once((0, &rest[..]))
+                    .chain(
+                        setup
+                            .placements
+                            .iter()
+                            .filter(|(key, _)| *key != 0)
+                            .map(|(key, frames)| (*key, &frames[..])),
+                    )
+                    .map(|(kind, frames)| Ac2PlacementFrame {
+                        kind,
+                        bones: Arc::from(
+                            (0..bones)
+                                .map(|i| {
+                                    transform(frames.get(i).copied().unwrap_or(Frame::IDENTITY))
+                                })
+                                .collect::<Vec<_>>(),
+                        ),
+                    })
+                    .collect::<Vec<_>>(),
+            ),
             holding_points: Arc::from([]),
             connection_points: Arc::from([]),
             degrade: Ac2DegradeInfo::default(),
@@ -237,6 +253,13 @@ impl Ac1Dats {
         })
     }
 }
+
+/// What turns an AC1 object placed for an AC1 hand (its Setup's hand placement frame) into the
+/// axes an AC2 hand holds by: an AC2 weapon's blade runs along its +y with the guard across x,
+/// an AC1 weapon's (after `RightHandCombat`) along +z with the guard across y. The AC1 axes
+/// x, y, z become the AC2 z, x, y: a turn of -120 degrees about (1, 1, 1). A held AC1 object
+/// takes it as its offset in the holding location (`CHILDINFO::m_offset`).
+pub const AC1_HAND_TO_AC2: Quat = Quat::from_xyzw(-0.5, -0.5, -0.5, 0.5);
 
 /// A frame as the bone transform the renderer poses a part with.
 fn transform(frame: Frame) -> Ac2Transform {
