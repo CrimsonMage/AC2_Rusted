@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1381 done, 292 partial, 3 to do, 571 skipped.
+2247 retail functions: 1382 done, 293 partial, 0 to do, 572 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -2038,7 +2038,7 @@ Legend and workflow: [README](README.md).
 - [-] `NIListIter<NoticeHandler_*>::RemoveCur` · 00599570 · legions 004c0420 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### ICIDM
-- [ ] `ICIDM::PushKeyMap` · 005995e0 · legions 00566610 — needs port: key map action table (CKeyMap / ICIDM key map stack); keymap_file.rs
+- [-] `ICIDM::PushKeyMap` · 005995e0 · legions 00566610 — The ICIDM base slot is an empty stub (releases its filename, returns 0); CInputManager_WIN32 overrides it. The client loads its key maps through ac2-ui maps.rs / keymap_file.rs
 - [~] `ICIDM::GetNameFromKey` · 00599610 · legions 00566640 — ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
 
 ### CInputManager
@@ -2055,7 +2055,7 @@ Legend and workflow: [README](README.md).
 - [~] `CInputManager::SetMouseLookMode` · 00599ce0 · legions 00566d10 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 - [x] `CInputManager::SetTextMode` · 00599d40 · legions 00566d70 — ac2-ui input.rs / text_edit.rs: typing into text elements
 
-## `portal/client/src/cinputmap/ckeymap.cpp.c` (7/23)
+## `portal/client/src/cinputmap/ckeymap.cpp.c` (8/23)
 
 ### MapGUID
 - [x] `MapGUID::StreamPack` · 00599d60 · legions 00566d90 — ac2-ui maps.rs
@@ -2079,7 +2079,7 @@ Legend and workflow: [README](README.md).
 - [x] `ActionMapping::StreamPack` · 0059a1c0 · legions 00567180 — ac2-ui maps.rs
 
 ### CKeyMap
-- [ ] `CKeyMap::AddAction` · 0059a210 · legions 005671d0 — needs port: key map action table (CKeyMap / ICIDM key map stack); keymap_file.rs
+- [x] `CKeyMap::AddAction` · 0059a210 · legions 005671d0 — ac2-ui maps.rs KeyMap::mappings: each ActionMapping (act, semantic, name) appended in file order by the key-map reader (keymap_file.rs, FromFileNode) and by the keyboard page save (pregame/keyboard.rs, SaveKeyboardList); keymap_file_tests.rs
 - [x] `CKeyMap::StreamPack` · 0059a2b0 · legions 00567270 — ac2-ui maps.rs
 - [~] `CKeyMap::GetSemanticByName` · 0059a320 · legions 005672e0 — ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
 - [x] `CKeyMap::UpdateVersion` · 0059a360 · legions 00567320 — ac2-ui keymap_file.rs update_version + MAIN_KEY_UPDATES (Main table row 0x9d73ac); read_key_map_upgraded rewrites the file (keymap_file_tests)
@@ -2147,7 +2147,7 @@ Legend and workflow: [README](README.md).
 
 ### CInputManager_WIN32
 - [x] `CInputManager_WIN32::PopKeyMap` · 0059ff00 · legions 0056cc00 — ac2-ui input.rs
-- [ ] `CInputManager_WIN32::GetKeyFromInputAction` · 0059ff60 · legions 0056cc60 — needs port: GetKeyFromInputAction lists every key bound to an input action across the key-map stack (top first), as semantic + metakey from the modifier bits, without duplicates
+- [~] `CInputManager_WIN32::GetKeyFromInputAction` · 0059ff60 · legions 0056cc60 — Its one caller is gmKeyboardUI::InitializeKeyboardList: pregame/keyboard_list.rs from_maps lists each action keys from the input manager maps (main, shift, control), deduplicated by semantic and meta key. Not reproduced: retail walks the live key-map stack hash tables top first, so the order of an action several keys follows QualifiedKey bucket order; that order is not modelled
 - [-] `CInputManager_WIN32::~CInputManager_WIN32` · 005a01f0 · legions 0056cef0 — Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 - [-] `CInputManager_WIN32::CInputManager_WIN32` · 005a03a0 · legions 0056d0a0 — Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 - [x] `CInputManager_WIN32::CheckDoubleClick` · 005a04a0 · legions 0056d1a0 — ac2-ui input.rs

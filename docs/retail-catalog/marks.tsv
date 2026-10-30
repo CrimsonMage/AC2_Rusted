@@ -8507,7 +8507,7 @@ key	status	note
 00591a40	x	
 00599540	~	ac2-ui input.rs InputManager::new and controls.rs Controls::load_with (preproc map from the DAT). Not: the DirectInput device list and the acquire/keystone state
 00599570	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-005995e0	_	needs port: key map action table (CKeyMap / ICIDM key map stack); keymap_file.rs
+005995e0	-	The ICIDM base slot is an empty stub (releases its filename, returns 0); CInputManager_WIN32 overrides it. The client loads its key maps through ac2-ui maps.rs / keymap_file.rs
 00599610	~	ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
 00599630	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 00599930	-	handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
@@ -8528,7 +8528,7 @@ key	status	note
 00599f10	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 0059a000	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
 0059a1c0	x	ac2-ui maps.rs
-0059a210	_	needs port: key map action table (CKeyMap / ICIDM key map stack); keymap_file.rs
+0059a210	x	ac2-ui maps.rs KeyMap::mappings: each ActionMapping (act, semantic, name) appended in file order by the key-map reader (keymap_file.rs, FromFileNode) and by the keyboard page save (pregame/keyboard.rs, SaveKeyboardList); keymap_file_tests.rs
 0059a2b0	x	ac2-ui maps.rs
 0059a320	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
 0059a360	x	ac2-ui keymap_file.rs update_version + MAIN_KEY_UPDATES (Main table row 0x9d73ac); read_key_map_upgraded rewrites the file (keymap_file_tests)
@@ -8569,7 +8569,7 @@ key	status	note
 0059fa30	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 0059fbf0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0059ff00	x	ac2-ui input.rs
-0059ff60	_	needs port: GetKeyFromInputAction lists every key bound to an input action across the key-map stack (top first), as semantic + metakey from the modifier bits, without duplicates
+0059ff60	~	Its one caller is gmKeyboardUI::InitializeKeyboardList: pregame/keyboard_list.rs from_maps lists each action keys from the input manager maps (main, shift, control), deduplicated by semantic and meta key. Not reproduced: retail walks the live key-map stack hash tables top first, so the order of an action several keys follows QualifiedKey bucket order; that order is not modelled
 005a01f0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005a03a0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005a04a0	x	ac2-ui input.rs
