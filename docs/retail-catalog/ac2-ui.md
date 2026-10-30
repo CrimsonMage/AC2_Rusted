@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1427 done, 240 partial, 0 to do, 580 skipped.
+2247 retail functions: 1437 done, 230 partial, 0 to do, 580 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [-] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180 — region construction and teardown: Element construction in UiTree::create_element and Drop
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (76/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (85/104)
 
 ### UIRectangleObject
 - [-] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
@@ -2802,10 +2802,10 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::GetScreenY1` · 005e9510 · legions 005aa170 — ac2-ui place.rs: UiTree::screen_box (the parent's screen origin, or the root's object origin, plus the rect)
 
 ### UIElement
-- [~] `UIElement::UIElement` · 005e9530 · legions 005aa190 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::UIElement` · 005e9530 · legions 005aa190 — ac2-ui element.rs create_element: the UiElement fields (empty box, invisible, no image, alpha -1, owns-object flag, transition and cursor state)
 - [x] `UIElement::HasCursor` · 005e9710 · legions 005aa370 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::SetParent` · 005e9720 · legions 005aa380 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIElement::BroadcastMessage` · 005e9790 · legions 005aa3f0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [x] `UIElement::BroadcastMessage` · 005e9790 · legions 005aa3f0 — ac2-ui mouse.rs broadcast: the message queued as a UiMessage (element, id, data) that the panels read; the per-element listener registry is replaced by that queue
 - [x] `UIElement::UpdateMedia` · 005e97c0 · legions 005aa420 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::ClearTooltip` · 005e9810 · legions 005aa470 — ac2-ui tooltip.rs
 
@@ -2816,8 +2816,8 @@ Legend and workflow: [README](README.md).
 - [-] `IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<unsigned_short>_>_*>::~IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<unsigned_short>_>_*>` · 005e9890 · legions 005aa4f0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### UIElement
-- [~] `UIElement::StopTransition` · 005e9940 · legions 005aa5a0 — m_delOnTransStop (delete after the exit transition) not modelled
-- [x] `UIElement::StopAllTransitions` · 005e99e0 · legions 005aa640 — ac2-ui media.rs / transition.rs
+- [x] `UIElement::StopTransition` · 005e9940 · legions 005aa5a0 — ac2-ui transition.rs (stop_transition, transition_set_state, stop_all_transitions). m_delOnTransStop: only Update_Internal sets it, for a layout child leaving its parent state with an exit transition; StartTransition needs an owned surface object (m_ownsObject), which layout children never have, so retail never started that fade and left the child up until its next SetState; the port deletes such a child at once (update_internal)
+- [x] `UIElement::StopAllTransitions` · 005e99e0 · legions 005aa640 — ac2-ui transition.rs (stop_transition, transition_set_state, stop_all_transitions). m_delOnTransStop: only Update_Internal sets it, for a layout child leaving its parent state with an exit transition; StartTransition needs an owned surface object (m_ownsObject), which layout children never have, so retail never started that fade and left the child up until its next SetState; the port deletes such a child at once (update_internal)
 - [x] `UIElement::SetIconDesc` · 005e9ab0 · legions 005aa710 — ac2-ui icon_desc.rs: set_icon_desc keeps the layers, compose.rs draws their composite (the first layer copied and multiplied by its shift colour, each later one multiplied and alpha-blended over it, blit 0x14); a first layer with no image leaves the element as it was, a later one is left out; image_files asks for every layer; used by the item displays, the 3D items panel and the new-sale icon; icon_desc_tests (on the DAT 4049 of 4612 layers are white, 62 null)
 - [~] `UIElement::UpdateTransitions` · 005e9b80 · legions 005aa7e0 — ac2-ui transition.rs: fades (type 3); sounds queued for an audio sink. Type 4 (move offsets, Z rotate) is not ported: the Legions DAT layouts hold 17 transitions, all fades (scanned 2026-10-29), so none is reachable
 - [x] `UIElement::GetAttribute_ID` · 005e9f00 · legions 005aaad0 — UIElement::GetAttribute_ID done: story_quests.rs attribute_id
@@ -2838,9 +2838,9 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860 — ac2-ui tooltip.rs
 - [x] `UIElement::IsActivatable` · 005eacb0 · legions 005ab880 — ac2-ui: the activatable attribute, read by UiTree::activate (button.rs is_activatable, text_edit.rs activation)
 - [-] `UIElement::GetActivateOrder` · 005eacd0 · legions 005ab8a0 — the activatable list (RegisterActivatable, ordered by activate_order) is only walked by UIElementManager::ActivateNext on Tab; Legions 0x005A4440 KeyPressEvent dropped admin's 0x40000017 -> ActivateNext case, so the DVD client has no Tab field navigation; activation itself (ActivationAlert, one active element) is text_edit.rs
-- [~] `UIElement::MoveTo` · 005eacf0 · legions 005ab8c0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::MoveTo` · 005eacf0 · legions 005ab8c0 — ac2-ui place.rs move_to: a root keeps its box at its surface object origin, clamped on the display; others move their box; location_changed for save_loc/broadcast_loc_change is raised at the end of a drag or resize (window_locations.rs, resize.rs; the modern saved-places exception)
 - [x] `UIElement::GetPositionFromState` · 005eae20 · legions 005ab9f0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIElement::SetVisible` · 005eafc0 · legions 005abb90 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::SetVisible` · 005eafc0 · legions 005abb90 — ac2-ui activation.rs set_visible: own flag and parent IsVisible; a hidden active element deactivates, a shown activate_on_show one activates unless Enter is held (the dialogs OkButton/YesButton/ResurrectButton); tooltip owner cleared (ChangingElementVisibility); location_changed for save_loc windows is the modern record at the end of a move (window_locations.rs); set_show_state has no listener left (panels show through their own calls). Test: activation_tests
 - [x] `UIElement::StartTransition` · 005eb100 · legions 005abcd0 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::StartResizing` · 005eb1f0 · legions 005abdc0 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 - [x] `UIElement::StopResizing` · 005eb370 · legions 005abf40 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
@@ -2859,7 +2859,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::SetAttribute_StringID` · 005ec380 · legions 005acf50 — ac2-ui element.rs set_attribute (AttributeValue::StringId): stored by id, changed when the value differs (single attribute map, not one table per type)
 - [x] `UIElement::SetAttribute_Int` · 005ec420 · legions 005acff0 — UIElement::SetAttribute_Int done: element.rs set_int
 - [x] `UIElement::SetAttribute_Float` · 005ec4d0 · legions 005ad0a0 — UIElement::SetAttribute_Float done: meter.rs set_float
-- [~] `UIElement::SetAttribute_Bool` · 005ec570 · legions 005ad140 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::SetAttribute_Bool` · 005ec570 · legions 005ad140 — ac2-ui element.rs set_bool: stored; a change of hide shows or hides, mouse_invisible sets mouse visibility, size_image_to_owner is read when drawn; activatable feeds only the Tab walk (UpdateActivatable), which Legions dropped
 - [x] `UIElement::SetAttribute_DataID` · 005ec660 · legions 005ad230 — ac2-ui element.rs set_attribute (AttributeValue::DataId): stored by id, changed when the value differs (single attribute map, not one table per type)
 - [~] `UIElement::SetAttribute_ASCII` · 005ec700 · legions 005ad2d0 — Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
 - [~] `UIElement::SetAttribute_Unicode` · 005ec7a0 · legions 005ad370 — Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
@@ -2867,12 +2867,12 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::GetParentOriginalPosition` · 005ec8a0 · legions 005ad470 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIElement::ListenToMessage` · 005ec9d0 · legions 005ad5a0 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::UpdateSizeAndPosition` · 005eca20 · legions 005ad5f0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIElement::Update_Internal` · 005ecd60 · legions 005ad930 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-- [~] `UIElement::ResizeTo` · 005ed150 · legions 005add20 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::Update_Internal` · 005ecd60 · legions 005ad930 — ac2-ui element.rs update_internal: children of the state and stateless descs (and the reference desc) updated, stale layout children removed (the exit-transition delay cannot start on an object-less child: see StopTransition), then UpdateSizeAndPosition
+- [~] `UIElement::ResizeTo` · 005ed150 · legions 005add20 — ac2-ui place.rs resize_to: min/max clamps, text margins, children placed again, scroll bar/meter/list relayout; location_changed at the end of a resize (resize.rs). Not modelled: resize_stretched (the surface object keeps its size and stretches; one element, BackgroundField of the dialogs layout 0x22000005)
 - [x] `UIElement::SwitchDescription` · 005ed2c0 · legions 005ade90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIElement::Update` · 005ed330 · legions 005adf00 — ac2-ui element.rs update_internal: ++update_count then Update_Internal are inlined in create_element and enter_state; no standalone Update entry for outside callers
+- [x] `UIElement::Update` · 005ed330 · legions 005adf00 — ac2-ui element.rs: ++update_count then update_internal, inlined where retail calls Update (create_element, enter_state)
 - [x] `UIElement::UpdateChild` · 005ed340 · legions 005adf10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIElement::SetState` · 005ed450 · legions 005ae020 — m_delOnTransStop (delete after the exit transition) not modelled
+- [x] `UIElement::SetState` · 005ed450 · legions 005ae020 — ac2-ui transition.rs (stop_transition, transition_set_state, stop_all_transitions). m_delOnTransStop: only Update_Internal sets it, for a layout child leaving its parent state with an exit transition; StartTransition needs an owned surface object (m_ownsObject), which layout children never have, so retail never started that fade and left the child up until its next SetState; the port deletes such a child at once (update_internal)
 
 ## `portal/client/src/uielement/system/uielementmanager.cpp.c` (31/69)
 
@@ -2884,7 +2884,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElementManager::RemoveRootElement` · 005e3580 · legions 005a4320 — ac2-ui element.rs: UiTree::delete (removes a root and its children)
 - [x] `UIElementManager::SetCursor` · 005e35f0 — ac2-ui element cursor (SetCursor: the element cursor or the default, with hotspot), drawn each frame by ac2-client bin/ac2/cursor.rs from UiTree::pointer_cursor
 - [x] `UIElementManager::UseDefaultCursor` · 005e3690 · legions 005a4420 — ac2-ui media.rs / transition.rs
-- [x] `UIElementManager::KeyReleaseEvent` · 005e36b0 — ac2-ui mouse.rs stop_input: the global key release 0xffff0004; the active element release hooks (actions 0x40000013-16, 0x40000018) are admin-only with no Legions counterpart
+- [x] `UIElementManager::KeyReleaseEvent` · 005e36b0 — ac2-ui activation.rs key_release_event: Enter release goes to the active button EndUseActive (release on it), else the global key release 0xffff0004; Legions keeps it unnamed as FUN_005a44e0 (same switch). Test: activation_tests
 - [x] `UIElementManager::ClearTooltip` · 005e3740 · legions 005a4570 — ac2-ui tooltip.rs
 - [x] `UIElementManager::CheckDragandDrop` · 005e37c0 · legions 005a45f0 — ac2-ui drag.rs; shortcut.rs drop
 - [x] `UIElementManager::ClearDragandDrop` · 005e3820 · legions 005a4650 — ac2-ui drag.rs; shortcut.rs drop
@@ -2908,7 +2908,7 @@ Legend and workflow: [README](README.md).
 - [-] `UIElementManager::DrawDirtyRegions` · 005e4970 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 - [-] `UIElementManager::GetObjectRegionInfo` · 005e4b10 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 - [x] `UIElementManager::MouseUpEvent` · 005e4b60 — ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
-- [x] `UIElementManager::KeyPressEvent` · 005e4c70 · legions 005a4440 — ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
+- [x] `UIElementManager::KeyPressEvent` · 005e4c70 · legions 005a4440 — ac2-ui mouse.rs start_input (mouse move, down, up, UpdateMouse) and activation.rs key_press_event: Enter (0x40000018) goes to the active element StartUseActive (button press, panel page open) and is not broadcast when taken; the Tab -> ActivateNext case is admin-only (Legions 0x005A4440 dropped it). Test: activation_tests
 - [x] `UIElementManager::ResetTooltip` · 005e4d20 · legions 005a5bb0 — ac2-ui tooltip.rs
 - [-] `UIElementManager::AddtoListCleanQue` · 005e4d30 · legions 005a5bc0 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 - [x] `UIElementManager::HandleApply` · 005e4d70 · legions 005a5c00 — ac2-ui tooltip_prefs.rs UiTree::apply_tooltip_prefs: the delay (0x4000005B) applied with UseTime's show/clear checks, the switch (0x4000005C) clears and restarts the tooltip; read from the bank each frame in options_pages.rs run (applied on change); tooltip_tests the_tooltip_follows_its_preferences_and_its_owner_hiding
@@ -3140,21 +3140,21 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::SetAttribute_DataID` · 005f1a50 · legions 005b2580 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [x] `UIElement_Text::ListenToMessage` · 005f1aa0 · legions 005b25d0 — ac2-ui text_scroll.rs texts_follow_scrollbar (texts_bound_to checks the bar the text names, found per unique_msg in its own root) and menu.rs menu_new_selection (display_selection); no Legions text names a horizontal_scrollbar (layout scan 2026-10-29), so the horizontal half never runs
 
-## `portal/client/src/uielement/types/uielement_button.cpp.c` (11/16)
+## `portal/client/src/uielement/types/uielement_button.cpp.c` (12/16)
 
 ### UIElement_Button
 - [~] `UIElement_Button::UIElement_Button` · 005fb4e0 · legions 005bc010 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [-] `UIElement_Button::Create` · 005fb540 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIElement_Button::Global_Loop` · 005fb570 · legions 005bc0a0 — ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
 - [x] `UIElement_Button::ListenToMessage` · 005fb5f0 · legions 005bc120 — ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
-- [x] `UIElement_Button::UpdateState` · 005fb620 · legions 005bc150 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+- [x] `UIElement_Button::UpdateState` · 005fb620 · legions 005bc150 — ac2-ui button.rs button_update_state: ghosted, radio hold, pressed or rollover while the pointer is over it or the button is active (m_active), else highlight/normal
 - [x] `UIElement_Button::SetState` · 005fb710 · legions 005bc240 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement_Button::IsActivatable` · 005fb770 · legions 005bc2a0 — ac2-ui button.rs is_activatable (ghosted is never activatable, else the activatable attribute); text_edit.rs activate/deactivate refresh a button's state
 - [x] `UIElement_Button::Activate` · 005fb7a0 · legions 005bc2d0 — ac2-ui button.rs is_activatable (ghosted is never activatable, else the activatable attribute); text_edit.rs activate/deactivate refresh a button's state
 - [x] `UIElement_Button::Deactivate` · 005fb7c0 · legions 005bc2f0 — ac2-ui button.rs is_activatable (ghosted is never activatable, else the activatable attribute); text_edit.rs activate/deactivate refresh a button's state
-- [x] `UIElement_Button::StartUseActive` · 005fb7e0 · legions 005bc310 — ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
-- [x] `UIElement_Button::EndUseActive` · 005fb870 · legions 005bc3a0 — ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
-- [~] `UIElement_Button::SetAttribute_Bool` · 005fb940 · legions 005bc470 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [x] `UIElement_Button::StartUseActive` · 005fb7e0 · legions 005bc310 — ac2-ui button.rs button_start_use_active (Enter on the active button: pressed, mouse_press, a hot button first click) and button_mouse_down for the mouse; hot clicks repeat in button_global_loop. Tests: activation_tests, scrollbar_tests a_held_hot_button_repeats_its_click
+- [x] `UIElement_Button::EndUseActive` · 005fb870 · legions 005bc3a0 — ac2-ui button.rs button_end_use_active: release_on while the button is active (m_active), else release_off; a boolean button toggles highlighted; button_mouse_up for the mouse. Test: activation_tests
+- [x] `UIElement_Button::SetAttribute_Bool` · 005fb940 · legions 005bc470 — ac2-ui button.rs button_attribute: ghosted/highlighted/rollover update the state, highlighted broadcasts highlight_state_change; ghosted UpdateActivatable feeds only the Tab walk Legions dropped
 - [-] `UIElement_Button::Register` · 005fb9b0 · legions 005bc4e0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [~] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [x] `UIElement_Button::MouseUp` · 005fbb10 · legions 005bc640 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons

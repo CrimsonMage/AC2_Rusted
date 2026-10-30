@@ -129,7 +129,7 @@ impl UiTree {
     }
 
     /// `UIRegion::IsVisible`: the region and every parent visible.
-    fn region_visible(&self, index: usize) -> bool {
+    pub(crate) fn region_visible(&self, index: usize) -> bool {
         let el = self.el(index);
         el.visible && el.parent.is_none_or(|parent| self.region_visible(parent))
     }

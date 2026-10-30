@@ -68,7 +68,7 @@ impl UiTree {
         });
     }
 
-    fn broadcast_global(&mut self, message: u32, data: u32) {
+    pub(crate) fn broadcast_global(&mut self, message: u32, data: u32) {
         self.messages.push(UiMessage {
             element_id: 0,
             element: None,
@@ -114,18 +114,18 @@ impl UiTree {
             0x4000_0003 => {}
             UI_WHEEL_IN | UI_WHEEL_OUT => self.mouse_down_event(action),
             a if is_mouse_button(a) => self.mouse_down_event(action),
-            _ => self.broadcast_global(GLOBAL_KEY_PRESS, action),
+            _ => self.key_press_event(action),
         }
     }
 
-    /// `UIElementManager::StopInput` (its `KeyReleaseEvent` for a key action: the global release
-    /// message, without the active element's own release hooks).
+    /// `UIElementManager::StopInput` (its `KeyReleaseEvent` for a key action,
+    /// `crate::activation`).
     pub fn stop_input(&mut self, action: u32) {
         match action {
             UI_POINTER_X | UI_POINTER_Y => self.mouse_move_event(),
             0x4000_0003 | UI_WHEEL_IN | UI_WHEEL_OUT => {}
             a if is_mouse_button(a) => self.mouse_up_event(action),
-            _ => self.broadcast_global(GLOBAL_KEY_RELEASE, action),
+            _ => self.key_release_event(action),
         }
     }
 

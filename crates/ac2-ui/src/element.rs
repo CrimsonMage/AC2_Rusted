@@ -244,6 +244,8 @@ pub struct UiTree {
     pub(crate) moved: bool,
     /// `m_activeElement`.
     pub(crate) active: Option<usize>,
+    /// Whether the use-active key is held (`ActionInterpreter::ActionDown(0x40000018)`).
+    pub(crate) use_held: bool,
     /// `Timer::cur_time` of the last global loop, in seconds.
     pub(crate) time: f64,
     /// `Random::rand`'s state for the media's rolls.
@@ -339,6 +341,7 @@ impl UiTree {
             changed: true,
             moved: true,
             active: None,
+            use_held: false,
             time: 0.0,
             random: ac2_core::Random::default(),
             media_clocks: std::collections::HashMap::new(),
@@ -606,23 +609,6 @@ impl UiTree {
     pub(crate) fn initialized(&mut self, index: usize) {
         if self.el(index).text.is_some() {
             self.text_update_scrollbar(index);
-        }
-    }
-
-    /// `UIElement::SetVisible` (`UIRegion::SetVisible`).
-    pub fn set_visible(&mut self, index: usize, visible: bool) {
-        self.el_mut(index).visible = visible;
-        self.changed = true;
-        self.menu_visibility(index);
-        // `UIElementManager::ChangingElementVisibility`: a tooltip owner that is no longer shown
-        // (itself or its parent hidden) loses its tooltip.
-        let parent_shown = self
-            .el(index)
-            .parent
-            .is_none_or(|p| self.get(p).is_some_and(|e| e.visible));
-        if !(visible && parent_shown) && self.tooltip.owner == Some(index) {
-            self.tooltip.owner = None;
-            self.clear_tooltip();
         }
     }
 

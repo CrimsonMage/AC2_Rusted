@@ -8,8 +8,11 @@
 //! opacity unless flag 1) to the end alpha over its duration (`UpdateTransitions`).
 //!
 //! Not modelled: rotations (`TD_Data_Rotate`; no layout on the DVD has one, and retail reads
-//! their duration from the fade's slot), moves and resizes (retail starts none of them), and
-//! deleting an element when its exit transition stops (`m_delOnTransStop`).
+//! their duration from the fade's slot) and moves and resizes (retail starts none of them).
+//! Deleting an element when its exit transition stops (`m_delOnTransStop`) has no case to run:
+//! only `Update_Internal` asks for it, for a layout child leaving its parent's state, and a child
+//! never owns a surface object, so retail's `StartTransition` refused the fade and left the child
+//! up until its next `SetState`; `UiTree::update_internal` deletes it at once.
 
 use crate::element::UiTree;
 use crate::layout_media::{TransitionData, TransitionDesc};

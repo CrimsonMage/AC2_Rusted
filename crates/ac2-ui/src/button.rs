@@ -58,7 +58,9 @@ impl UiTree {
             if radio && el.state == STATE_NORMAL_PRESSED {
                 return;
             }
-            match (el.mouse_over, el.button_pressed, rollover, highlighted) {
+            // The pointer over it or the button active (`m_active`) alike.
+            let over = el.mouse_over || self.active == Some(index);
+            match (over, el.button_pressed, rollover, highlighted) {
                 (true, true, _, false) => STATE_NORMAL_PRESSED,
                 (true, true, _, true) => STATE_HIGHLIGHT_PRESSED,
                 (true, false, true, false) => STATE_NORMAL_ROLLOVER,
@@ -151,21 +153,56 @@ impl UiTree {
         }
         if self.button_broadcasts(index) {
             self.broadcast(index, MSG_MOUSE_PRESS, action as i32);
-            // `StartUseActive`: a hot button clicks at once, then `button_global_loop` repeats
-            // the click from `hot_click_first_interval` on, every `hot_click_interval`.
-            if is_left(action) && self.bool_attribute(index, BUTTON_HOT) {
-                self.broadcast(index, MSG_HOT_CLICK, 0);
-                self.scrollbar_hot_click(index);
-                self.list_hot_click(index);
-                let first = self
-                    .float_attribute(index, HOT_CLICK_FIRST_INTERVAL)
-                    .unwrap_or(DEFAULT_HOT_CLICK_FIRST_INTERVAL);
-                let now = self.time;
-                let el = self.el_mut(index);
-                el.hot_clicking = true;
-                el.next_hot_click = f64::from(first) + now;
+            if is_left(action) {
+                self.start_hot_click(index);
             }
         }
+    }
+
+    /// `StartUseActive`'s hot click: a hot button clicks at once, then `button_global_loop`
+    /// repeats the click from `hot_click_first_interval` on, every `hot_click_interval`.
+    fn start_hot_click(&mut self, index: usize) {
+        if !self.bool_attribute(index, BUTTON_HOT) {
+            return;
+        }
+        self.broadcast(index, MSG_HOT_CLICK, 0);
+        self.scrollbar_hot_click(index);
+        self.list_hot_click(index);
+        let first = self
+            .float_attribute(index, HOT_CLICK_FIRST_INTERVAL)
+            .unwrap_or(DEFAULT_HOT_CLICK_FIRST_INTERVAL);
+        let now = self.time;
+        let el = self.el_mut(index);
+        el.hot_clicking = true;
+        el.next_hot_click = f64::from(first) + now;
+    }
+
+    /// `UIElement_Button::StartUseActive`, the active button's Enter: pressed, `mouse_press`,
+    /// and a hot button's first click.
+    pub(crate) fn button_start_use_active(&mut self, index: usize) {
+        self.el_mut(index).button_pressed = true;
+        self.broadcast(index, MSG_MOUSE_PRESS, 0);
+        self.start_hot_click(index);
+        self.button_update_state(index);
+    }
+
+    /// `UIElement_Button::EndUseActive`, Enter's release: released on the button while it is
+    /// active (off it otherwise), and a boolean button toggles its highlight.
+    pub(crate) fn button_end_use_active(&mut self, index: usize) {
+        let el = self.el_mut(index);
+        el.button_pressed = false;
+        el.hot_clicking = false;
+        let message = if self.active == Some(index) {
+            MSG_BUTTON_RELEASE_ON
+        } else {
+            MSG_BUTTON_RELEASE_OFF
+        };
+        self.broadcast(index, message, 0);
+        if self.bool_attribute(index, BUTTON_BOOLEAN) {
+            let highlighted = self.bool_attribute(index, BUTTON_HIGHLIGHTED);
+            self.set_bool(index, BUTTON_HIGHLIGHTED, !highlighted);
+        }
+        self.button_update_state(index);
     }
 
     /// `UIElement_Button::MouseUp`, after `UIElement::MouseUp`.

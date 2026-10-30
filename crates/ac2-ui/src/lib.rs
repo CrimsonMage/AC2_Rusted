@@ -6,6 +6,9 @@
 //! consumes (`ActionInterpreter`); and the UI: layouts (`LayoutDesc`), the element tree built
 //! from them (`UIElementManager`, `UIElement`) and its software compositor (`UIRegion::DrawHere`).
 
+mod activation;
+#[cfg(test)]
+mod activation_tests;
 mod addition_passes;
 mod allegiance;
 mod assistance;
