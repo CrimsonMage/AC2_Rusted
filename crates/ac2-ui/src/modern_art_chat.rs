@@ -27,11 +27,11 @@ pub const CHAT_ADD: u32 = 0x7E01_00D2;
 pub const CHAT_UNREAD: u32 = 0x7E01_00D3;
 /// The "new below" pill: dark gold (`#3a2c08`) in a gold line, ends round.
 pub const CHAT_NEW_PILL: u32 = 0x7E01_00D4;
-/// Edit layout: a movable part's dashed gold outline (corners `OUTLINE_BORDER`) and its name
-/// tag.
-pub const EDIT_OUTLINE: u32 = 0x7E01_00D5;
+/// Edit layout: a movable part's dashed gold outline, its dash tiled along each edge (across, 7 by
+/// 1, and down, 1 by 7: 4 on and 3 off), and its name tag.
+pub const EDIT_DASH_ACROSS: u32 = 0x7E01_013D;
+pub const EDIT_DASH_DOWN: u32 = 0x7E01_013E;
 pub const EDIT_TAG: u32 = 0x7E01_00D6;
-pub const OUTLINE_BORDER: i32 = 4;
 /// The settings popover's glass.
 pub const CHAT_POPOVER: u32 = 0x7E01_00CD;
 /// The log's backing in each tint (`TINTS`' order: teal, black, bronze, blue).
@@ -162,24 +162,11 @@ fn new_pill() -> UiPixels {
     c.finish()
 }
 
-/// A dashed gold outline (`1px dashed #ffe27a`), 4 on, 3 off along each edge.
-fn outline() -> UiPixels {
-    let side = 14usize;
-    let mut c = Canvas::new(side, side);
+/// The outline's dash `w` by `h`: gold (`#ffe27a`) for its first 4 pixels along, clear after.
+fn dash(w: usize, h: usize) -> UiPixels {
+    let mut c = Canvas::new(w, h);
     c.paint(
-        |x, y| {
-            let edge = x < 1.0 || y < 1.0 || x > side as f32 - 1.0 || y > side as f32 - 1.0;
-            let along = if x < 1.0 || x > side as f32 - 1.0 {
-                y
-            } else {
-                x
-            };
-            if edge && (along as i32 % 7) < 4 {
-                -1.0
-            } else {
-                1.0
-            }
-        },
+        |x, y| if x.max(y) < 4.0 { -1.0 } else { 1.0 },
         |_, _, d| (rgb(0xFFE27A, 1.0), inside(d)),
     );
     c.finish()
@@ -310,7 +297,8 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (CHAT_ADD, add()),
         (CHAT_UNREAD, unread()),
         (CHAT_NEW_PILL, new_pill()),
-        (EDIT_OUTLINE, outline()),
+        (EDIT_DASH_ACROSS, dash(7, 1)),
+        (EDIT_DASH_DOWN, dash(1, 7)),
         (EDIT_TAG, tag()),
         (CHAT_ENTRY_BAR, entry_bar()),
         (CHAT_INPUT, input()),

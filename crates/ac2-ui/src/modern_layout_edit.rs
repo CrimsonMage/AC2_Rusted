@@ -42,7 +42,8 @@ const NO_PRESETS: &str = "(none saved)";
 /// A movable part's outline and tag.
 #[derive(Debug, Clone, Copy)]
 struct Mark {
-    outline: Option<usize>,
+    /// The outline's edges (top, bottom, left, right), each a dash tiled along it.
+    outline: [Option<usize>; 4],
     tag: Option<usize>,
     label: Option<usize>,
 }
@@ -189,13 +190,22 @@ impl EditLayout {
         let count = PINNED.len() + WINDOWS.len();
         let marks = (0..count)
             .map(|i| {
-                let outline = part(
-                    tree,
-                    shield,
-                    &format!("ModernEditOutline{i}"),
-                    art::EDIT_OUTLINE,
-                    Some(art::OUTLINE_BORDER),
-                );
+                // Each edge its own part: an image smaller than its part tiles, so the dashes
+                // keep their length however long the edge (a nine-slice stretched them).
+                let outline = [0, 1, 2, 3].map(|side| {
+                    let dash = if side < 2 {
+                        art::EDIT_DASH_ACROSS
+                    } else {
+                        art::EDIT_DASH_DOWN
+                    };
+                    part(
+                        tree,
+                        shield,
+                        &format!("ModernEditOutline{i}_{side}"),
+                        dash,
+                        None,
+                    )
+                });
                 let tag = part(
                     tree,
                     shield,
@@ -374,7 +384,7 @@ impl EditLayout {
         lit(tree, self.lock.0, tree.hud_locked);
         for (mark, (name, at)) in self.marks.iter().zip(self.movables(tree)) {
             let shown = at.is_some();
-            for part in [mark.outline, mark.tag].into_iter().flatten() {
+            for part in mark.outline.into_iter().chain([mark.tag]).flatten() {
                 if tree.el(part).visible != shown {
                     tree.set_visible(part, shown);
                 }
@@ -382,10 +392,19 @@ impl EditLayout {
             let Some(at) = at else {
                 continue;
             };
-            if let Some(o) = mark.outline {
-                if tree.el(o).rect != at.offset(-2, -2) {
-                    tree.resize_to(o, at.width() + 4, at.height() + 4);
-                    tree.move_to(o, at.x0 - 2, at.y0 - 2);
+            let (x0, y0, w, h) = (at.x0 - 2, at.y0 - 2, at.width() + 4, at.height() + 4);
+            let edges = [
+                (x0, y0, w, 1),
+                (x0, y0 + h - 1, w, 1),
+                (x0, y0, 1, h),
+                (x0 + w - 1, y0, 1, h),
+            ];
+            for (edge, (x, y, ew, eh)) in mark.outline.into_iter().zip(edges) {
+                if let Some(e) = edge {
+                    if tree.el(e).rect != UiBox::new(x, y, x + ew - 1, y + eh - 1) {
+                        tree.resize_to(e, ew, eh);
+                        tree.move_to(e, x, y);
+                    }
                 }
             }
             if let (Some(t), Some(l)) = (mark.tag, mark.label) {
