@@ -156,6 +156,7 @@ pub struct ShortcutUi {
 impl ShortcutUi {
     /// `gmShortcutUI::gmShortcutUI`: the bar's root from the toolbar layout and the toolbar's
     /// attack buttons.
+    /// In the modern style the layout comes restyled (`shortcut_look.rs`).
     pub fn create(tree: &mut UiTree, layout: &Arc<LayoutDesc>, toolbar_field: usize) -> Self {
         let field = tree.create_root(Arc::clone(layout), id("ShortcutField"));
         let ui = Self {
@@ -321,10 +322,19 @@ impl ShortcutUi {
         attrs.insert(id("Token_ShortcutType"), AttributeValue::Id(shortcut.kind));
         attrs.insert(id("ShortcutIndex"), AttributeValue::Int(index as i32));
         tree.set_bool(item, id("dragable"), shortcut.kind != SHORTCUT_EMPTY);
+        let numbered = shortcut.kind == SHORTCUT_EMPTY && self.show_numbers;
         if let Some(number) = tree.child_recursive(item, id("NumberDisplay")) {
             tree.clear_text(number);
-            if shortcut.kind == SHORTCUT_EMPTY && self.show_numbers {
+            if numbered {
                 tree.set_text(number, &((index + 1) % 10).to_string());
+            }
+        }
+        // The key's digit in the slot's corner, where retail's grid art painted it, unless the
+        // number display already shows it.
+        if let Some(key) = tree.child_recursive(item, id(crate::shortcut_look::KEY_LABEL)) {
+            tree.clear_text(key);
+            if !numbered && index < SLOTS {
+                tree.set_text(key, &((index + 1) % 10).to_string());
             }
         }
         let icon = tree.child_recursive(item, id("ShortcutIcon"))?;

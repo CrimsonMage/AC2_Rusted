@@ -80,6 +80,10 @@ impl HudView {
             if let Some(bar) = &mut self.panels.shortcuts {
                 bar.refresh_after_display(tree);
             }
+            // The modern toolbar laid out for the new display.
+            if let Some(toolbar) = &self.panels.toolbar {
+                toolbar.arrange(tree);
+            }
         }
         self.dirty = true;
     }

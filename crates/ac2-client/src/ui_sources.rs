@@ -411,14 +411,23 @@ impl ac2_ui::HudHost for ClientPlayer<'_> {
         self.client.borrow_mut().saved_window_locations()
     }
 
-    fn local_window_positions(&self, player: u64) -> Result<Vec<ac2_ui::WindowPosition>, String> {
-        self.client.borrow().local_window_positions(player)
+    fn local_window_positions(
+        &self,
+        player: u64,
+        style: ac2_ui::HudStyle,
+    ) -> Result<Vec<ac2_ui::WindowPosition>, String> {
+        self.client.borrow().local_window_positions(player, style)
     }
 
-    fn save_local_window_positions(&self, player: u64, positions: &[ac2_ui::WindowPosition]) {
+    fn save_local_window_positions(
+        &self,
+        player: u64,
+        style: ac2_ui::HudStyle,
+        positions: &[ac2_ui::WindowPosition],
+    ) {
         self.client
             .borrow()
-            .save_local_window_positions(player, positions);
+            .save_local_window_positions(player, style, positions);
     }
 
     /// `gmCWInterface::InqInt(290)` on the player's qualities.

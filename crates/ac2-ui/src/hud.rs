@@ -273,7 +273,14 @@ pub fn build_styled_hud(
             .is_some_and(|e| e.id() == tokenize("ToolbarField"))
     });
     let shortcuts = match (&layouts[&LAYOUT_TOOLBAR], toolbar_field) {
-        (Some(toolbar), Some(field)) => Some(ShortcutUi::create(&mut tree, toolbar, field)),
+        (Some(toolbar), Some(field)) => {
+            // The modern bar's slots and backing (`shortcut_look`), over the same elements.
+            let layout = match style {
+                HudStyle::Modern => Arc::new(crate::shortcut_look::restyle(toolbar)),
+                HudStyle::Classic => Arc::clone(toolbar),
+            };
+            Some(ShortcutUi::create(&mut tree, &layout, field))
+        }
         _ => None,
     };
     // `gmGamePlayUI::SetupChildren` makes the mini panel after the toolbar's roots.
@@ -364,7 +371,7 @@ pub fn build_styled_hud(
         }
         _ => None,
     };
-    let toolbar = ToolbarUi::create(&mut tree);
+    let toolbar = ToolbarUi::create_styled(&mut tree, style);
     let radar = RadarUi::create(&tree);
     let secure_trade = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()

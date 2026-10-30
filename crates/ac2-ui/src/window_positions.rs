@@ -16,6 +16,8 @@ use std::path::{Path, PathBuf};
 
 use ac2_prefs::paths;
 
+use crate::HudStyle;
+
 use crate::element::UiTree;
 use crate::token::ALLOW_RESIZE;
 use crate::window_locations::{clip_to_pixel, pixel_to_clip};
@@ -77,15 +79,24 @@ pub fn parse(text: &str) -> Result<Vec<WindowPosition>, String> {
     Ok(out)
 }
 
-/// The file of `character`'s window positions in `dir`.
-pub fn window_positions_file(dir: &Path, character: u64) -> PathBuf {
-    dir.join(format!("WindowPositions-{character:016x}.txt"))
+/// The file of `character`'s window positions in `dir` for the HUD's `style`: each style keeps
+/// its own, as the modern style's windows have their own sizes.
+pub fn window_positions_file(dir: &Path, character: u64, style: HudStyle) -> PathBuf {
+    match style {
+        HudStyle::Classic => dir.join(format!("WindowPositions-{character:016x}.txt")),
+        HudStyle::Modern => dir.join(format!("WindowPositions-{character:016x}-modern.txt")),
+    }
 }
 
-/// `character`'s saved window positions in `dir`; none when the file is missing or empty (the
-/// player has not moved a window yet). A file that does not parse is an error naming the file.
-pub fn read_window_positions(dir: &Path, character: u64) -> Result<Vec<WindowPosition>, String> {
-    let path = window_positions_file(dir, character);
+/// `character`'s saved window positions in `dir` for `style`; none when the file is missing or
+/// empty (the player has not moved a window yet). A file that does not parse is an error naming
+/// the file.
+pub fn read_window_positions(
+    dir: &Path,
+    character: u64,
+    style: HudStyle,
+) -> Result<Vec<WindowPosition>, String> {
+    let path = window_positions_file(dir, character, style);
     let bytes = paths::read_or_empty(&path).map_err(|e| format!("{}: {e}", path.display()))?;
     if bytes.is_empty() {
         return Ok(Vec::new());
@@ -99,10 +110,14 @@ pub fn read_window_positions(dir: &Path, character: u64) -> Result<Vec<WindowPos
 pub fn write_window_positions(
     dir: &Path,
     character: u64,
+    style: HudStyle,
     positions: &[WindowPosition],
 ) -> io::Result<()> {
     let text = to_text(positions);
-    paths::write_atomic(&window_positions_file(dir, character), text.as_bytes())
+    paths::write_atomic(
+        &window_positions_file(dir, character, style),
+        text.as_bytes(),
+    )
 }
 
 /// The file that marks `character`'s radar coordinates as hidden in `dir`. The radar shows its

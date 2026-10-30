@@ -75,6 +75,8 @@ pub fn tick_pass<P: HudSource>(
     // `gmToolbarUI::ManageChildren`: the buttons' tooltips follow the children's shown states.
     if let Some(bar) = toolbar.as_ref() {
         bar.refresh_tooltips(tree, player);
+        // The modern cluster's parts beside the shortcut bar follow it when it moved or resized.
+        bar.follow_shortcut_bar(tree);
     }
     // `gmSecureTradeUI`'s global loop: an ended trade closes; a stack its list dropped asks.
     if let Some(panel) = secure_trade.as_mut() {

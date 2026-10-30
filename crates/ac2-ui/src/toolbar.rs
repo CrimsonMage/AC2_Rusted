@@ -11,6 +11,10 @@
 //! `ID_Toolbar_TT_Hide` text while the child shows and `ID_Toolbar_TT_Show` while it is hidden,
 //! refreshed when a child's shown state changes ([`ToolbarUi::refresh_tooltips`]).
 //!
+//! In the modern style the toolbar's look is the client's own (`toolbar_cluster.rs`): the same
+//! elements laid out as a corner cluster whose groups open under the pointer
+//! ([`ToolbarUi::arrange`]). The classic style keeps retail's bar.
+//!
 //! Not modelled yet: the panels' contents (each child's own frameworks), the help buttons
 //! (`KeyStone::OpenHelp`), the key stone and plug-in keys.
 
@@ -18,9 +22,10 @@ use std::cell::Cell;
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
-use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
+use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS, GLOBAL_MOUSE_DOWN, GLOBAL_MOUSE_MOVE};
 use crate::skill_tree::SkillVar;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_RELEASE};
+use crate::toolbar_cluster::{hover, Cluster};
 use crate::ui_string::{UiString, UiStrings};
 
 /// A toolbar panel child.
@@ -53,7 +58,7 @@ impl ToolbarChild {
             .find(|child| child.name().eq_ignore_ascii_case(name))
     }
 
-    fn name(self) -> &'static str {
+    pub(crate) fn name(self) -> &'static str {
         match self {
             Self::Examination => "Examination",
             Self::Navigation => "Navigation",
@@ -105,12 +110,23 @@ pub struct ToolbarUi {
     consignments: Option<usize>,
     /// Each child's shown state when its tooltip was last set (`None`: not yet).
     tooltip_shown: Cell<[Option<bool>; 7]>,
+    /// The field's parts as the corner cluster lays them out, and its open groups (left, right).
+    cluster: Option<Cluster>,
+    open: Cell<[bool; 2]>,
+    /// The shortcut bar's screen box when the cluster was last laid out beside it.
+    shortcut_box: Cell<Option<crate::element::UiBox>>,
 }
 
 impl ToolbarUi {
     /// `gmToolbarUI::SetupChildren`: each child finds its field (`IUIManager::GetElement`) and
     /// hides it.
     pub fn create(tree: &mut UiTree) -> Self {
+        Self::create_styled(tree, crate::HudStyle::Classic)
+    }
+
+    /// [`Self::create`] in `style`: the modern style lays the same elements out as the corner
+    /// cluster (`toolbar_cluster.rs`); the classic one keeps retail's bar.
+    pub fn create_styled(tree: &mut UiTree, style: crate::HudStyle) -> Self {
         let field = tree.roots().iter().copied().find(|&r| {
             tree.get(r)
                 .is_some_and(|e| e.id() == tokenize("ToolbarField"))
@@ -134,12 +150,20 @@ impl ToolbarUi {
                 }
             })
             .collect();
+        let dismount = button("DismountButton");
+        let consignments = button("ConsignmentsButton");
+        let cluster = field
+            .filter(|_| style == crate::HudStyle::Modern)
+            .map(|field| Cluster::adopt(tree, field));
         let toolbar = Self {
             children,
             field,
-            dismount: button("DismountButton"),
-            consignments: button("ConsignmentsButton"),
+            dismount,
+            consignments,
             tooltip_shown: Cell::new([None; 7]),
+            cluster,
+            open: Cell::new([false; 2]),
+            shortcut_box: Cell::new(None),
         };
         for child in ToolbarChild::ALL {
             toolbar.set_field(tree, child, false);
@@ -181,18 +205,86 @@ impl ToolbarUi {
                 }
             }
         }
+        self.arrange(tree);
     }
 
     /// `gmToolbarUI::RecvNotice_ShowSaleReminder`: the consignments button shows in its
     /// consignments state, or hides in the stateless one.
     pub fn sale_reminder(&self, tree: &mut UiTree, show: bool) {
         button_state(tree, self.consignments, "consignments", show);
+        self.arrange(tree);
     }
 
     /// `gmToolbarUI::RecvNotice_UpdateMountState`: the dismount button shows in its dismount
     /// state while the player is on a mount.
     pub fn mount_state(&self, tree: &mut UiTree, on_mount: bool) {
         button_state(tree, self.dismount, "dismount", on_mount);
+        self.arrange(tree);
+    }
+
+    /// The toolbar laid out for the display as it is (after `UiTree::set_display`, or when the
+    /// shortcut bar moved): the corner cluster with its open groups, the parts beside the
+    /// shortcut bar, the status buttons shown.
+    pub fn arrange(&self, tree: &mut UiTree) {
+        if let Some(cluster) = &self.cluster {
+            cluster.arrange(tree, self.open.get());
+        }
+        self.light(tree);
+    }
+
+    /// The modern cluster laid out again when the shortcut bar's box differs from the one it was
+    /// last laid out beside (the bar's rows, options and saved place move it after the build).
+    pub fn follow_shortcut_bar(&self, tree: &mut UiTree) {
+        if self.cluster.is_none() {
+            return;
+        }
+        let bar = tree
+            .roots()
+            .iter()
+            .copied()
+            .find(|&r| {
+                tree.get(r)
+                    .is_some_and(|e| e.id() == tokenize("ShortcutField"))
+            })
+            .map(|r| tree.screen_box(r));
+        if bar != self.shortcut_box.get() {
+            self.shortcut_box.set(bar);
+            self.arrange(tree);
+        }
+    }
+
+    /// Each shown child's button lit: drawn in its rollover art while its panel shows (the
+    /// client's own cue; retail's buttons looked the same either way).
+    fn light(&self, tree: &mut UiTree) {
+        if self.cluster.is_none() {
+            return;
+        }
+        for c in &self.children {
+            let shown = self.shown(tree, c.child);
+            if let Some(button) = c.button_element {
+                crate::toolbar_cluster::light(tree, button, shown);
+            }
+        }
+    }
+
+    /// The groups open (left panel's, right panel's).
+    pub fn open_groups(&self) -> [bool; 2] {
+        self.open.get()
+    }
+
+    /// The pointer moved or pressed: the group under it opens, and both fold once it leaves the
+    /// plate ([`crate::toolbar_cluster::hover`]).
+    fn pointer(&self, tree: &mut UiTree) {
+        let Some(cluster) = &self.cluster else {
+            return;
+        };
+        let open = self.open.get();
+        let next = hover(&cluster.plan(tree, open), open, cluster.pointer(tree));
+        if next != open {
+            self.open.set(next);
+        }
+        // Laid out on every move, so a new display size or a moved shortcut bar is followed too.
+        self.arrange(tree);
     }
 
     /// `gmToolbarUI::ListenToMessage`: the dismount button's release (`DismountButton`,
@@ -283,6 +375,9 @@ impl ToolbarUi {
     /// `ListenToMessage` for its buttons.
     pub fn message(&self, tree: &mut UiTree, message: &UiMessage) {
         if message.element.is_none() {
+            if message.message == GLOBAL_MOUSE_MOVE || message.message == GLOBAL_MOUSE_DOWN {
+                self.pointer(tree);
+            }
             if message.message == GLOBAL_KEY_PRESS {
                 let key = match message.data as u32 {
                     // Action 0x40000005 is the examination key too.
