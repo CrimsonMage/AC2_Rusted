@@ -200,6 +200,19 @@ impl ClientView {
         Some(self.window_center(tree, slot))
     }
 
+    /// The shortcut bar's field: the window pixel just inside the middle of its top edge (its
+    /// grip) and its height in UI pixels.
+    pub fn shortcut_bar_top(&self) -> Option<((i32, i32), i32)> {
+        let (tree, _) = self.hud.hud.as_ref()?;
+        let (field, _) = self.hud.panels.shortcuts.as_ref()?.elements();
+        let b = tree.screen_box(field?);
+        let (x, y) = self
+            .hud
+            .scale
+            .to_window(f64::from(b.x0 + b.x1) / 2.0, f64::from(b.y0 + 3));
+        Some(((x.round() as i32, y.round() as i32), b.height()))
+    }
+
     /// Whether a dragged copy follows the pointer (`UIElementManager::m_dragElement`).
     pub fn is_dragging(&self) -> bool {
         self.hud

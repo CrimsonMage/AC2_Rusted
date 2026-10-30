@@ -273,6 +273,7 @@ pub fn tick_pass<P: HudSource>(
         out.extend(skills.take_requests().into_iter().map(HudRequest::Skill));
     }
     if let Some(bar) = shortcuts.as_mut() {
+        bar.resize_loop(tree, player);
         for request in bar.take_requests() {
             match request {
                 ShortcutRequest::Use(index) => shortcut_calls.use_shortcut(index),
@@ -281,6 +282,13 @@ pub fn tick_pass<P: HudSource>(
                 }
                 ShortcutRequest::Examine { kind, data, item } => {
                     out.push(HudRequest::Examine { kind, data, item });
+                }
+                // `gmCharacterUI::RecvNotice_SetShortcutHeight`.
+                ShortcutRequest::Height(rows) => {
+                    if let Some(page) = character.as_mut() {
+                        page.recv_shortcut_height(tree, rows);
+                        out.extend(page.take_requests().into_iter().map(HudRequest::Character));
+                    }
                 }
                 ShortcutRequest::Attack(_) | ShortcutRequest::WhichSet(_) => {}
             }

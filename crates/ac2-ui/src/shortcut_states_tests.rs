@@ -173,3 +173,39 @@ fn the_bar_shows_and_hides_its_field() {
     bar.show(&mut hud.tree, true);
     assert!(hud.tree.get(field).unwrap().visible());
 }
+
+/// `gmShortcutUI::ListenToMessage`'s global loop after the grip resized the field: 104 pixels
+/// tall is `(104 - 12) / 32 + 0.5` = 3 rows, so the field snaps to 108 with its bottom edge
+/// kept, the list takes 3 rows and 120 slots, and the rows are sent on once.
+#[test]
+fn a_resized_bar_snaps_to_whole_rows_and_sends_its_height() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let bar = hud.shortcuts.as_mut().expect("the shortcut bar");
+    let source = Bar(vec![skill(MANEUVER)]);
+    bar.reload(&mut hud.tree, &source);
+    let (field, list) = bar.elements();
+    let (field, list) = (field.unwrap(), list.unwrap());
+    bar.resize_loop(&mut hud.tree, &source);
+    let _ = bar.take_requests();
+    let start = hud.tree.screen_box(field);
+    assert_eq!(start.height(), 44, "one row");
+
+    // The grip's drag: 60 taller, the bottom edge kept.
+    let tree = &mut hud.tree;
+    let (x, y) = tree.get(field).unwrap().object.unwrap();
+    tree.resize_to(field, start.width(), 104);
+    tree.move_to(field, x, y - 60);
+    bar.resize_loop(tree, &source);
+    let snapped = tree.screen_box(field);
+    assert_eq!((snapped.height(), snapped.y1), (108, start.y1));
+    assert_eq!(
+        tree.get(list).unwrap().attribute(tokenize("max_rows")),
+        Some(&AttributeValue::Int(3))
+    );
+    assert_eq!(tree.list_items(list).len(), 120);
+    assert_eq!(bar.take_requests(), vec![crate::ShortcutRequest::Height(3)]);
+    bar.resize_loop(tree, &source);
+    assert!(bar.take_requests().is_empty(), "nothing moved since");
+}

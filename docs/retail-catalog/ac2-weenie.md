@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 968 done, 156 partial, 123 to do, 657 skipped.
+1904 retail functions: 969 done, 156 partial, 123 to do, 656 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -34,7 +34,7 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — implemented: cited at crates/ac2-weenie/src/notice.rs:116
 - [x] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — implemented: cited at crates/ac2-weenie/src/notice.rs:122
 
-## `ac2/client/src/events/cm_character.cpp.c` (26/30)
+## `ac2/client/src/events/cm_character.cpp.c` (27/30)
 
 ### CM_Character
 - [x] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -52,7 +52,7 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Character::SendNotice_ResurrectionRequestedByOther` · 00724fe0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [-] `CM_Character::SendNotice_Select` · 00725070 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CM_Character::SendNotice_SelectionChanged` · 00725100 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-- [-] `CM_Character::SendNotice_SetShortcutHeight` · 00725190 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
+- [x] `CM_Character::SendNotice_SetShortcutHeight` · 00725190 — Raised by gmShortcutUI global loop after a grip resize (Legions 00438ac0 calls it inline): ac2-ui ShortcutRequest::Height, handled by CharacterUi::recv_shortcut_height (hud_tick.rs); ac2-client shortcut_resize_7160.rs
 - [x] `CM_Character::SendNotice_UpdateDeathState` · 00725220 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [x] `CM_Character::SendNotice_UpdateEffect` · 007252b0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340 — PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice

@@ -116,6 +116,8 @@ pub enum ShortcutRequest {
     Attack(bool),
     /// `SetWhichShortcutSet`.
     WhichSet(u32),
+    /// `CM_Character::SendNotice_SetShortcutHeight`: the bar was resized to these rows.
+    Height(u32),
 }
 
 fn id(name: &str) -> u32 {
@@ -143,7 +145,10 @@ pub struct ShortcutUi {
     offset: usize,
     show_numbers: bool,
     attacking: bool,
-    requests: Vec<ShortcutRequest>,
+    pub(crate) requests: Vec<ShortcutRequest>,
+    /// The field's box after the bar last placed it itself; a different box is the
+    /// `location_changed` that sets `_bDirty` (`shortcut_states.rs` `resize_loop`).
+    pub(crate) own_box: Option<crate::element::UiBox>,
 }
 
 impl ShortcutUi {
@@ -166,6 +171,7 @@ impl ShortcutUi {
             show_numbers: false,
             attacking: false,
             requests: Vec::new(),
+            own_box: None,
         };
         ui.check_attack_buttons(tree);
         if let Some(list) = ui.list {
@@ -244,6 +250,7 @@ impl ShortcutUi {
             .insert(id("max_rows"), AttributeValue::Int(rows));
         let width = tree.get(list).map_or(0, |e| e.rect.width());
         tree.resize_to(list, width, row_height * rows);
+        self.own_box = Some(tree.screen_box(field));
     }
 
     /// `RecvNotice_ReloadShortcuts` / `Init`: the set from the options, every slot made again.
@@ -390,7 +397,7 @@ impl ShortcutUi {
     }
 
     /// `gmShortcutUI::UpdatePadding`: empty slots to `(rows * 5 + 45) * 2`.
-    fn update_padding(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource) {
+    pub(crate) fn update_padding(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource) {
         let Some(list) = self.list else {
             return;
         };

@@ -10,9 +10,13 @@
 //! total and the end time): each frame (`UpdateTimeLeft`) the meter fills by the time spent
 //! (`1 - (end - now) / total`, clamped), and the entry goes when the time is up or its slot no
 //! longer holds that skill.
+//!
+//! The bar's grip resizes `ShortcutField`; on the next global loop (`_bDirty`) the bar snaps to
+//! whole rows (`resize_loop`).
 
 use crate::element::UiTree;
-use crate::shortcut::{ShortcutUi, SHORTCUT_SKILL};
+use crate::layout::AttributeValue;
+use crate::shortcut::{ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_SKILL};
 use crate::token::tokenize;
 
 /// `TimeLeftInfo`: a skill's reset on one slot.
@@ -177,5 +181,74 @@ impl ShortcutUi {
             }
             at += 1;
         }
+    }
+
+    /// `gmShortcutUI::ListenToMessage`'s global loop with `_bDirty` set (the field moved or was
+    /// resized: retail's `MoveTo` / `ResizeTo` broadcast `location_changed` for a `save_loc`
+    /// element; here the field's box differs from the one the bar last gave it). The height
+    /// snaps to whole rows, `rows = (int)((height - border_size) / row_height + 0.5)`, kept
+    /// within `min_height` and `max_height` with the bottom edge where it was; the list takes
+    /// the rows (`max_rows`), the slots are padded (`UpdatePadding`) and the rows are sent on
+    /// (`SendNotice_SetShortcutHeight`, [`ShortcutRequest::Height`]).
+    pub fn resize_loop(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource) {
+        let (Some(field), Some(list)) = (self.field, self.list) else {
+            return;
+        };
+        let now = tree.screen_box(field);
+        match self.own_box {
+            None => {
+                self.own_box = Some(now);
+                return;
+            }
+            Some(own) if own == now => return,
+            Some(_) => {}
+        }
+        self.own_box = Some(now);
+        let int = |name: &str| match tree.get(field)?.attribute(tokenize(name)) {
+            Some(AttributeValue::Int(v)) => Some(*v),
+            _ => None,
+        };
+        let (Some(border), Some(row_height), Some(min), Some(max)) = (
+            int("border_size"),
+            int("row_height"),
+            int("min_height"),
+            int("max_height"),
+        ) else {
+            return;
+        };
+        if row_height == 0 {
+            return;
+        }
+        let rect = tree.el(field).rect;
+        let height = rect.height();
+        // `_ftol2` of the x87 sum: truncation toward zero.
+        let rows = (f64::from(height - border) / f64::from(row_height) + 0.5) as i32;
+        let mut excess = height - rows * row_height - border;
+        let mut snapped = height;
+        if excess != 0 {
+            snapped -= excess;
+            if snapped < min {
+                excess += min - snapped;
+                snapped = min;
+            }
+            if max < snapped {
+                excess += snapped - max;
+                snapped = max;
+            }
+            if excess != 0 {
+                let (x, y) = tree.el(field).object.unwrap_or((0, 0));
+                tree.resize_to(field, rect.width(), snapped);
+                tree.move_to(field, x, y + excess);
+            }
+        }
+        tree.el_mut(list)
+            .attributes
+            .insert(tokenize("max_rows"), AttributeValue::Int(rows));
+        let width = tree.el(list).rect.width();
+        tree.resize_to(list, width, row_height * rows);
+        self.update_padding(tree, source);
+        self.requests
+            .push(ShortcutRequest::Height(rows.max(0) as u32));
+        self.own_box = Some(tree.screen_box(field));
     }
 }
