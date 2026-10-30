@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1360 done, 313 partial, 38 to do, 536 skipped.
+2247 retail functions: 1361 done, 313 partial, 37 to do, 536 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [-] `StringDownload::OnTopLevelRequestFinished` · 005fd150 — StringDownload async prefetch callback; Rust loads text data up front (text_data.rs)
 - [-] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (57/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (58/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
@@ -3073,7 +3073,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::GetSelectedText` · 005ee490 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::UpdateScrollbar` · 005ee550 · legions 005af140 — ac2-ui text_scroll.rs text_update_scrollbar (vertical): layout held while the bar is enabled, its y_widget_size set to min(1, height / paper) and its position to GetPercentageV, then laid out, and disabled when the paper fits (so hide_when_disabled hides it); text_bar_tests
 - [x] `UIElement_Text::ResizeTo` · 005ee6a0 · legions 005af290 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-- [ ] `UIElement_Text::DetermineFont` · 005ee6f0 · legions 005af2e0 — needs port: UIElement_Text::DetermineFont swaps the current font for the Korean_12 or Japanese_12 font (FONT_GROUP_ENUM 0x4000000b) when the current one lacks a glyph of the text
+- [x] `UIElement_Text::DetermineFont` · 005ee6f0 · legions 005af2e0 — ac2-ui text_attr.rs determine_font before text is added (set_text, set_string, append, insert, re-add): when the current font lacks a character (text.rs font_contains = Font::ContainsString, newline skipped; ac2-assets Ac2Font::contains), the first of the Korean_12 / Japanese_12 fonts (FONT_GROUP 0x40000004 / 0x40000005, text_data.rs fallback_fonts, read before freeze) with them all becomes the font (text_tests)
 - [~] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [~] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces

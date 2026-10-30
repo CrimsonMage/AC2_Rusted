@@ -74,6 +74,12 @@ impl Ac2Font {
         self.lookup(chr).or_else(|| self.lookup(u16::from(b'?')))
     }
 
+    /// `Font::ContainsString`'s test of one character: it has a glyph of its own (no `?`
+    /// stand-in).
+    pub fn contains(&self, chr: u16) -> bool {
+        self.lookup(chr).is_some()
+    }
+
     fn lookup(&self, chr: u16) -> Option<&Ac2FontChar> {
         let index = usize::from(chr.checked_sub(self.min_unicode)?);
         let glyph = *self.character_map.get(index)?;

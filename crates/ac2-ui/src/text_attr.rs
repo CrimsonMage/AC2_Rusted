@@ -75,6 +75,7 @@ impl UiTree {
         // The string download: font and colour, then the text.
         if let Some(string) = string {
             self.set_font_num_and_color(index, 0, 0);
+            self.determine_font(index, &string);
             if let Some(text) = self.el_mut(index).text.as_mut() {
                 text.add_text(&string);
             }
@@ -99,6 +100,7 @@ impl UiTree {
         }
         self.set_font_num_and_color(index, font_num, color_num);
         let units: Vec<u16> = text.encode_utf16().collect();
+        self.determine_font(index, &units);
         if let Some(state) = self.el_mut(index).text.as_mut() {
             state.clear();
             state.add_text(&units);
@@ -143,8 +145,11 @@ impl UiTree {
 
     /// `GetText` / `SetText`: the text again in the current font.
     fn readd_text(&mut self, index: usize) {
+        let Some(units) = self.el(index).text.as_ref().map(|t| t.text()) else {
+            return;
+        };
+        self.determine_font(index, &units);
         if let Some(text) = self.el_mut(index).text.as_mut() {
-            let units = text.text();
             text.clear();
             text.add_text(&units);
         }
@@ -248,6 +253,7 @@ impl UiTree {
             return;
         }
         self.set_font_num_and_color(index, font_num, color_num);
+        self.determine_font(index, units);
         if let Some(text) = self.el_mut(index).text.as_mut() {
             text.cursor = text.glyphs.len();
             text.insert_at_cursor(units);
@@ -317,11 +323,36 @@ impl UiTree {
     }
 }
 
+impl UiTree {
+    /// `UIElement_Text::DetermineFont`, before text is added: when the current font lacks one of
+    /// `text`'s characters (`Font::ContainsString`), the first fallback font (Korean, then
+    /// Japanese) that has them all becomes the element's font; otherwise it stays.
+    pub(crate) fn determine_font(&mut self, index: usize, text: &[u16]) {
+        let Some(current) = self.el(index).text.as_ref().and_then(|t| t.font.clone()) else {
+            return;
+        };
+        if crate::text::font_contains(&current, text) {
+            return;
+        }
+        let Some(data) = self.text_data.as_ref() else {
+            return;
+        };
+        let found = data
+            .fallback_fonts()
+            .into_iter()
+            .find(|font| crate::text::font_contains(font, text));
+        if let (Some(font), Some(state)) = (found, self.el_mut(index).text.as_mut()) {
+            state.font = Some(font);
+        }
+    }
+}
+
 /// The text calls the book makes on its pages (`gmBookUI::ParseText`).
 impl UiTree {
     /// `UIElement_Text::AddText` at the end, in the current font (no font change).
     pub(crate) fn append_text(&mut self, index: usize, text: &str) {
         let units: Vec<u16> = text.encode_utf16().collect();
+        self.determine_font(index, &units);
         if let Some(state) = self.el_mut(index).text.as_mut() {
             state.add_text(&units);
             self.changed = true;
@@ -332,6 +363,7 @@ impl UiTree {
     /// makes) or, for `None`, the element's colour; the element's colour is kept for what follows.
     pub(crate) fn append_text_rgb(&mut self, index: usize, text: &str, rgb: Option<[f32; 3]>) {
         let units: Vec<u16> = text.encode_utf16().collect();
+        self.determine_font(index, &units);
         if let Some(state) = self.el_mut(index).text.as_mut() {
             let own = state.color;
             if let Some([r, g, b]) = rgb {

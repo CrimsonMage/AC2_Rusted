@@ -15,6 +15,8 @@ use crate::text::UiTextData;
 /// `FONT_GROUP_ENUM` and `Default_FontID` (`UIElement_Text::UIElement_Text`).
 pub const FONT_GROUP: u32 = 0x4000_000B;
 pub const DEFAULT_FONT: u32 = 0x4000_0001;
+/// `Korean_12_FontID` and `Japanese_12_FontID`, `DetermineFont`'s fallbacks.
+pub const FALLBACK_FONTS: [u32; 2] = [0x4000_0004, 0x4000_0005];
 
 type FontCache = HashMap<u32, Option<Arc<Ac2Font>>>;
 type StringCache = HashMap<(u32, u32), Option<Vec<u16>>>;
@@ -26,6 +28,8 @@ pub struct StoreTextData {
     strings: Mutex<StringCache>,
     /// The default font's DID, once looked up.
     default_did: Mutex<Option<Option<u32>>>,
+    /// The fallback fonts' DIDs by enum, once looked up.
+    fallback_dids: Mutex<HashMap<u32, Option<u32>>>,
     frozen: AtomicBool,
 }
 
@@ -36,12 +40,15 @@ impl StoreTextData {
             fonts: Mutex::new(HashMap::new()),
             strings: Mutex::new(HashMap::new()),
             default_did: Mutex::new(None),
+            fallback_dids: Mutex::new(HashMap::new()),
             frozen: AtomicBool::new(false),
         }
     }
 
-    /// From now on answers only from the cache.
+    /// From now on answers only from the cache. The fallback fonts are read first, so text the
+    /// default fonts lack can still switch to them.
     pub fn freeze(&self) {
+        let _ = self.fallback_fonts();
         self.frozen.store(true, Ordering::Release);
     }
 
@@ -84,6 +91,30 @@ impl UiTextData for StoreTextData {
             }
         }?;
         self.font(did)
+    }
+
+    fn fallback_fonts(&self) -> Vec<Arc<Ac2Font>> {
+        FALLBACK_FONTS
+            .iter()
+            .filter_map(|&font_enum| {
+                let did = {
+                    let mut dids = self.fallback_dids.lock().ok()?;
+                    match dids.get(&font_enum) {
+                        Some(did) => *did,
+                        None if self.frozen() => None,
+                        None => {
+                            let did = ac2_assets::ac2_enum_did(&self.store, FONT_GROUP, font_enum)
+                                .ok()
+                                .flatten()
+                                .map(|did| did.raw());
+                            dids.insert(font_enum, did);
+                            did
+                        }
+                    }
+                }?;
+                self.font(did)
+            })
+            .collect()
     }
 
     fn string(&self, table: u32, id: u32) -> Option<Vec<u16>> {

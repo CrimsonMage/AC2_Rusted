@@ -389,3 +389,41 @@ fn a_one_line_entry_scrolls_to_keep_the_cursor_in_view() {
     let text = tree.get(entry).unwrap().text.as_ref().unwrap();
     assert_eq!(text.view.0, 90 - 50 + 1);
 }
+
+/// `UIElement_Text::DetermineFont` on the real DATs (`AC2_DAT_DIR`): Japanese the element's font
+/// lacks switches it to a fallback font (the Japanese one), whose glyphs it has; Latin text keeps the font.
+#[test]
+fn text_the_font_lacks_switches_to_a_fallback_font_that_has_it() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ac2_db::ResourceStore::new(dataset));
+    let mut hud = crate::build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    let name = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| tree.get(r).unwrap().id() == crate::token::tokenize("SelectionName"))
+        .expect("SelectionName");
+    let font_of =
+        |tree: &crate::UiTree| tree.get(name).unwrap().text.as_ref().unwrap().font.clone();
+    tree.set_text(name, "Gnome");
+    let latin = font_of(tree).expect("a font");
+    assert!(latin.contains('G' as u16));
+    let japanese: Vec<u16> = "こんにちは漢字".encode_utf16().collect();
+    assert!(
+        japanese.iter().any(|&c| !latin.contains(c)),
+        "the default font lacks kana"
+    );
+    tree.set_text(name, "こんにちは漢字");
+    let switched = font_of(tree).expect("a font");
+    assert!(
+        japanese.iter().all(|&c| switched.char_desc(c).is_some()),
+        "the fallback has it"
+    );
+    assert_eq!(
+        tree.get(name).unwrap().text(),
+        Some("こんにちは漢字".to_owned())
+    );
+}

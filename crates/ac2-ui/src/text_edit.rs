@@ -479,6 +479,7 @@ impl UiTree {
         } else {
             self.set_selecting(index, false);
         }
+        self.determine_font(index, units);
         if let Some(text) = self.el_mut(index).text.as_mut() {
             text.insert_at_cursor(units);
             self.changed = true;

@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 178 done, 54 partial, 189 to do, 360 skipped.
+781 retail functions: 179 done, 54 partial, 188 to do, 360 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -27,7 +27,7 @@ Legend and workflow: [README](README.md).
 ### CMeshTriList
 - [-] `CMeshTriList::FromFileNode` · 0052c830 — text source format (admin tools)
 
-## `portal/client/src/render/core/font/font.cpp.c` (5/13)
+## `portal/client/src/render/core/font/font.cpp.c` (6/13)
 
 ### Font
 - [-] `Font::Begin` · 005b88d0 · legions 00583530 — D3D device/resource plumbing; wgpu replaces
@@ -35,7 +35,7 @@ Legend and workflow: [README](README.md).
 - [-] `Font::Destroy` · 005b8940 · legions 005835a0 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
 - [x] `Font::GetCharDesc` · 005b89a0 · legions 00583600 — ac2-assets font.rs: all 55 portal fonts decode
 - [x] `Font::GetCharWidthA` · 005b8a30 · legions 00583690 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-- [ ] `Font::ContainsString` · 005b8a50 · legions 005836b0 — needs port: font data (glyph presence, DBO load)
+- [x] `Font::ContainsString` · 005b8a50 · legions 005836b0 — ac2-assets font.rs Ac2Font::contains per character (a glyph of its own, not the ? stand-in char_desc gives) and ac2-ui text.rs font_contains over the string, newline skipped
 - [x] `Font::GenerateCharacterMap` · 005b8ad0 · legions 00583730 — ac2-assets font.rs: all 55 portal fonts decode
 - [x] `Font::GetStringWidthInternal` · 005b8bc0 · legions 00583820 — ac2-assets font.rs: all 55 portal fonts decode
 - [ ] `Font::InitLoad` · 005b8c20 — needs port: font data (glyph presence, DBO load)

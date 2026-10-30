@@ -9019,7 +9019,7 @@ key	status	note
 005b8940	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
 005b89a0	x	ac2-assets font.rs: all 55 portal fonts decode
 005b8a30	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-005b8a50	_	needs port: font data (glyph presence, DBO load)
+005b8a50	x	ac2-assets font.rs Ac2Font::contains per character (a glyph of its own, not the ? stand-in char_desc gives) and ac2-ui text.rs font_contains over the string, newline skipped
 005b8ad0	x	ac2-assets font.rs: all 55 portal fonts decode
 005b8bc0	x	ac2-assets font.rs: all 55 portal fonts decode
 005b8c20	_	needs port: font data (glyph presence, DBO load)
@@ -9924,7 +9924,7 @@ key	status	note
 005ee490	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005ee550	x	ac2-ui text_scroll.rs text_update_scrollbar (vertical): layout held while the bar is enabled, its y_widget_size set to min(1, height / paper) and its position to GetPercentageV, then laid out, and disabled when the paper fits (so hide_when_disabled hides it); text_bar_tests
 005ee6a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-005ee6f0	_	needs port: UIElement_Text::DetermineFont swaps the current font for the Korean_12 or Japanese_12 font (FONT_GROUP_ENUM 0x4000000b) when the current one lacks a glyph of the text
+005ee6f0	x	ac2-ui text_attr.rs determine_font before text is added (set_text, set_string, append, insert, re-add): when the current font lacks a character (text.rs font_contains = Font::ContainsString, newline skipped; ac2-assets Ac2Font::contains), the first of the Korean_12 / Japanese_12 fonts (FONT_GROUP 0x40000004 / 0x40000005, text_data.rs fallback_fonts, read before freeze) with them all becomes the font (text_tests)
 005ee850	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 005eea40	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eec20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces

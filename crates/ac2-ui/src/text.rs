@@ -14,8 +14,9 @@
 //! Editing lives in `text_edit.rs`: the cursor and selection (`selecting`, `selection`), and an
 //! editable element draws its view scrolled to the cursor (`view.0`).
 //!
-//! The vertical scroll bar is in `text_scroll.rs`. Not modelled yet: the Korean and Japanese
-//! fallback fonts (`DetermineFont`), string variables and server string downloads.
+//! The vertical scroll bar is in `text_scroll.rs`. Text the font lacks a character of switches the
+//! element to the Korean or Japanese font that has them all (`DetermineFont`,
+//! `UiTree::determine_font`). Not modelled yet: string variables and server string downloads.
 
 use std::sync::Arc;
 
@@ -32,6 +33,18 @@ pub trait UiTextData: Send + Sync {
     fn default_font(&self) -> Option<Arc<Ac2Font>>;
     /// `StringInfo::GetString` of string `id` in string table `table`.
     fn string(&self, table: u32, id: u32) -> Option<Vec<u16>>;
+    /// `DetermineFont`'s fallbacks, in order: `Korean_12_FontID` and `Japanese_12_FontID`
+    /// (`FONT_GROUP_ENUM` 0x40000004 / 0x40000005), where the DATs have them.
+    fn fallback_fonts(&self) -> Vec<Arc<Ac2Font>> {
+        Vec::new()
+    }
+}
+
+/// `Font::ContainsString`: every character but a newline is in the font.
+pub(crate) fn font_contains(font: &Ac2Font, text: &[u16]) -> bool {
+    text.iter()
+        .take_while(|&&ch| ch != 0)
+        .all(|&ch| ch == 10 || font.contains(ch))
 }
 
 impl std::fmt::Debug for dyn UiTextData {
