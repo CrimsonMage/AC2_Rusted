@@ -52,6 +52,11 @@ impl crate::Ac1Dats {
         self.decode(did, decode_physics_script)
     }
 
+    /// Setup `did`.
+    pub fn setup(&self, did: u32) -> Ac1Result<crate::formats::Setup> {
+        self.decode(did, crate::formats::Setup::decode)
+    }
+
     /// `ParticleEmitterInfo` `did`.
     pub fn emitter_info(&self, did: u32) -> Ac1Result<ParticleEmitterInfo> {
         self.decode(did, ParticleEmitterInfo::decode)

@@ -115,6 +115,7 @@ impl Ac1Showcase {
                 creature.script,
                 1.0,
             );
+            fx.add_lights(creature.visual.raw(), &creature.lights);
         }
         for weapon in &weapons {
             let scale = held_scale.unwrap_or(crate::ac1_held::HELD_SCALE);
@@ -125,6 +126,7 @@ impl Ac1Showcase {
                 weapon.script,
                 scale,
             );
+            fx.add_lights(weapon.visual.raw(), &weapon.lights);
         }
         for (kind, list) in [("creatures", &creatures), ("weapons", &weapons)] {
             if !list.is_empty() {

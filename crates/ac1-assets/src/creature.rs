@@ -69,6 +69,8 @@ pub struct Ac1Creature {
     pub idle: Option<IdleBehaviour>,
     /// The Setup's `default_script` (`PhysicsScript`): its glow and particles; 0 for none.
     pub script: u32,
+    /// The Setup's point lights (`lights`).
+    pub lights: Vec<crate::formats::SetupLight>,
     /// The icon ACE gives it (`CalculateObjDesc`: the ClothingBase template's icon when it has
     /// one, else `PropertyDataId.Icon`); 0 for none.
     pub icon: u32,
@@ -140,6 +142,7 @@ impl Ac1Dats {
             images: builder.images,
             idle,
             script: setup.default_script,
+            lights: setup.lights.clone(),
             icon: appearance.icon.unwrap_or(weenie.icon),
         })
     }

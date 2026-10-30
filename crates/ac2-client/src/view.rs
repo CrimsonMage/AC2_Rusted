@@ -259,6 +259,17 @@ impl ClientView {
         self.scene.object_placement(id)
     }
 
+    /// A point light on object `emitter` (`WorldScene::start_object_light`): it follows the
+    /// object's placement until [`Self::remove_object_lights`].
+    pub fn start_object_light(&mut self, emitter: u64, light: ac2_assets::Ac2FxLight) {
+        self.scene.start_object_light(emitter, light);
+    }
+
+    /// Removes object `emitter`'s point lights (`WorldScene::remove_object_lights`).
+    pub fn remove_object_lights(&mut self, emitter: u64) {
+        self.scene.remove_object_lights(emitter);
+    }
+
     /// Models from outside the AC2 DATs, asked first for every world object
     /// (`WorldScene::set_foreign_models`; the AC1 creatures of `ac1-assets`).
     pub fn set_foreign_models(&mut self, models: Arc<dyn ac2_render::scene::ForeignModels>) {

@@ -649,7 +649,7 @@ fn snapshot(
         // The AC1 particles run on: their emitters ride last frame's placements.
         if let Some(showcase) = ac1.as_mut() {
             showcase.fx.frame(
-                &view,
+                &mut view,
                 &mut frame,
                 f64::from(step) * 0.05,
                 world.block_size(),

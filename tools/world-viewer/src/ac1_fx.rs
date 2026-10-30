@@ -5,7 +5,7 @@
 //! its AC1 GfxObj (a quad facing local -y) turned to face the camera, at its scale, faded by its
 //! translucency through the frame's tints.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use ac1_assets::particles::{CreateParticle, Emitter, PartFrame, ParticleEmitterInfo};
@@ -34,6 +34,10 @@ pub struct Ac1Fx {
     visuals: HashMap<u32, u32>,
     /// Each drawn object's emitters, by object id.
     running: HashMap<u64, Vec<Emitter>>,
+    /// Each AC1 visual's Setup lights, as the scene's object lights.
+    lights: HashMap<u32, Vec<ac2_assets::Ac2FxLight>>,
+    /// The drawn objects whose lights are on.
+    lit: HashSet<u64>,
     seed: u64,
 }
 
@@ -96,9 +100,44 @@ impl Ac1Fx {
         }
     }
 
+    /// The Setup lights of objects drawn under `visual` (`LIGHTINFO`: its place in the object's
+    /// frame, its ARGB colour, its intensity in percent and its reach in metres), on while the
+    /// object is drawn.
+    pub fn add_lights(&mut self, visual: u32, lights: &[ac1_assets::formats::SetupLight]) {
+        let lights: Vec<_> = lights
+            .iter()
+            .map(|light| {
+                let c = light.color;
+                let rgb = [(c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF].map(|v| v as f32 / 255.0);
+                ac2_assets::Ac2FxLight {
+                    offset: Vec3::from(light.offset.origin),
+                    source: ac2_assets::Ac2LightSource {
+                        range: light.falloff,
+                        intensity: light.intensity / 100.0,
+                        diffuse: rgb,
+                        specular: rgb,
+                        ..ac2_assets::Ac2LightSource::default()
+                    },
+                    lifespan: 0.0,
+                    fade_time: 0.0,
+                }
+            })
+            .collect();
+        if !lights.is_empty() {
+            self.lights.insert(visual, lights);
+        }
+    }
+
     /// Runs the emitters of `frame`'s AC1 objects to `now` and adds their particles to `frame`
     /// (objects and tints), facing the camera.
-    pub fn frame(&mut self, view: &ClientView, frame: &mut ClientFrame, now: f64, block_size: f32) {
+    pub fn frame(
+        &mut self,
+        view: &mut ClientView,
+        frame: &mut ClientFrame,
+        now: f64,
+        block_size: f32,
+    ) {
+        self.switch_lights(view, frame);
         frame
             .objects
             .retain(|o| !(FIRST_PARTICLE..FIRST_PARTICLE + MAX_PARTICLES).contains(&o.id));
@@ -197,6 +236,35 @@ impl Ac1Fx {
                 body_scale: [particle.scale; 3],
                 adaptive_degrade: false,
             });
+        }
+    }
+}
+
+impl Ac1Fx {
+    /// Turns the Setup lights of `frame`'s AC1 objects on as they appear and off as they go.
+    fn switch_lights(&mut self, view: &mut ClientView, frame: &ClientFrame) {
+        let drawn: HashMap<u64, u32> = frame
+            .objects
+            .iter()
+            .filter_map(|o| Some((o.id, o.visual?)))
+            .filter(|(_, visual)| self.lights.contains_key(visual))
+            .collect();
+        let gone: Vec<u64> = self
+            .lit
+            .iter()
+            .copied()
+            .filter(|id| !drawn.contains_key(id))
+            .collect();
+        for id in gone {
+            view.remove_object_lights(id);
+            self.lit.remove(&id);
+        }
+        for (id, visual) in drawn {
+            if self.lit.insert(id) {
+                for light in &self.lights[&visual] {
+                    view.start_object_light(id, *light);
+                }
+            }
         }
     }
 }

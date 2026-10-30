@@ -489,7 +489,9 @@ impl State {
             frame.objects.extend(creatures);
             showcase.weapons.hold(&mut frame);
             let block_size = self.walk.block_size();
-            showcase.fx.frame(&self.view, &mut frame, time, block_size);
+            showcase
+                .fx
+                .frame(&mut self.view, &mut frame, time, block_size);
         }
         self.view.update(&self.gpu, &frame, LOAD_BUDGET);
         let Some(output) = acquire_frame(&self.surface, &self.gpu.device, &self.config) else {

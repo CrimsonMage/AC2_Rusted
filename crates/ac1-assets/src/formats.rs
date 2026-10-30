@@ -205,6 +205,22 @@ pub struct Setup {
     /// `default_script`: the `PhysicsScript` the object runs when it is made (its glow, its
     /// particles).
     pub default_script: u32,
+    /// `lights`: the object's own point lights (`LIGHTINFO`), on its root frame.
+    pub lights: Vec<SetupLight>,
+}
+
+/// `LightInfo`: a point light of a Setup.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SetupLight {
+    pub key: u32,
+    /// Its place in the object's frame.
+    pub offset: Frame,
+    /// ARGB.
+    pub color: u32,
+    pub intensity: f32,
+    /// The distance it reaches, in metres.
+    pub falloff: f32,
+    pub cone_angle: f32,
 }
 
 impl Setup {
@@ -244,9 +260,19 @@ impl Setup {
         r.skip(n * 16, "missing Setup spheres")?;
         // Height, radius, step up, step down, sorting and selection spheres.
         r.skip(16 + 32, "missing Setup extents")?;
-        // Lights: key, frame, colour, intensity, falloff, cone angle.
         let n = r.u32_count(48, "missing Setup light count")?;
-        r.skip(n * 48, "missing Setup lights")?;
+        let lights = (0..n)
+            .map(|_| {
+                Ok(SetupLight {
+                    key: r.u32("missing LightInfo key")?,
+                    offset: r.frame("missing LightInfo frame")?,
+                    color: r.u32("missing LightInfo colour")?,
+                    intensity: r.f32("missing LightInfo intensity")?,
+                    falloff: r.f32("missing LightInfo falloff")?,
+                    cone_angle: r.f32("missing LightInfo cone angle")?,
+                })
+            })
+            .collect::<Ac1Result<Vec<_>>>()?;
         r.u32("missing Setup default animation")?;
         let default_script = r.u32("missing Setup default script")?;
         let default_motion_table = r.u32("missing Setup default motion table")?;
@@ -256,6 +282,7 @@ impl Setup {
             placements,
             default_motion_table,
             default_script,
+            lights,
         })
     }
 
