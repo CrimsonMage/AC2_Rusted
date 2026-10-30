@@ -31,7 +31,7 @@ use crate::token::tokenize;
 
 pub(crate) const MSG_START_DRAG_ITEM: u32 = tokenize("start_drag_item");
 pub(crate) const MSG_STOP_DRAG_ITEM: u32 = tokenize("stop_drag_item");
-const MSG_NOT_DRAGABLE: u32 = tokenize("not_dragable");
+pub(crate) const MSG_NOT_DRAGABLE: u32 = tokenize("not_dragable");
 const DRAGABLE: u32 = tokenize("dragable");
 const CONTAINER: u32 = tokenize("container");
 const DISALLOW_DRAG_IN: u32 = tokenize("disallow_drag_in");

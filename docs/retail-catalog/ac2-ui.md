@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1332 done, 304 partial, 116 to do, 495 skipped.
+2247 retail functions: 1333 done, 303 partial, 116 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1445,7 +1445,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmStoryQuestsUI::ListenToMessage` · 004400d0 · legions 00440930 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 - [x] `gmStoryQuestsUI::gmStoryQuestsUI` · 00440110 · legions 00440970 — ac2-ui quests_panel.rs (the Story page's act list under StoryPage, StoryQuestsUi::create); the Quest panel holds it
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (19/22)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (20/22)
 
 ### gmCraftUI
 - [x] `gmCraftUI::SelectElement` · 004494b0 · legions 0044a110 — ac2-ui craft.rs select_element: the previous row returns to its default state, the new one shows selected
@@ -1469,7 +1469,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmCraftUI::gmCraftUI` · 0044a960 · legions 0044b5c0 — ac2-ui craft.rs CraftUi::create: the page and its lists looked up per refresh (GetChildRecursive). Not: the drag field and the notice handlers (per object in Rust)
 - [x] `gmCraftUI::SetState` · 0044ab30 · legions 0044b790 — ac2-ui craft.rs set_state: the page takes the view, then the panel refreshes
 - [x] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60 — ac2-ui craft.rs CraftUi::frame_pass refreshes the panel on the notice; the frame pass runs in ac2-ui frame_passes.rs Hud::frame (HudRequest::Craft); ac2-client hud_craft.rs is the CraftSource adapter over the player's queries
-- [~] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0 — ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened. Not: the recipe's icon drag (drag field, start drag), the raise button is not under the page in the layout tree yet
+- [x] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0 — ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened; a recipe row's not_dragable sets DragField's Token_ShortcutData (the DID) and Token_ShortcutType 0x40000006 with the recipe icon (draw mode 2) and drags it (drag_recipe, craft_ui_7160)
 
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (21/26)
 
@@ -2819,7 +2819,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement::StopTransition` · 005e9940 · legions 005aa5a0 — m_delOnTransStop (delete after the exit transition) not modelled
 - [x] `UIElement::StopAllTransitions` · 005e99e0 · legions 005aa640 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::SetIconDesc` · 005e9ab0 · legions 005aa710 — ac2-ui icon_desc.rs: set_icon_desc keeps the layers, compose.rs draws their composite (the first layer copied and multiplied by its shift colour, each later one multiplied and alpha-blended over it, blit 0x14); a first layer with no image leaves the element as it was, a later one is left out; image_files asks for every layer; used by the item displays, the 3D items panel and the new-sale icon; icon_desc_tests (on the DAT 4049 of 4612 layers are white, 62 null)
-- [~] `UIElement::UpdateTransitions` · 005e9b80 · legions 005aa7e0 — fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+- [~] `UIElement::UpdateTransitions` · 005e9b80 · legions 005aa7e0 — ac2-ui transition.rs: fades (type 3); sounds queued for an audio sink. Type 4 (move offsets, Z rotate) is not ported: the Legions DAT layouts hold 17 transitions, all fades (scanned 2026-10-29), so none is reachable
 - [x] `UIElement::GetAttribute_ID` · 005e9f00 · legions 005aaad0 — UIElement::GetAttribute_ID done: story_quests.rs attribute_id
 - [x] `UIElement::GetAttribute_InstanceID` · 005e9f60 · legions 005aab30 — ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
 - [x] `UIElement::GetAttribute_StringID` · 005e9fa0 · legions 005aab70 — ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs

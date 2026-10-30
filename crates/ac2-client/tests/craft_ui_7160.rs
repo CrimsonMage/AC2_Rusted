@@ -328,6 +328,60 @@ fn the_craft_pages_show_the_known_skill_and_recipe() {
     craft.message(tree, &source, &raise_click);
     assert_eq!(craft.take_commands(), vec![CraftCommand::RaiseSkill(SKILL)]);
 
+    // A drag on the recipe's row (not dragable itself): the page's drag field becomes the
+    // recipe's shortcut and is dragged, so the shortcut bar can take it (`not_dragable`).
+    let mut at = Some(recipes[0]);
+    while let Some(e) = at {
+        tree.set_visible(e, true);
+        at = tree.get(e).unwrap().parent_index();
+    }
+    let b = tree.screen_box(recipes[0]);
+    let (x, y) = ((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2);
+    tree.start_input(ac2_ui::UI_POINTER_X, x as f32);
+    tree.start_input(ac2_ui::UI_POINTER_Y, y as f32);
+    // The other pages of the panel the craft page shares (the skill tree's) are hidden, as its tab
+    // shows it alone.
+    let ancestors = |tree: &UiTree, mut e: usize| {
+        let mut chain = vec![e];
+        while let Some(p) = tree.get(e).unwrap().parent_index() {
+            chain.push(p);
+            e = p;
+        }
+        chain
+    };
+    let row_chain = ancestors(tree, recipes[0]);
+    while let Some(top) = tree
+        .mouse_top()
+        .filter(|&t| !ancestors(tree, t).contains(&recipes[0]))
+    {
+        let cover = ancestors(tree, top)
+            .windows(2)
+            .find(|w| row_chain.contains(&w[1]))
+            .map(|w| w[0])
+            .expect("the covering element shares an ancestor with the row");
+        tree.set_visible(cover, false);
+        tree.start_input(ac2_ui::UI_POINTER_X, x as f32);
+        tree.start_input(ac2_ui::UI_POINTER_Y, y as f32);
+    }
+    tree.take_messages();
+    tree.start_input(0x4000_0004, 1.0);
+    tree.start_input(ac2_ui::UI_POINTER_X, (x + 30) as f32);
+    tree.start_input(ac2_ui::UI_POINTER_Y, (y + 30) as f32);
+    for message in tree.take_messages() {
+        craft.message(tree, &source, &message);
+    }
+    let dragged = tree.dragged().expect("the recipe is dragged");
+    let el = tree.get(dragged).unwrap();
+    assert_eq!(
+        el.attribute(tokenize("Token_ShortcutType")),
+        Some(&ac2_ui::AttributeValue::Id(0x4000_0006))
+    );
+    assert_eq!(
+        el.attribute(tokenize("Token_ShortcutData")),
+        Some(&ac2_ui::AttributeValue::Id(RECIPE))
+    );
+    tree.stop_input(0x4000_0004);
+
     // A recipe the DAT does not show gets no row (`RefreshRecipePage` checks `m_shown`).
     source.shown.set(false);
     craft.set_state(tree, &source, STATE_RECIPE);

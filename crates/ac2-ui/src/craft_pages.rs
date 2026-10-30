@@ -282,7 +282,7 @@ impl CraftUi {
     }
 
     /// `gmCraftUI::GetRecipeIcon`: the recipe's icon, or the selected skill's when it has none.
-    fn recipe_icon(&self, source: &dyn CraftSource, recipe: &Recipe) -> u32 {
+    pub(crate) fn recipe_icon(&self, source: &dyn CraftSource, recipe: &Recipe) -> u32 {
         if recipe.icon_did != 0 {
             return recipe.icon_did;
         }

@@ -13,11 +13,13 @@
 //! The selected skill's level text and its raise text (`RefreshCraftSkillDisplay`) are shown on the
 //! category and recipe views.
 //!
+//! A drag on a recipe's row drags the page's `DragField` as the recipe's shortcut, which the
+//! shortcut bar takes.
+//!
 //! Not modelled yet: the list-driven rows for a registry that is still empty (the lists answer
-//! nothing until the server fills them), the level text on the skill rows, the names' truncation
-//! with an ellipsis, the drag of a recipe's icon to the shortcut bar, and the
-//! category sort (`CraftSkillCategoryAdaptor::operator<` is not in the decompile: categories sort
-//! by their id here).
+//! nothing until the server fills them), the level text on the skill rows, and the category sort
+//! (`CraftSkillCategoryAdaptor::operator<` is not in the decompile: categories sort by their id
+//! here).
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -25,10 +27,12 @@ use std::sync::Arc;
 use ac2_net::protocol::{ExaminationRequest, StringInfo};
 use ac2_weenie::{CraftSkill, GameplayNotice, Recipe, SessionEvent};
 
+use crate::drag::MSG_NOT_DRAGABLE;
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, LayoutDesc};
 use crate::mouse::UiMessage;
 use crate::panel::MSG_OPENED;
+use crate::shortcut::SHORTCUT_RECIPE;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP};
 
 /// The craft views (`token_craftskillview`, `token_craftskillcategoryview`, `token_recipeview`).
@@ -197,6 +201,23 @@ impl CraftUi {
         self.set_state(tree, source, STATE_RECIPE);
     }
 
+    /// `ListenToMessage`'s `not_dragable` on a recipe row: `InqRecipeAdaptor`, `GetRecipeIcon`,
+    /// then the drag field set up as the recipe's shortcut and dragged
+    /// (`IUIManager::StartDragandDrop(m_dragField, 0, 0)`).
+    fn drag_recipe(&mut self, tree: &mut UiTree, source: &dyn CraftSource, did: u32) {
+        let Some(recipe) = self.recipes.iter().find(|r| r.did == did) else {
+            return;
+        };
+        let icon = self.recipe_icon(source, recipe);
+        let Some(field) = tree.child_recursive(self.page, tokenize("DragField")) else {
+            return;
+        };
+        tree.set_attribute_id(field, tokenize("Token_ShortcutData"), did);
+        tree.set_attribute_id(field, tokenize("Token_ShortcutType"), SHORTCUT_RECIPE);
+        tree.set_image(field, icon, 2);
+        tree.start_drag(field);
+    }
+
     /// The requests the panel made since the last call, in order.
     pub fn take_commands(&mut self) -> Vec<CraftCommand> {
         std::mem::take(&mut self.commands)
@@ -363,6 +384,13 @@ impl CraftUi {
         if id == RECIPE_BUTTON && kind == MSG_BUTTON_RELEASE_ON && self.state == STATE_RECIPE {
             self.select_recipe(did);
             self.commands.push(CraftCommand::OpenRecipe(did));
+            return;
+        }
+        // A drag on a recipe row (the row is not dragable): the page's `DragField` takes the
+        // recipe as a shortcut (`Token_ShortcutData` the DID, `Token_ShortcutType` 0x40000006)
+        // and its icon (draw mode 2), and is dragged instead, so the shortcut bar can take it.
+        if id == RECIPE_TEMPLATE && kind == MSG_NOT_DRAGABLE {
+            self.drag_recipe(tree, source, did);
             return;
         }
         if id == RAISE_CRAFT_BUTTON && kind == MSG_BUTTON_RELEASE_ON {
