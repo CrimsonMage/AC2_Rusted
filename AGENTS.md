@@ -392,7 +392,8 @@ game rules and server-visible behaviour exactly retail.
   Test-only code (`view::probe`) stays behind the `test-support` feature.
 - Exception: drawn poses blend between the last two bone refreshes (`ac2_anim::blend_transform`;
   `Client::set_pose_blend`, on by default), so the skeleton moves at display rate. Retail draws the
-  last refresh; turn the blend off to get it. Drawn positions (`PhysicsBody::drawing_position`)
+  last refresh; turn the blend off to get it. Child part groups with their own `AnimMap`
+  (`child_part_poses`) blend the same way. Drawn positions (`PhysicsBody::drawing_position`)
   follow retail's render interpolation and are not an exception.
 - Exception: objects and bodies draw eye-relative. Retail's device took each part's world matrix
   and the camera's view at the landscape's absolute coordinates (tens of kilometres out), where

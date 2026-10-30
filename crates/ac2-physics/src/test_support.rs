@@ -260,6 +260,7 @@ pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
         animators: HashMap::from([(1, clip(0.25)), (2, clip(0.5))]),
         setup: None,
         vdesc_scale: [1.0; 3],
+        child_groups: Vec::new(),
     }
 }
 

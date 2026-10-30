@@ -234,7 +234,18 @@ impl PoseRig {
     /// animation (`CPartGroup::SetPlacementFrameID`; a held object takes its holder's
     /// `orientation_id` here).
     pub fn pose_placed(&self, root: Option<&[Ac2Transform]>, placement: u32) -> Option<ObjectPose> {
-        let groups = self.skeleton.pose_placed(root, placement);
+        self.pose_groups(root, &[], placement)
+    }
+
+    /// [`Self::pose_placed`] with the child groups in `children` (by group key) at their own
+    /// animated bones ([`ObjectSkeleton::pose_groups`]).
+    pub fn pose_groups(
+        &self,
+        root: Option<&[Ac2Transform]>,
+        children: &[(u32, Vec<Ac2Transform>)],
+        placement: u32,
+    ) -> Option<ObjectPose> {
+        let groups = self.skeleton.pose_groups(root, children, placement);
         let mut palette = Vec::new();
         let mut starts = Vec::with_capacity(groups.len());
         for group in &groups {

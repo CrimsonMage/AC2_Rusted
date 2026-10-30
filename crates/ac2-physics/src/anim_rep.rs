@@ -27,6 +27,59 @@ pub struct BodyAnimation {
     pub setup: Option<Arc<Ac2Setup>>,
     /// `PHYSICSOBJREP::m_scale` (`GetVdescScale`).
     pub vdesc_scale: [f32; 3],
+    /// The child part groups with an `AnimMap` of their own, in `CPartGroup`'s child order.
+    pub child_groups: Vec<ChildGroupAnimation>,
+}
+
+/// One child `CPartGroup` with its own `AnimMap` (`CPartArray::m_pAnimMap`): the animator each of
+/// the body's anim keys plays through that map, and the Setup whose bones they pose. The body's
+/// trackers drive it exactly as the root group (`CPartGroup::DoAnimation` hands every group the
+/// same trackers).
+#[derive(Debug, Clone)]
+pub struct ChildGroupAnimation {
+    /// `m_pgkey`.
+    pub key: u32,
+    pub setup: Arc<Ac2Setup>,
+    pub animators: HashMap<u32, Arc<Ac2DbAnimator>>,
+}
+
+/// A child group's bones as the animation step left them (the root's are `AnimRep::bones`).
+#[derive(Debug, Clone)]
+pub(crate) struct ChildGroupRep {
+    pub(crate) key: u32,
+    pub(crate) setup: Arc<Ac2Setup>,
+    pub(crate) animators: HashMap<u32, Arc<Ac2DbAnimator>>,
+    pub(crate) bones: Vec<Ac2BoneTransform>,
+    pub(crate) bones_at: f64,
+    pub(crate) prev_bones: Vec<Ac2BoneTransform>,
+    pub(crate) prev_bones_at: f64,
+}
+
+impl ChildGroupRep {
+    /// The bones as the last step left them, or the Setup's default placement before the first.
+    pub(crate) fn current(&self) -> Vec<ac2_anim::Ac2Transform> {
+        if self.bones.len() != self.setup.bones.len() {
+            return self.setup.rest_locals();
+        }
+        self.bones
+            .iter()
+            .map(Ac2BoneTransform::to_transform)
+            .collect()
+    }
+}
+
+impl From<ChildGroupAnimation> for ChildGroupRep {
+    fn from(group: ChildGroupAnimation) -> Self {
+        Self {
+            key: group.key,
+            setup: group.setup,
+            animators: group.animators,
+            bones: Vec::new(),
+            bones_at: 0.0,
+            prev_bones: Vec::new(),
+            prev_bones_at: 0.0,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -36,6 +89,8 @@ pub(crate) struct AnimRep {
     /// `PHYSICSOBJREP::m_fxTracker`: the FX scripts playing on the body.
     pub(crate) fx_scripts: Ac2FxScriptTracker,
     pub(crate) animators: Arc<HashMap<u32, Arc<Ac2DbAnimator>>>,
+    /// The child part groups with their own `AnimMap`, and their bones.
+    pub(crate) child_groups: Vec<ChildGroupRep>,
     pub(crate) table: Option<Arc<Ac2BehaviorTable>>,
     pub(crate) setup: Option<Arc<Ac2Setup>>,
     pub(crate) vdesc_scale: [f32; 3],
@@ -90,8 +145,17 @@ fn cap_opacity(opacity: f32) -> f32 {
 /// values.
 struct RepSource<'a> {
     animators: &'a HashMap<u32, Arc<Ac2DbAnimator>>,
+    children: &'a [ChildGroupRep],
     sliders: &'a Ac2SliderTracker,
     player: bool,
+}
+
+impl RepSource<'_> {
+    /// The animator sets of `CPartGroup`'s search order: the root group's, then each child
+    /// group's (depth first; the children here are already in that order).
+    fn groups(&self) -> impl Iterator<Item = &HashMap<u32, Arc<Ac2DbAnimator>>> {
+        std::iter::once(self.animators).chain(self.children.iter().map(|c| &c.animators))
+    }
 }
 
 /// The read-only `AnimationObj` view animator periods need (sliders only).
@@ -123,26 +187,33 @@ impl Ac2AnimatorContext for SliderView<'_> {
 }
 
 impl Ac2AnimationSource for RepSource<'_> {
-    /// `PHYSICSOBJREP::GetComboCVel` -> `CPartArray::GetComboCVel`: the inverse of the
-    /// animator's period (0 without an animator or with a zero period).
+    /// `PHYSICSOBJREP::GetComboCVel` -> `CPartGroup::GetComboCVel`: the first non-zero
+    /// `CPartArray::GetComboCVel` of the root group, then each child group; that is the inverse
+    /// of the animator's period (0 without an animator or with a zero period).
     fn combo_cvel(&self, tracker: Ac2TrackerState, combo: Ac2ComboInfo) -> f32 {
-        let Some(animator) = self.animators.get(&combo.anim_key) else {
-            return 0.0;
-        };
-        let period = animator.period(&SliderView(self.sliders), tracker);
-        if period == 0.0 {
-            0.0
-        } else {
-            st(1.0 / ld(period))
+        let view = SliderView(self.sliders);
+        for animators in self.groups() {
+            let Some(animator) = animators.get(&combo.anim_key) else {
+                continue;
+            };
+            let period = animator.period(&view, tracker);
+            if period != 0.0 {
+                return st(1.0 / ld(period));
+            }
         }
+        0.0
     }
 
-    /// `PHYSICSOBJREP::GetHoldLocations` (a loop of 0 to 0 is none).
+    /// `PHYSICSOBJREP::GetHoldLocations` -> `CPartGroup::GetHoldLocations`: the first group
+    /// (root, then children) whose animator has a hold loop (a loop of 0 to 0 is none).
     fn hold_loop(&self, tracker: Ac2TrackerState, combo: Ac2ComboInfo) -> Option<(f32, f32)> {
-        self.animators
-            .get(&combo.anim_key)?
-            .hold_loop(&SliderView(self.sliders), tracker)
-            .filter(|&(start, end)| start != 0.0 || end != 0.0)
+        let view = SliderView(self.sliders);
+        self.groups().find_map(|animators| {
+            animators
+                .get(&combo.anim_key)?
+                .hold_loop(&view, tracker)
+                .filter(|&(start, end)| start != 0.0 || end != 0.0)
+        })
     }
 
     fn is_the_player(&self) -> bool {
@@ -166,6 +237,7 @@ impl AnimRep {
             sliders: Ac2SliderTracker::new(),
             fx_scripts: Ac2FxScriptTracker::default(),
             animators: Arc::new(HashMap::new()),
+            child_groups: Vec::new(),
             table: None,
             setup: None,
             vdesc_scale: [1.0; 3],
@@ -187,6 +259,7 @@ impl AnimRep {
             sliders: Ac2SliderTracker::new(),
             fx_scripts: Ac2FxScriptTracker::default(),
             animators: Arc::new(animation.animators),
+            child_groups: animation.child_groups.into_iter().map(Into::into).collect(),
             table: Some(Arc::clone(&animation.table)),
             setup: animation.setup,
             vdesc_scale: animation.vdesc_scale,
@@ -225,6 +298,7 @@ impl AnimRep {
     ) -> R {
         let source = RepSource {
             animators: &self.animators,
+            children: &self.child_groups,
             sliders: &self.sliders,
             player: self.player,
         };
@@ -336,5 +410,56 @@ impl MotionRep for AnimRep {
     /// `DestroyParticleSystem` its particle scene).
     fn do_fx(&mut self, fx: u32, intensity: f32) {
         self.events.push(Ac2AnimEvent::StartFx { fx, intensity });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_support::body_animation;
+
+    fn state() -> Ac2TrackerState {
+        Ac2TrackerState {
+            element: ELEMENT_GROUND,
+            mode: MODE_DEFAULT,
+        }
+    }
+
+    /// `CPartGroup::GetComboCVel`: a root group without the anim key's animator hands the
+    /// question to its children, and the first non-zero answer wins.
+    #[test]
+    fn combo_velocity_searches_the_child_groups_when_the_root_has_none() {
+        let mut animation = body_animation();
+        let moved = animation.animators.remove(&2).expect("move clip");
+        let setup = Arc::new(Ac2Setup {
+            meshes: Arc::from(Vec::new()),
+            bones: Arc::from(Vec::new()),
+            placements: Arc::from(Vec::new()),
+            holding_points: Arc::from(Vec::new()),
+            connection_points: Arc::from(Vec::new()),
+            degrade: Default::default(),
+            bounds_min: Default::default(),
+            bounds_max: Default::default(),
+        });
+        animation.child_groups.push(ChildGroupAnimation {
+            key: 7,
+            setup,
+            animators: HashMap::from([(2, moved)]),
+        });
+        let rep = AnimRep::new(animation, false);
+        let source = RepSource {
+            animators: &rep.animators,
+            children: &rep.child_groups,
+            sliders: &rep.sliders,
+            player: false,
+        };
+        let combo = |anim_key| Ac2ComboInfo { anim_key, layer: 0 };
+        assert_eq!(source.combo_cvel(state(), combo(1)), 1.0, "the root's clip");
+        assert_eq!(
+            source.combo_cvel(state(), combo(2)),
+            1.0,
+            "the child's clip"
+        );
+        assert_eq!(source.combo_cvel(state(), combo(3)), 0.0, "no group has it");
     }
 }

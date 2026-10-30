@@ -27,6 +27,7 @@ impl Client {
                 velocity: state.velocity,
                 contact: state.contact,
                 pose: ac2_physics::part_poses(&body.physics, self.pose_blend_time()),
+                child_poses: ac2_physics::child_part_poses(&body.physics, self.pose_blend_time()),
                 appearance: self.drawn_appearance(
                     p.id,
                     self.session

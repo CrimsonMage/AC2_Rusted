@@ -71,6 +71,61 @@ fn array(v: Vector) -> [f32; 3] {
     [v.x, v.y, v.z]
 }
 
+/// `CPartArray::DoAnimation` of one part group: the group's animators add the trackers' tracks
+/// (`CPartArray::AddAnimation`: each track's reached triggers always, its pose only when
+/// refreshing), and the compositor poses the group's bones from them. `None` when not refreshing.
+fn pose_group(
+    modes: &mut ac2_anim::Ac2ModeTracker,
+    table: &ac2_anim::Ac2BehaviorTable,
+    animators: &std::collections::HashMap<u32, std::sync::Arc<ac2_anim::Ac2DbAnimator>>,
+    setup: &ac2_anim::Ac2Setup,
+    ctx: &mut PoseContext<'_>,
+    refresh: bool,
+) -> Option<Vec<Ac2BoneTransform>> {
+    modes.visit_tracks_mut(|_, t| {
+        if animators.contains_key(&t.anim_key) && setup.bones.len() == 8 {
+            eprintln!("ZZ track {:x} w {} layer", t.anim_key, t.weight)
+        }
+    });
+    let fresh = refresh.then(|| {
+        let rest: Vec<Ac2BoneTransform> = setup
+            .rest_locals()
+            .iter()
+            .map(Ac2BoneTransform::from_transform)
+            .collect();
+        let roots: Vec<bool> = setup
+            .bones
+            .iter()
+            .map(|bone| bone.parent.is_none())
+            .collect();
+        // `PHYSICSOBJREP::SetupCompositor`: the table's layer count and tweak layers.
+        let input = Ac2PoseInput {
+            layers: table.layer_count(),
+            tweak_layers: &table.tweak_layers,
+            roots: &roots,
+            rest: &rest,
+        };
+        Ac2Compositor::pose(
+            modes,
+            |key| animators.get(&key).map(|animator| &**animator),
+            &mut *ctx,
+            &input,
+        )
+    });
+    modes.visit_tracks_mut(|state, track| {
+        if let Some(animator) = animators.get(&track.anim_key) {
+            animator.triggers(
+                &*ctx,
+                state,
+                track.ctime,
+                !track.is_action,
+                &mut track.triggers,
+            );
+        }
+    });
+    fresh
+}
+
 impl PhysicsObj {
     /// The animation update step of `CPhysicsObj::UpdateAnimation`: 0 (every call) for the
     /// player and for bodies nearer than a quarter of the minimum visible distance, rising
@@ -179,6 +234,7 @@ impl PhysicsObj {
             modes,
             sliders,
             animators,
+            child_groups,
             table,
             setup,
             vdesc_scale,
@@ -201,45 +257,28 @@ impl PhysicsObj {
             random,
             bones: &setup.bones,
         };
-        if refresh {
-            let rest: Vec<Ac2BoneTransform> = setup
-                .rest_locals()
-                .iter()
-                .map(Ac2BoneTransform::from_transform)
-                .collect();
-            let roots: Vec<bool> = setup
-                .bones
-                .iter()
-                .map(|bone| bone.parent.is_none())
-                .collect();
-            // `PHYSICSOBJREP::SetupCompositor`: the table's layer count and tweak layers.
-            let input = Ac2PoseInput {
-                layers: table.layer_count(),
-                tweak_layers: &table.tweak_layers,
-                roots: &roots,
-                rest: &rest,
-            };
-            let fresh = Ac2Compositor::pose(
-                modes,
-                |key| animators.get(&key).map(|animator| &**animator),
-                &mut ctx,
-                &input,
-            );
+        let root_bones = pose_group(modes, table, animators, setup, &mut ctx, refresh);
+        if let Some(fresh) = root_bones {
             // The refresh before this one is what the drawn pose blends from.
             *prev_bones = std::mem::replace(bones, fresh);
             *prev_bones_at = std::mem::replace(bones_at, local_time);
         }
-        modes.visit_tracks_mut(|state, track| {
-            if let Some(animator) = animators.get(&track.anim_key) {
-                animator.triggers(
-                    &ctx,
-                    state,
-                    track.ctime,
-                    !track.is_action,
-                    &mut track.triggers,
-                );
+        // `CPartGroup::DoAnimation` runs the same trackers through each child group, in order.
+        for child in child_groups.iter_mut() {
+            ctx.bones = &child.setup.bones;
+            let fresh = pose_group(
+                modes,
+                table,
+                &child.animators,
+                &child.setup,
+                &mut ctx,
+                refresh,
+            );
+            if let Some(fresh) = fresh {
+                child.prev_bones = std::mem::replace(&mut child.bones, fresh);
+                child.prev_bones_at = std::mem::replace(&mut child.bones_at, local_time);
             }
-        });
+        }
         let events = self.anim.sliders.take_events();
         self.anim.push_events(events);
     }
@@ -283,18 +322,41 @@ impl PhysicsObj {
     /// from the refresh before to the last one. Falls back to [`Self::bone_transforms`] when
     /// there are not two refreshes of the same skeleton yet.
     pub(crate) fn blended_bone_transforms(&self, now: f64) -> Vec<Ac2Transform> {
-        let current = self.bone_transforms();
         let anim = &self.anim;
-        let span = anim.bones_at - anim.prev_bones_at;
-        if !(span > 0.0) || anim.prev_bones.is_empty() || anim.prev_bones.len() != anim.bones.len()
-        {
-            return current;
-        }
-        let t = ((now - anim.bones_at) / span).clamp(0.0, 1.0) as f32;
-        anim.prev_bones
+        blend_refreshes(
+            self.bone_transforms(),
+            (&anim.prev_bones, anim.prev_bones_at),
+            (&anim.bones, anim.bones_at),
+            now,
+        )
+    }
+
+    /// `CPartArray::m_boneTransforms` of every child part group that animates with an `AnimMap`
+    /// of its own (`CPartGroup::DoAnimation` over the children), by group key: the bones as the
+    /// last step left them, or the Setup's default placement before the first step.
+    pub(crate) fn child_bone_transforms(&self) -> Vec<(u32, Vec<Ac2Transform>)> {
+        self.anim
+            .child_groups
             .iter()
-            .zip(&anim.bones)
-            .map(|(from, to)| blend_transform(&from.to_transform(), &to.to_transform(), t))
+            .map(|group| (group.key, group.current()))
+            .collect()
+    }
+
+    /// [`Self::child_bone_transforms`] drawn at `now` between the last two refreshes, as
+    /// [`Self::blended_bone_transforms`] draws the root's.
+    pub(crate) fn blended_child_bone_transforms(&self, now: f64) -> Vec<(u32, Vec<Ac2Transform>)> {
+        self.anim
+            .child_groups
+            .iter()
+            .map(|group| {
+                let blended = blend_refreshes(
+                    group.current(),
+                    (&group.prev_bones, group.prev_bones_at),
+                    (&group.bones, group.bones_at),
+                    now,
+                );
+                (group.key, blended)
+            })
             .collect()
     }
 
@@ -308,4 +370,22 @@ impl PhysicsObj {
     pub(crate) fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
         self.anim.take_events()
     }
+}
+
+/// `current` unless two refreshes of one skeleton exist, else the pose `now` between them.
+fn blend_refreshes(
+    current: Vec<Ac2Transform>,
+    (prev, prev_at): (&[Ac2BoneTransform], f64),
+    (last, last_at): (&[Ac2BoneTransform], f64),
+    now: f64,
+) -> Vec<Ac2Transform> {
+    let span = last_at - prev_at;
+    if !(span > 0.0) || prev.is_empty() || prev.len() != last.len() {
+        return current;
+    }
+    let t = ((now - last_at) / span).clamp(0.0, 1.0) as f32;
+    prev.iter()
+        .zip(last)
+        .map(|(from, to)| blend_transform(&from.to_transform(), &to.to_transform(), t))
+        .collect()
 }

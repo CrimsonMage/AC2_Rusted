@@ -603,6 +603,9 @@ impl Client {
                     pose: body
                         .map(|b| ac2_physics::part_poses(b, self.pose_blend_time()))
                         .unwrap_or_default(),
+                    child_poses: body
+                        .map(|b| ac2_physics::child_part_poses(b, self.pose_blend_time()))
+                        .unwrap_or_default(),
                     anim_scale: body.map_or([1.0; 4], |b| b.draw_scale()),
                     body_scale: body.map_or([1.0; 3], |b| {
                         let s = b.effects_scale();
@@ -681,6 +684,7 @@ impl Client {
                         self.stories.missile_appearance(id).unwrap_or_default(),
                     ),
                     pose: ac2_physics::part_poses(body, self.pose_blend_time()),
+                    child_poses: ac2_physics::child_part_poses(body, self.pose_blend_time()),
                     anim_scale: body.draw_scale(),
                     body_scale: {
                         let s = body.effects_scale();

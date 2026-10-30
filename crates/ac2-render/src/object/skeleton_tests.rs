@@ -308,3 +308,43 @@ fn human_visual_poses_its_skinned_body_from_the_rest_frame() {
     eprintln!("bind span {bind:.2} m, stance span {stance:.2} m");
     assert!(stance < bind * 0.9, "arms leave the bind T-pose");
 }
+
+/// A child group with its own animation (`CPartGroup::DoAnimation` over the children) poses at its
+/// own bones, found by key; the root and unlisted groups keep their placement, and a wrong bone
+/// count is ignored.
+#[test]
+fn a_child_group_poses_at_its_own_animated_bones() {
+    let frame = [Ac2Transform::IDENTITY; 2];
+    let root_setup = setup(frame, frame);
+    let child_setup = setup(frame, frame);
+    let mut child = SkeletonGroup::new(
+        DataId::new(0x0400_0002),
+        &child_setup,
+        false,
+        Some((0, &root_setup, 7)),
+    );
+    child.key = 0x8100_0009;
+    let skeleton = ObjectSkeleton {
+        groups: vec![
+            SkeletonGroup::new(DataId::new(0x0400_0001), &root_setup, false, None),
+            child,
+        ],
+    };
+    let at = |x: f32| {
+        vec![
+            Ac2Transform::IDENTITY,
+            transform([x, 0.0, 0.0], 1.0, Quat::IDENTITY),
+        ]
+    };
+    let rest = skeleton.pose_groups(None, &[], 0);
+    let moved = skeleton.pose_groups(None, &[(0x8100_0009, at(3.0))], 0);
+    assert!(close(moved[0].part_matrix(1), rest[0].part_matrix(1)));
+    assert!(
+        !close(moved[1].part_matrix(1), rest[1].part_matrix(1)),
+        "the child's second part follows its animated bone"
+    );
+    let other_key = skeleton.pose_groups(None, &[(1, at(3.0))], 0);
+    assert!(close(other_key[1].part_matrix(1), rest[1].part_matrix(1)));
+    let short = skeleton.pose_groups(None, &[(0x8100_0009, vec![Ac2Transform::IDENTITY])], 0);
+    assert!(close(short[1].part_matrix(1), rest[1].part_matrix(1)));
+}

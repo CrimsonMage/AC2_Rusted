@@ -21,6 +21,8 @@ pub struct PlayerFrame {
     /// The root Setup's bones relative to their parents as the animation left them (empty
     /// without a Setup).
     pub pose: Vec<ac2_physics::PartPose>,
+    /// The bones of each child part group that animates with its own `AnimMap`, by group key.
+    pub child_poses: Vec<(u32, Vec<ac2_physics::PartPose>)>,
     /// The player's local `VisualDesc` (`CPhysicsObj::m_local_vdesc`), as for other objects.
     pub appearance: Arc<ac2_weenie::Appearance>,
     /// The first-person camera hides the avatar and what it holds
@@ -81,6 +83,8 @@ pub struct ObjectFrame {
     /// The root Setup's bones relative to their parents as the animation left them, when its
     /// physics object exists.
     pub pose: Vec<ac2_physics::PartPose>,
+    /// The bones of each child part group that animates with its own `AnimMap`, by group key.
+    pub child_poses: Vec<(u32, Vec<ac2_physics::PartPose>)>,
     /// `PHYSICSOBJREP::Draw`'s colour scale ([`ac2_physics::PhysicsBody::draw_scale`]): the
     /// animation colour and opacity sliders, white until moved. The drawn tint multiplies it.
     pub anim_scale: [f32; 4],

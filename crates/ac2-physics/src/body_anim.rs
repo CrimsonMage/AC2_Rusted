@@ -364,6 +364,21 @@ impl PhysicsBody {
         self.object.blended_bone_transforms(now)
     }
 
+    /// The bones of every child part group that animates with its own `AnimMap`, by group key
+    /// (`CPartGroup::DoAnimation` over the children); see [`Self::bone_transforms`].
+    pub fn child_bone_transforms(&self) -> Vec<(u32, Vec<ac2_anim::Ac2Transform>)> {
+        self.object.child_bone_transforms()
+    }
+
+    /// [`Self::child_bone_transforms`] drawn at `now` (not retail; see
+    /// [`Self::blended_bone_transforms`]).
+    pub fn blended_child_bone_transforms(
+        &self,
+        now: f64,
+    ) -> Vec<(u32, Vec<ac2_anim::Ac2Transform>)> {
+        self.object.blended_child_bone_transforms(now)
+    }
+
     /// The behaviour, mode and slider callbacks, the FX starts and stops and the weenie hooks
     /// the animation raised since the last call, in order.
     pub fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {

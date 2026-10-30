@@ -33,6 +33,9 @@ const UNAPPLIED: f32 = -1.0;
 pub struct DrawnGroup {
     pub key: u32,
     pub setup: DataId,
+    /// `m_pAnimMap` (`CPartArray::SetAnimMapID`): the group's own `AnimMap`, which animates its
+    /// bones apart from the root's.
+    pub anim_map: Option<DataId>,
     /// The parent group (an index into the list) and the connection point it hangs from.
     pub parent: Option<(usize, u32)>,
     /// `BuildAtomCollection` for the group's key.
@@ -224,6 +227,7 @@ pub fn drawn_groups(
         groups.push(DrawnGroup {
             key,
             setup,
+            anim_map: group.anim_map,
             parent: parent.map(|parent| (parent, group.connection_point)),
             atoms,
         });
@@ -248,6 +252,7 @@ pub fn resolve_drawn_groups(
         return Ok(Some(vec![DrawnGroup {
             key: 0,
             setup: visual,
+            anim_map: None,
             parent: None,
             atoms: Ac2Atoms::default(),
         }]));
@@ -382,6 +387,7 @@ mod tests {
         DrawnGroup {
             key: 0,
             setup: DataId::new(0x0400_0001),
+            anim_map: None,
             parent: parent.map(|parent| (parent, 0)),
             atoms: Default::default(),
         }

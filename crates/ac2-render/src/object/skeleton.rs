@@ -496,11 +496,29 @@ impl ObjectSkeleton {
     /// [`Self::pose`] with every group at placement frame `placement` (`CPartGroup::SetPlacementFrameID`
     /// over the whole tree) where the root has no animation.
     pub fn pose_placed(&self, root: Option<&[Ac2Transform]>, placement: u32) -> Vec<GroupPose> {
+        self.pose_groups(root, &[], placement)
+    }
+
+    /// [`Self::pose_placed`] with the child groups in `children` (by group key) at their animated
+    /// bones (`CPartGroup::DoAnimation` over a child with its own `AnimMap`, parent-relative bone
+    /// transforms as for `root`); a group not listed, or listed with the wrong bone count, stays
+    /// at `placement`.
+    pub fn pose_groups(
+        &self,
+        root: Option<&[Ac2Transform]>,
+        children: &[(u32, Vec<Ac2Transform>)],
+        placement: u32,
+    ) -> Vec<GroupPose> {
         let mut poses: Vec<GroupPose> = Vec::with_capacity(self.groups.len());
         for (index, group) in self.groups.iter().enumerate() {
+            let animated = children
+                .iter()
+                .find(|(key, bones)| *key == group.key && bones.len() == group.bone_count())
+                .map(|(_, bones)| bones.as_slice())
+                .filter(|_| index != 0);
             let locals = match root {
                 Some(root) if index == 0 && root.len() == group.bone_count() => root,
-                _ => group.placed(placement),
+                _ => animated.unwrap_or_else(|| group.placed(placement)),
             };
             let mut pose = group.update_bones(locals);
             pose.matrix = match group.attachment {

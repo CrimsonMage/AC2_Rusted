@@ -43,6 +43,27 @@ pub fn led_drawn_place(body: &PhysicsBody, render_interpolation: f32) -> (u32, [
     (place.cell_id, [o.x, o.y, o.z], [q.w, q.x, q.y, q.z])
 }
 
+/// The bones of every child part group that animates with its own `AnimMap`, by group key, as
+/// [`part_poses`] gives the root's (`CPartGroup::DoAnimation` over the children).
+pub fn child_part_poses(body: &PhysicsBody, drawn_at: Option<f64>) -> Vec<(u32, Vec<PartPose>)> {
+    let groups = match drawn_at {
+        Some(now) => body.blended_child_bone_transforms(now),
+        None => body.child_bone_transforms(),
+    };
+    groups
+        .into_iter()
+        .map(|(key, bones)| (key, bones.iter().map(pose_of).collect()))
+        .collect()
+}
+
+fn pose_of(t: &ac2_anim::Ac2Transform) -> PartPose {
+    PartPose {
+        offset: [t.offset.x, t.offset.y, t.offset.z],
+        rotation: [t.rotation.w, t.rotation.x, t.rotation.y, t.rotation.z],
+        scale: [t.scale.x, t.scale.y, t.scale.z],
+    }
+}
+
 /// The body's bones as the renderer poses them: blended at `drawn_at` (the frame's time) when
 /// pose blending is on, else the retail refresh (`PhysicsBody::bone_transforms`).
 pub fn part_poses(body: &PhysicsBody, drawn_at: Option<f64>) -> Vec<PartPose> {
@@ -50,12 +71,5 @@ pub fn part_poses(body: &PhysicsBody, drawn_at: Option<f64>) -> Vec<PartPose> {
         Some(now) => body.blended_bone_transforms(now),
         None => body.bone_transforms(),
     };
-    bones
-        .iter()
-        .map(|t| PartPose {
-            offset: [t.offset.x, t.offset.y, t.offset.z],
-            rotation: [t.rotation.w, t.rotation.x, t.rotation.y, t.rotation.z],
-            scale: [t.scale.x, t.scale.y, t.scale.z],
-        })
-        .collect()
+    bones.iter().map(pose_of).collect()
 }

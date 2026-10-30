@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 1050 done, 65 partial, 19 to do, 990 skipped.
+2124 retail functions: 1056 done, 59 partial, 19 to do, 990 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (7/9)
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (42/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (44/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -2068,13 +2068,13 @@ Legend and workflow: [README](README.md).
 - [-] `CPartArray::Destroy` · 004f0900 · legions 004e3230 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [x] `CPartArray::GetComboCVel` · 004f0a10 · legions 004e3340 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPartArray::GetHoldLocations` · 004f0a80 · legions 004e33b0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-- [~] `CPartArray::AddAnimation` · 004f0af0 · legions 004e3420 — Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
+- [x] `CPartArray::AddAnimation` · 004f0af0 · legions 004e3420 — Ported: anim_pose.rs pose_group runs CPartArray::AddAnimation (triggers always, pose on refresh) and DoAnimation (compositor, placement fallback) for the root group and then each child part group with its own AnimMap (BodyAnimation::child_groups, loader_anim::load_child_groups, one animator set and bone set per group, same trackers as CPartGroup::DoAnimation); drawn through child_part_poses -> ObjectSkeleton::pose_groups. Real-data test child_anim_real_data_tests (0x1F000026 child group 0x81000005 animates); the human visual child group 0x81000009 is a static hold skeleton.
 - [-] `CPartArray::CPartArray` · 004f0c10 · legions 004e3540 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CPartArray::SetColor` · 004f0d10 · legions 004e3640 — render plumbing
 - [-] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [~] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
+- [x] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — Ported: anim_pose.rs pose_group runs CPartArray::AddAnimation (triggers always, pose on refresh) and DoAnimation (compositor, placement fallback) for the root group and then each child part group with its own AnimMap (BodyAnimation::child_groups, loader_anim::load_child_groups, one animator set and bone set per group, same trackers as CPartGroup::DoAnimation); drawn through child_part_poses -> ObjectSkeleton::pose_groups. Real-data test child_anim_real_data_tests (0x1F000026 child group 0x81000005 animates); the human visual child group 0x81000009 is a static hold skeleton.
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (32/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (34/44)
 
 ### CPartGroup
 - [x] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00 — ac2-physics part_group.rs (CPartGroup tree in an arena) init_setup (SetSetupID then InitInternal)
@@ -2089,8 +2089,8 @@ Legend and workflow: [README](README.md).
 - [x] `CPartGroup::GetPartGroup` · 004f4980 · legions 004e71a0 — ac2-physics part_group.rs (CPartGroup tree in an arena) get_part_group: depth first, own key first
 - [x] `CPartGroup::GetTransitionGTime` · 004f49d0 · legions 004e71f0 — ac2-physics part_group.rs (CPartGroup tree in an arena) transition_group_count: the group count the walk adds (the summed time is not touched in Legions)
 - [x] `CPartGroup::DoAnimation` · 004f4a40 · legions 004e7260 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-- [~] `CPartGroup::GetComboCVel` · 004f4aa0 · legions 004e72c0 — Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
-- [~] `CPartGroup::GetHoldLocations` · 004f4b20 · legions 004e7340 — Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
+- [x] `CPartGroup::GetComboCVel` · 004f4aa0 · legions 004e72c0 — Ported: anim_rep.rs RepSource::combo_cvel and hold_loop search the root group then the child groups (CPartGroup::GetComboCVel returns the first non-zero, GetHoldLocations the first group with a loop). Tested by anim_rep::tests::combo_velocity_searches_the_child_groups_when_the_root_has_none.
+- [x] `CPartGroup::GetHoldLocations` · 004f4b20 · legions 004e7340 — Ported: anim_rep.rs RepSource::combo_cvel and hold_loop search the root group then the child groups (CPartGroup::GetComboCVel returns the first non-zero, GetHoldLocations the first group with a loop). Tested by anim_rep::tests::combo_velocity_searches_the_child_groups_when_the_root_has_none.
 - [x] `CPartGroup::SetParentConnection` · 004f4bb0 · legions 004e73d0 — ac2-physics part_group.rs (CPartGroup tree in an arena) set_parent_connection
 - [x] `CPartGroup::DestroyChildren` · 004f4bf0 · legions 004e7410 — ac2-physics part_group.rs (CPartGroup tree in an arena) destroy_children
 - [-] `CPartGroup::SetCellID` · 004f4c90 · legions 004e74b0 — CPartGroup::SetCellID hands the cell to every CPhysicsPart for drawing; the cell lives with ac2-render's object placement, nothing in the physics side stores it
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (138/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (140/171)
 
 ### BehaviorTable
 - [x] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
@@ -2818,7 +2818,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::DoAnimation` · 004f1ad0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [x] `PHYSICSOBJREP::GetComboCVel` · 004f1b00 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetHoldLocations` · 004f1b90 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-- [~] `PHYSICSOBJREP::SetupSliderTracker` · 004f1c40 · legions 004e4540 — Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
+- [x] `PHYSICSOBJREP::SetupSliderTracker` · 004f1c40 · legions 004e4540 — Matches: the Legions functions do not recurse into part groups (one SliderTracker per PHYSICSOBJREP, AnimRep::new / update_sliders); every group animator reads the same sliders (PoseContext, SliderView), so child groups follow them without a tracker of their own.
 - [x] `PHYSICSOBJREP::SetupFXScriptTracker` · 004f1cb0 · legions 004e45b0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `PHYSICSOBJREP::SetupModeTracker` · 004f1d10 · legions 004e4610 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `PHYSICSOBJREP::SetTerrainType` · 004f1d70 · legions 004e4670 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
@@ -2861,7 +2861,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0 — fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
 - [x] `PHYSICSOBJREP::DestroyParticleSystem` · 004f2410 · legions 004e4d10 — ac2-render scene particles destroy (CPartArray::DestroyParticleSystem)
 - [x] `PHYSICSOBJREP::UpdateMovement` · 004f2420 · legions 004e4d20 — structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
-- [~] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
+- [x] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — Matches: the Legions functions do not recurse into part groups (one SliderTracker per PHYSICSOBJREP, AnimRep::new / update_sliders); every group animator reads the same sliders (PoseContext, SliderView), so child groups follow them without a tracker of their own.
 - [x] `PHYSICSOBJREP::UpdateFXScriptTracker` · 004f2540 · legions 004e4e40 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `PHYSICSOBJREP::UpdateAnimation` · 004f2560 · legions 004e4e60 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetTerrainType` · 004f2590 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)

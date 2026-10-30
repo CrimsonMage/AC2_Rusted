@@ -25,6 +25,11 @@ const MOVE: u32 = 0x4000_0001;
 const STANDING_JUMP: u32 = 0x4000_000a;
 
 fn scene() -> Option<(Terrain, PhysicsBody)> {
+    scene_for(HUMAN_MALE_VISUAL)
+}
+
+/// A body of `visual` (with the human's motion interp description) standing on the test block.
+pub(crate) fn scene_for(visual: u32) -> Option<(Terrain, PhysicsBody)> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
     let world = Ac2WorldSource::open(Arc::clone(&store))
@@ -35,12 +40,12 @@ fn scene() -> Option<(Terrain, PhysicsBody)> {
     let desc = load_ac2_motion_interp_desc(&store, DataId::new(HUMAN_MOTION_INTERP_DESC))
         .expect("motion interp desc decodes")
         .expect("human motion interp desc");
-    let shape = load_body_shape(&store, DataId::new(HUMAN_MALE_VISUAL))
+    let shape = load_body_shape(&store, DataId::new(visual))
         .expect("setup decodes")
         .expect("human setup");
-    let animation = load_body_animation(&store, DataId::new(HUMAN_MALE_VISUAL))
+    let animation = load_body_animation(&store, DataId::new(visual))
         .expect("animation decodes")
-        .expect("human animation");
+        .expect("animation");
     assert!(!animation.animators.is_empty());
     assert!(animation.setup.is_some());
     let cell = lcoord_to_gid(0x7F * 8 + 4, 0x7F * 8 + 4);
@@ -60,7 +65,7 @@ fn scene() -> Option<(Terrain, PhysicsBody)> {
     Some((terrain, body))
 }
 
-fn run(terrain: &Terrain, body: &mut PhysicsBody, seconds: f32) {
+pub(crate) fn run(terrain: &Terrain, body: &mut PhysicsBody, seconds: f32) {
     for _ in 0..(seconds / PHYSICS_QUANTUM).round() as usize {
         body.step_quantum(terrain);
         crate::test_support::animate(body, PHYSICS_QUANTUM);

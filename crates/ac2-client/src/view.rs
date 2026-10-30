@@ -51,6 +51,8 @@ struct Drawn<'a> {
     origin: [f32; 3],
     rotation: [f32; 4],
     pose: &'a [PartPose],
+    /// The bones of each child part group with its own `AnimMap`, by group key.
+    child_poses: &'a [(u32, Vec<PartPose>)],
     /// The FX's colour and fade for the object (white for none).
     tint: [f32; 4],
     /// The body's own scale over the model's ([`ObjectFrame::body_scale`]; one for the player).
@@ -167,6 +169,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             origin: p.origin,
             rotation: p.rotation,
             pose: &p.pose,
+            child_poses: &p.child_poses,
             tint: ac2_smartbox::fx_objects::drawn_tint(
                 frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
                 p.anim_scale,
@@ -201,6 +204,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                 origin: o.origin,
                 rotation: o.rotation,
                 pose: &o.pose,
+                child_poses: &o.child_poses,
                 tint: ac2_smartbox::fx_objects::drawn_tint(
                     frame.fx_looks.tints.get(&o.id).copied().unwrap_or([1.0; 4]),
                     o.anim_scale,
@@ -594,6 +598,15 @@ fn placed(
     let world = world_matrix(*scale * drawn.body_scale, at);
     let bones: Vec<_> = drawn.pose.iter().map(PartPose::transform).collect();
     let placement = drawn.placement.unwrap_or(0);
-    let pose = rig.pose_placed((!bones.is_empty()).then_some(bones.as_slice()), placement);
+    let children: Vec<_> = drawn
+        .child_poses
+        .iter()
+        .map(|(key, bones)| (*key, bones.iter().map(PartPose::transform).collect()))
+        .collect();
+    let pose = rig.pose_groups(
+        (!bones.is_empty()).then_some(bones.as_slice()),
+        &children,
+        placement,
+    );
     Some((drawn.key, world, pose))
 }

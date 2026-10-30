@@ -208,6 +208,7 @@ impl Walk {
                     scale: [t.scale.x, t.scale.y, t.scale.z],
                 })
                 .collect(),
+            child_poses: ac2_physics::child_part_poses(&player.physics, None),
             // `CPhysicsObj::m_local_vdesc`: the server names the DAT `VisualDesc` it adds to.
             appearance: Arc::new(Appearance {
                 parent: visual.raw(),

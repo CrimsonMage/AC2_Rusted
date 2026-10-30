@@ -136,7 +136,12 @@ impl UiViews {
                     frame.origin,
                 );
                 let bones = body.map(|b| b.bone_transforms()).unwrap_or_default();
-                let pose = rig.pose((!bones.is_empty()).then_some(bones.as_slice()));
+                let children = body.map(|b| b.child_bone_transforms()).unwrap_or_default();
+                let pose = rig.pose_groups(
+                    (!bones.is_empty()).then_some(bones.as_slice()),
+                    &children,
+                    0,
+                );
                 let bounds = view.scene.object_pick(key).map(|m| (m.min, m.max));
                 Some(Drawn {
                     key,

@@ -70,6 +70,7 @@ pub fn objects(
                     ..Appearance::default()
                 }),
                 pose: Vec::new(),
+                child_poses: Vec::new(),
                 anim_scale: [1.0; 4],
                 body_scale: [1.0; 3],
                 adaptive_degrade: true,
@@ -105,6 +106,7 @@ mod tests {
             velocity: [0.0; 3],
             contact: true,
             pose: Vec::new(),
+            child_poses: Vec::new(),
             appearance: Arc::default(),
             hidden: false,
             anim_scale: [1.0; 4],
