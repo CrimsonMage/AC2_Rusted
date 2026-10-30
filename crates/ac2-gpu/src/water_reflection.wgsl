@@ -3,6 +3,7 @@
 // and take the colour it meets, or the sky's where it leaves the world; a Fresnel weight blends it
 // over the water.
 
+// The view is eye-relative (the eye at the origin): `inv_view` gives points taken off the eye.
 struct Water {
     view: mat4x4<f32>,
     proj: mat4x4<f32>,
@@ -14,9 +15,11 @@ struct Water {
     params: vec4<f32>,
     // The horizon's colour (the fog's, linear) where nothing is met.
     horizon: vec4<f32>,
-    // The water block window: its first block's world x, y, the block edge, the window's width
-    // in blocks.
+    // The water block window: its first block's x, y relative to the eye, the block edge, the
+    // window's width in blocks.
     blocks: vec4<f32>,
+    // xyz: the eye in the world (the ripples' phase).
+    eye: vec4<f32>,
 }
 
 @group(0) @binding(0) var<uniform> water: Water;
@@ -28,8 +31,8 @@ struct Water {
 
 // Whether the block under view-space point `p` holds the plane's water.
 fn on_water(p: vec3<f32>) -> bool {
-    let world = (water.inv_view * vec4(p, 1.0)).xy;
-    let cell = floor((world - water.blocks.xy) / water.blocks.z);
+    let rel = (water.inv_view * vec4(p, 1.0)).xy;
+    let cell = floor((rel - water.blocks.xy) / water.blocks.z);
     if any(cell < vec2(0.0)) || any(cell >= vec2(water.blocks.w)) {
         return false;
     }
@@ -56,7 +59,7 @@ fn screen_of(p: vec3<f32>) -> vec3<f32> {
 // `WaterReflections` 2: the surface ripples (retail's bump-mapped reflection, a 0.04 offset).
 // The ripples fade with distance, where they would only alias.
 fn rippled(n: vec3<f32>, p: vec3<f32>) -> vec3<f32> {
-    let world = (water.inv_view * vec4(p, 1.0)).xy;
+    let world = (water.inv_view * vec4(p, 1.0)).xy + water.eye.xy;
     let t = water.params.x;
     let slope = vec2(
         cos(world.x * 0.9 + t * 1.3) + 0.6 * cos(world.x * 0.37 - world.y * 0.53 + t * 0.9),

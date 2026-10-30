@@ -327,13 +327,15 @@ fn bounds(instance: &ObjectInstance<'_>) -> (Vec3, f32) {
 }
 
 impl ObjectRenderer {
-    /// Draws `casters` into each of `layers` (one per cascade, cleared first) through `cascades`.
+    /// Draws `casters` into each of `layers` (one per cascade, cleared first) through `cascades`
+    /// fitted around `eye`: each part is placed relative to `eye` and drawn through
+    /// `Cascade::clip_rel`, as the receivers read it.
     pub(crate) fn draw_sun_casters(
         &mut self,
         gpu: &Gpu,
         encoder: &mut wgpu::CommandEncoder,
         layers: &[wgpu::TextureView],
-        cascades: &[Cascade],
+        (eye, cascades): (Vec3, &[Cascade]),
         casters: &[ObjectInstance<'_>],
     ) {
         if self.sun_casters.is_none() {
@@ -349,7 +351,7 @@ impl ObjectRenderer {
         for (index, cascade) in cascades.iter().enumerate() {
             let at = index * CASCADE_STRIDE as usize;
             matrices[at..at + 64]
-                .copy_from_slice(bytemuck::bytes_of(&cascade.clip.to_cols_array_2d()));
+                .copy_from_slice(bytemuck::bytes_of(&cascade.clip_rel.to_cols_array_2d()));
         }
         if !matrices.is_empty() {
             gpu.queue.write_buffer(&pass.cascades, 0, &matrices);
@@ -360,6 +362,8 @@ impl ObjectRenderer {
                 if instance.tint[3] < 0.5 || !cascade.reaches(center, radius) {
                     continue;
                 }
+                let mut world = instance.world;
+                world.w_axis -= eye.extend(0.0);
                 let base = pass.scratch_bones.len() as u32;
                 if let Some(pose) = instance.pose {
                     pass.scratch_bones
@@ -411,7 +415,7 @@ impl ObjectRenderer {
                             cut,
                         });
                         pass.scratch_instances.push(CasterInstance {
-                            model: (instance.world * transform).to_cols_array_2d(),
+                            model: (world * transform).to_cols_array_2d(),
                             skin: match skin {
                                 Some(first) => [base + first, 1, alpha_op, 0],
                                 None => [0, 0, alpha_op, 0],

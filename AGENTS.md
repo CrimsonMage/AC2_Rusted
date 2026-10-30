@@ -239,8 +239,11 @@ game rules and server-visible behaviour exactly retail.
   millimetres as its pose moved and the texture crawled over the surface when it stood idle.
   `ObjectRenderer` builds the clip position and the view-space position from each part's origin
   taken off the eye on the CPU (`InstanceData::rel`, eye-relative `view_proj` and `view` in the
-  frame uniform) plus the rotated mesh point; lighting, shadows and fog keep the absolute world
-  position. The sky already drew this way.
+  frame uniform) plus the rotated mesh point; the per-pixel lighting and the sun shadow cascades
+  take that eye-relative position too: casters and receivers (objects, bodies, near terrain) go
+  through each cascade's `Cascade::clip_rel`, whose window is taken off the eye in f64, so shadow
+  edges on and from a moving body do not step either. The water reflection's view and plane are
+  eye-relative as well. The sky already drew this way.
 - Exception: the camera follows the body where it is drawn, every frame. Retail's `SmartBox::UseTime`
   updated the camera every frame only while mouse look was on (`UpdateCamera(elapsed, 0)`), and
   otherwise once per physics quantum (`SmartBox::PlayerPhysicsUpdatedCallback`, then

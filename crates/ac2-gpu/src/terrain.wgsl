@@ -71,6 +71,9 @@ struct VsOut {
     // `SurfaceInfo::vertex_color`: the surface tint (rgb) and how much the sun reaches it (a).
     @location(7) surface: vec4<f32>,
     @location(8) world: vec3<f32>,
+    // The point relative to the eye, for the sun shadow cascades (`sun_shadow.wgsl`): taken off
+    // per vertex, so the interpolated value keeps its millimetres tens of kilometres out.
+    @location(9) rel: vec3<f32>,
 };
 
 // `LScapeMaterialInfo::CalcRotUVs` by rotation (ROT_0..ROT_270) and slot (SW, SE, NW, NE).
@@ -95,6 +98,7 @@ fn vs(input: VsIn) -> VsOut {
     out.normal = input.normal;
     out.surface = input.surface_color;
     out.world = input.position;
+    out.rel = input.position - frame.eye.xyz;
     out.grid = input.grid;
     out.mask1_uv = mask_uv(batch.rot.x, input.corner);
     out.mask2_uv = mask_uv(batch.rot.y, input.corner);
@@ -124,7 +128,7 @@ fn terrain_light(normal: vec3<f32>, c: vec4<f32>, sun: f32) -> vec3<f32> {
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
     // In a body's or object's sun shadow the direct light is gone, and the light keeps at most
     // retail's one minus the shadow strength (`sun_shadow_keep`): the darker of the two.
-    let lit = sun_lit(input.world, input.normal);
+    let lit = sun_lit(input.rel, input.normal);
     let diffuse = min(
         terrain_light(input.normal, input.surface, lit),
         terrain_light(input.normal, input.surface, 1.0) * sun_shadow_keep(lit),
@@ -141,7 +145,7 @@ fn fs(input: VsOut) -> @location(0) vec4<f32> {
     // out there instead of darkening them twice.
     let shadow_uv = (frame.shadow * vec4(input.world, 1.0)).xy;
     let landscape = textureSample(shadow_map, frame_clamp, shadow_uv).rgb;
-    color *= mix(landscape, vec3(1.0), sun_cover(input.world));
+    color *= mix(landscape, vec3(1.0), sun_cover(input.rel));
     let cloud_uv = input.world.xy * frame.clouds.z + frame.clouds.xy;
     color *= textureSample(cloud_texture, frame_wrap, cloud_uv).rgb;
     let fogged = mix(color, saturate(frame.fog_color.rgb), input.haze);

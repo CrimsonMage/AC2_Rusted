@@ -70,6 +70,10 @@ impl SunShadowTier {
 pub struct Cascade {
     /// World to the cascade's clip space (x, y in -1..1 over the window, depth 0..1 from the sun).
     pub clip: Mat4,
+    /// The same from points taken off the eye `fit_cascades` saw: casters and receivers both use
+    /// this one, so their depths agree without the world's large coordinates rounding in f32
+    /// (`AGENTS.md`: objects and bodies draw eye-relative).
+    pub clip_rel: Mat4,
     /// The light-space axes (right, up, along the sun) and the window's centre along them.
     pub axes: [Vec3; 3],
     pub center: Vec3,
@@ -172,8 +176,28 @@ pub fn fit_cascades(
             Vec4::new(0.0, 0.0, 0.0, 1.0),
         )
         .transpose();
+        // The window's offsets with the eye's light-space position taken off in f64, where the
+        // difference of two coordinates tens of kilometres out keeps its millimetres.
+        let off = |axis: Vec3, at: f32| {
+            let eye = f64::from(camera.eye.x) * f64::from(axis.x)
+                + f64::from(camera.eye.y) * f64::from(axis.y)
+                + f64::from(camera.eye.z) * f64::from(axis.z);
+            (f64::from(at) - eye) as f32
+        };
+        let clip_rel = Mat4::from_cols(
+            row(axes[0], 1.0 / radius, -off(axes[0], light.x) / radius),
+            row(axes[1], 1.0 / radius, -off(axes[1], light.y) / radius),
+            row(
+                axes[2],
+                1.0 / depth_range,
+                -off(axes[2], depth_near) / depth_range,
+            ),
+            Vec4::new(0.0, 0.0, 0.0, 1.0),
+        )
+        .transpose();
         cascades.push(Cascade {
             clip,
+            clip_rel,
             axes,
             center: light,
             radius,
@@ -194,7 +218,8 @@ pub(crate) struct SunShadowUniform {
     texels: [f32; 4],
     /// The shadow strength (rgb); w is 1 / map size.
     strength: [f32; 4],
-    /// The eye (xyz); w is the cascade count (0: no sun shadows).
+    /// The eye the receivers' points are taken off (xyz); w is the cascade count (0: no sun
+    /// shadows).
     eye: [f32; 4],
 }
 
@@ -387,13 +412,13 @@ impl SunShadows {
         &self.layers
     }
 
-    /// Writes the receivers' uniform for `cascades` seen from `eye` at `strength`; no cascades
-    /// turns the shadows off.
+    /// Writes the receivers' uniform for `cascades` fitted around `eye` at `strength`; no cascades
+    /// turns the shadows off. The receivers pass points relative to `eye` (`Cascade::clip_rel`).
     pub(crate) fn write(&self, gpu: &Gpu, eye: Vec3, cascades: &[Cascade], strength: [f32; 3]) {
         let mut uniform = SunShadowUniform::OFF;
         if let Some(tier) = self.tier.filter(|_| !cascades.is_empty()) {
             for (index, cascade) in cascades.iter().take(MAX_CASCADES).enumerate() {
-                uniform.cascades[index] = cascade.clip.to_cols_array_2d();
+                uniform.cascades[index] = cascade.clip_rel.to_cols_array_2d();
                 uniform.splits[index] = tier.splits[index];
                 uniform.texels[index] = cascade.texel(tier.size);
             }
@@ -418,6 +443,10 @@ pub(crate) const RECEIVER_WGSL: &str = include_str!("sun_shadow.wgsl");
 pub(crate) fn receiver_source() -> String {
     RECEIVER_WGSL.replace("SUN_SHADOW_FADE", &format!("{FADE:?}"))
 }
+
+#[cfg(test)]
+#[path = "sun_shadow_far_tests.rs"]
+mod far_tests;
 
 #[cfg(test)]
 mod tests {
@@ -490,6 +519,39 @@ mod tests {
         assert!(!near.reaches(camera().eye + Vec3::new(500.0, 8.0, -2.0), 1.0));
         // Straight up the sun's path, far above: still casts.
         assert!(near.reaches(camera().eye + Vec3::new(0.0, 8.0, 150.0), 1.0));
+    }
+
+    #[test]
+    fn far_from_the_origin_the_relative_window_matches_the_absolute_one() {
+        let tier = SunShadowTier::of(ObjectShadows::High).unwrap();
+        let sun = Vec3::new(-0.2, 0.5, -0.7);
+        let at = |eye: Vec3| {
+            let camera = Camera {
+                eye,
+                target: eye + Vec3::new(0.0, 10.0, -2.0),
+                ..camera()
+            };
+            fit_cascades(&camera, 1.5, sun, &tier).unwrap()
+        };
+        // Near the origin both matrices place a point alike.
+        let eye = camera().eye;
+        let near = at(eye);
+        let offset = Vec3::new(1.5, 9.0, -1.8);
+        let (a, b) = (
+            near[0].clip.transform_point3(eye + offset),
+            near[0].clip_rel.transform_point3(offset),
+        );
+        assert!((a - b).length() < 1e-5, "{a:?} {b:?}");
+        // 24 km out, a millimetre's move of a point moves it in the relative window by that
+        // millimetre, where the absolute matrix rounds it away.
+        let far_eye = Vec3::new(24_123.4, 23_987.6, 120.0);
+        let far = at(far_eye);
+        let step = Vec3::new(0.001, 0.0, 0.0);
+        let moved = far[0].clip_rel.transform_point3(offset + step)
+            - far[0].clip_rel.transform_point3(offset);
+        let texel = far[0].texel(tier.size);
+        let expected = step.dot(far[0].axes[0]) / far[0].radius;
+        assert!((moved.x - expected).abs() < 0.01 * texel / far[0].radius);
     }
 
     #[test]

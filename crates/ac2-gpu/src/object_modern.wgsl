@@ -68,9 +68,10 @@ fn modern_direct(n: vec3<f32>, v: vec3<f32>, l: vec3<f32>, alpha: f32) -> Modern
 
 // Every light on a pixel: the sky over the ground (`frame.ambient` times the material ambient,
 // the region's sky colour from above and its ground bounce from below), the sun, and the
-// device's point lights, each with its colour decoded from sRGB.
-fn modern_light(world: vec3<f32>, n: vec3<f32>) -> ModernLight {
-    let v = normalize(frame.eye.xyz - world);
+// device's point lights, each with its colour decoded from sRGB. `rel` is the point relative to
+// the eye.
+fn modern_light(rel: vec3<f32>, n: vec3<f32>) -> ModernLight {
+    let v = normalize(-rel);
     let alpha = modern_roughness() * modern_roughness();
     // Only materials retail lights with a highlight (the specular flag) get one, tinted by their
     // specular colour; the rest stay matte, as the DAT authored them.
@@ -92,7 +93,7 @@ fn modern_light(world: vec3<f32>, n: vec3<f32>) -> ModernLight {
         light.sun_specular = es * tint * term.specular;
     }
     for (var i = 0u; i < point_count(); i = i + 1u) {
-        let to_light = draw.points[i * 4u].xyz - world;
+        let to_light = (draw.points[i * 4u].xyz - frame.eye.xyz) - rel;
         let distance_sq = dot(to_light, to_light);
         let attenuation = point_attenuation(i, distance_sq);
         let l = to_light * inverseSqrt(max(distance_sq, 1e-30));
@@ -132,11 +133,11 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
     }
     var radiance = srgb_to_linear(clamp(shaded.rgb, vec3(0.0), vec3(1.0)));
     if !pixel_program && program == 1u {
-        let light = modern_light(input.world, normalize(input.normal));
+        let light = modern_light(input.rel, normalize(input.normal));
         // Retail clamps the specular colour to [0, 1] (`out.color1`); the modern highlights keep
         // the tone curve's roll-off above that. In the sun's shadow the sun's share is gone, and
         // the light keeps at most retail's one minus the shadow strength: the darker of the two.
-        let lit = select(1.0, sun_lit(input.world, input.normal), sun_on());
+        let lit = select(1.0, sun_lit(input.rel, input.normal), sun_on());
         let shaded = radiance * (light.diffuse + light.sun_diffuse * lit)
             + clamp(light.specular + light.sun_specular * lit, vec3(0.0), vec3(1.0));
         let full = radiance * (light.diffuse + light.sun_diffuse)
@@ -145,7 +146,7 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
     } else if sun_on() && !has(FLAG_SKY) {
         // Other programs light in their own maths: retail's darkening (`sun_shadow_keep`); a
         // frill already darkened by the landscape map keeps the darker of the two.
-        let keep = sun_shadow_keep(sun_lit(input.world, input.normal));
+        let keep = sun_shadow_keep(sun_lit(input.rel, input.normal));
         radiance = radiance * min(keep / max(input.landscape_shade, vec3(1e-3)), vec3(1.0));
     }
     var color = radiance;

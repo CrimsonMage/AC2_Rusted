@@ -203,9 +203,10 @@ struct VsOut {
     @location(4) t2: vec3<f32>,
     @location(5) t3: vec3<f32>,
     @location(6) fog: f32,
-    // World normal and position, for the modern per-pixel lighting.
+    // World normal, and the position relative to the eye (`world_rel`), for the modern per-pixel
+    // lighting and the sun shadow cascades.
     @location(7) normal: vec3<f32>,
-    @location(8) world: vec3<f32>,
+    @location(8) rel: vec3<f32>,
     // The modern fogged fraction (`modern_fog`); 0 when the environment has no fog.
     @location(9) haze: f32,
     // The landscape map's shadow a merged frill's colour already carries (1 elsewhere), which
@@ -538,7 +539,7 @@ fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
     out.fog = fog;
     out.haze = select(0.0, modern_fog(distance, world.z, frame.fog.xy), frame.fog.w > 0.5);
     out.normal = basis.normal;
-    out.world = world.xyz;
+    out.rel = world_rel;
     return out;
 }
 

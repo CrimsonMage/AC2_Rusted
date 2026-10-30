@@ -26,6 +26,7 @@ struct Uniform {
     params: [f32; 4],
     horizon: [f32; 4],
     blocks: [f32; 4],
+    eye: [f32; 4],
 }
 
 /// The blocks of the water window, a side (the resident ring is at most 9 wide).
@@ -263,9 +264,14 @@ impl WaterReflection {
                 depth_or_array_layers: 1,
             },
         );
-        let view_matrix = camera::look_at_mat4(view.eye, view.target, Vec3::Z);
+        // Eye-relative, as the objects draw (`AGENTS.md`): the view and the plane are taken from
+        // the eye at the origin, so tens of kilometres out the plane's distance and the block
+        // window keep their millimetres; the window's corner is taken off the eye in f64.
+        let (view_matrix, plane) = relative_view(view, height);
         let proj = camera::perspective(view.fov_y, aspect.max(1e-3), view.near, view.far);
-        let plane = view_plane(view_matrix, view.eye, height);
+        let corner = |block: u8, eye: f32| {
+            (f64::from(block) * f64::from(block_size) - f64::from(eye)) as f32
+        };
         let uniform = Uniform {
             view: view_matrix.to_cols_array_2d(),
             proj: proj.to_cols_array_2d(),
@@ -275,11 +281,12 @@ impl WaterReflection {
             params: [(time % 3600.0) as f32, f32::from(level), view.near, 0.0],
             horizon: [horizon[0], horizon[1], horizon[2], 1.0],
             blocks: [
-                f32::from(origin.0) * block_size,
-                f32::from(origin.1) * block_size,
+                corner(origin.0, view.eye.x),
+                corner(origin.1, view.eye.y),
                 block_size,
                 WINDOW as f32,
             ],
+            eye: view.eye.extend(1.0).to_array(),
         };
         gpu.queue
             .write_buffer(&self.uniform, 0, bytemuck::bytes_of(&uniform));
@@ -402,6 +409,13 @@ impl WaterReflection {
     }
 }
 
+/// `view`'s eye-relative view matrix (the eye at the origin) and the water plane at `height` in
+/// its view space.
+fn relative_view(view: &Camera, height: f32) -> (Mat4, Vec4) {
+    let matrix = camera::look_at_mat4(Vec3::ZERO, view.target - view.eye, Vec3::Z);
+    (matrix, view_plane(matrix, Vec3::ZERO, height - view.eye.z))
+}
+
 /// The view-space plane of `z = height` seen by `view` from `eye`: the up normal turned into
 /// view space, and its distance through the point of the plane under the eye.
 fn view_plane(view: Mat4, eye: Vec3, height: f32) -> Vec4 {
@@ -426,5 +440,20 @@ mod tests {
         assert!(at(Vec3::new(40.0, 70.0, 5.0)).abs() < 1e-4);
         assert!((at(Vec3::new(3.0, 1.0, 7.0)) - 2.0).abs() < 1e-4);
         assert!((at(eye) - 10.0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn far_from_the_origin_the_view_and_plane_are_the_ones_near_it() {
+        let view = |offset: Vec3| Camera {
+            eye: Vec3::new(10.25, 20.5, 15.0) + offset,
+            target: Vec3::new(10.25, 21.5, 14.7) + offset,
+            fov_y: 1.0,
+            near: 0.5,
+            far: 1000.0,
+        };
+        let near = relative_view(&view(Vec3::ZERO), 5.0);
+        let far = relative_view(&view(Vec3::new(24_576.0, 23_552.0, 0.0)), 5.0);
+        assert_eq!(near, far);
+        assert!((near.1.w - 10.0).abs() < 1e-5, "{:?}", near.1);
     }
 }

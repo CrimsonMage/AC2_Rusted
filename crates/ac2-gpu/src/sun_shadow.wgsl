@@ -3,7 +3,7 @@
 // (sampler_comparison).
 
 struct SunShadow {
-    // World to each cascade's clip space.
+    // Eye-relative points to each cascade's clip space (`Cascade::clip_rel`).
     cascades: array<mat4x4<f32>, 4>,
     // Far distance of each cascade from the eye.
     splits: vec4<f32>,
@@ -11,22 +11,23 @@ struct SunShadow {
     texels: vec4<f32>,
     // rgb: the shadow strength; w: 1 / map size.
     strength: vec4<f32>,
-    // xyz: the eye; w: the cascade count (0: off).
+    // xyz: the eye the points are taken off; w: the cascade count (0: off).
     eye: vec4<f32>,
 };
 
-// How far the cascades cover world point `p`: 1 near the eye, falling to 0 over the last
-// cascade's far end (where the landscape map takes over again).
+// Points here are relative to the eye (`sun_shadow.eye`), so a body tens of kilometres out
+// keeps its millimetres. How far the cascades cover point `p`: 1 near the eye, falling to 0
+// over the last cascade's far end (where the landscape map takes over again).
 fn sun_cover(p: vec3<f32>) -> f32 {
     let count = u32(sun_shadow.eye.w);
     if count == 0u {
         return 0.0;
     }
     let last = sun_shadow.splits[count - 1u];
-    return 1.0 - smoothstep(last * (1.0 - SUN_SHADOW_FADE), last, length(p - sun_shadow.eye.xyz));
+    return 1.0 - smoothstep(last * (1.0 - SUN_SHADOW_FADE), last, length(p));
 }
 
-// How much sun reaches world point `p` with world normal `n`: 1 lit, 0 in full shadow. The
+// How much sun reaches eye-relative point `p` with world normal `n`: 1 lit, 0 in full shadow. The
 // nearest cascade holding `p`, offset along its normal by a texel and a half (no acne on slopes),
 // 3 x 3 bilinear comparison taps (a 4 x 4 texel soft edge), fading to lit with `sun_cover`.
 fn sun_lit(p: vec3<f32>, n: vec3<f32>) -> f32 {
@@ -34,7 +35,7 @@ fn sun_lit(p: vec3<f32>, n: vec3<f32>) -> f32 {
     if count == 0u {
         return 1.0;
     }
-    let distance = length(p - sun_shadow.eye.xyz);
+    let distance = length(p);
     if distance >= sun_shadow.splits[count - 1u] {
         return 1.0;
     }

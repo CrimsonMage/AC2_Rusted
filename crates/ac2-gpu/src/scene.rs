@@ -489,7 +489,7 @@ impl SceneRenderer {
                 gpu,
                 &mut encoder,
                 self.sun_shadows.layer_views(),
-                &cascades,
+                (camera.eye, &cascades),
                 &casters,
             );
             gpu.queue.submit([encoder.finish()]);
