@@ -7,7 +7,7 @@
 //! [`QuestsUi::sync`] with the toolbar's answer, so the journal sees each change of the Quest
 //! child (`gmToolbarUI`'s `ManageChildren` and key or button presses).
 //!
-//! The panel's `QuestHelpButton` (`KeyStone::OpenHelp`) is not modelled; its close button is the
+//! The panel's `QuestHelpButton` opens `ID_Help_Quest` (`help.rs`); its close button is the
 //! toolbar's (`QuestCloseButton`).
 
 use std::sync::Arc;

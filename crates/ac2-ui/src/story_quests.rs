@@ -8,8 +8,8 @@
 //! The Quest panel (`gmQuestsUI`, [`crate::QuestsUi`]) owns this page: a notice while the panel is
 //! hidden flashes the quest button and makes the Story tab active. Retail's `m_updatedActs` flags
 //! only feed a lookup whose result `ReloadActs` never reads, so they are not kept. The element
-//! hash is the list's own items. `ReloadActs` skips an act whose record holds no physics object
-//! word; the act record has no such field, so every act is listed.
+//! hash is the list's own items. `ReloadActs` lists only the acts whose `_bVisible` is set (the
+//! decompile names that read `GetPhysObj`, a getter folded onto the same offset).
 
 use std::collections::BTreeSet;
 use std::sync::Arc;
@@ -141,7 +141,7 @@ impl StoryQuestsUi {
 
     /// `gmStoryQuestsUI::ReloadActs`: the list flushed and laid out again from `acts`. An act
     /// that is open (or the updated one, which opens) shows its scene rows, and the updated act
-    /// scrolls into view by its index, as retail does.
+    /// scrolls into view by its index, as retail does. An act that is not visible is not listed.
     pub fn reload(&mut self, tree: &mut UiTree, source: &dyn JournalSource, acts: Vec<GmActInfo>) {
         let Some(list) = self.list else {
             return;
@@ -152,6 +152,12 @@ impl StoryQuestsUi {
         let mut scroll = None;
         tree.list_multi_op_start(list);
         for (index, act) in self.acts.iter().enumerate() {
+            // Retail's check is the act's `_bVisible` word (`CWPhysicsObject::GetPhysObj`, an
+            // identical-code-folded getter, reads the same offset): a hidden act has no row, though
+            // it still counts in the index the updated act scrolls to.
+            if act.visible == 0 {
+                continue;
+            }
             if act.id == self.updated {
                 self.expanded.insert(act.id);
                 scroll = Some(index);

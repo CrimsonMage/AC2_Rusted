@@ -138,6 +138,23 @@ fn the_background_reports_its_fade_when_its_media_ends() {
     assert!(fade_done(tree, &story, 3.6));
 }
 
+/// `gmStoryUI::gmStoryUI` sizes the background to the render device.
+#[test]
+fn the_background_covers_the_display() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    tree.set_display(1280, 960);
+    let mut story: StoryView = hud.story.expect("the story fields in the gameplay layout");
+    story.begin(tree);
+    let background = field_root(tree, "BackgroundField");
+    let rect = tree.get(background).unwrap().rect();
+    assert_eq!((rect.width(), rect.height()), (1280, 960));
+}
+
 /// Without the string tables a literal subtitle is its own text, and a table entry has none.
 #[test]
 fn a_subtitle_without_tables_is_its_literal() {

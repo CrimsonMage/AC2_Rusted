@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1527 done, 134 partial, 0 to do, 586 skipped.
+2247 retail functions: 1563 done, 98 partial, 0 to do, 586 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -98,7 +98,7 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [x] `gm3DTextUI::RecvNotice_ReloadOptions` · 0042ba70 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
-## `ac2/client/src/ui/gameplay/gmbookui.cpp.c` (14/19)
+## `ac2/client/src/ui/gameplay/gmbookui.cpp.c` (16/19)
 
 ### gmBookUI
 - [x] `gmBookUI::CreateManagedElements` · 0041eaa0 · legions 0041e8c0 — ac2-ui book.rs BookUi::create: the Book template and its children, made with the HUD and hidden (retail makes them on each show)
@@ -114,7 +114,7 @@ Legend and workflow: [README](README.md).
 - [-] `PStringBase<unsigned_short>::operator[]` · 0041edf0 · legions 0041ec10 — PStringBase iterator and operator[]: the Rust port keeps Strings and indexes them by char
 
 ### gmBookUI
-- [~] `gmBookUI::gmBookUI` · 0041ee70 · legions 0041ec90 — ac2-ui book.rs BookUi::create; the notice registration is the frame's event list (ac2-client hud_book.rs), not a handler list
+- [x] `gmBookUI::gmBookUI` · 0041ee70 · legions 0041ec90 — ac2-ui book.rs BookUi::create (gmBookUI::gmBookUI): the book elements found and the panel made hidden; the notice registration is the frame event list (ac2-client hud_book.rs), a structural replacement of the handler list
 - [-] `gmBookUI::~gmBookUI` · 0041ef90 · legions 0041edb0 — Rust drop: the tree owns the book's elements, and the frame's events need no listener removal
 - [x] `gmBookUI::UpdateBook` · 0041f010 · legions 0041ee30 — ac2-ui book.rs update_book: with the controls the page label (ID_Book_PageNumberText, CURRENT/LAST) and SynchSliderBar; the text and header SetViewY to the box height times (page - 1)
 
@@ -124,7 +124,7 @@ Legend and workflow: [README](README.md).
 ### gmBookUI
 - [x] `gmBookUI::AddNewlines` · 0041f480 · legions 0041f260 — ac2-ui book.rs paginate: the padding newlines (AddNewlines as repeated newlines)
 - [x] `gmBookUI::TruncateText` · 0041f510 · legions 0041f2f0 — ac2-ui book.rs truncate_to_width: the text plus L" " (a space, Legions 0x9cbaf0, not an ellipsis) is measured; wider than a positive limit, characters come off until it fits and the text keeps the space
-- [~] `gmBookUI::ParseText` · 0041f7c0 · legions 0041f5a0 — ac2-ui book.rs paginate and segments: <BR> pages, <H>..</H> headers, pages padded to lines_per_page; a tail after the last <BR> is paginated (retail's flush does not); PStringBase substring end unresolved
+- [x] `gmBookUI::ParseText` · 0041f7c0 · legions 0041f5a0 — ac2-ui book.rs paginate and segments (ParseText): <BR> pages, <H>..</H> headers (trimmed, newline after), each page padded to lines_per_page, header column of page labels, last page capped at 1000. The substring end checks are the same as str slicing. Only difference: text after the last <BR> is paginated (retail drops it), an AGENTS.md exception
 - [x] `gmBookUI::RecvNotice_UseBook` · 0041ff30 · legions 0041fd30 — ac2-ui book.rs recv_use_book via book_pass: shown, reset, title text, SetMode(showControls), ParseText of a non-empty text with the page label, BookForeground's image (draw mode 2) or cleared, UpdateBook
 - [x] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10 — ac2-ui book.rs book_pass sends BookUi::clipboard_text to the tree's clipboard (UiTree::send_string_to_clipboard, the OS clipboard in the client); test book_tests.rs
 - [x] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120 — ac2-ui book.rs message: close; while shown the foreground's next page (closing past the last), help (BookRequest::OpenHelp -> ID_Help_Book), and with the controls the slider buttons, the slider and Copy (the OS clipboard)
@@ -607,30 +607,30 @@ Legend and workflow: [README](README.md).
 - [x] `gmStackUI::ListenToMessage` · 00424e20 · legions 00424c10 — ac2-ui stack.rs
 - [x] `gmStackUI::RecvNotice_InitStackUI` · 00424ed0 · legions 00424cc0 — ac2-ui stack.rs
 
-## `ac2/client/src/ui/gameplay/gmstoryui.cpp.c` (2/11)
+## `ac2/client/src/ui/gameplay/gmstoryui.cpp.c` (9/11)
 
 ### gmKeyframe
 - [x] `gmKeyframe::GetSubtitle` · 0042bf80 · legions 0042bd40 — ac2-ui story.rs carries the keyframe's StringInfo; ac2-client hud_story.rs renders it on the string tables (table subtitles too)
 
 ### gmStoryUI
 - [x] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-client client_audio.rs stop_story_sounds: the music and voice fade out over 2 s (PlayingSoundContext::Stop); the ~gmStoryUI teardown reaches it
-- [~] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
-- [~] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — story music and voice play (ac2-client client_audio.rs play_story_sounds, Type_ForceAllExclusive, Channel_Main, Looping_ForceOn for music); subtitles are the keyframe's StringInfo rendered on the HUD (hud_story.rs); the background's token_play fade is still immediate
-- [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — CheckStart waits for the fade (0042c6b0); background not sized to the viewport yet (rect 0 in the layout)
+- [x] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0 — ac2-ui story_view.rs StoryView::hide (roots removed/hidden, images and subtitles cleared, fields back to stateless) and client_story.rs: the teardown sends StoryEvent::StopAudio (stop_story_sounds), the mouse-look notice (StoryEvent::MouseLook) and the prefetch (OnContextFinished) is the client loading the images before begin; tests story_view_tests.rs
+- [x] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — ac2-client client_audio.rs play_story_sounds (music Looping_ForceOn, voice, Type_ForceAllExclusive, Channel_Main, the last one stopped over 2 s) and ac2-ui story_view.rs show (image into the _lastState field with the Frame flip, subtitle, duration); the background fade is its media (token_play, 3.5 s) via is_fade_done
+- [x] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — ac2-ui story_view.rs is_fade_done + gameplay_story.rs prefetch_done / fade_done (CheckStart starts when both are in; the fade is the background media message, test the_background_reports_its_fade_when_its_media_ends); StoryView::show_roots now sizes the background to the display as the constructor does (test the_background_covers_the_display)
 
 ### QualifiedDataIDArray
 - [-] `QualifiedDataIDArray::~QualifiedDataIDArray` · 0042c660 · legions 0042c420 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 
 ### gmStoryUI
-- [~] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — fade done = the background's media message (layout MD_Data_Message, 3.5 s); the HUD waits for it (ac2-ui story_view.rs is_fade_done, ac2-client hud_story.rs). Test: story_view_tests.rs
-- [~] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0 — story music and voice play (ac2-client client_audio.rs play_story_sounds, Type_ForceAllExclusive, Channel_Main, Looping_ForceOn for music); the background's token_play fade is still immediate
-- [~] `gmStoryUI::OnContextFinished` · 0042c780 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+- [x] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — ac2-ui story_view.rs is_fade_done + gameplay_story.rs prefetch_done / fade_done (CheckStart starts when both are in; the fade is the background media message, test the_background_reports_its_fade_when_its_media_ends); StoryView::show_roots now sizes the background to the display as the constructor does (test the_background_covers_the_display)
+- [x] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0 — ac2-client client_audio.rs play_story_sounds (music Looping_ForceOn, voice, Type_ForceAllExclusive, Channel_Main, the last one stopped over 2 s) and ac2-ui story_view.rs show (image into the _lastState field with the Frame flip, subtitle, duration); the background fade is its media (token_play, 3.5 s) via is_fade_done
+- [x] `gmStoryUI::OnContextFinished` · 0042c780 — ac2-ui story_view.rs StoryView::hide (roots removed/hidden, images and subtitles cleared, fields back to stateless) and client_story.rs: the teardown sends StoryEvent::StopAudio (stop_story_sounds), the mouse-look notice (StoryEvent::MouseLook) and the prefetch (OnContextFinished) is the client loading the images before begin; tests story_view_tests.rs
 
 ### QualifiedDataIDArray
 - [-] `QualifiedDataIDArray::QualifiedDataIDArray` · 0042c7a0 · legions 0042c560 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 
 ### gmStoryUI
-- [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — begin event (StoryEvent::Begin) starts the background's fade; HUD panels hidden while a story plays and restored after (hud_story.rs), a modern addition: the decompile shows no Show(0) at story start
+- [x] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — ac2-ui story_view.rs StoryView::create/begin: background, StoryField1/2 roots, the background sized to the display, media restarted at begin; fields start in Frame1. The gameplay panels hiding while a story plays is an AGENTS.md exception
 
 ## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (27/32)
 
@@ -819,13 +819,13 @@ Legend and workflow: [README](README.md).
 - [x] `OptionBase::Describe` · 0044f890 · legions 004509d0 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
 - [x] `OptionBase::Identify` · 0044f940 · legions 00450a80 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
 
-## `ac2/client/src/ui/gameplay/helper/optionchoice.cpp.c` (11/15)
+## `ac2/client/src/ui/gameplay/helper/optionchoice.cpp.c` (14/15)
 
 ### OptionChoice
 - [x] `OptionChoice::OptionChoice` · 0044df20 · legions 0044f0f0 — ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
 - [-] `OptionChoice::Cast` · 0044dfa0 · legions 0044f170 — C++ downcast (Cast) and scalar deleter: the page keeps typed entries
 - [x] `OptionChoice::AddChoice` · 0044dfe0 · legions 0044f1b0 — ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
-- [~] `OptionChoice::AssignChoice` · 0044e060 · legions 0044f230 — ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
+- [x] `OptionChoice::AssignChoice` · 0044e060 · legions 0044f230 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 - [x] `OptionChoice::SetCurrent` · 0044e090 · legions 0044f260 — ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
 - [x] `OptionChoice::SetDefault` · 0044e140 · legions 0044f310 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::GetCurrent` · 0044e180 · legions 0044f350 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
@@ -833,18 +833,18 @@ Legend and workflow: [README](README.md).
 - [x] `OptionChoice::Apply` · 0044e210 · legions 0044f3e0 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Recall` · 0044e260 · legions 0044f430 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Default` · 0044e280 · legions 0044f450 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-- [~] `OptionChoice::ListenToMessage` · 0044e2a0 · legions 0044f470 — ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
+- [x] `OptionChoice::ListenToMessage` · 0044e2a0 · legions 0044f470 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 - [x] `OptionChoice::Refresh` · 0044e3a0 · legions 0044f570 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Refresh` · 0044e3c0 · legions 0044f590 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-- [~] `OptionChoice::Merge` · 0044e590 · legions 0044f6d0 — ac2-ui character_options.rs fill_choices (flush + AddChoice in number order) on the Game, Chat and Client pages; the menu's new selection is read into the value; PreferenceBank::Change and Merge's preference copy are not modelled, Apply sends the setter instead
+- [x] `OptionChoice::Merge` · 0044e590 · legions 0044f6d0 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 
-## `ac2/client/src/ui/gameplay/helper/optionexpander.cpp.c` (9/16)
+## `ac2/client/src/ui/gameplay/helper/optionexpander.cpp.c` (13/16)
 
 ### OptionExpander
-- [~] `OptionExpander::CountOptions` · 0044eb80 · legions 0044fcc0 — the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
-- [~] `OptionExpander::Refit` · 0044eb90 · legions 0044fcd0 — the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
-- [~] `OptionExpander::Refresh` · 0044ec30 · legions 0044fd70 — the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
-- [~] `OptionExpander::Refresh` · 0044ec80 · legions 0044fdc0 — the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+- [x] `OptionExpander::CountOptions` · 0044eb80 · legions 0044fcc0 — ac2-ui option_expander.rs refit (OptionExpander::Refit: element = header + listed rows, list = rows) called on Construct/Dismantle in character.rs, chat_options.rs and client_options_page.rs; CountOptions/Refresh are the page entry lists and the per-option sync; test the_expanders_collapse_and_expand_their_options
+- [x] `OptionExpander::Refit` · 0044eb90 · legions 0044fcd0 — ac2-ui option_expander.rs refit (OptionExpander::Refit: element = header + listed rows, list = rows) called on Construct/Dismantle in character.rs, chat_options.rs and client_options_page.rs; CountOptions/Refresh are the page entry lists and the per-option sync; test the_expanders_collapse_and_expand_their_options
+- [x] `OptionExpander::Refresh` · 0044ec30 · legions 0044fd70 — ac2-ui option_expander.rs refit (OptionExpander::Refit: element = header + listed rows, list = rows) called on Construct/Dismantle in character.rs, chat_options.rs and client_options_page.rs; CountOptions/Refresh are the page entry lists and the per-option sync; test the_expanders_collapse_and_expand_their_options
+- [x] `OptionExpander::Refresh` · 0044ec80 · legions 0044fdc0 — ac2-ui option_expander.rs refit (OptionExpander::Refit: element = header + listed rows, list = rows) called on Construct/Dismantle in character.rs, chat_options.rs and client_options_page.rs; CountOptions/Refresh are the page entry lists and the per-option sync; test the_expanders_collapse_and_expand_their_options
 - [-] `OptionExpander::GetOption` · 0044ed10 · legions 0044fe50 — index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
 - [x] `OptionExpander::Construct` · 0044ed30 · legions 0044fe70 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
 - [x] `OptionExpander::Dismantle` · 0044edb0 · legions 0044fef0 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
@@ -858,12 +858,12 @@ Legend and workflow: [README](README.md).
 - [-] `OptionExpander::Clear` · 0044f030 · legions 00450170 — index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
 - [x] `OptionExpander::AddOption` · 0044f0b0 · legions 004501f0 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
 
-## `ac2/client/src/ui/gameplay/helper/optionflag.cpp.c` (9/13)
+## `ac2/client/src/ui/gameplay/helper/optionflag.cpp.c` (12/13)
 
 ### OptionFlag
-- [~] `OptionFlag::OptionFlag` · 0044e6d0 · legions 0044f810 — the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+- [x] `OptionFlag::OptionFlag` · 0044e6d0 · legions 0044f810 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 - [-] `OptionFlag::Cast` · 0044e760 · legions 0044f8a0 — C++ downcast (Cast) and scalar deleter: the page keeps typed entries; no runtime cast needed
-- [~] `OptionFlag::Merge` · 0044e7a0 · legions 0044f8e0 — the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+- [x] `OptionFlag::Merge` · 0044e7a0 · legions 0044f8e0 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 - [x] `OptionFlag::SetCurrent` · 0044e800 · legions 0044f940 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
 - [x] `OptionFlag::SetDefault` · 0044e850 · legions 0044f990 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
 - [x] `OptionFlag::GetCurrent` · 0044e8b0 · legions 0044f9f0 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
@@ -871,16 +871,16 @@ Legend and workflow: [README](README.md).
 - [x] `OptionFlag::Apply` · 0044e920 · legions 0044fa60 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
 - [x] `OptionFlag::Recall` · 0044e960 · legions 0044faa0 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
 - [x] `OptionFlag::Default` · 0044e9b0 · legions 0044faf0 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
-- [~] `OptionFlag::ListenToMessage` · 0044ea00 · legions 0044fb40 — the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+- [x] `OptionFlag::ListenToMessage` · 0044ea00 · legions 0044fb40 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 - [x] `OptionFlag::Refresh` · 0044eae0 · legions 0044fc20 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
 - [x] `OptionFlag::Refresh` · 0044eb30 · legions 0044fc70 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
 
-## `ac2/client/src/ui/gameplay/helper/optionvalue.cpp.c` (10/14)
+## `ac2/client/src/ui/gameplay/helper/optionvalue.cpp.c` (13/14)
 
 ### OptionValue
-- [~] `OptionValue::OptionValue` · 0044f100 · legions 00450240 — the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+- [x] `OptionValue::OptionValue` · 0044f100 · legions 00450240 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 - [-] `OptionValue::Cast` · 0044f1f0 · legions 00450330 — C++ downcast (Cast) and scalar deleter: the page keeps typed entries
-- [~] `OptionValue::Merge` · 0044f230 · legions 00450370 — the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+- [x] `OptionValue::Merge` · 0044f230 · legions 00450370 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 - [x] `OptionValue::SetRange` · 0044f2a0 · legions 004503e0 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 - [x] `OptionValue::SetCurrent` · 0044f2f0 · legions 00450430 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 - [x] `OptionValue::SetDefault` · 0044f3d0 · legions 00450510 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
@@ -889,7 +889,7 @@ Legend and workflow: [README](README.md).
 - [x] `OptionValue::Apply` · 0044f510 · legions 00450650 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 - [x] `OptionValue::Recall` · 0044f540 · legions 00450680 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 - [x] `OptionValue::Default` · 0044f570 · legions 004506b0 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
-- [~] `OptionValue::ListenToMessage` · 0044f5a0 · legions 004506e0 — the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+- [x] `OptionValue::ListenToMessage` · 0044f5a0 · legions 004506e0 — ac2-ui character_options.rs / character.rs, chat_options.rs, client_options_page.rs: the option pages hold each control value and its saved value (Changed = differs), a menu/checkbox/slider message reads the control into the value, Apply sends the setters. This replaces retail PreferenceBank::Change plus the preference copy in Merge, whose only other effect is notifying bank listeners before Apply (the reload notice the pages already send)
 - [x] `OptionValue::Refresh` · 0044f750 · legions 00450890 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 - [x] `OptionValue::Refresh` · 0044f780 · legions 004508c0 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 
@@ -1394,7 +1394,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmOptionUI::ListenToMessage` · 00434dd0 · legions 004355a0 — ac2-ui option_panel.rs message: LeaveButton, QuitButton, AssistanceButton (opens AssistanceTab), CommandTab, DropDownMenu open_up/open_down; close, help and option buttons are the toolbar's
 - [x] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70 — ac2-ui option_panel.rs dialog_outcomes (Legions 0x00435740)
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (12/14)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (14/14)
 
 ### gmJournalQuestsUI
 - [x] `gmJournalQuestsUI::RemoveQuestElement` · 0043e3a0 · legions 0043ec10 — ac2-ui journal_quests.rs drop_row
@@ -1414,19 +1414,19 @@ Legend and workflow: [README](README.md).
 - [x] `gmJournalQuestsUI::ListenToMessage` · 0043ebd0 · legions 0043f440 — ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
 - [x] `gmJournalQuestsUI::ListenToMessage` · 0043ecb0 · legions 0043f520 — ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
 - [x] `gmJournalQuestsUI::Show` · 0043ecd0 · legions 0043f540 — ac2-ui journal_quests.rs show (the updated quest closes when the panel closes); reached from quests_panel.rs QuestsUi::show
-- [~] `gmJournalQuestsUI::gmJournalQuestsUI` · 0043f000 · legions 0043f8b0 — ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs). The HUD is built on workers, after the login message's list notice can come, so frame_passes.rs init_pass fills the journal from the script's list (InqQuestInfoList) as that notice's case 2 does (quest_journal_7160); elements are left to the tree
-- [~] `gmJournalQuestsUI::~gmJournalQuestsUI` · 0043f130 · legions 0043f9e0 — ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
+- [x] `gmJournalQuestsUI::gmJournalQuestsUI` · 0043f000 · legions 0043f8b0 — ac2-ui journal_quests.rs JournalQuestsUi::create (lists under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); frame_passes.rs init_pass fills the journal from InqQuestInfoList as the list notice case 2 does; the elements are the tree's
+- [x] `gmJournalQuestsUI::~gmJournalQuestsUI` · 0043f130 · legions 0043f9e0 — ac2-ui journal_quests.rs JournalQuestsUi::create (lists under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); frame_passes.rs init_pass fills the journal from InqQuestInfoList as the list notice case 2 does; the elements are the tree's
 - [x] `gmJournalQuestsUI::RecvNotice_UpdateQuests` · 0043f1e0 — ac2-ui journal_quests.rs recv_notice_update_quests (all codes); quests_panel.rs recv_notice makes the tabs active; client ui_quests.rs quest_notice fetches the list for code 2
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (3/4)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (4/4)
 
 ### gmQuestsUI
 - [x] `gmQuestsUI::Show` · 004342d0 · legions 00434aa0 — ac2-ui quests_panel.rs QuestsUi::show and sync (journal show, QuestButton unchanged when open); the toolbar shows the field (toolbar.rs)
 - [x] `gmQuestsUI::ListenToMessage` · 00434330 · legions 00434b00 — ac2-ui toolbar.rs
 - [x] `gmQuestsUI::SetActivePanel` · 00434390 · legions 00434b60 — ac2-ui quests_panel.rs QuestsUi::set_active_panel (tab found by name, panel.rs start_use_active opens it and closes the other tab)
-- [~] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui quests_panel.rs QuestsUi::create (journal made; the field is not modelled, the registrations are the toolbar's); QuestHelpButton opens ID_Help_Quest (hud_help.rs)
+- [x] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui quests_panel.rs QuestsUi::create: the journal and the story-quests page made, panel hidden (Show(0)); the registrations are the toolbar dispatch; QuestHelpButton opens ID_Help_Quest (help.rs)
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (9/11)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (11/11)
 
 ### gmSceneInfo
 - [x] `gmSceneInfo::GetName` · 0043f590 · legions 0043fe40 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
@@ -1439,8 +1439,8 @@ Legend and workflow: [README](README.md).
 ### gmStoryQuestsUI
 - [x] `gmStoryQuestsUI::~gmStoryQuestsUI` · 0043f8b0 · legions 00440110 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 - [x] `gmStoryQuestsUI::RecvNotice_UpdateStoryQuests` · 0043f9a0 · legions 00440200 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
-- [~] `gmStoryQuestsUI::ReloadActs` · 0043fa30 · legions 00440290 — ac2-ui story_quests.rs reload/show: every act listed (the act record has no physics-object word, see module doc); Show clears the updated act when hidden, from the panel's own shown state
-- [~] `gmStoryQuestsUI::Show` · 0043fd60 · legions 004405c0 — ac2-ui story_quests.rs reload/show: every act listed (the act record has no physics-object word, see module doc); Show clears the updated act when hidden, from the panel's own shown state
+- [x] `gmStoryQuestsUI::ReloadActs` · 0043fa30 · legions 00440290 — ac2-ui story_quests.rs reload/show: ReloadActs lists only acts with _bVisible set (retail GetPhysObj is a getter folded onto that offset, now ported, test an_act_that_is_not_visible_has_no_row), the updated act opens and scrolls by its act index; Show clears the updated act when hidden
+- [x] `gmStoryQuestsUI::Show` · 0043fd60 · legions 004405c0 — ac2-ui story_quests.rs reload/show: ReloadActs lists only acts with _bVisible set (retail GetPhysObj is a getter folded onto that offset, now ported, test an_act_that_is_not_visible_has_no_row), the updated act opens and scrolls by its act index; Show clears the updated act when hidden
 - [x] `gmStoryQuestsUI::ListenToMessage` · 0043fea0 · legions 00440700 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 - [x] `gmStoryQuestsUI::ListenToMessage` · 004400d0 · legions 00440930 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 - [x] `gmStoryQuestsUI::gmStoryQuestsUI` · 00440110 · legions 00440970 — ac2-ui quests_panel.rs (the Story page's act list under StoryPage, StoryQuestsUi::create); the Quest panel holds it
@@ -1744,7 +1744,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmAvatarModificationUI::Create` · 0040d290 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::Register` · 0040d2d0 · legions 0040d2f0 — ac2-ui pregame/avatar_modification.rs
 
-## `ac2/client/src/ui/pregame/generation/gmavatarselectionui.cpp.c` (9/25)
+## `ac2/client/src/ui/pregame/generation/gmavatarselectionui.cpp.c` (12/25)
 
 ### _InstanceID
 - [-] `_InstanceID::operator==` · 0040d2f0 · legions 0040d310 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -1768,8 +1768,8 @@ Legend and workflow: [README](README.md).
 - [-] `BehaviorParams::~BehaviorParams` · 0040daf0 · legions 0040dae0 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 
 ### gmAvatarSelectionUI
-- [~] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30 — avatar_selection.rs mouse_off_object / mouse_on_object: the viewport tooltip ID_AvSelect_TT_3DAvatar and RaceDescField state; retail check of the object current mode (0x41000006 off, 0x41000007 on) is not made in the UI
-- [~] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0 — avatar_selection.rs mouse_off_object / mouse_on_object: the viewport tooltip ID_AvSelect_TT_3DAvatar and RaceDescField state; retail check of the object current mode (0x41000006 off, 0x41000007 on) is not made in the UI
+- [x] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30 — ac2-ui pregame/avatar_selection.rs mouse_off_object / mouse_on_object (tooltip ID_AvSelect_TT_3DAvatar, RaceDescField state from _StateTable). Retail also checks the object current mode (0x41000006 / 0x41000007) because its hover code sets modes; here the client scene (pregame_scene hover) sets the mode right after the UI call from the same pick, so the guard always passes
+- [x] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0 — ac2-ui pregame/avatar_selection.rs mouse_off_object / mouse_on_object (tooltip ID_AvSelect_TT_3DAvatar, RaceDescField state from _StateTable). Retail also checks the object current mode (0x41000006 / 0x41000007) because its hover code sets modes; here the client scene (pregame_scene hover) sets the mode right after the UI call from the same pick, so the guard always passes
 
 ### BaseList<unsigned_long,11>
 - [-] `BaseList<unsigned_long,11>::BaseList<unsigned_long,11>` · 0040dca0 · legions 0040dc90 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -1788,7 +1788,7 @@ Legend and workflow: [README](README.md).
 - [-] `PHashTable<unsigned_long,unsigned_long>::PHashTable<unsigned_long,unsigned_long>` · 0040e3f0 · legions 0040e3f0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### gmAvatarSelectionUI
-- [~] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510 — avatar_selection.rs avatars + ac2-client pregame_scene/content.rs figures (makeObject, applied appearance, held objects, land location, line-up mode); the child-entity bookkeeping (_childArray) is the scene
+- [x] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510 — ac2-ui pregame/avatar_selection.rs avatars + ac2-client pregame_scene/content.rs figures (makeObject, appearance, held objects, land location, line-up mode); _childArray bookkeeping is the scene's own
 - [x] `gmAvatarSelectionUI::InitGenders` · 0040eaa0 · legions 0040ea70 — ac2-ui pregame/avatar_selection.rs
 - [x] `gmAvatarSelectionUI::InitRaces` · 0040ebf0 · legions 0040ebc0 — ac2-ui pregame/avatar_selection.rs
 
@@ -1813,7 +1813,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 - [x] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 
-## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (22/23)
+## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (23/23)
 
 ### CharacterIdentity
 - [x] `CharacterIdentity::Invalid` · 0040f560 · legions 0040f530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
@@ -1842,11 +1842,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharacterSelectionUI::Finish3DSelection` · 00410a10 · legions 00410a10 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `gmCharacterSelectionUI::ListenToMessage` · 00410ad0 · legions 00410ad0 — character_selection.rs: all buttons, list, scene presses; the name ellipsis on download_done (TruncateText with ID_Ellipsis, pregame tests)
 - [x] `gmCharacterSelectionUI::Update` · 00410c00 · legions 00410c00 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
-- [~] `gmCharacterSelectionUI::gmCharacterSelectionUI` · 00410f00 — character_selection.rs: roots, handlers, Update; the background's music is requested when the screen opens (PregameRequest::Music, Channel_Main, the previous screen's fading over 2 s); the 3D scene itself is the client's
+- [x] `gmCharacterSelectionUI::gmCharacterSelectionUI` · 00410f00 — ac2-ui pregame/character_selection.rs: roots, handlers, Update; the background music is requested when the screen opens (PregameRequest::Music, Channel_Main, previous fading over 2 s); the 3D scene is ac2-client pregame_scene
 - [x] `gmCharacterSelectionUI::Create` · 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::Register` · 00411240 · legions 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
-## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (9/15)
+## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (12/15)
 
 ### gmCreditsUI
 - [x] `gmCreditsUI::MakePleaseWaitDialog` · 00412900 · legions 00412780 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -1856,16 +1856,16 @@ Legend and workflow: [README](README.md).
 - [x] `gmCreditsUI::UpdatePicture` · 00412a20 · legions 004128a0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::Close` · 00412b10 · legions 00412990 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::GetSoundID` · 00412b90 · legions 00412a10 — ac2-ui pregame/credits.rs sound_id (ID_Sound<n> on the PictureField, restarting from 0)
-- [~] `gmCreditsUI::UpdateSound` · 00412c50 · legions 00412ad0 — ac2-ui pregame/credits.rs update_sound + ac2-client play_credit_sound/credit_sound_busy: the next sound plays once the last has finished; the sound context is kept by the panel, not in the element retail reads
+- [x] `gmCreditsUI::UpdateSound` · 00412c50 · legions 00412ad0 — ac2-ui pregame/credits.rs update_sound + ac2-client play_credit_sound/credit_sound_busy: the next ID_Sound<n> plays once the last has finished (GetSoundID falls back to the first when one is missing); the context is held by the panel, equivalent to the element retail stores it in
 - [x] `gmCreditsUI::UpdateText` · 00412d00 · legions 00412b80 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::ListenToMessage` · 00412e30 · legions 00412cb0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::Update` · 00412e60 · legions 00412ce0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [~] `gmCreditsUI::Initialize` · 00412e80 · legions 00412d00 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
-- [~] `gmCreditsUI::gmCreditsUI` · 00413360 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+- [x] `gmCreditsUI::Initialize` · 00412e80 · legions 00412d00 — ac2-ui pregame/credits.rs initialize: ID_Credits<n> strings added, text area sized to the laid-out text, duration from the field duration, picture/x/y arrays read, sound and picture started; the Legions Initialize has no alt-field or controls-list code
+- [x] `gmCreditsUI::gmCreditsUI` · 00413360 — ac2-ui pregame/credits.rs CreditsUi::create: PictureField / TextField roots, textarea attribute, Initialize. The AltPictureField/AltTextField choice (Ctrl+Alt without Shift held at open) is in the admin constructor only (no Legions match); an admin developer feature, skipped
 - [-] `gmCreditsUI::Create` · 004134b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [-] `gmCreditsUI::Register` · 004134d0 · legions 00413350 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (6/19)
+## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (8/19)
 
 ### gmDataPatchUI
 - [x] `gmDataPatchUI::ListenToMessage` · 00411260 · legions 00411240 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -1889,7 +1889,7 @@ Legend and workflow: [README](README.md).
 
 ### gmDataPatchUI
 - [-] `gmDataPatchUI::~gmDataPatchUI` · 004119e0 · legions 004119c0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-- [~] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
+- [x] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — ac2-ui pregame/data_patch.rs update: the character set ends the screen with character selection; retail also sets received = expected (patch done: the client never patches DATs here) and clears the start/create character after entering the --character one (bin/ac2 --character enters at once)
 - [x] `gmDataPatchUI::RecvNotice_CharGenVerification` · 00411f10 — ac2-ui pregame/data_patch.rs char_gen_verification (enter at once, else character selection with no text)
 - [-] `gmDataPatchUI::OnDDDEvent` · 00411fd0 — no DAT patching in this client (DDD patch events never come)
 - [x] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -1900,7 +1900,7 @@ Legend and workflow: [README](README.md).
 
 ### gmDataPatchUI
 - [-] `gmDataPatchUI::Register` · 004123b0 · legions 00412230 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-- [~] `gmDataPatchUI::OnNetStatusChange` · 004123d0 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+- [x] `gmDataPatchUI::OnNetStatusChange` · 004123d0 — ac2-ui pregame/data_patch.rs connected (Net_LoginConnected -> ID_DataPatch_Connected) and connect_failed.rs (Net_LoginConnectionError -> OnConnectFailed); the Authenticating/Connecting stages (so_far/total strings) are the admin build login steps: the Legions Connect shows ID_DataPatch_ConnectingGUN, which create shows
 
 ## `ac2/client/src/ui/pregame/gmdisconnectedui.cpp.c` (5/5)
 

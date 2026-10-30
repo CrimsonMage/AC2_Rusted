@@ -121,6 +121,26 @@ fn the_act_list_lays_out_the_acts_and_opens_one_at_a_time() {
     assert_eq!(tree.list_items(list).len(), 2);
 }
 
+/// `ReloadActs` lists only the visible acts.
+#[test]
+fn an_act_that_is_not_visible_has_no_row() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    let quests = hud.quests.as_mut().expect("the quest panel");
+    let list = story_list(tree);
+    quests.recv_story_notice(tree, STORY_CODE_LIST, 0);
+    quests.story_global_loop(tree, &Names, || {
+        let mut hidden = act(8, 2);
+        hidden.visible = 0;
+        vec![act(7, 1), hidden, act(9, 3)]
+    });
+    assert_eq!(tree.list_items(list).len(), 2, "acts 7 and 9");
+}
+
 #[test]
 fn a_playable_scene_row_asks_for_its_scene_and_others_do_not() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {

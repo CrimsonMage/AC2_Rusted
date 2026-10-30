@@ -262,6 +262,13 @@ game rules and server-visible behaviour exactly retail.
   origin still interpolates as retail. In the air the player takes the ground element's turn
   speeds, acceleration and brake (`MotionInterp::turn_in_air`). Other bodies are unchanged, and
   the physics (and the heading reported to the server) still step per quantum as retail.
+- Exception: a story hides the gameplay panels. Retail's `gmStoryUI` draws its background and
+  story fields over the screen and leaves the panels shown; here the panels leave at the story's
+  begin and return at its hide (`HudRequest::StoryGameplay`, `ac2-ui` `frame_passes.rs`
+  `story_pass`), so no window sits over the pictures.
+- Exception: a book's text after its last `<BR>` is a page. Retail's `gmBookUI::ParseText` stops
+  at the last `<BR>` and drops anything after it; here that tail is paginated too
+  (`book.rs` `segments`), so a book without a closing `<BR>` is not shown empty.
 - Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
   read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
 - Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and

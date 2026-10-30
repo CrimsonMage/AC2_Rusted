@@ -124,10 +124,13 @@ impl StoryView {
         message.element == Some(self.background) && self.fade_done == Some(message.message)
     }
 
-    /// The background and the story fields show, once.
+    /// The background and the story fields show, once. The background covers the display, sized
+    /// as `gmStoryUI::gmStoryUI` sizes it to the render device when the story is made.
     fn show_roots(&mut self, tree: &mut UiTree) {
         if !self.shown {
             self.shown = true;
+            let (width, height) = tree.display;
+            tree.resize_to(self.background, width, height);
             tree.set_visible(self.background, true);
             for field in &self.fields {
                 tree.set_visible(field.root, true);
@@ -163,8 +166,6 @@ impl StoryView {
         }
     }
 
-    /// `gmStoryUI::~gmStoryUI`'s part on the screen: the roots hide, the images and subtitles
-    /// clear, and both fields return to `stateless` for the next story.
     /// `gmStoryUI`'s frame events in order: a keyframe shows, the slot's begin and hide. Returns
     /// one flag per begin (`false`, the gameplay panels leave) and hide (`true`, they return), in
     /// order; the other events are the caller's.
@@ -196,6 +197,8 @@ impl StoryView {
         gameplay
     }
 
+    /// `gmStoryUI::~gmStoryUI`'s part on the screen: the roots hide, the images and subtitles
+    /// clear, and both fields return to `stateless` for the next story.
     pub fn hide(&mut self, tree: &mut UiTree) {
         self.shown = false;
         self.started = false;
