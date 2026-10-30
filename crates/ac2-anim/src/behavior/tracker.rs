@@ -128,7 +128,7 @@ impl Ac2BehaviorTracker {
         }
     }
 
-    /// `BehaviorTracker::ProcessParamFlags` (the clone parameters are not modelled): the
+    /// `BehaviorTracker::ProcessParamFlags`: the
     /// children fade out, the FX starts, and for the player the actions lock and the camera
     /// follows the behaviour.
     fn process_param_flags(env: &mut Env, track: &Ac2BehaviorTrack) {
@@ -142,6 +142,7 @@ impl Ac2BehaviorTracker {
             env.events.push(Ac2AnimEvent::StartFx {
                 fx: track.params.fx,
                 intensity: 1.0,
+                target: 0,
             });
         }
         if !env.source.is_the_player() {
@@ -174,8 +175,8 @@ impl Ac2BehaviorTracker {
         }
     }
 
-    /// `BehaviorTracker::ProcessRampingDownParamFlags` (the clone and destroy parameters are not
-    /// modelled): the children fade back in, the player's camera is restored, the behaviour's FX
+    /// `BehaviorTracker::ProcessRampingDownParamFlags` (the destroy parameter is not modelled):
+    /// the children fade back in, the FX target and clone are cleared, the player's camera is restored, the behaviour's FX
     /// stops and weenie behaviours count down, restarting idle once none play. The count is
     /// unsigned and wraps as retail's does.
     fn process_ramping_down_param_flags(&mut self, env: &mut Env, track: &Ac2BehaviorTrack) {
@@ -184,6 +185,9 @@ impl Ac2BehaviorTracker {
                 opacity: 1.0,
                 ramp_time: track.ramp_time,
             });
+        }
+        if track.params.target != 0 || track.params.vdesc_to_clone != 0 {
+            env.events.push(Ac2AnimEvent::ClearFxTarget);
         }
         if env.source.is_the_player() && (track.params.camera_parent || track.params.camera_target)
         {

@@ -131,6 +131,39 @@ fn modes_behaviours_and_layers_reach_the_body() {
     assert_eq!(body.mode(), PEACE);
 }
 
+/// `CPhysicsObj::DoBehavior` keeps the params' FX target and the description to clone, and the
+/// behaviour's end clears them (`BehaviorTracker::ProcessRampingDownParamFlags` ->
+/// `CPhysicsObj::ClearFXTarget`); a behaviour without them leaves the body's alone.
+#[test]
+fn a_behaviors_fx_target_and_clone_last_until_it_ends() {
+    let Some(mut body) = human(false) else {
+        return;
+    };
+    let mut params = behaviour(WAVE, None);
+    params.target = 0x5000_0001;
+    params.vdesc_to_clone = 0x1F00_0042;
+    params.cloned_apr = 7;
+    params.cloned_app_apr = vec![(3, 0.5)];
+    apply_motion(&mut body, &MotionEvent::DoBehavior(params));
+    assert_eq!(body.fx_target(), 0x5000_0001);
+    assert_eq!(body.fx_clone(), (0x1F00_0042, 7, &[(3, 0.5)][..]));
+    // Another behaviour without a target keeps them.
+    apply_motion(
+        &mut body,
+        &MotionEvent::DoBehavior(behaviour(OTHER_BEHAVIOR, None)),
+    );
+    assert_eq!(body.fx_target(), 0x5000_0001);
+    apply_motion(&mut body, &MotionEvent::StopBehavior(WAVE));
+    animate(&mut body, 1.0);
+    let events = body.take_animation_events();
+    assert_eq!(body.fx_target(), 0, "cleared as the behaviour ramped down");
+    assert_eq!(body.fx_clone().0, 0);
+    assert!(
+        !events.contains(&Ac2AnimEvent::ClearFxTarget),
+        "the body keeps the clear to itself"
+    );
+}
+
 /// The death presentation the server's `DoBehavior` starts (`gmbehaviors.emp` `death`, entering
 /// `gmmodes.emp` `dead` first): the body rests in the `dead` mode once the behaviour has played,
 /// and a `SetMode` of the default mode (the respawn) stands it up again.
@@ -209,7 +242,7 @@ fn a_server_fx_reaches_the_body_as_fx_events() {
     let events = body.take_animation_events();
     assert!(events.iter().any(|e| matches!(
         e,
-        Ac2AnimEvent::StartFx { fx: 0x4000_0010, intensity } if *intensity == 1.0
+        Ac2AnimEvent::StartFx { fx: 0x4000_0010, intensity, .. } if *intensity == 1.0
     )));
     assert!(events
         .iter()

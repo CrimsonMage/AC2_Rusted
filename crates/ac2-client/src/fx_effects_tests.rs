@@ -80,7 +80,7 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
         .take_animation_events()
         .into_iter()
         .filter_map(|event| match event {
-            Ac2AnimEvent::StartFx { fx, intensity } => {
+            Ac2AnimEvent::StartFx { fx, intensity, .. } => {
                 assert!(intensity > 0.0, "the effect starts at full intensity");
                 Some(fx)
             }
@@ -104,6 +104,7 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
         data: &sound_data,
         emitter: EMITTER,
         is_player: false,
+        night: false,
         now: 1.0,
     };
     let mut fx_sounds = FxSounds::default();
@@ -133,7 +134,15 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
     let nodes = particles
         .get(STEP_FX)
         .expect("the footstep FX has particle nodes");
-    let queued = particle_starts(EMITTER, STEP_FX, &particles, &mut random, None);
+    let queued = particle_starts(
+        EMITTER,
+        STEP_FX,
+        &particles,
+        &mut random,
+        None,
+        false,
+        false,
+    );
     assert!(!queued.is_empty(), "a particle system starts");
     assert_eq!(
         queued.len(),
@@ -212,7 +221,7 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
             Ac2AnimEvent::StartFx { fx, .. } => Some(fx),
             _ => None,
         })
-        .flat_map(|fx| particle_starts(EMITTER, fx, &particles, &mut random, None))
+        .flat_map(|fx| particle_starts(EMITTER, fx, &particles, &mut random, None, false, false))
         .enumerate()
         .map(|(index, mut start)| {
             start.handle = index as u64 + 1;
@@ -246,6 +255,7 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
         cell: 0,
         frame: ac2_math::Frame::new(at, ac2_math::Quat::IDENTITY),
         scale: Vec3::ONE,
+        particle_scale: 1.0,
         bones: posed.bones,
         named_bones: posed.named_bones,
         parents: std::sync::Arc::from(Vec::new()),

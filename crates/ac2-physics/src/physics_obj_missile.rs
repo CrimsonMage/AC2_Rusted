@@ -163,6 +163,7 @@ impl MissileHost for Ctx<'_> {
         self.obj.anim.push_events([Ac2AnimEvent::StartFx {
             fx,
             intensity: scalar,
+            target: 0,
         }]);
     }
     fn start_streak(&mut self) {

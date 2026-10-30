@@ -115,7 +115,7 @@ mod tests {
         let events = body.take_animation_events();
         assert!(events.iter().any(|e| matches!(
             e,
-            ac2_anim::Ac2AnimEvent::StartFx { fx: 0x40, intensity } if *intensity == 1.0
+            ac2_anim::Ac2AnimEvent::StartFx { fx: 0x40, intensity, .. } if *intensity == 1.0
         )));
         assert_eq!(body.velocity_scale(), 2.0);
         assert_eq!(body.jump_scale(), 0.5);

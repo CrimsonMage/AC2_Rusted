@@ -72,7 +72,9 @@ impl PhysicsObj {
     /// the tracker started it (retail returns 1 regardless). `mPropagate` to the children is the
     /// object table's (`Client::children_follow_behavior`); a frozen body's story answer
     /// (`StoryManager::HandleBehaviorDone`) is `CPhysicsObj::HandleBehaviorDone`'s route. The
-    /// params' FX target and cloned appearance (`m_iidFXTarget`, `mVDescToClone`) are not carried.
+    /// params' FX target (`m_iidFXTarget`, kept when not `INVALID_IID`) and cloned description
+    /// (`m_vdescToClone` with its appearance, kept when set) follow the tracker's start, and
+    /// stay until a behaviour carrying them ramps down (`ClearFXTarget`).
     pub(crate) fn do_behavior(&mut self, params: &Ac2BehaviorParams) -> bool {
         if self.is_animation_frozen() {
             return false;
@@ -86,7 +88,21 @@ impl PhysicsObj {
             .anim
             .with_modes(|modes, source| modes.do_behavior(params, source));
         self.sync_mode();
+        if params.target != 0 {
+            self.fx_target = params.target;
+        }
+        if params.vdesc_to_clone != 0 {
+            self.vdesc_to_clone = params.vdesc_to_clone;
+            self.cloned_apr = params.cloned_apr;
+            self.cloned_app_apr.clone_from(&params.cloned_app_apr);
+        }
         started
+    }
+
+    /// `CPhysicsObj::ClearFXTarget`: no FX target and no description to clone.
+    pub(crate) fn clear_fx_target(&mut self) {
+        self.fx_target = 0;
+        self.vdesc_to_clone = 0;
     }
 
     /// `CPhysicsObj::ReleaseBehavior`: the params' mode first (`DoMode(0, mode)`), then

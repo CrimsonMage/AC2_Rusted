@@ -1084,6 +1084,26 @@ impl PhysicsBody {
         self.object.motion.reset_hover_height();
     }
 
+    /// `CPhysicsObj::m_iidFXTarget` (0 is `INVALID_IID`).
+    pub fn fx_target(&self) -> u64 {
+        self.object.fx_target
+    }
+
+    /// `PHYSICSOBJREP::SetFXTarget` -> `CPhysicsObj::SetFXTarget`.
+    pub fn set_fx_target(&mut self, id: u64) {
+        self.object.fx_target = id;
+    }
+
+    /// `PHYSICSOBJREP::GetVDescToClone`, `GetClonedAppearanceID` and `GetClonedAppKeyHash`:
+    /// the description a retargeting FX node clones, its appearance table and (key, scalar)s.
+    pub fn fx_clone(&self) -> (u32, u32, &[(u32, f32)]) {
+        (
+            self.object.vdesc_to_clone,
+            self.object.cloned_apr,
+            &self.object.cloned_app_apr,
+        )
+    }
+
     /// `CPhysicsObj::RecvEvt_DoFX` -> `CPhysicsObj::DoFX` -> `PHYSICSOBJREP::DoFX` ->
     /// `FXManager::DoFX`: the effect starts at `scalar`; its sounds are the client's
     /// (`StartFx` on the animation events, as an animation's own FX starts).
@@ -1091,6 +1111,7 @@ impl PhysicsBody {
         self.object.anim.push_events([Ac2AnimEvent::StartFx {
             fx,
             intensity: scalar,
+            target: 0,
         }]);
         true
     }

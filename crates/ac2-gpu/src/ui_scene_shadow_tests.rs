@@ -57,6 +57,7 @@ fn a_viewport_scene_casts_its_objects_shadows() {
                 model: Some(model),
                 pick: None,
                 scale: Vec3::ONE,
+                particle_scale: 1.0,
                 images,
             })],
             evicted: Vec::new(),

@@ -293,6 +293,7 @@ fn an_fx_light_over_the_ground_pools_its_light_there_for_one_frame() {
         cell: 0xCB4D_0001,
         frame: ac2_math::Frame::new(Vec3::new(x, y, ground + 2.0), ac2_math::Quat::IDENTITY),
         scale: Vec3::ONE,
+        particle_scale: 1.0,
         bones: Vec::new(),
         named_bones: Vec::new(),
         parents: std::sync::Arc::from(Vec::new()),

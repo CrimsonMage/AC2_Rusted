@@ -42,12 +42,15 @@ pub fn particle_starts(
     table: &Ac2VisualFxParticles,
     random: &mut Random,
     water_z: Option<f32>,
+    is_player: bool,
+    night: bool,
 ) -> Vec<ObjectParticleStart> {
     let Some(nodes) = table.get(fx) else {
         return Vec::new();
     };
     nodes
         .iter()
+        .filter(|node| node.object.gate.plays(is_player, night))
         .filter(|node| !node.particle_descs.is_empty())
         .map(|node| {
             let pick = random.roll_dice(0, node.particle_descs.len() as i32 - 1) as usize;
@@ -71,12 +74,29 @@ pub fn particle_starts(
 
 /// The lights `fx` places on `emitter`, one per node of the visual's entry that carries one, in
 /// the entry's order.
-pub fn light_starts(emitter: u64, fx: u32, table: &Ac2VisualFxParticles) -> Vec<ObjectLightStart> {
+pub fn light_starts(
+    emitter: u64,
+    fx: u32,
+    table: &Ac2VisualFxParticles,
+    is_player: bool,
+    night: bool,
+) -> Vec<ObjectLightStart> {
+    lights(emitter, fx, table, |gate| gate.plays(is_player, night))
+}
+
+/// The lights of `fx`'s nodes whose gate `plays` accepts.
+fn lights(
+    emitter: u64,
+    fx: u32,
+    table: &Ac2VisualFxParticles,
+    plays: impl Fn(&ac2_assets::Ac2FxNodeGate) -> bool,
+) -> Vec<ObjectLightStart> {
     let Some(nodes) = table.get(fx) else {
         return Vec::new();
     };
     nodes
         .iter()
+        .filter(|node| plays(&node.object.gate))
         .filter_map(|node| node.light)
         .map(|light| ObjectLightStart { emitter, light })
         .collect()
@@ -91,7 +111,7 @@ pub fn startup_light_starts(emitter: u64, table: &Ac2VisualFxParticles) -> Vec<O
     table
         .startup()
         .iter()
-        .flat_map(|fx| light_starts(emitter, *fx, table))
+        .flat_map(|fx| lights(emitter, *fx, table, |_| true))
         .collect()
 }
 
@@ -138,8 +158,8 @@ mod tests {
         finite.looping = vec![false].into();
         let table = Ac2VisualFxParticles::from_entries([(7, vec![looping]), (8, vec![finite])]);
         let mut random = Random::default();
-        assert!(particle_starts(3, 7, &table, &mut random, None)[0].looping);
-        assert!(!particle_starts(3, 8, &table, &mut random, None)[0].looping);
+        assert!(particle_starts(3, 7, &table, &mut random, None, false, false)[0].looping);
+        assert!(!particle_starts(3, 8, &table, &mut random, None, false, false)[0].looping);
     }
 
     /// `DoStartupFX` with an object: the light-only node of each startup FX places its light at
@@ -171,14 +191,17 @@ mod tests {
             vec![attachment(&[], Some(light(2.0))), attachment(&[9], None)],
         )]);
         let mut random = Random::default();
-        assert_eq!(particle_starts(3, 7, &table, &mut random, None).len(), 1);
         assert_eq!(
-            light_starts(3, 7, &table),
+            particle_starts(3, 7, &table, &mut random, None, false, false).len(),
+            1
+        );
+        assert_eq!(
+            light_starts(3, 7, &table, false, false),
             vec![ObjectLightStart {
                 emitter: 3,
                 light: light(2.0),
             }]
         );
-        assert!(light_starts(3, 8, &table).is_empty());
+        assert!(light_starts(3, 8, &table, false, false).is_empty());
     }
 }

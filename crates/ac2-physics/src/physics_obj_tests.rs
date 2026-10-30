@@ -396,7 +396,8 @@ fn a_server_fx_starts_and_stops_through_the_animation_events() {
         vec![
             Ac2AnimEvent::StartFx {
                 fx: 0x4000_0010,
-                intensity: 0.5
+                intensity: 0.5,
+                target: 0
             },
             Ac2AnimEvent::StopFx { fx: 0x4000_0010 },
         ]

@@ -77,6 +77,7 @@ pub(super) struct SceneParticles {
 struct PlacedObject {
     frame: Frame,
     scale: Vec3,
+    particle_scale: f32,
     root: Vec<Ac2Transform>,
     named: Vec<(u32, Ac2Transform)>,
 }
@@ -357,6 +358,7 @@ impl SceneParticles {
                 PlacedObject {
                     frame: p.frame,
                     scale: p.scale,
+                    particle_scale: p.particle_scale,
                     root: p.bones.clone(),
                     named: p.named_bones.clone(),
                 },
@@ -439,7 +441,7 @@ impl SceneParticles {
                 ) else {
                     continue;
                 };
-                system.place(frame, placed.scale, 1.0);
+                system.place(frame, placed.scale, placed.particle_scale);
             }
             draw(
                 system,
@@ -529,6 +531,28 @@ mod tests {
 
     fn object_at(origin: Vec3) -> Frame {
         Frame::new(origin, Quat::IDENTITY)
+    }
+
+    /// `QueueParticleSystems` hands each system the object's `m_fParticleScale` beside its
+    /// object scale; the placement keeps both for the systems it queues.
+    #[test]
+    fn a_placed_object_keeps_its_particle_scale() {
+        let mut particles = SceneParticles::new();
+        particles.place_objects(&[ObjectPlacement {
+            emitter: 4,
+            cell: 0,
+            frame: object_at(Vec3::ZERO),
+            scale: Vec3::splat(2.0),
+            particle_scale: 0.5,
+            bones: Vec::new(),
+            named_bones: Vec::new(),
+            parents: std::sync::Arc::from(Vec::new()),
+        }]);
+        let placed = &particles.placed[&4];
+        assert_eq!(
+            (placed.scale, placed.particle_scale),
+            (Vec3::splat(2.0), 0.5)
+        );
     }
 
     /// `QueueParticleSystems`: an attached system stands at its offset in the bone's space, the

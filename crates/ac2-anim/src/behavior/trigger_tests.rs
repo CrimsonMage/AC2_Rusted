@@ -39,6 +39,7 @@ fn an_effect_starts_once_and_stops_when_its_track_loops() {
     let start = Ac2AnimEvent::StartFx {
         fx: 9,
         intensity: 1.0,
+        target: 0,
     };
     assert_eq!(events(update.fire(&mut random)), vec![start]);
     update.add_track_triggers(&mut track);
@@ -74,7 +75,11 @@ fn rolls_follow_the_shared_generator() {
     let intensity = (spread + spread + 1.0) as f32;
     let fired = events(update.fire(&mut random));
     let want = if played {
-        vec![Ac2AnimEvent::StartFx { fx: 9, intensity }]
+        vec![Ac2AnimEvent::StartFx {
+            fx: 9,
+            intensity,
+            target: 0,
+        }]
     } else {
         Vec::new()
     };
@@ -123,7 +128,8 @@ fn fire_and_forget_effects_fire_at_the_next_update() {
     assert_eq!(fired.len(), 2, "one per id");
     assert!(fired.contains(&Ac2AnimEvent::StartFx {
         fx: 7,
-        intensity: 1.0
+        intensity: 1.0,
+        target: 0
     }));
     assert!(fired.contains(&Ac2AnimEvent::StopFx { fx: 8 }));
     assert!(update.fire(&mut Random::default()).is_empty());

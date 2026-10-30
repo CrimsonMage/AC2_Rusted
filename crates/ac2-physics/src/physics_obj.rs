@@ -175,6 +175,14 @@ pub(crate) struct PhysicsObj {
     pub(crate) wind: Vector,
     /// `TargetManager`'s target id as the missile code sets it (0 is `INVALID_IID`).
     pub(crate) target_id: u64,
+    /// `m_iidFXTarget` (0 is `INVALID_IID`): the object the effect triggers target, set by a
+    /// behaviour's params (`CPhysicsObj::DoBehavior`) or by an FX that made an object
+    /// (`PHYSICSOBJREP::SetFXTarget`), cleared by `ClearFXTarget`.
+    pub(crate) fx_target: u64,
+    /// `m_vdescToClone`, `m_clonedAprID` and `m_clonedAppAprHash` (key, scalar).
+    pub(crate) vdesc_to_clone: u32,
+    pub(crate) cloned_apr: u32,
+    pub(crate) cloned_app_apr: Vec<(u32, f32)>,
     /// `CCollisionManager::m_desired_physics_mask`: the movement physics mask `SetCollisionState` last named.
     pub(crate) desired_collision_mask: crate::collision_types::PhysicsTypeMask,
     /// `CCollisionManager::m_current_collide_mask`: starts each collision pass as the desired
@@ -261,6 +269,10 @@ impl PhysicsObj {
             missile_events: Vec::new(),
             wind: Vector::ZERO,
             target_id: 0,
+            fx_target: 0,
+            vdesc_to_clone: 0,
+            cloned_apr: 0,
+            cloned_app_apr: Vec::new(),
             parent_drawing_position: None,
             part_group: None,
             desired_collision_mask: crate::collision_types::PhysicsTypeMask::default(),

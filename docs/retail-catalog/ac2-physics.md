@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 1109 done, 23 partial, 0 to do, 992 skipped.
+2124 retail functions: 1120 done, 12 partial, 0 to do, 992 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (7/9)
@@ -1242,7 +1242,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `FXMap_FromFileNode` · 006a8b00 — admin FXMap text tool, not used by the client
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (18/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (24/44)
 
 ### DecalEffectDesc
 - [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
@@ -1278,7 +1278,7 @@ Legend and workflow: [README](README.md).
 - [-] `_STL::pair<unsigned_long_const_,FXState>::~pair<unsigned_long_const_,FXState>` · 00505ce0 · legions 004f3fb0 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### FXManager
-- [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — scene/particles.rs fired(): posed bone found through the part groups by name, holding transform, bone offset without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Static world sources place through the same part-group search (ac2-assets placement)
+- [x] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — scene/particles.rs fired(): holding transform alone, the posed bone (offset ignored) else the bone offset, no offset for a water-plane node (ParticleAnchor.water_z read at start in client_audio), composed with the emitter frame and its scale (matches Legions FireParticleFX); the m_bSharedRep gate (shared UI reps) has no client counterpart
 - [x] `FXManager::SoundIsLooping` · 005060e0 · legions 004f4300 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `FXManager::ParticleIsLooping` · 00506190 · legions 004f43b0 — ac2-assets Ac2ParticleSystemDesc::is_looping, flagged per PSDesc on the loader thread (ac2_visual_particles.rs looping_flags)
 - [x] `FXManager::SoundIsDefaultChannelMusic` · 005061f0 · legions 004f4410 — ac2-audio data.rs DatSounds::is_default_channel_music (MusicInfo bit 0x40000 of a 0x4000002D record)
@@ -1290,14 +1290,14 @@ Legend and workflow: [README](README.md).
 - [x] `FXManager::DoSoundFX` · 005062c0 · legions 004f44e0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `FXManager::DoParticleFX` · 00506360 · legions 004f4580 — emitter's own rep only (DoParticleFX calls CreateParticleSystem on this->m_physobjrep): a bone the rep lacks starts no system; no parent or wearer lookup for particle bones (ac2-assets attaches, ac2-render fx_bone_tests split)
 - [x] `FXManager::DoLightSourceFX` · 00506430 · legions 004f4650 — ac2-client client_audio.rs: light_starts only while Render::m_Prefs.LightSourceEffects is on (ac2-render prefs light_source_effects, applied by apply_light_preferences); particle systems still start with the light off
-- [~] `FXManager::CalcDuration` · 005064f0 · legions 004f4710 — Object part: particle looping (ac2-assets particle_looping) gives -1 else 0 in smartbox fx_objects.rs start (tested); the sound looping branch (SoundIsLooping of the picked sound) is not known to the object part
+- [x] `FXManager::CalcDuration` · 005064f0 · legions 004f4710 — FxObjects::start_targeted: particle_looping (ac2-assets) or sound_looping gives -1 else 0. Ac2FxObject.sound is the first of the node sounds (retail picks one at random; the sound part still rolls its own), sound_looping is set by Client::fx_object_events from FxSoundData.looping (FXManager::SoundIsLooping)
 
 ### FXState
 - [-] `FXState::operator=` · 00506520 · legions 004f4740 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `FXState::FXState` · 005065e0 · legions 004f4800 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### FXManager
-- [~] `FXManager::DoTargetAndCloningFXs` · 00506680 · legions 004f48a0 — ac2-smartbox fx_objects.rs start: target hide (m_hide_target, unhidden on stop) and destruction (m_destroy_target). Not ported: retarget clones, parent/unparent to the holding location, target FX (m_target_fx_id)
+- [x] `FXManager::DoTargetAndCloningFXs` · 00506680 · legions 004f48a0 — ac2-smartbox fx_objects.rs FxObjects::target_and_cloning (start_targeted): target hide (unhidden on stop), retargeting node clones the emitters vdesc_to_clone with its cloned appearance (made as a PendingObject, placed only by m_parent at the holding point, kept on the FX; m_conditional acts on the target itself), target FX (TargetCall::DoFx with the FX current scalar), parent/unparent (TargetCall, client sets Remote.fx_follow), destroy only for temporary ids. Tested. Clone has no collision flags (client-made objects have none)
 - [x] `FXManager::ChannelMissmatch` · 005069b0 · legions 004f4bd0 — ac2-render fx_streaks.rs node_plays: no channel preferences are loaded (ChannelPrefs skipped), so no node mismatches
 
 ### ChannelPrefs
@@ -1305,11 +1305,11 @@ Legend and workflow: [README](README.md).
 - [-] `ChannelPrefs::HandleChange` · 00506be0 — admin/debug or text-file tooling
 
 ### FXManager
-- [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — object created on the emitter and attached by its node (Ac2FxObjectAttach, re-placed each frame; placement in ac2-physics fx_follow.rs). The water-plane branch is not a surface placement: retail places the object at the emitter position and writes a water plane it never reads, so the object stands at the emitter. Slot 0x9c is CPhysicsObj::DoSlider (vtable 0xa64070, verified in the admin exe) with slider 0x4000001a, the colour alpha, not scale: its two calls set alpha 0.0 then 1.0 (ac2-smartbox create_alpha_moves). Unplaced nodes are dropped (known gap)
-- [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-smartbox fx_objects.rs stop: startup FX kept (m_bStartupFX), objects faded, targets unhidden, colour restored; sound and particle stop as before (client_audio). Not ported: streak stop (ac2-render fx_streaks.rs runs it), appearance removal, camera FX, target FX on the target
+- [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — object created on the emitter and attached by its node (Ac2FxObjectAttach, re-placed each frame; ac2-physics fx_follow.rs); it becomes the FX target and the emitters (FxObjects new_targets -> PhysicsBody::set_fx_target); slot 0x9c is DoSlider on 0x4000001a (create_alpha_moves); the water-plane branch stands at the emitter; a node naming a bone the emitter lacks is dropped (retail leaves the matrix unset: undefined). Not ported: a node behaviour (m_behavior) run on the created object with mDestroyOnCompletion, so the object destroys itself when it ends (needs Ac2BehaviorParams.destroy_on_completion, a DeleteSelf event and a pending behaviour on the local Remote, in shared remotes.rs)
+- [x] `FXManager::StopFX` · 00507650 · legions 004f5870 — FxObjects::stop/teardown: objects faded, targets unhidden, colour restored, appearances removed, target FX stopped on the FX target (TargetCall::StopFx); sound and particle stop in client_audio, streaks in fx_streaks stop_streaks; Legions StopFX gets the camera manager but does nothing with it (StopAllCameraFX is admin-only)
 - [-] `FXManager::FXManager` · 00507d10 · legions 004f5e80 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::Destroy` · 00507db0 · legions 004f5f20 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [~] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — ac2-smartbox fx_objects.rs use_time ramps each FX's current scalar toward the desired one once per node (quantum / m_ramp_time, instant below 0.0002) and re-applies its appearances; expire tears down an FX whose end came as StopFX does (objects, hides, colour); ac2-client client_audio FxSounds::use_time ramps the sound volumes. Particle system scalars do not follow the ramp
+- [x] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — FxObjects::use_time ramps each FX current scalar toward the desired once per node (instant below 0.0002) and re-applies appearances; client_audio FxSounds::use_time ramps the sound volumes (every node, no player gate, as retail); expire tears down as StopFX. Retail UseTime updates particle systems through an empty stub (gmNoticeHandler::RecvNotice_Patron_SwearDone is ret 8), so particle scalars rightly do not follow the ramp
 
 ### _STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>
 - [-] `_STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>::operator[]` · 00508360 · legions 004f6490 — STL/MSVC or archive template helper; Rust collections replace it
@@ -1320,15 +1320,15 @@ Legend and workflow: [README](README.md).
 ### FXManager
 - [-] `FXManager::~FXManager` · 00508660 · legions 004f6790 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::StreamPack` · 00508750 · legions 004f6880 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [~] `FXManager::GetCurrentFX` · 005087c0 · legions 004f68f0 — ac2-smartbox fx_objects.rs FxObjects::current_fx: the non-startup FX ids with a record; the scalar and target of each are not kept (only FX with object facts have a record)
+- [x] `FXManager::GetCurrentFX` · 005087c0 · legions 004f68f0 — FxObjects::current_fx lists the non-startup FX with FxScalarAndTarget (current scalar, target). Tested
 
 ### _STL::map<unsigned_long,FXState,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXState>_>_>
 - [-] `_STL::map<unsigned_long,FXState,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXState>_>_>::operator[]` · 00508860 · legions 004f6990 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### FXManager
-- [~] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-smartbox/ac2-client now run the per-node gates (player only, day/night: gated_nodes), the slider node, and the FX end time of the last node (lifetime default 15 s, looping, target FX, appearance key, FX script period, colour lifetime; tested). Not ported: ChannelMissmatch (no channel prefs load), the retarget clone and parent/unparent parts (DoTargetAndCloningFXs), the sound branch still assumes day; streak/decal/repulsor as in their rows
-- [~] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — ac2-client client_fx_objects.rs start_startup_fx drives ac2-smartbox fx_objects start_startup (objects made without a sound device, recorded as startup so StopFX leaves them); node sounds (DoSoundFX, no day/night filter) and lights (DoLightSourceFX, LightSourceEffects gated) play with a sound device. Not ported: streak (PHYSICSOBJREP::CreateStreakEffect), decal (DoDecalFX) and repulsor (CreateParticleRepulsor) nodes, which need render support; the light-fails-skips-vdesc branch; the shared rep particle branch (ApplyStartupFX with no object)
-- [~] `FXManager::DoFX` · 00509440 · legions 004f7490 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+- [~] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-smartbox/ac2-client run the per-node gates (player only, day/night: gated_nodes; the sound, particle and light branches take the same gate), slider, colour, appearance, camera, FX end time, and now the target, retarget clone, parent/unparent and target FX (DoTargetAndCloningFXs row). Not ported: ChannelMissmatch: the FX channel preferences (ChannelPrefs: gore amount 0x40000035, gore hue 0x40000036, foot step particles 0x40000039; none are registered in the options bank and FXNode channel keys are skipped by the parser). Streak/decal/repulsor as in their rows
+- [~] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — ac2-client client_fx_objects.rs start_startup_fx drives ac2-smartbox fx_objects start_startup (objects made without a sound device, recorded as startup, appearances at full scalar); node sounds (DoSoundFX, no day/night filter) and lights (DoLightSourceFX, LightSourceEffects gated) play with a sound device; decal startup nodes as in the decal row. Not ported: streak (PHYSICSOBJREP::CreateStreakEffect) and repulsor (CreateParticleRepulsor) startup nodes, which belong to the streak and repulsor rows (other agent); the shared-rep particle branch (ApplyStartupFX with no object) is UI scenes only
+- [~] `FXManager::DoFX` · 00509440 · legions 004f7490 — DoFX is DoTargettedFX with INVALID_IID: StartFx with target 0 runs the sound branch (new FX take the day/night and player gates, a running FX takes the new scalar), the particle and light branches (same gates), and the object part (appearances, colour, camera, slider). DirectSound 3D pan law and doppler approximated. Not ported: ChannelMissmatch (FX channel preferences, see DoTargettedFX)
 
 ## `portal/shared/src/physobj/fx/fxtable.cpp.c` (4/8)
 
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (45/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (47/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -2033,13 +2033,13 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::FindMatrixForBoneType` · 004eeac0 · legions 004e1420 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [x] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [x] `CPartArray::InitInternal` · 004eec30 · legions 004e1590 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) init_internal: the render box rebuild it makes is render plumbing, so it only reports success
-- [~] `CPartArray::DestroyAllTransientFX` · 004eec50 · legions 004e15b0 — ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); FX systems are stopped by handle; the streak, decal and repulsor lists are not part of this port
+- [x] `CPartArray::DestroyAllTransientFX` · 004eec50 · legions 004e15b0 — Lights: ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); particle systems stopped by handle; streaks removed (Client::fx_objects_use_time -> fx_streaks.remove_streaks); repulsor list belongs to the repulsor rows
 - [x] `CPartArray::ActivateStreakEffects` · 004eed30 · legions 004e1690 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `CPartArray::DeactivateStreakEffects` · 004eed80 · legions 004e16e0 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `CPartArray::DestroyParticleSystem` · 004eedd0 · legions 004e1730 — CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 - [x] `CPartArray::SetSetupID` · 004eee60 · legions 004e17c0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) set_setup (SetSetupID with the Setup already loaded by the loader thread: same DID returns early, else bones and parts rebuilt and the placement id reset)
 - [x] `CPartArray::GetBoundingSphere` · 004eef20 · legions 004e1860 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) bounding_sphere (the Setup's, else the static zero sphere)
-- [~] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation; ac2-assets attaches() drops a bone-anchored node no part group has, and placement() takes the bone from the part-group search (rest_named_bones)
+- [x] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation, composed with the world frame; object scale scales the offset and is handed to the system, and the object particle scale (m_fParticleScale = visual m_particle_scale: ObjectPlacement.particle_scale, from the loaded visual total desc) now reaches ParticleSystem::place. ac2-assets attaches() drops a bone-anchored node no part group has
 - [x] `CPartArray::TraceRayThroughParts` · 004ef290 · legions 004e1bd0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) trace_ray_through_parts: each part's first-degrade triangles in part space (inverse of the part matrix), RayIntersectsTriList's plane-side tests and nearest hit, delta as a fraction of the ray length
 - [-] `CPartArray::SetPartGroupData` · 004ef8f0 · legions 004e2230 — render plumbing
 
@@ -2061,7 +2061,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::CreateParticleSystem` · 004f0260 · legions 004e2ba0 — CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 - [x] `CPartArray::CreateRepulsorEffect` · 004f0300 · legions 004e2c40 — ac2-render fx_repulsors.rs FxRepulsors (DoTargettedFX repulsor part: node gate, once per running FX, Create/Gone calls) -> scene start_object_repulsor (CPartArray::CreateRepulsorEffect, PSManager::CreateRepulsor); particles/repulsor.rs (ParticleRepulsor, s_Repulsors); driven from client_fx_objects.rs; tests fx_repulsors_tests, repulse_tests
 - [x] `CPartArray::CreateStreakEffect` · 004f0380 · legions 004e2cc0 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-- [~] `CPartArray::CreateLightSource` · 004f0410 · legions 004e2d50 — ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time; the light is an Ac2LightSource subset, not a full LightSource copy
+- [~] `CPartArray::CreateLightSource` · 004f0410 · legions 004e2d50 — ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time. The light is an Ac2LightSource subset: kind, direction, base range and intensity, colours; retail copies the whole LightSource, whose m_wRange and m_wDiffuseIntensity are animated Waveforms (GetAnimatedRange). Waveform animation is shared with cell lights (ac2-world ac2_light_info, ui_scene) and not ported anywhere yet
 - [-] `CPartArray::GetAnimator` · 004f0500 · legions 004e2e40 — render plumbing
 - [-] `CPartArray::ClearUnusedAnimations` · 004f05b0 · legions 004e2ee0 — render plumbing
 - [-] `CPartArray::DestroyAnimCache` · 004f0710 · legions 004e3040 — render plumbing
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (397/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (399/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2350,7 +2350,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::calc_heading` · 004e0b30 — ac2-physics body_access.rs PhysicsBody::calc_heading over Position::heading_to
 - [x] `CPhysicsObj::HasBoneType` · 004e0b50 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) has_bone_type
 - [x] `CPhysicsObj::HasHoldingLocation` · 004e0b60 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
-- [~] `CPhysicsObj::FXSetParent` · 004e0b90 · legions 004d35f0 — FX-created objects hang from their emitter at creation (ac2-physics fx_follow.rs placed_at, ac2-assets Ac2FxAttach::rest) and are re-placed each frame on the emitter's live bone or holding point in the view (view/fx_follow.rs, ac2-physics fx_follow.rs follow_frame); the physics frame stays at rest. The emitter's scale scales the offset as particle systems do (the creation place is unscaled). A point the emitter lacks is not placed: retail's AddChild does not check it and the bone matrix is then unset, so retail's place is undefined (dropped, known gap).
+- [x] `CPhysicsObj::FXSetParent` · 004e0b90 · legions 004d35f0 — FX-created objects hang from their emitter at creation (ac2-physics fx_follow.rs placed_at, Ac2FxAttach::rest) and are re-placed each frame on the emitters live bone or holding point (view/fx_follow.rs, follow_frame); targets of an m_parent node take the same follow (Client::apply_fx_targets sets Remote.fx_follow). A point the emitter lacks leaves retails matrix unset (undefined), so the object is dropped
 - [x] `CPhysicsObj::set_parent` · 004e0c00 · legions 004d3660 — CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs; the child's DoMode(0, parent mode) is Client::take_holder_mode
 - [x] `CPhysicsObj::set_parent` · 004e0ca0 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::set_parent` · 004e0cd0 · legions 004d3730 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -2624,7 +2624,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::SetPositionInternal` · 004e9f50 · legions 004dc7d0 — ac2-physics set_position_internal: contact, walkable, LeaveGround, sliding, misc-active on no contact, UpdateCellMaterial on a new cell; cell residency and shadow lists are the object-list sync (Terrain::move_object, sync_membership)
 - [x] `CPhysicsObj::CombineAndApplyVisualDesc` · 004ea290 — ObjectVisualDesc (object_visual.rs) over Appearance; reached by the scripts: ac2-script host/interface.rs efuns gCWPhysicsObject ApplyAdditive/ApplySubtractive/CombineAndApplyVisualDesc (0x80005D/5E/5B, the only 7160 callers) edit the weenie local description, ac2-client set_object_appearance gives it to the object, and the part tree follows. Tested (ac2-script visual_desc_tests, ac2-weenie world_tests)
 - [x] `CPhysicsObj::DoBehavior` · 004ea490 — CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior
-- [~] `CPhysicsObj::DoBehavior` · 004ea500 — ac2-physics do_behavior with mPropagate to the children (Remotes::children_do_behavior -> follow_holder_behavior; tested); not carried: m_iidFXTarget and mVDescToClone (FX target, cloned appearance), which need FX-target plumbing through the StartFx event
+- [x] `CPhysicsObj::DoBehavior` · 004ea500 — ac2-physics PhysicsObj::do_behavior keeps the params FX target (m_iidFXTarget) and cloned description (m_vdescToClone, cloned appearance table and keys) read by ac2-client motion.rs behavior(); the behaviour end clears them (Ac2AnimEvent::ClearFxTarget -> take_animation_events -> clear_fx_target); effect triggers pass the target in StartFx.target (anim_pose.rs). mPropagate to the children as before. Tested (motion_tests, body_anim_tests)
 - [-] `CPhysicsObj::AddToTargetList` · 004ea670 · legions 004dcfa0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [x] `CPhysicsObj::UpdateMovementInternal` · 004ea780 · legions 004dd0b0 — PhysicsObj::update_movement_internal: missile update, UpdatePositionInternal, F_EPSILON gate, path-aligned heading (set_vector_heading of the velocity), transition_to; TargetManager::HandleTargetting is TargetHub::handle_targetting
 - [x] `CPhysicsObj::ForceIntoCell` · 004ea990 · legions 004dd2c0 — ac2-physics set_position_checked FORCE path: frame set, cell material updated; cell entry and shadows follow in the object-list sync; previous/animation positions untouched as retail
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (144/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (145/171)
 
 ### BehaviorTable
 - [x] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
@@ -2910,7 +2910,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::GetMotionValues` · 004f2d20 · legions 004e5510 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
 - [x] `PHYSICSOBJREP::GetDesiredMotionValues` · 004f2d70 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
 - [x] `PHYSICSOBJREP::GetStandardMotionValues` · 004f2df0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
-- [~] `PHYSICSOBJREP::PrepareObjectForDrawing` · 004f2e70 · legions 004e5660 — ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
+- [x] `PHYSICSOBJREP::PrepareObjectForDrawing` · 004f2e70 · legions 004e5660 — ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the objects frame with its scale and particle scale (scene/particles.rs place_objects); the light cell (m_CellID for LinkLight) is not kept as the shading pass picks lights by distance; the repulsor loop belongs to the repulsor rows
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f3280 · legions 004e5a40 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [-] `PHYSICSOBJREP::GetBaseSetupName` · 004f3460 — debug-only file name of the base Setup
 - [x] `PHYSICSOBJREP::ApplyStartupFX` · 004f3510 · legions 004e5d70 — client_fx_objects.rs start_startup_fx: lights, sounds, objects and decals once per object (the rest is the FXManager::DoStartupFX row)

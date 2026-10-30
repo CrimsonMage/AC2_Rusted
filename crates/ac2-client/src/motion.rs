@@ -43,6 +43,14 @@ pub(crate) fn behavior(params: &BehaviorParams) -> Ac2BehaviorParams {
         out.camera_target_id = params.camera_target;
         out.camera_behavior = params.camera_behavior;
     }
+    if has(0x2000) {
+        out.target = params.target;
+    }
+    if has(0x1_0000) {
+        out.vdesc_to_clone = params.vdesc_to_clone;
+        out.cloned_apr = params.cloned_apr;
+        out.cloned_app_apr = params.cloned_app_apr.clone();
+    }
     // `RecvEvt_DoBehavior` runs a copy whose context is 1.
     out.context = 1;
     out

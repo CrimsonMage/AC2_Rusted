@@ -177,6 +177,7 @@ pub fn object_placements(
                 cell: slot.cell,
                 frame: *frame,
                 scale: *scale * slot.body_scale,
+                particle_scale: scene.object_particle_scale(slot.key),
                 bones,
                 named_bones,
                 parents: rig.skeleton.root_parents(),

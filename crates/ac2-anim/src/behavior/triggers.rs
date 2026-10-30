@@ -184,6 +184,7 @@ impl Ac2TriggerUpdate {
                 Ac2AnimEvent::StartFx {
                     fx: effect.fx,
                     intensity: effect.intensity,
+                    target: 0,
                 }
             })
         };

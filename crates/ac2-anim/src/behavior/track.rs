@@ -2,8 +2,8 @@
 //! ramping in and out, and the action/hold bookkeeping of `BehaviorTrack::Update`.
 
 /// `BehaviorParams` (the fields the animation state machine reads, and the camera and
-/// child-fade parameters it hands to the object; the clone, destroy and FX-script parameters are
-/// not modelled).
+/// child-fade parameters it hands to the object, and the FX target and clone parameters
+/// `CPhysicsObj::DoBehavior` keeps; the destroy and FX-script parameters are not modelled).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2BehaviorParams {
     pub behavior: u32,
@@ -34,6 +34,15 @@ pub struct Ac2BehaviorParams {
     /// `mCameraBehavior` on and aim the camera at.
     pub camera_target_id: u64,
     pub camera_behavior: u32,
+    /// `mTargetID` (0 is `INVALID_IID`): the object the behaviour's effects target
+    /// (`CPhysicsObj::m_iidFXTarget`).
+    pub target: u64,
+    /// `mVDescToClone`, `m_clonedAprID` and `m_clonedAppAprHash` (key, scalar): the description
+    /// a retargeting FX node clones, and the appearance it takes
+    /// (`CPhysicsObj::m_vdescToClone`).
+    pub vdesc_to_clone: u32,
+    pub cloned_apr: u32,
+    pub cloned_app_apr: Vec<(u32, f32)>,
 }
 
 impl Ac2BehaviorParams {
@@ -58,6 +67,10 @@ impl Ac2BehaviorParams {
             camera_restore: false,
             camera_target_id: 0,
             camera_behavior: 0,
+            target: 0,
+            vdesc_to_clone: 0,
+            cloned_apr: 0,
+            cloned_app_apr: Vec::new(),
         }
     }
 }

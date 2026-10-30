@@ -282,6 +282,8 @@ fn idle_effect_triggers_restart_each_cycle_and_hooks_fire_once() {
         }))),
     );
     body.set_animation(animation);
+    // The effect triggers pass the body's FX target (`DoTargettedFX(fx, intensity, m_iidFXTarget)`).
+    body.set_fx_target(9);
     let mut random = Random::default();
     let mut now = 1.0;
     let mut events = Vec::new();
@@ -305,7 +307,8 @@ fn idle_effect_triggers_restart_each_cycle_and_hooks_fire_once() {
         fx[0],
         &Ac2AnimEvent::StartFx {
             fx: 0x77,
-            intensity: 0.5
+            intensity: 0.5,
+            target: 9
         }
     );
     assert_eq!(fx[1], &Ac2AnimEvent::StopFx { fx: 0x77 });

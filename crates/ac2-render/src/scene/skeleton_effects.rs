@@ -153,6 +153,7 @@ mod tests {
             cell: 0x7F7F_0001,
             frame: Frame::new(Vec3::new(10.0, 10.0, z), Quat::IDENTITY),
             scale: Vec3::ONE,
+            particle_scale: 1.0,
             bones: vec![bone(1.0), bone(1.6), bone(0.0)],
             named_bones: Vec::new(),
             parents: std::sync::Arc::from(vec![None, Some(0), Some(0)]),

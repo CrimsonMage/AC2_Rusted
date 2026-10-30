@@ -71,11 +71,17 @@ pub enum Ac2AnimEvent {
     StartFx {
         fx: u32,
         intensity: f32,
+        /// The FX's target (`CPhysicsObj::DoTargettedFX`'s `_target_id`; 0 is `INVALID_IID`):
+        /// the effect triggers pass the object's `m_iidFXTarget`, `DoFX` none.
+        target: u64,
     },
     /// `StopFX(fx)`.
     StopFx {
         fx: u32,
     },
+    /// `CPhysicsObj::ClearFXTarget` (`BehaviorTracker::ProcessRampingDownParamFlags` when the
+    /// behaviour carried an FX target or a description to clone): the body drops them.
+    ClearFxTarget,
     LockActions,
     UnlockActions,
     /// `SetChildrenOpacity(opacity, rampTime)` (`mFadeChildren`).

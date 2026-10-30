@@ -9,7 +9,9 @@ use ac2_anim::Ac2AnimEvent;
 use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach};
 use ac2_math::Vec3;
 use ac2_physics::placed_at;
-use ac2_smartbox::fx_objects::{camera_fx_starts, create_alpha_moves, fx_nodes};
+use ac2_smartbox::fx_objects::{
+    camera_fx_starts, create_alpha_moves, fx_nodes, FxTarget, TargetCall,
+};
 use ac2_world::{land_block_size, GameClock};
 
 use crate::client::Client;
@@ -50,7 +52,11 @@ impl Client {
             let particles = particles.as_deref();
             for event in events {
                 match *event {
-                    Ac2AnimEvent::StartFx { fx, intensity } => {
+                    Ac2AnimEvent::StartFx {
+                        fx,
+                        intensity,
+                        target,
+                    } => {
                         if let Some(table) = particles {
                             let nodes = fx_nodes(table, fx);
                             // A new FX plays its nodes' camera effects (an FX already running
@@ -63,22 +69,36 @@ impl Client {
                                     self.request_camera_fx(camera_fx, scalar, *id);
                                 }
                             }
-                            let nodes = ac2_smartbox::fx_objects::gated_nodes(
+                            let mut nodes = ac2_smartbox::fx_objects::gated_nodes(
                                 &nodes,
                                 streak_ctx.player == Some(*id),
                                 streak_ctx.night,
                             );
+                            // `FXManager::SoundIsLooping` of each node's sound
+                            // (`CalcDuration`).
+                            if let Some(sounds) = self
+                                .remotes
+                                .body_data(*visual)
+                                .and_then(|data| data.fx_sounds.as_ref())
+                            {
+                                for node in &mut nodes {
+                                    node.sound_looping = sounds.looping.contains(&node.sound);
+                                }
+                            }
+                            let fx_target = self.fx_target_of(*id, target);
                             let remotes = &mut self.remotes;
                             let scripts = &self.fx_scripts;
-                            self.fx_objects.start(
+                            self.fx_objects.start_targeted(
                                 *id,
                                 fx,
                                 &nodes,
                                 now,
                                 intensity,
+                                &fx_target,
                                 &|script| scripts.get(script).map(|s| s.period),
                                 &mut || remotes.allocate_temporary_id(),
                             );
+                            self.apply_fx_targets();
                             self.apply_slider_fx();
                             self.fx_streaks.start_streaks(*id, fx, table, &streak_ctx);
                             self.fx_repulsors.start(*id, fx, table, &streak_ctx);
@@ -100,11 +120,73 @@ impl Client {
                             .map(|table| fx_nodes(table, fx))
                             .unwrap_or_default();
                         self.fx_objects.stop(*id, fx, &nodes, now);
+                        self.apply_fx_targets();
                         self.fx_streaks.stop_streaks(*id, fx);
                         self.fx_repulsors.stop(*id, fx);
                         self.fx_decals.stop(*id, fx);
                     }
                     _ => {}
+                }
+            }
+        }
+    }
+
+    /// The target an FX starts on `emitter` with: the event's object and the description the
+    /// emitter's behaviour asked to clone (`PHYSICSOBJREP::GetVDescToClone` and the cloned
+    /// appearance accessors).
+    fn fx_target_of(&self, emitter: u64, target: u64) -> FxTarget {
+        let body = if self.player.as_ref().is_some_and(|p| p.id == emitter) {
+            self.player
+                .as_ref()
+                .and_then(|p| p.body.as_ref().map(|b| &b.physics))
+        } else {
+            self.remotes.get(emitter).and_then(|r| r.body())
+        };
+        let (vdesc_to_clone, apr, keys) = body.map_or((0, 0, &[][..]), |b| b.fx_clone());
+        FxTarget {
+            id: target,
+            vdesc_to_clone,
+            apr,
+            apr_keys: keys.to_vec(),
+        }
+    }
+
+    /// What the FX just started did to objects beyond creating them: the emitters take the objects
+    /// they made as their FX target (`PHYSICSOBJREP::SetFXTarget`), and the targets take their
+    /// calls (`FXManager::DoTargetAndCloningFXs`): the node's target FX (`DoFX`), the holding
+    /// point they hang from (`CPhysicsObj::FXSetParent`) or leave.
+    pub(crate) fn apply_fx_targets(&mut self) {
+        for (emitter, object) in self.fx_objects.take_new_targets() {
+            if let Some(body) = self.script_body_mut(emitter) {
+                body.set_fx_target(object);
+            }
+        }
+        for call in self.fx_objects.take_target_calls() {
+            match call {
+                TargetCall::DoFx { object, fx, scalar } => {
+                    if let Some(body) = self.script_body_mut(object) {
+                        body.do_fx(fx, scalar);
+                    }
+                }
+                TargetCall::StopFx { object, fx } => {
+                    if let Some(body) = self.script_body_mut(object) {
+                        body.stop_fx(fx);
+                    }
+                }
+                TargetCall::Parent {
+                    object,
+                    emitter,
+                    attach: Ac2FxObjectAttach::Attached(attach),
+                } => {
+                    if let Some(remote) = self.remotes.get_mut(object) {
+                        remote.fx_follow = Some(FxFollow { emitter, attach });
+                    }
+                }
+                TargetCall::Parent { .. } => {}
+                TargetCall::Unparent { object } => {
+                    if let Some(remote) = self.remotes.get_mut(object) {
+                        remote.fx_follow = None;
+                    }
                 }
             }
         }

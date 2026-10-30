@@ -134,6 +134,18 @@ pub struct Ac2FxObject {
     pub fx_script: u32,
     /// `FXManager::ParticleIsLooping` of the node's first system (`FXManager::CalcDuration`).
     pub particle_looping: bool,
+    /// `m_parent` (the target hangs from the emitter's `holding_location`), `m_unparent` (the
+    /// target leaves its parent) and `m_conditional` (a retargeting node acts on the target
+    /// itself, no clone): `FXManager::DoTargetAndCloningFXs`.
+    pub parent: bool,
+    pub unparent: bool,
+    pub conditional: bool,
+    /// The node's sound (`FXNode::GetSoundID`; the first of its list, as the pick among several
+    /// is random), whose `FXManager::SoundIsLooping` the FX's duration reads
+    /// (`FXManager::CalcDuration`). Zero for none.
+    pub sound: u32,
+    /// `FXManager::SoundIsLooping(sound)`, set by the client from the sound records it read.
+    pub sound_looping: bool,
 }
 
 /// An FX node's slider effect (`FXManager::DoSliderFX`).
@@ -186,12 +198,29 @@ impl Default for Ac2FxNodeGate {
     }
 }
 
+impl Ac2FxNodeGate {
+    /// `FXManager::DoTargettedFX`'s gates for a node of a new FX (no channel preferences are
+    /// set): `m_player_only` plays only for the player, and the node's day or night flag must
+    /// be on for the time of day.
+    pub fn plays(&self, is_player: bool, night: bool) -> bool {
+        (!self.player_only || is_player)
+            && if night {
+                self.night_time
+            } else {
+                self.day_time
+            }
+    }
+}
+
 impl Ac2FxObject {
     /// Whether the node carries any object fact `DoTargettedFX` acts on.
     pub fn is_active(&self) -> bool {
         self.vdesc != 0
             || self.hide_target
             || self.destroy_target
+            || self.parent
+            || self.unparent
+            || self.retarget
             || self.target_fx_id != 0
             || self.color.is_some()
             || self.restore
@@ -542,8 +571,8 @@ fn read_fx_node(
         0.0
     };
     let behavior = field(cursor, 0x8_0000)?;
-    field(cursor, 0x10_0000)?;
-    field(cursor, 0x20_0000)?;
+    let parent = field(cursor, 0x10_0000)? != 0;
+    let unparent = field(cursor, 0x20_0000)? != 0;
     let retarget = field(cursor, 0x40_0000)? != 0;
     let destroy_target = field(cursor, 0x80_0000)? != 0;
     let hide_target = field(cursor, 0x8_0000_0000)? != 0;
@@ -578,6 +607,11 @@ fn read_fx_node(
         retarget,
         fx_script: 0,
         particle_looping: false,
+        parent,
+        unparent,
+        conditional: false,
+        sound: sounds.first().copied().unwrap_or(0),
+        sound_looping: false,
     };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
         Ok::<_, Malformed>(if has(bit) {
@@ -596,7 +630,7 @@ fn read_fx_node(
     }
     let fire_and_forget = flag(cursor, 0x1000_0000, false)?;
     let water_plane = field(cursor, 0x2000_0000)? != 0;
-    field(cursor, 0x4000_0000)?;
+    let conditional = field(cursor, 0x4000_0000)? != 0;
     let mut decal = None;
     if has(0x8000_0000) {
         // `m_has_decal`, then `DecalFX`.
@@ -650,6 +684,7 @@ fn read_fx_node(
         decal,
         repulsor,
         fx_script,
+        conditional,
         ..object
     };
     let particle = (!particle_descs.is_empty()

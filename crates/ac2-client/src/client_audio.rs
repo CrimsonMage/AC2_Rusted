@@ -57,13 +57,27 @@ struct FxCall<'a> {
     data: &'a FxSoundData,
     emitter: u64,
     is_player: bool,
+    /// `CGameTime`'s night flag (`m_night_time` against `m_day_time`).
+    night: bool,
     now: f64,
 }
 
-/// Whether a node plays here (`FXManager::ChannelMissmatch` with no channel preferences set,
-/// the player-only flag, and the time of day, taken as day).
-fn node_plays(node: &Ac2FxSoundNode, is_player: bool) -> bool {
-    (!node.player_only || is_player) && node.day_time
+/// Whether a node starts here (`FXManager::DoTargettedFX`'s gates for a new FX:
+/// `FXManager::ChannelMissmatch` with no channel preferences set, the player-only flag, and the
+/// node's day or night flag for the time of day).
+fn node_starts(node: &Ac2FxSoundNode, is_player: bool, night: bool) -> bool {
+    (!node.player_only || is_player)
+        && if night {
+            node.night_time
+        } else {
+            node.day_time
+        }
+}
+
+/// Whether a node takes the new scalar of an FX already running (`DoTargettedFX`'s update
+/// branch checks the player-only flag but not the time of day).
+fn node_updates(node: &Ac2FxSoundNode, is_player: bool) -> bool {
+    !node.player_only || is_player
 }
 
 /// `FXNode::GetSoundID`: one of the node's sounds (`Random::RollDice`).
@@ -105,7 +119,7 @@ impl FxSounds {
         };
         if let Some(state) = self.states.get_mut(&fx) {
             state.desired = scalar;
-            for node in nodes.iter().filter(|n| node_plays(n, call.is_player)) {
+            for node in nodes.iter().filter(|n| node_updates(n, call.is_player)) {
                 if node.ramp_time < 0.0002 {
                     state.current = scalar;
                 }
@@ -122,7 +136,10 @@ impl FxSounds {
             end_time: 0.0,
         };
         let mut played = false;
-        for node in nodes.iter().filter(|n| node_plays(n, call.is_player)) {
+        for node in nodes
+            .iter()
+            .filter(|n| node_starts(n, call.is_player, call.night))
+        {
             played = true;
             state.current = if node.ramp_time >= 0.0002 {
                 0.0
@@ -162,18 +179,12 @@ impl FxSounds {
 
     /// `FXManager::UseTime`: each running FX's scalar steps toward the desired one (once per
     /// node, `quantum / ramp_time`), its sounds follow, and an FX past its end is dropped.
-    fn use_time(
-        &mut self,
-        quantum: f32,
-        now: f64,
-        data: &FxSoundData,
-        is_player: bool,
-        manager: &mut SoundManager,
-    ) {
+    fn use_time(&mut self, quantum: f32, now: f64, data: &FxSoundData, manager: &mut SoundManager) {
         self.states.retain(|fx, state| {
             let nodes = data.table.get(*fx).cloned().unwrap_or_default();
             if state.current != state.desired {
-                for node in nodes.iter().filter(|n| node_plays(n, is_player)) {
+                // `FXManager::UseTime` steps once per node that has no channel mismatch.
+                for node in nodes.iter() {
                     if node.ramp_time >= 0.0002 {
                         let step = quantum / node.ramp_time;
                         if state.desired <= state.current {
@@ -481,6 +492,10 @@ impl Client {
             .iter()
             .map(|(id, _, _)| (*id, self.water_surface_under(*id, player_id)))
             .collect();
+        let night = self
+            .game_clock
+            .as_ref()
+            .is_some_and(ac2_world::GameClock::is_night);
         if let Some(audio) = self.audio.as_mut() {
             for (id, visual, events) in events {
                 let visual_data = self.remotes.body_data(visual);
@@ -496,12 +511,14 @@ impl Client {
                         Ac2AnimEvent::StartFx {
                             fx: effect,
                             intensity,
+                            ..
                         } => {
                             if let Some(data) = sounds {
                                 let call = FxCall {
                                     data,
                                     emitter: id,
                                     is_player,
+                                    night,
                                     now,
                                 };
                                 fx.do_fx(
@@ -522,6 +539,8 @@ impl Client {
                                         table,
                                         &mut self.random,
                                         water.get(&id).copied().flatten(),
+                                        is_player,
+                                        night,
                                     );
                                     let mut handles = Vec::with_capacity(starts.len());
                                     for start in &mut starts {
@@ -536,7 +555,9 @@ impl Client {
                                     slot.insert(handles);
                                     audio.object_particles.extend(starts);
                                     if audio.light_effects {
-                                        audio.object_lights.extend(light_starts(id, effect, table));
+                                        audio.object_lights.extend(light_starts(
+                                            id, effect, table, is_player, night,
+                                        ));
                                     }
                                 }
                             }
@@ -563,13 +584,7 @@ impl Client {
                     }
                 }
                 if let Some(data) = sounds {
-                    let call = FxCall {
-                        data,
-                        emitter: id,
-                        is_player,
-                        now,
-                    };
-                    fx.use_time(step, now, data, call.is_player, &mut audio.manager);
+                    fx.use_time(step, now, data, &mut audio.manager);
                 }
             }
         }
@@ -577,6 +592,7 @@ impl Client {
         // the expired FX stop.
         self.fx_objects.use_time(step);
         self.fx_objects.expire(now);
+        self.apply_fx_targets();
         if let Some(locked) = lock {
             self.lock_player_actions(locked);
         }

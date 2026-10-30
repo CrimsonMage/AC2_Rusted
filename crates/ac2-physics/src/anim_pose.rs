@@ -198,6 +198,15 @@ impl PhysicsObj {
         }
         for action in self.anim.modes.triggers_mut().fire(random) {
             match action {
+                // The effect triggers pass the object's FX target (`DoTargettedFX(fx,
+                // intensity, m_iidFXTarget)`).
+                Ac2TriggerAction::Event(Ac2AnimEvent::StartFx { fx, intensity, .. }) => {
+                    self.anim.push_events([Ac2AnimEvent::StartFx {
+                        fx,
+                        intensity,
+                        target: self.fx_target,
+                    }]);
+                }
                 Ac2TriggerAction::Event(event) => self.anim.push_events([event]),
                 Ac2TriggerAction::Impulse(impulse) => self.fire_impulse(&impulse),
             }
@@ -367,8 +376,19 @@ impl PhysicsObj {
         self.sync_mode();
     }
 
+    /// The animation events since the last call. A behaviour's end clears the FX target here
+    /// (`ClearFxTarget`, as `BehaviorTracker::ProcessRampingDownParamFlags` calls
+    /// `CPhysicsObj::ClearFXTarget`), the object's own state, and goes no further.
     pub(crate) fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
-        self.anim.take_events()
+        let mut events = self.anim.take_events();
+        events.retain(|event| {
+            let clear = matches!(event, Ac2AnimEvent::ClearFxTarget);
+            if clear {
+                self.clear_fx_target();
+            }
+            !clear
+        });
+        events
     }
 }
 

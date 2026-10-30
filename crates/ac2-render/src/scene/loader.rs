@@ -166,6 +166,8 @@ pub struct LoadedObject {
     /// What selecting it traces against (`CPhysicsObj::TraceRay`).
     pub pick: Option<std::sync::Arc<crate::selection::PickMesh>>,
     pub scale: ac2_math::Vec3,
+    /// `m_particle_scale` of the visual (`CPhysicsObj::GetParticleScale`).
+    pub particle_scale: f32,
     pub images: Images,
 }
 
@@ -564,10 +566,13 @@ impl Worker {
                 )
                 .ok()
                 .flatten();
-                let scale = crate::object::total_visual_desc(&store, visual, local.as_ref())
+                let total = crate::object::total_visual_desc(&store, visual, local.as_ref())
                     .ok()
-                    .flatten()
+                    .flatten();
+                let scale = total
+                    .as_ref()
                     .map_or(ac2_math::Vec3::ONE, |total| total.scale);
+                let particle_scale = total.as_ref().map_or(1.0, |total| total.particle_scale);
                 let images = self.images(model.iter().flat_map(ObjectModel::texture_keys));
                 let pick = model.as_ref().map(|model| {
                     std::sync::Arc::new(crate::selection::PickMesh::from_model(model))
@@ -577,6 +582,7 @@ impl Worker {
                     model,
                     pick,
                     scale,
+                    particle_scale,
                     images,
                 })
             }

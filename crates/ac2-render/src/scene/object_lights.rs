@@ -179,6 +179,7 @@ mod tests {
             cell: 0,
             frame: Frame::new(Vec3::new(x, 0.0, 0.0), ac2_math::Quat::IDENTITY),
             scale: Vec3::ONE,
+            particle_scale: 1.0,
             bones: Vec::new(),
             named_bones: Vec::new(),
             parents: std::sync::Arc::from(Vec::new()),

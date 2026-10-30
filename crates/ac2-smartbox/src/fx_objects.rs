@@ -38,15 +38,7 @@ pub fn fx_nodes(table: &Ac2VisualFxParticles, fx: u32) -> Vec<Ac2FxObject> {
 pub fn gated_nodes(nodes: &[Ac2FxObject], is_player: bool, night: bool) -> Vec<Ac2FxObject> {
     nodes
         .iter()
-        .filter(|node| {
-            let gate = &node.gate;
-            (!gate.player_only || is_player)
-                && if night {
-                    gate.night_time
-                } else {
-                    gate.day_time
-                }
-        })
+        .filter(|node| node.gate.plays(is_player, night))
         .copied()
         .collect()
 }
@@ -64,15 +56,7 @@ pub fn camera_fx_starts(
     nodes
         .iter()
         .filter(|node| node.camera_fx != 0)
-        .filter(|node| {
-            let gate = &node.gate;
-            (!gate.player_only || is_player)
-                && if night {
-                    gate.night_time
-                } else {
-                    gate.day_time
-                }
-        })
+        .filter(|node| node.gate.plays(is_player, night))
         .map(|node| {
             let current = if node.ramp_time >= 0.0002 {
                 0.0
@@ -103,6 +87,8 @@ pub struct FxRecord {
     /// `m_current_scalar` and `m_desired_scalar`: `UseTime` ramps the one to the other.
     pub current: f32,
     pub desired: f32,
+    /// `m_target_id`: the object the FX was started on (0 is `INVALID_IID`).
+    pub target: u64,
     /// The FX's nodes as `UseTime` walks them: each one's `m_ramp_time`, and its appearance.
     ramps: Vec<RampNode>,
 }
@@ -113,6 +99,8 @@ struct RampNode {
     ramp_time: f32,
     /// `m_apr_id`, `m_apr_key`'s key and scalar (`apr_id` 0 for none).
     appearance: (u32, u32, f32),
+    /// `m_target_fx_id`: the FX the target plays, which `StopFX` stops on it.
+    target_fx: u32,
 }
 
 impl RampNode {
@@ -124,6 +112,7 @@ impl RampNode {
                 node.appearance_key.0,
                 node.appearance_key.1,
             ),
+            target_fx: node.target_fx_id,
         }
     }
 
@@ -180,6 +169,45 @@ pub struct PendingObject {
     pub ramp_time: f32,
 }
 
+/// The target an FX starts with (`FXManager::DoTargettedFX`'s `_target_id`, and
+/// `PHYSICSOBJREP::GetVDescToClone`, `GetClonedAppearanceID` and `GetClonedAppKeyHash` of the
+/// emitter): the object the FX acts on and the description a retargeting node clones.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct FxTarget {
+    /// 0 is `INVALID_IID`.
+    pub id: u64,
+    /// `m_vdescToClone`: the visual a retargeting node makes a copy of (0 for none).
+    pub vdesc_to_clone: u32,
+    /// `m_clonedAprID` and `m_clonedAppAprHash` (key, scalar): the appearance the clone takes.
+    pub apr: u32,
+    pub apr_keys: Vec<(u32, f32)>,
+}
+
+/// An FX's scalar and target (`FXScalarAndTarget`, what `FXManager::GetCurrentFX` lists).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FxScalarAndTarget {
+    pub scalar: f32,
+    pub target: u64,
+}
+
+/// `FXManager::DoTargetAndCloningFXs`'s calls on the target the client carries out, in order.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum TargetCall {
+    /// `m_target_fx_id`: `CPhysicsObj::DoFX(fx, state.m_current_scalar)` on the object.
+    DoFx { object: u64, fx: u32, scalar: f32 },
+    /// `FXManager::StopFX`: the node's target FX stops on the FX's target (`CPhysicsObj::StopFX`).
+    StopFx { object: u64, fx: u32 },
+    /// `m_parent` with a holding location: `CPhysicsObj::FXSetParent` hangs the object from the
+    /// emitter's holding point (`attach` is the node's place on the emitter).
+    Parent {
+        object: u64,
+        emitter: u64,
+        attach: Ac2FxObjectAttach,
+    },
+    /// `m_unparent`: the object leaves its parent where it stands.
+    Unparent { object: u64 },
+}
+
 /// A slider effect a node asked of its emitter (`FXManager::DoSliderFX`): the emitter's
 /// `DoSlider(0, slider, scalar, ramp_time)`, and with `propagate` the same on each direct child.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -222,6 +250,10 @@ pub struct FxObjects {
     /// its FX applied.
     appearances: HashMap<u64, ac2_physics::Appearance>,
     sliders: Vec<SliderMove>,
+    /// `DoCreateObjectFX`'s `PHYSICSOBJREP::SetFXTarget(created id)`: the emitters' new FX
+    /// targets, and the target calls, for the client to carry out.
+    new_targets: Vec<(u64, u64)>,
+    target_calls: Vec<TargetCall>,
     now: f64,
 }
 
@@ -248,6 +280,32 @@ impl FxObjects {
         script_period: &dyn Fn(u32) -> Option<f32>,
         ids: &mut dyn FnMut() -> Option<u64>,
     ) {
+        self.start_targeted(
+            emitter,
+            fx,
+            nodes,
+            now,
+            scalar,
+            &FxTarget::default(),
+            script_period,
+            ids,
+        );
+    }
+
+    /// [`Self::start`] with the FX's target (`DoTargettedFX`'s `_target_id`): its running
+    /// state keeps it (`FXState::m_target_id`), and each node acts on it
+    /// (`FXManager::DoTargetAndCloningFXs`).
+    pub fn start_targeted(
+        &mut self,
+        emitter: u64,
+        fx: u32,
+        nodes: &[Ac2FxObject],
+        now: f64,
+        scalar: f32,
+        fx_target: &FxTarget,
+        script_period: &dyn Fn(u32) -> Option<f32>,
+        ids: &mut dyn FnMut() -> Option<u64>,
+    ) {
         let ramps: Vec<RampNode> = nodes.iter().map(RampNode::new).collect();
         if let Some(record) = self
             .records
@@ -257,6 +315,7 @@ impl FxObjects {
             // A running FX takes the new scalar as its desired one; an instant node sets the
             // current one too, and each appearance follows the current one (`DoAppearanceFX`).
             record.desired = scalar;
+            record.target = fx_target.id;
             for node in &ramps {
                 if node.is_instant() {
                     record.current = scalar;
@@ -279,6 +338,7 @@ impl FxObjects {
             appearances: appearance_names(&ramps),
             current,
             desired: scalar,
+            target: fx_target.id,
             ramps,
             ..FxRecord::default()
         };
@@ -300,18 +360,24 @@ impl FxObjects {
                     record.restore_colour = true;
                 }
             }
-            let mut target = None;
-            // `CreateTemporaryObject` fails without a temporary id: no object.
+            let mut target = fx_target.id;
+            // `CreateTemporaryObject` fails without a temporary id: no object. The object
+            // becomes the FX's target and the emitter's (`SetFXTarget`).
             if let Some(id) = (node.vdesc != 0).then(&mut *ids).flatten() {
                 self.new_object(id, emitter, node);
                 record.objects.push(id);
-                target = Some(id);
+                self.new_targets.push((emitter, id));
+                target = id;
             }
             // `DoTargettedFX`'s duration, the last node's: `CalcDuration` (a looping system never
-            // ends, else the FX ends at once; sound looping is not known here), the object's
+            // ends, nor does a looping sound, else the FX ends at once), the object's
             // lifetime, a target FX or an appearance that is not removed (never), a removing
             // appearance key (0.1 s), the FX script's period, and a restoring colour's lifetime.
-            let mut seconds = if node.particle_looping { -1.0 } else { 0.0 };
+            let mut seconds = if node.particle_looping || node.sound_looping {
+                -1.0
+            } else {
+                0.0
+            };
             if (node.vdesc != 0 || node.retarget) && node.lifetime != 0.0 {
                 seconds = node.lifetime;
             }
@@ -334,18 +400,96 @@ impl FxObjects {
                 seconds = node.color_lifetime;
             }
             end = (seconds >= 0.0).then(|| now + f64::from(seconds));
-            if let Some(target) = target {
-                if node.hide_target {
-                    self.hidden.insert(target);
-                    record.unhide.push(target);
-                }
-                if node.destroy_target {
-                    self.fade_and_destroy(target, now);
-                }
+            if target != 0 || fx_target.vdesc_to_clone != 0 {
+                self.target_and_cloning(
+                    emitter,
+                    &mut record,
+                    target,
+                    fx_target,
+                    node,
+                    now,
+                    &mut *ids,
+                );
             }
         }
         record.end = end;
         self.records.entry(emitter).or_default().insert(fx, record);
+    }
+
+    /// `FXManager::DoTargetAndCloningFXs` for one node: the target hides (and shows again when
+    /// the FX stops); a retargeting node without `m_conditional` acts on a clone of the
+    /// emitter's `m_vdescToClone` instead (made with the cloned appearance, kept on the FX,
+    /// placed only by `m_parent` at the holding point); then the object takes the node's
+    /// target FX, parents to the holding point, unparents, and is destroyed when asked.
+    fn target_and_cloning(
+        &mut self,
+        emitter: u64,
+        record: &mut FxRecord,
+        target: u64,
+        fx_target: &FxTarget,
+        node: &Ac2FxObject,
+        now: f64,
+        ids: &mut dyn FnMut() -> Option<u64>,
+    ) {
+        if node.hide_target && target != 0 {
+            self.hidden.insert(target);
+            record.unhide.push(target);
+        }
+        let mut object = target;
+        let mut cloned = false;
+        if node.retarget && !node.conditional {
+            let Some(id) = (fx_target.vdesc_to_clone != 0).then(ids).flatten() else {
+                return;
+            };
+            // The clone is placed only by a parent node: otherwise it has no place.
+            let parented = node.holding_location != 0 && node.parent;
+            self.pending.push(PendingObject {
+                id,
+                emitter,
+                visual: fx_target.vdesc_to_clone,
+                attach: if parented {
+                    node.attach
+                } else {
+                    Ac2FxObjectAttach::Unplaced
+                },
+                ramp_time: 0.0,
+            });
+            if fx_target.apr != 0 {
+                for &(key, scalar) in &fx_target.apr_keys {
+                    self.appearances
+                        .entry(id)
+                        .or_default()
+                        .add_appearance_mod(fx_target.apr, (key, scalar));
+                }
+            }
+            record.objects.push(id);
+            self.new_targets.push((emitter, id));
+            object = id;
+            cloned = true;
+        }
+        if object == 0 {
+            return;
+        }
+        if node.holding_location != 0 && node.parent && !cloned {
+            self.target_calls.push(TargetCall::Parent {
+                object,
+                emitter,
+                attach: node.attach,
+            });
+        }
+        if node.target_fx_id != 0 {
+            self.target_calls.push(TargetCall::DoFx {
+                object,
+                fx: node.target_fx_id,
+                scalar: record.current,
+            });
+        }
+        if node.unparent {
+            self.target_calls.push(TargetCall::Unparent { object });
+        }
+        if node.destroy_target && crate::temporary_ids::is_temporary(object) {
+            self.fade_and_destroy(object, now);
+        }
     }
 
     /// `FXManager::DoStartupFX`'s object part, run when the object is created: each node that
@@ -461,6 +605,15 @@ impl FxObjects {
         if record.restore_colour {
             self.set_colour(emitter, WHITE, RESTORE_SECONDS, now);
         }
+        // `StopFX`: each node's target FX stops on the FX's target.
+        if record.target != 0 {
+            for node in record.ramps.iter().filter(|node| node.target_fx != 0) {
+                self.target_calls.push(TargetCall::StopFx {
+                    object: record.target,
+                    fx: node.target_fx,
+                });
+            }
+        }
         // `StopFX`: `PHYSICSOBJREP::RemoveAppearanceFX` for each node's appearance.
         for &(table, key) in &record.appearances {
             self.remove_appearance(emitter, table, key);
@@ -534,20 +687,28 @@ impl FxObjects {
         temporary
     }
 
-    /// `FXManager::GetCurrentFX`: the FX ids running on `emitter` that are not startup FX
-    /// (`m_bStartupFX` clear), in id order (`map<unsigned long, ...>`). Only FX with object
-    /// facts have a record here; the scalar and target of each are not kept.
-    pub fn current_fx(&self, emitter: u64) -> Vec<u32> {
-        let mut ids: Vec<u32> = self
+    /// `FXManager::GetCurrentFX`: the FX running on `emitter` that are not startup FX
+    /// (`m_bStartupFX` clear) with each one's current scalar and target, in id order
+    /// (`map<unsigned long, FXScalarAndTarget>`). Only FX with object facts have a record here.
+    pub fn current_fx(&self, emitter: u64) -> Vec<(u32, FxScalarAndTarget)> {
+        let mut list: Vec<(u32, FxScalarAndTarget)> = self
             .records
             .get(&emitter)
             .into_iter()
             .flatten()
             .filter(|(_, record)| !record.startup)
-            .map(|(&fx, _)| fx)
+            .map(|(&fx, record)| {
+                (
+                    fx,
+                    FxScalarAndTarget {
+                        scalar: record.current,
+                        target: record.target,
+                    },
+                )
+            })
             .collect();
-        ids.sort_unstable();
-        ids
+        list.sort_unstable_by_key(|(fx, _)| *fx);
+        list
     }
 
     /// `CObjectMaint::FadeAndDestroyObject(id, 0.5, 3.0)`.
@@ -588,6 +749,16 @@ impl FxObjects {
         std::mem::take(&mut self.sliders)
     }
 
+    /// Takes the emitters' new FX targets (`PHYSICSOBJREP::SetFXTarget`) since the last call.
+    pub fn take_new_targets(&mut self) -> Vec<(u64, u64)> {
+        std::mem::take(&mut self.new_targets)
+    }
+
+    /// Takes the calls on targets FX asked for since the last call, in order.
+    pub fn take_target_calls(&mut self) -> Vec<TargetCall> {
+        std::mem::take(&mut self.target_calls)
+    }
+
     /// Takes the objects FX asked for since the last call.
     pub fn take_pending(&mut self) -> Vec<PendingObject> {
         std::mem::take(&mut self.pending)
@@ -608,6 +779,7 @@ impl FxObjects {
         for id in &gone {
             self.fades.remove(id);
             self.hidden.remove(id);
+            self.appearances.remove(id);
         }
         gone
     }
@@ -689,283 +861,5 @@ fn remove_appearance(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// Temporary ids, each call's distinct from every other's (`AllocateTemporaryID`).
-    fn ids() -> impl FnMut() -> Option<u64> {
-        use std::sync::atomic::{AtomicU64, Ordering};
-        static NEXT: AtomicU64 = AtomicU64::new(crate::temporary_ids::TEMPORARY_BASE);
-        || Some(NEXT.fetch_add(1, Ordering::Relaxed))
-    }
-
-    fn vdesc_node(lifetime: f32) -> Ac2FxObject {
-        Ac2FxObject {
-            vdesc: 0x1F00_0001,
-            lifetime,
-            ..Ac2FxObject::default()
-        }
-    }
-
-    /// `DoCreateObjectFX` hands the object to the FX; a stop fades it out and destroys it three
-    /// seconds on, and the FX's record goes.
-    #[test]
-    fn a_stopped_fx_fades_and_destroys_the_objects_it_created() {
-        let mut fx = FxObjects::default();
-        fx.start(7, 9, &[vdesc_node(0.0)], 10.0, 1.0, &|_| None, &mut ids());
-        let pending = fx.take_pending();
-        assert_eq!(pending.len(), 1);
-        assert_eq!(pending[0].emitter, 7);
-        let id = pending[0].id;
-        fx.stop(7, 9, &[], 11.0);
-        assert!(fx.record(7, 9).is_none());
-        assert!(fx.step(11.25).is_empty(), "the fade runs first");
-        assert!((fx.looks().tints[&id][3] - 0.5).abs() < 1e-6, "half faded");
-        assert!(fx.step(13.9).is_empty());
-        assert_eq!(
-            fx.step(14.0),
-            vec![id],
-            "destroyed three seconds after the fade began"
-        );
-    }
-
-    /// A startup FX is not stopped by `StopFX` (`m_bStartupFX` without the force flag).
-    /// `DoCreateObjectFX`'s alpha moves: an instant clear, then a fade over the ramp (0.25 s for
-    /// a zero ramp).
-    #[test]
-    fn a_created_object_fades_in_over_its_ramp_time() {
-        assert_eq!(create_alpha_moves(0.0), [(0.0, 0.0), (1.0, 0.25)]);
-        assert_eq!(create_alpha_moves(0.5), [(0.0, 0.0), (1.0, 0.5)]);
-        let mut fx = FxObjects::default();
-        let node = Ac2FxObject {
-            ramp_time: 2.0,
-            ..vdesc_node(0.0)
-        };
-        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
-        let pending = fx.take_pending();
-        assert_eq!(pending[0].ramp_time, 2.0);
-    }
-
-    #[test]
-    fn a_startup_fx_keeps_running_through_stop() {
-        let mut fx = FxObjects::default();
-        fx.start_startup(7, 9, &[vdesc_node(0.0)], &mut ids());
-        fx.stop(7, 9, &[], 1.0);
-        assert!(fx.record(7, 9).is_some_and(|record| record.startup));
-        assert!(fx.step(10.0).is_empty());
-    }
-
-    /// `m_hide_target`: the created object is hidden until the FX stops, then it shows (its
-    /// fade keeps it out of the frame only once it is destroyed).
-    #[test]
-    fn a_hidden_target_shows_again_when_the_fx_stops() {
-        let mut fx = FxObjects::default();
-        let node = Ac2FxObject {
-            hide_target: true,
-            ..vdesc_node(0.0)
-        };
-        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
-        let id = fx.take_pending()[0].id;
-        assert!(fx.looks().hidden.contains(&id));
-        fx.stop(7, 9, &[], 1.0);
-        assert!(!fx.looks().hidden.contains(&id));
-    }
-
-    /// `DoColorFX` ramps the emitter's colour, and `StopFX` restores a node that asks for it.
-    #[test]
-    fn a_colour_ramps_and_restores_on_stop() {
-        let mut fx = FxObjects::default();
-        let node = Ac2FxObject {
-            color: Some([1.0, 0.0, 0.0, 1.0]),
-            ramp_time: 1.0,
-            restore: true,
-            ..Ac2FxObject::default()
-        };
-        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
-        assert_eq!(fx.colour(7, 0.5), Some([1.0, 0.5, 0.5, 1.0]));
-        fx.stop(7, 9, &[node], 2.0);
-        assert_eq!(fx.colour(7, 2.05), Some([1.0, 0.5, 0.5, 1.0]));
-        assert_eq!(fx.colour(7, 2.2), None, "back to white");
-    }
-
-    /// An object whose alpha slider is at 0 draws clear; white animation leaves the FX colour.
-    #[test]
-    fn the_animation_scale_multiplies_the_fx_colour() {
-        assert_eq!(
-            drawn_tint([1.0, 0.5, 0.25, 1.0], [1.0; 4]),
-            [1.0, 0.5, 0.25, 1.0]
-        );
-        assert_eq!(
-            drawn_tint([1.0; 4], [0.5, 1.0, 1.0, 0.0]),
-            [0.5, 1.0, 1.0, 0.0]
-        );
-        assert_eq!(drawn_tint([1.0; 4], [1.0, 1.0, 1.0, 0.25])[3], 0.25);
-    }
-
-    /// `FXManager::GetCurrentFX` lists the running FX that are not startup FX, and
-    /// `FXManager::DestroyObject` fades only temporary ids.
-    #[test]
-    fn current_fx_skips_startup_fx_and_destroy_object_wants_a_temporary_id() {
-        let mut fx = FxObjects::default();
-        let node = vdesc_node(10.0);
-        fx.start(1, 5, &[node], 0.0, 1.0, &|_| None, &mut ids());
-        fx.start(1, 3, &[node], 0.0, 1.0, &|_| None, &mut ids());
-        fx.start_startup(1, 4, &[node], &mut ids());
-        assert_eq!(fx.current_fx(1), vec![3, 5]);
-        assert!(fx.current_fx(2).is_empty());
-        assert!(!fx.destroy_object(0x8000_0000_0000_0001, false, 1.0));
-        assert!(fx.fades.is_empty());
-        let object = fx.record(1, 5).expect("the FX runs").objects[0];
-        assert!(fx.destroy_object(object, true, 1.0));
-        assert!(fx.fades.contains_key(&object));
-    }
-
-    /// `FXManager::DoTargettedFX`'s duration: the last node decides. An object node lasts its
-    /// lifetime (15 s by default), a looping system or a target FX never ends, a removing
-    /// appearance key lasts 0.1 s, an FX script its period, and anything else ends at once.
-    #[test]
-    fn nodes_play_by_their_gates() {
-        let gated = |player_only, day_time, night_time| Ac2FxObject {
-            gate: ac2_assets::Ac2FxNodeGate {
-                player_only,
-                day_time,
-                night_time,
-                has_channels: false,
-            },
-            ..Ac2FxObject::default()
-        };
-        let nodes = [gated(true, true, true), gated(false, true, false)];
-        assert_eq!(gated_nodes(&nodes, false, false).len(), 1);
-        assert_eq!(gated_nodes(&nodes, true, false).len(), 2);
-        assert_eq!(gated_nodes(&nodes, true, true).len(), 1);
-    }
-
-    #[test]
-    fn an_fx_ends_by_its_last_nodes_duration() {
-        let end_of = |node: Ac2FxObject, script: Option<f32>| {
-            let mut fx = FxObjects::default();
-            fx.start(1, 2, &[node], 10.0, 1.0, &|_| script, &mut ids());
-            fx.record(1, 2).map(|record| record.end)
-        };
-        // An object for its lifetime; a zero lifetime falls to `CalcDuration`'s end at once.
-        assert_eq!(end_of(vdesc_node(3.0), None), Some(Some(13.0)));
-        assert_eq!(end_of(vdesc_node(0.0), None), Some(Some(10.0)));
-        assert_eq!(end_of(vdesc_node(-1.0), None), Some(None));
-        // A looping system, a target FX or a kept appearance never end; a removing key does.
-        let looping = Ac2FxObject {
-            particle_looping: true,
-            color: Some([1.0; 4]),
-            ..Ac2FxObject::default()
-        };
-        assert_eq!(end_of(looping, None), Some(None));
-        let appearance = |scalar| Ac2FxObject {
-            appearance: 0x2500_0010,
-            appearance_key: (3, scalar),
-            ..Ac2FxObject::default()
-        };
-        assert_eq!(end_of(appearance(0.5), None), Some(None));
-        assert_eq!(
-            end_of(appearance(-1.0), None),
-            Some(Some(10.0 + f64::from(0.1f32)))
-        );
-        // An FX script's period.
-        let script = Ac2FxObject {
-            fx_script: 0x5700_0001,
-            color: Some([1.0; 4]),
-            ..Ac2FxObject::default()
-        };
-        assert_eq!(end_of(script, Some(2.5)), Some(Some(12.5)));
-    }
-
-    /// `FXManager::DoSliderFX`: a slider node asks its emitter's slider (and with `m_prop_color`
-    /// its children's) to move to the intensity over the ramp time, once per new FX.
-    #[test]
-    fn a_slider_node_asks_for_its_slider_move() {
-        let mut fx = FxObjects::default();
-        let node = Ac2FxObject {
-            slider: ac2_assets::Ac2FxSlider {
-                id: 0x4000_001A,
-                intensity: 0.0,
-                propagate: true,
-            },
-            ramp_time: 0.5,
-            ..Ac2FxObject::default()
-        };
-        fx.start(7, 0x8100_028E, &[node], 0.0, 1.0, &|_| None, &mut ids());
-        // A running FX only takes the scalar: no second move.
-        fx.start(7, 0x8100_028E, &[node], 1.0, 1.0, &|_| None, &mut ids());
-        assert_eq!(
-            fx.take_sliders(),
-            vec![SliderMove {
-                emitter: 7,
-                slider: 0x4000_001A,
-                scalar: 0.0,
-                ramp_time: 0.5,
-                propagate: true,
-            }]
-        );
-        assert!(fx.take_sliders().is_empty());
-    }
-
-    /// `FXManager::DoAppearanceFX`: an appearance node applies its key to the emitter's effects
-    /// description at the key's scalar times the FX's, a running FX re-scaled to nothing removes
-    /// it, and `StopFX` removes it.
-    #[test]
-    fn an_appearance_node_applies_its_key_until_the_fx_stops() {
-        let mut fx = FxObjects::default();
-        let node = Ac2FxObject {
-            appearance: 0x2500_0010,
-            appearance_key: (0x1000_0003, 0.5),
-            ..Ac2FxObject::default()
-        };
-        let applied = |fx: &FxObjects| {
-            fx.appearance_effects(7).and_then(|e| {
-                e.applied_scalar(ac2_physics::GLOBAL_PART_GROUP, 0x2500_0010, 0x1000_0003)
-            })
-        };
-        fx.start(7, 9, &[node], 0.0, 2.0, &|_| None, &mut ids());
-        assert_eq!(applied(&fx), Some(1.0), "0.5 times the FX's 2.0");
-        // The running FX taking a zero scalar removes it (`DoTargettedFX`'s update branch).
-        fx.start(7, 9, &[node], 0.0, 0.0, &|_| None, &mut ids());
-        assert_eq!(applied(&fx), None);
-        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
-        assert_eq!(applied(&fx), Some(0.5));
-        fx.stop(7, 9, &[node], 1.0);
-        assert_eq!(applied(&fx), None, "StopFX removes it");
-        assert!(fx.appearance_effects(7).is_none());
-    }
-
-    /// `FXManager::UseTime`: a ramping node starts its appearance removed (the new FX's current
-    /// scalar is 0), and each step moves the current scalar `quantum / m_ramp_time` toward the
-    /// desired one and applies the appearance again at it; a lower desired scalar ramps it down.
-    #[test]
-    fn a_ramping_appearance_follows_the_fx_scalar() {
-        let mut fx = FxObjects::default();
-        let node = Ac2FxObject {
-            appearance: 0x2500_0010,
-            appearance_key: (0x1000_0003, 1.0),
-            ramp_time: 2.0,
-            ..Ac2FxObject::default()
-        };
-        let applied = |fx: &FxObjects| {
-            fx.appearance_effects(7).and_then(|e| {
-                e.applied_scalar(ac2_physics::GLOBAL_PART_GROUP, 0x2500_0010, 0x1000_0003)
-            })
-        };
-        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
-        assert_eq!(applied(&fx), None, "a ramping node starts at 0");
-        fx.use_time(0.5);
-        assert_eq!(applied(&fx), Some(0.25));
-        fx.use_time(1.0);
-        assert_eq!(applied(&fx), Some(0.75));
-        fx.use_time(1.0);
-        assert_eq!(applied(&fx), Some(1.0), "held at the desired scalar");
-        // A lower scalar on the running FX ramps down; the ramp keeps the current one.
-        fx.start(7, 9, &[node], 0.0, 0.0, &|_| None, &mut ids());
-        assert_eq!(applied(&fx), Some(1.0));
-        fx.use_time(1.0);
-        assert_eq!(applied(&fx), Some(0.5));
-        fx.use_time(1.0);
-        assert_eq!(applied(&fx), None, "ramped to nothing: removed");
-    }
-}
+#[path = "fx_objects_tests.rs"]
+mod tests;

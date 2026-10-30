@@ -409,7 +409,11 @@ impl MotionRep for AnimRep {
     /// `UpdateFX` and `DeleteSelf` are the client's FX objects; `CreateParticleSystem` and
     /// `DestroyParticleSystem` its particle scene).
     fn do_fx(&mut self, fx: u32, intensity: f32) {
-        self.events.push(Ac2AnimEvent::StartFx { fx, intensity });
+        self.events.push(Ac2AnimEvent::StartFx {
+            fx,
+            intensity,
+            target: 0,
+        });
     }
 }
 

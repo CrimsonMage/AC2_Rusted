@@ -86,6 +86,9 @@ pub struct ObjectPlacement {
     pub cell: u32,
     pub frame: Frame,
     pub scale: Vec3,
+    /// `PHYSICSOBJREP::m_fParticleScale` (`CPhysicsObj::GetParticleScale`): the particle scale
+    /// `CPartArray::QueueParticleSystems` hands each system (1 unless the visual sets one).
+    pub particle_scale: f32,
     pub bones: Vec<Ac2Transform>,
     pub named_bones: Vec<(u32, Ac2Transform)>,
     /// Each of `bones`' parent (`CSetup`'s), for the body's skeleton points
@@ -199,6 +202,8 @@ pub struct WorldScene {
     /// World objects' models requested by key, and the rig and scale of those that loaded.
     requested_objects: HashSet<u64>,
     object_rigs: HashMap<u64, (crate::object::PoseRig, Vec3)>,
+    /// The particle scale of each loaded object's visual (`m_particle_scale`).
+    object_particle_scales: HashMap<u64, f32>,
     /// The loaded models' `DegradeInfo`, the degrade settings and the frame rate.
     degrades: lod::SceneDegrades,
     object_picks: HashMap<u64, Arc<crate::selection::PickMesh>>,
@@ -276,6 +281,7 @@ impl WorldScene {
             frill: defaults.frill,
             requested_objects: HashSet::new(),
             object_rigs: HashMap::new(),
+            object_particle_scales: HashMap::new(),
             degrades: lod::SceneDegrades::default(),
             object_picks: HashMap::new(),
             particles: SceneParticles::new(),
@@ -484,6 +490,8 @@ impl WorldScene {
                 }
                 if let Some(rig) = object.model.as_ref().and_then(|model| model.rig()) {
                     self.object_rigs.insert(object.key, (rig, object.scale));
+                    self.object_particle_scales
+                        .insert(object.key, object.particle_scale);
                 }
                 if let Some(pick) = &object.pick {
                     self.object_picks.insert(object.key, Arc::clone(pick));
@@ -560,6 +568,14 @@ impl WorldScene {
     /// The posing rig and total scale of a loaded world object's model.
     pub fn object_rig(&self, key: u64) -> Option<&(crate::object::PoseRig, Vec3)> {
         self.object_rigs.get(&key)
+    }
+
+    /// The particle scale of a loaded world object's visual (1 until it loads).
+    pub fn object_particle_scale(&self, key: u64) -> f32 {
+        self.object_particle_scales
+            .get(&key)
+            .copied()
+            .unwrap_or(1.0)
     }
 
     /// The degrade settings the scene draws with (`SceneOptions::degrade`).
