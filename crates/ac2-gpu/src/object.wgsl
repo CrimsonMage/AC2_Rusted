@@ -56,6 +56,8 @@ struct Draw {
 // One placed copy of a draw's part, at `@builtin(instance_index)` (vertex stage only).
 struct Instance {
     model: mat4x4<f32>,
+    // The part's origin relative to the eye: `model`'s translation minus the eye.
+    rel: vec4<f32>,
     // A frill's world normal for every vertex when w = 1 (`FrillRender::RefreshFrillMesh`).
     frill: vec4<f32>,
     // x: the part's first deform matrix in `bones`, y: 1 when its vertices blend.
@@ -377,12 +379,19 @@ fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
         position = position * grass_scale(inst.frill_shade.yzw, distance(origin, frame.eye.xyz));
     }
     var world = inst.model * vec4(position, 1.0);
+    // The same point relative to the eye: the rotated mesh point is small, so adding the
+    // relative origin keeps full f32 precision where `world` (tens of kilometres from the
+    // world's origin) rounds to millimetres that change as a part moves.
+    var world_rel = (inst.model * vec4(position, 0.0)).xyz + inst.rel.xyz;
     if inst.frill.w > 0.5 {
+        let before = world.xyz;
         world = vec4(world.xyz + grass_wind(inst.model[3].xyz, world.z), 1.0);
         world = vec4(grass_push(inst.model[3].xyz, world.xyz), 1.0);
+        world_rel = world_rel + (world.xyz - before);
     }
-    out.clip = frame.view_proj * world;
-    let view_pos = (frame.view * world).xyz;
+    // `frame.view_proj` and `frame.view` are eye-relative.
+    out.clip = frame.view_proj * vec4(world_rel, 1.0);
+    let view_pos = (frame.view * vec4(world_rel, 1.0)).xyz;
     var basis: Basis;
     // `f_TransformModel*ToView*`: the model matrix itself, then normalise.
     basis.normal = normalize((inst.model * vec4(normal, 0.0)).xyz);

@@ -292,3 +292,96 @@ fn human_skin_takes_the_appearance_tables_modifiers() {
     let differs = (0..3).any(|c| (colours[0][c] - colours[1][c]).abs() > 8.0);
     assert!(differs, "the skin modifiers change the body: {colours:?}");
 }
+
+/// A posed body far from the world's origin draws as it does at the origin. In f32 at AC2's
+/// world coordinates (a landblock is 192 m, so tens of kilometres out) a vertex's world position
+/// rounds to millimetres that change as the pose moves a little, so an idle body's surface
+/// shimmered under its texture; the clip position is built eye-relative instead
+/// (`Instance::rel` in `object.wgsl`). The offsets are powers of two, so the eye, the body and
+/// the camera's target are exact in f32 and any difference is the vertex stage's own.
+#[test]
+fn a_posed_body_draws_the_same_far_from_the_worlds_origin() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let Ok(gpu) = Gpu::headless() else {
+        eprintln!("no GPU adapter; skipping");
+        return;
+    };
+    let store = ResourceStore::new(dataset);
+    let model = load_object_model(
+        &store,
+        DataId::new(HUMAN_MALE_VISUAL),
+        &RenderSettings::default(),
+    )
+    .unwrap()
+    .expect("human draws");
+    let setup_did = model.skeleton.as_ref().unwrap().groups[0].setup;
+    let setup = store
+        .load_cached_packed::<Ac2Setup>(TypedResourceRef::new(DatFileKind::Portal, setup_did, 0))
+        .unwrap()
+        .unwrap();
+    let animation =
+        ac2_anim::load_ac2_motion_animation(&store, DataId::new(HUMAN_ANIM_MAP), STANCE)
+            .unwrap()
+            .expect("stance clip");
+    let stance = animation.sample(0.0, &setup.rest_locals());
+    let mut load = |key: TextureKey| match key {
+        TextureKey::Material(did) => load_material_image(&store, did).ok().flatten(),
+        TextureKey::Mask(did) | TextureKey::Texture(did) => {
+            load_texture_image(&store, did).ok().flatten()
+        }
+    };
+    let mut objects = ObjectRenderer::new(&gpu, HDR_FORMAT);
+    let uploaded = objects.upload(&gpu, &model, &mut load);
+    let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
+    let aspect = SIZE.0 as f32 / SIZE.1 as f32;
+    let pose = model.pose(Some(&stance[..])).unwrap();
+    let lighting = SceneLighting::default();
+    let mut frames = Vec::new();
+    for offset in [Vec3::ZERO, Vec3::new(16384.0, 16384.0, 0.0)] {
+        let camera = Camera {
+            eye: Vec3::new(0.0, -4.5, 1.0) + offset,
+            target: Vec3::new(0.0, 0.0, 0.9) + offset,
+            fov_y: 0.6,
+            near: 0.1,
+            far: 100.0,
+        };
+        let instances = [ObjectInstance {
+            pose: Some(&pose),
+            ..ObjectInstance::new(&uploaded, Mat4::from_translation(offset))
+        }];
+        objects.prepare(
+            &gpu,
+            &camera,
+            &ObjectEnvironment::outside(&lighting),
+            aspect,
+            0.0,
+            &[DrawGroup {
+                instances: &instances,
+                ordered: false,
+                environment: None,
+                sky: false,
+            }],
+        );
+        target.render_scene(&gpu, BACKGROUND, |pass| {
+            objects.draw(pass, 0, &instances);
+        });
+        frames.push(target.read_rgba(&gpu.device, &gpu.queue));
+    }
+    let covered = frames[0]
+        .chunks_exact(4)
+        .filter(|px| !is_background(&frames[0], px))
+        .count();
+    let differing = frames[0]
+        .chunks_exact(4)
+        .zip(frames[1].chunks_exact(4))
+        .filter(|(a, b)| a[..3].iter().zip(&b[..3]).any(|(x, y)| x.abs_diff(*y) > 6))
+        .count();
+    eprintln!("{differing} of {covered} body pixels differ far from the origin");
+    assert!(covered > 5000, "the body covers pixels: {covered}");
+    assert!(
+        differing * 500 < covered,
+        "{differing} of {covered} body pixels changed at 16 km"
+    );
+}

@@ -74,6 +74,11 @@ impl ObjectRenderer {
         for (instance_index, instance) in group.instances.iter().enumerate() {
             let mut world = instance.world;
             world.w_axis -= shift.extend(0.0);
+            // The same placement with the eye taken off its origin: the vertex stage builds the
+            // clip position from this one (`Instance::rel`), so the large world coordinates
+            // never meet the small mesh ones in f32 (`eye` is zero for a sky group, already relative).
+            let mut world_rel = world;
+            world_rel.w_axis -= eye.extend(0.0);
             let center = world.transform_point3(instance.model.center);
             let distance = center.distance_squared(eye);
             let base = self.scratch_bones.len() as u32;
@@ -97,7 +102,7 @@ impl ObjectRenderer {
                     ),
                     None => (part.transform, None),
                 };
-                let mut data = instance_data(world * transform);
+                let mut data = instance_data(world * transform, (world_rel * transform).w_axis);
                 if let Some(normal) = instance.frill_normal {
                     data.frill = normal.extend(1.0).to_array();
                     let [near, far, hash] = instance.grass;
@@ -375,9 +380,12 @@ impl ObjectRenderer {
             ),
             None => ([0.0; 4], [0.0; 4], [0.0; 4]),
         };
+        // The matrices are eye-relative (`crate::sky::camera_at_origin`): the vertex stage pairs
+        // them with `Instance::rel`; `eye` stays absolute for the world-space lighting.
+        let relative = crate::sky::camera_at_origin(camera);
         let uniform = FrameUniform {
-            view_proj: camera.view_projection(aspect).to_cols_array_2d(),
-            view: ac2_math::camera::look_at_mat4(camera.eye, camera.target, Vec3::Z)
+            view_proj: relative.view_projection(aspect).to_cols_array_2d(),
+            view: ac2_math::camera::look_at_mat4(relative.eye, relative.target, Vec3::Z)
                 .to_cols_array_2d(),
             eye: camera.eye.extend(1.0).to_array(),
             // w: the client time for the grass wind, wrapped to keep f32 precision.

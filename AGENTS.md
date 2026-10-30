@@ -233,6 +233,14 @@ game rules and server-visible behaviour exactly retail.
   `Client::set_pose_blend`, on by default), so the skeleton moves at display rate. Retail draws the
   last refresh; turn the blend off to get it. Drawn positions (`PhysicsBody::drawing_position`)
   follow retail's render interpolation and are not an exception.
+- Exception: objects and bodies draw eye-relative. Retail's device took each part's world matrix
+  and the camera's view at the landscape's absolute coordinates (tens of kilometres out), where
+  an f32 vertex position rounds to 2 mm or more, so a posed body's vertices stepped by those
+  millimetres as its pose moved and the texture crawled over the surface when it stood idle.
+  `ObjectRenderer` builds the clip position and the view-space position from each part's origin
+  taken off the eye on the CPU (`InstanceData::rel`, eye-relative `view_proj` and `view` in the
+  frame uniform) plus the rotated mesh point; lighting, shadows and fog keep the absolute world
+  position. The sky already drew this way.
 - Exception: the camera follows the body where it is drawn, every frame. Retail's `SmartBox::UseTime`
   updated the camera every frame only while mouse look was on (`UpdateCamera(elapsed, 0)`), and
   otherwise once per physics quantum (`SmartBox::PlayerPhysicsUpdatedCallback`, then

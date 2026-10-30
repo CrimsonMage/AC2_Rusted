@@ -3,7 +3,7 @@
 //! that hold the frame's draws, instances and bone matrices. One draw covers a run of instances
 //! that share a layer and its uniform, so the uniform carries only what all of them share.
 
-use ac2_math::{Mat4, Vec3};
+use ac2_math::{Mat4, Vec3, Vec4};
 use ac2_render::object::{LayerPass, PointLight, VertexProgram, MAX_POINT_LIGHTS};
 use bytemuck::{Pod, Zeroable};
 
@@ -30,6 +30,9 @@ pub(crate) struct DrawUniform {
 #[derive(Clone, Copy, Pod, Zeroable)]
 pub(crate) struct InstanceData {
     model: [[f32; 4]; 4],
+    /// The part's origin relative to the eye (`model`'s, minus the eye, built before the part's
+    /// own offset is added), so the clip position never sums world-sized numbers.
+    rel: [f32; 4],
     /// A frill's normal for every vertex (xyz) when w is 1 (`RefreshFrillMesh`).
     pub(crate) frill: [f32; 4],
     /// x: the part's first matrix in the bone buffer, y: 1 when its vertices blend.
@@ -43,9 +46,10 @@ pub(crate) struct InstanceData {
 pub(crate) const INSTANCE_BYTES: u64 = std::mem::size_of::<InstanceData>() as u64;
 
 /// A part drawn at `model` (mesh to world), rigid and not a frill.
-pub(crate) fn instance_data(model: Mat4) -> InstanceData {
+pub(crate) fn instance_data(model: Mat4, rel: Vec4) -> InstanceData {
     InstanceData {
         model: model.to_cols_array_2d(),
+        rel: rel.to_array(),
         frill: [0.0; 4],
         skin: [0; 4],
         frill_shade: [1.0, 0.0, 0.0, 0.0],
