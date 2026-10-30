@@ -3,15 +3,26 @@
 
 use std::collections::HashMap;
 
+use ac2_render::prefs::ObjectShadows;
 use ac2_render::scene::SceneUpdate;
 use ac2_render::ui_scene::ViewFrame;
 
 use crate::{Gpu, SceneRenderer};
 
 /// The viewport scenes' renderers, keyed by viewport root.
-#[derive(Default)]
 pub struct UiSceneRenderers {
     renderers: HashMap<usize, SceneRenderer>,
+    /// `DynamicObjectShadows`, which sizes the scenes' sun shadows.
+    object_shadows: ObjectShadows,
+}
+
+impl Default for UiSceneRenderers {
+    fn default() -> Self {
+        Self {
+            renderers: HashMap::new(),
+            object_shadows: ac2_render::prefs::SceneOptions::default().object_shadows,
+        }
+    }
 }
 
 impl UiSceneRenderers {
@@ -20,10 +31,23 @@ impl UiSceneRenderers {
         Self::default()
     }
 
+    /// Sizes the scenes' sun shadows for the `DynamicObjectShadows` level: `UIScene::Render`
+    /// drew its objects' shadow volumes from level 2 up.
+    pub fn set_object_shadows(&mut self, level: ObjectShadows) {
+        self.object_shadows = level;
+        for renderer in self.renderers.values_mut() {
+            renderer.set_object_shadows(level);
+        }
+    }
+
     fn renderer(&mut self, gpu: &Gpu, root: usize) -> &mut SceneRenderer {
-        self.renderers
-            .entry(root)
-            .or_insert_with(|| SceneRenderer::new(gpu))
+        let level = self.object_shadows;
+        self.renderers.entry(root).or_insert_with(|| {
+            let mut renderer = SceneRenderer::new(gpu);
+            renderer.set_viewport_scene();
+            renderer.set_object_shadows(level);
+            renderer
+        })
     }
 
     /// Uploads the loads that finished for the view of root `root`.
@@ -56,3 +80,7 @@ impl UiSceneRenderers {
         self.renderers.retain(|root, _| keep(*root));
     }
 }
+
+#[cfg(test)]
+#[path = "ui_scene_shadow_tests.rs"]
+mod shadow_tests;

@@ -79,7 +79,12 @@ game rules and server-visible behaviour exactly retail.
   colour at the static strength (`m_cStaticShadowStrength`), so the cascades meet the landscape
   map seamlessly; the terrain takes the darker of the two, and a frill already darkened by the
   landscape map is not darkened twice. The landscape map stays as retail draws it past the
-  cascades. Level 0 draws none, as retail.
+  cascades. Level 0 draws none, as retail. UI viewport scenes use them too: `UIScene::Render` drew
+  its entities' stencil volumes at `m_cVolumetricShadowStrength` 0.75 from level 2 up (the
+  default sun of a scene without lights; levels 0 and 1 draw none there), so the scene's objects
+  cast into one 1024 x 1024 cascade fitted to their bounding sphere (an orthographic camera sits
+  10 km back, so the view's frustum is no basis) and the objects receive it (`ac2_gpu`
+  `ui_scenes.rs`, `SceneRenderer::set_viewport_scene`, `fit_viewport_cascade`).
 - Exception: lens flares fade by the world's depth. Retail's `LensFlareEffect::Draw` drew a
   triangle at the light after the world and read one back-buffer pixel the next frame
   (`SceneTool::RequestPixelScan`, `GetPixelScanResult`), raising `m_fOpacity` by the elapsed time

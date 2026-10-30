@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1653 done, 1 partial, 0 to do, 593 skipped.
+2247 retail functions: 1654 done, 0 partial, 0 to do, 593 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (43/53)
@@ -2304,7 +2304,7 @@ Legend and workflow: [README](README.md).
 ### UIRectangleObject
 - [-] `UIRectangleObject::Render` · 00735390 · legions 006b1060 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
-## `portal/client/src/render/ui/uiscene.cpp.c` (7/23)
+## `portal/client/src/render/ui/uiscene.cpp.c` (8/23)
 
 ### (free functions)
 - [x] `STREAMPACK_PACKOBJ` · 005acbc0 · legions 00578b20 — The RGBAColor case of UIScene::StreamPack: ac2-assets ac2_ui_scene.rs reads the fog colour (RGBAColor::UnPack, one packed ARGB word)
@@ -2339,7 +2339,7 @@ Legend and workflow: [README](README.md).
 - [-] `UIScene::Init` · 005ad410 · legions 00579320 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 - [-] `UIScene::FromFileNode` · 005ad450 — text source format (admin tools)
 - [-] `UIScene::ToFileNode` · 005ad820 — text source format (admin tools)
-- [~] `UIScene::Render` · 005ad8e0 — ac2-render ui_scene camera.rs scene_lighting (linked lights or default sun, fog, ortho camera) and UiViews::pick (selection) are ported; not drawn: the stencil volumetric shadows of the scene entities (shadow_strength stays 0) and light coronas (corona: None); needs a sun-shadow pass in ac2-gpu ui_scenes.rs over the UI scene objects
+- [x] `UIScene::Render` · 005ad8e0 — ac2-render ui_scene camera.rs scene_lighting (linked lights or default sun with m_cVolumetricShadowStrength 0.75, fog, ortho camera), UiViews::pick (selection) and ac2-gpu ui_scenes.rs + SceneRenderer::set_viewport_scene: the scene objects cast their volumetric shadows (stencil volumes from DynamicObjectShadows 2 up, along the default sun) as one sun depth cascade fitted to their sphere (fit_viewport_cascade); UIScene::Render draws no coronas (RenderLightCoronas is a cell effect), so none are drawn; scenes with linked lights have no sun and so no shadow direction
 
 ## `portal/client/src/render/ui/uiscenecameraentity.cpp.c` (1/3)
 

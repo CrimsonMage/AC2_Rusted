@@ -36,6 +36,7 @@ use crate::Gpu;
 mod shadow;
 #[path = "object_sun_casters.rs"]
 mod sun_casters;
+pub(crate) use sun_casters::bounds as bounding_sphere;
 
 #[path = "object_prepare.rs"]
 mod prepare;

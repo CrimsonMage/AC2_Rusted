@@ -44,7 +44,7 @@ fn a_body_shadows_another_alike_far_from_the_worlds_origin() {
     let mut objects = ObjectRenderer::new(&gpu, HDR_FORMAT);
     let uploaded = objects.upload(&gpu, &model, &mut load);
     let mut shadows = SunShadows::new(&gpu);
-    shadows.set_level(&gpu, ObjectShadows::High);
+    shadows.set_tier(&gpu, SunShadowTier::of(ObjectShadows::High));
     objects.set_sun_shadow(&gpu, shadows.binding());
     let tier = SunShadowTier::of(ObjectShadows::High).unwrap();
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
@@ -103,7 +103,12 @@ fn a_body_shadows_another_alike_far_from_the_worlds_origin() {
             &instances,
         );
         gpu.queue.submit([encoder.finish()]);
-        shadows.write(&gpu, camera.eye, &cascades, lighting.shadow_strength);
+        shadows.write(
+            &gpu,
+            camera.eye,
+            (&cascades, tier.splits),
+            lighting.shadow_strength,
+        );
         objects.prepare(
             &gpu,
             &camera,

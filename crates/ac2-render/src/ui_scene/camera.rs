@@ -27,6 +27,9 @@ const AMBIENT: f32 = 0.1;
 /// `UIScene::Render`'s sun: direction, white at this intensity.
 const SUN_DIRECTION: [f64; 3] = [0.3, -0.9, -1.0];
 const SUN_INTENSITY: f32 = 0.5;
+/// `m_cVolumetricShadowStrength` while a scene renders (`UIScene::Render`; the default sun's
+/// shadow strength): a shadowed pixel keeps a quarter of its colour.
+const SHADOW_STRENGTH: f32 = 0.75;
 /// No fog (`SetFogProperties` off): past any scene.
 const NO_FOG: (f32, f32) = (1.0e6, 2.0e6);
 /// How far behind an orthographic camera its view is taken from.
@@ -103,6 +106,7 @@ pub fn scene_lighting(scene: &SceneData, camera_light: Option<Vec3>) -> SceneLig
         lighting.light_dir = direction * SUN_INTENSITY;
         lighting.dir_color = [1.0; 3];
         lighting.dir_brightness = SUN_INTENSITY;
+        lighting.shadow_strength = [SHADOW_STRENGTH; 3];
         return lighting;
     }
     for light in &scene.lights {
@@ -201,6 +205,8 @@ mod tests {
         let lighting = scene_lighting(&scene, None);
         assert_eq!(lighting.ambient, [0.1; 3]);
         assert_eq!(lighting.dir_brightness, 0.5);
+        // `m_cVolumetricShadowStrength`: the objects shadow each other under the default sun.
+        assert_eq!(lighting.shadow_strength, [0.75; 3]);
         let dir = lighting.light_dir.normalize();
         assert!((dir.y - (-0.9 / 1.3784_f32)).abs() < 1e-3);
         let lit = SceneData {
@@ -218,6 +224,10 @@ mod tests {
         };
         let lighting = scene_lighting(&lit, None);
         assert_eq!(lighting.dir_brightness, 0.0);
+        assert_eq!(
+            lighting.shadow_strength, [0.0; 3],
+            "no sun, no shadow direction"
+        );
         let points = object_lights(&point_lights(&lit, false), Vec3::ZERO, 1.0);
         assert_eq!(points.len(), 1);
         assert_eq!(points[0].diffuse, [0.5, 0.25, 0.125]);

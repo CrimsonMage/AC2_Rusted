@@ -30,6 +30,11 @@ impl PaperDollScene {
         }
     }
 
+    /// `DynamicObjectShadows` for the scenes' shadows.
+    pub(crate) fn set_object_shadows(&mut self, level: ac2_render::prefs::ObjectShadows) {
+        self.scenes.set_object_shadows(level);
+    }
+
     pub(crate) fn scenes(&self) -> &UiScenes {
         &self.scenes
     }

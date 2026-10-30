@@ -114,6 +114,13 @@ impl PregameView {
         self
     }
 
+    /// `DynamicObjectShadows` for the scenes' shadows (`UIScene::Render`'s volumetric shadows).
+    pub fn set_object_shadows(&mut self, level: ac2_render::prefs::ObjectShadows) {
+        if let Some(scenes) = &mut self.scenes {
+            scenes.set_object_shadows(level);
+        }
+    }
+
     /// The `CharacterGenSystem` character generation asks (`PregameUi::set_char_gen_system`).
     pub fn set_char_gen_system(&mut self, system: Box<dyn CharGenSystem>) {
         match &mut self.ui {

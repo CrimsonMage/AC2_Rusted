@@ -63,6 +63,19 @@ impl SunShadowTier {
     pub fn cascades(&self) -> usize {
         self.splits.len()
     }
+
+    /// The one map of a UI viewport's scene (`UIScene::Render`'s volumetric shadows): retail drew
+    /// them only from `DynamicObjectShadows` 2 up, so Off and Low draw none. The split is the
+    /// placeholder of the cascade's real one, which [`fit_viewport_cascade`] gives per frame.
+    pub fn viewport(level: ObjectShadows) -> Option<Self> {
+        match level {
+            ObjectShadows::Off | ObjectShadows::Low => None,
+            ObjectShadows::Medium | ObjectShadows::High => Some(Self {
+                size: 1024,
+                splits: &[0.0],
+            }),
+        }
+    }
 }
 
 /// One cascade: the light-space window over a sphere around a slice of the view.
@@ -117,6 +130,74 @@ fn light_axes(sun: Vec3) -> Option<[Vec3; 3]> {
     Some([right, right.cross(forward), forward])
 }
 
+/// The cascade of a `size` texel map over the sphere at `center` of `radius`, lit along `axes`
+/// (`light_axes`), taken off `eye`.
+fn cascade_around(eye: Vec3, center: Vec3, radius: f32, axes: [Vec3; 3], size: u32) -> Cascade {
+    // Whole metres, so the window keeps its size as the view turns.
+    let radius = radius.ceil().max(1.0);
+    let texel = 2.0 * radius / size as f32;
+    let snap = |v: f32| (v / texel).floor() * texel;
+    let light = Vec3::new(
+        snap(center.dot(axes[0])),
+        snap(center.dot(axes[1])),
+        center.dot(axes[2]),
+    );
+    let depth_near = light.z - radius - CASTER_REACH;
+    let depth_range = 2.0 * radius + CASTER_REACH;
+    let row = |axis: Vec3, scale: f32, offset: f32| {
+        Vec4::new(axis.x * scale, axis.y * scale, axis.z * scale, offset)
+    };
+    let clip = Mat4::from_cols(
+        row(axes[0], 1.0 / radius, -light.x / radius),
+        row(axes[1], 1.0 / radius, -light.y / radius),
+        row(axes[2], 1.0 / depth_range, -depth_near / depth_range),
+        Vec4::new(0.0, 0.0, 0.0, 1.0),
+    )
+    .transpose();
+    // The window's offsets with the eye's light-space position taken off in f64, where the
+    // difference of two coordinates tens of kilometres out keeps its millimetres.
+    let off = |axis: Vec3, at: f32| {
+        let eye = f64::from(eye.x) * f64::from(axis.x)
+            + f64::from(eye.y) * f64::from(axis.y)
+            + f64::from(eye.z) * f64::from(axis.z);
+        (f64::from(at) - eye) as f32
+    };
+    let clip_rel = Mat4::from_cols(
+        row(axes[0], 1.0 / radius, -off(axes[0], light.x) / radius),
+        row(axes[1], 1.0 / radius, -off(axes[1], light.y) / radius),
+        row(
+            axes[2],
+            1.0 / depth_range,
+            -off(axes[2], depth_near) / depth_range,
+        ),
+        Vec4::new(0.0, 0.0, 0.0, 1.0),
+    )
+    .transpose();
+    Cascade {
+        clip,
+        clip_rel,
+        axes,
+        center: light,
+        radius,
+    }
+}
+
+/// The one cascade of a UI viewport's scene: the sphere around its objects (`center`, `radius`),
+/// seen from `eye` (an orthographic camera sits 10 km back, so the window is fitted to the
+/// objects, not to the view) and lit along `sun`. Also the cascade's far distance from the eye
+/// for the receivers: past the sphere and its fade, so every point of it is fully covered.
+pub fn fit_viewport_cascade(
+    eye: Vec3,
+    (center, radius): (Vec3, f32),
+    sun: Vec3,
+    tier: &SunShadowTier,
+) -> Option<(Cascade, f32)> {
+    let axes = light_axes(sun)?;
+    let cascade = cascade_around(eye, center, radius, axes, tier.size);
+    let split = (center.distance(eye) + cascade.radius) / (1.0 - FADE) + 1.0;
+    Some((cascade, split))
+}
+
 /// The cascades of `tier` for `camera` at `aspect` lit along `sun`: each the sphere around its
 /// slice of the view (stable as the camera turns), its centre snapped to whole texels so the map
 /// does not shimmer as the camera moves.
@@ -155,53 +236,7 @@ pub fn fit_cascades(
             .iter()
             .map(|c| c.distance(center))
             .fold(0.0_f32, f32::max);
-        // Whole metres, so the window keeps its size as the view turns.
-        let radius = radius.ceil().max(1.0);
-        let texel = 2.0 * radius / tier.size as f32;
-        let snap = |v: f32| (v / texel).floor() * texel;
-        let light = Vec3::new(
-            snap(center.dot(axes[0])),
-            snap(center.dot(axes[1])),
-            center.dot(axes[2]),
-        );
-        let depth_near = light.z - radius - CASTER_REACH;
-        let depth_range = 2.0 * radius + CASTER_REACH;
-        let row = |axis: Vec3, scale: f32, offset: f32| {
-            Vec4::new(axis.x * scale, axis.y * scale, axis.z * scale, offset)
-        };
-        let clip = Mat4::from_cols(
-            row(axes[0], 1.0 / radius, -light.x / radius),
-            row(axes[1], 1.0 / radius, -light.y / radius),
-            row(axes[2], 1.0 / depth_range, -depth_near / depth_range),
-            Vec4::new(0.0, 0.0, 0.0, 1.0),
-        )
-        .transpose();
-        // The window's offsets with the eye's light-space position taken off in f64, where the
-        // difference of two coordinates tens of kilometres out keeps its millimetres.
-        let off = |axis: Vec3, at: f32| {
-            let eye = f64::from(camera.eye.x) * f64::from(axis.x)
-                + f64::from(camera.eye.y) * f64::from(axis.y)
-                + f64::from(camera.eye.z) * f64::from(axis.z);
-            (f64::from(at) - eye) as f32
-        };
-        let clip_rel = Mat4::from_cols(
-            row(axes[0], 1.0 / radius, -off(axes[0], light.x) / radius),
-            row(axes[1], 1.0 / radius, -off(axes[1], light.y) / radius),
-            row(
-                axes[2],
-                1.0 / depth_range,
-                -off(axes[2], depth_near) / depth_range,
-            ),
-            Vec4::new(0.0, 0.0, 0.0, 1.0),
-        )
-        .transpose();
-        cascades.push(Cascade {
-            clip,
-            clip_rel,
-            axes,
-            center: light,
-            radius,
-        });
+        cascades.push(cascade_around(camera.eye, center, radius, axes, tier.size));
         near = far;
     }
     Some(cascades)
@@ -365,7 +400,7 @@ impl SunShadows {
         }
     }
 
-    /// The receivers' binding; it changes when [`Self::set_level`] remakes the maps.
+    /// The receivers' binding; it changes when [`Self::set_tier`] remakes the maps.
     pub fn binding(&self) -> &SunShadowBinding {
         &self.binding
     }
@@ -374,9 +409,8 @@ impl SunShadows {
         self.tier
     }
 
-    /// Sizes the maps for `level`; returns whether the binding changed (the receivers rebind).
-    pub fn set_level(&mut self, gpu: &Gpu, level: ObjectShadows) -> bool {
-        let tier = SunShadowTier::of(level);
+    /// Sizes the maps for `tier` (`None`: no maps); returns whether the binding changed.
+    pub fn set_tier(&mut self, gpu: &Gpu, tier: Option<SunShadowTier>) -> bool {
         if tier == self.tier {
             return false;
         }
@@ -414,12 +448,18 @@ impl SunShadows {
 
     /// Writes the receivers' uniform for `cascades` fitted around `eye` at `strength`; no cascades
     /// turns the shadows off. The receivers pass points relative to `eye` (`Cascade::clip_rel`).
-    pub(crate) fn write(&self, gpu: &Gpu, eye: Vec3, cascades: &[Cascade], strength: [f32; 3]) {
+    pub(crate) fn write(
+        &self,
+        gpu: &Gpu,
+        eye: Vec3,
+        (cascades, splits): (&[Cascade], &[f32]),
+        strength: [f32; 3],
+    ) {
         let mut uniform = SunShadowUniform::OFF;
         if let Some(tier) = self.tier.filter(|_| !cascades.is_empty()) {
             for (index, cascade) in cascades.iter().take(MAX_CASCADES).enumerate() {
                 uniform.cascades[index] = cascade.clip_rel.to_cols_array_2d();
-                uniform.splits[index] = tier.splits[index];
+                uniform.splits[index] = splits.get(index).copied().unwrap_or(f32::MAX);
                 uniform.texels[index] = cascade.texel(tier.size);
             }
             uniform.strength = [

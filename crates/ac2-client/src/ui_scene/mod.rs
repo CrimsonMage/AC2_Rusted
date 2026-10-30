@@ -69,6 +69,12 @@ impl UiScenes {
         self.renderers.retain(|root| roots.contains(&root));
     }
 
+    /// `DynamicObjectShadows`, which sizes the scenes' sun shadows (`UIScene::Render` drew the
+    /// objects' shadow volumes from level 2 up).
+    pub fn set_object_shadows(&mut self, level: ac2_render::prefs::ObjectShadows) {
+        self.renderers.set_object_shadows(level);
+    }
+
     /// `UIScene::StartSelection` / `FinishSelection` at screen `point` in the viewport of root
     /// `root` (any viewport under the point when `None`): the nearest figure under it.
     pub fn pick(&self, point: (i32, i32), root: Option<usize>) -> Option<ScenePick> {

@@ -41,6 +41,11 @@ impl PregameScenes {
         }
     }
 
+    /// `DynamicObjectShadows` for the scenes' shadows.
+    pub fn set_object_shadows(&mut self, level: ac2_render::prefs::ObjectShadows) {
+        self.scenes.set_object_shadows(level);
+    }
+
     /// The scenes underneath.
     pub fn scenes(&self) -> &UiScenes {
         &self.scenes

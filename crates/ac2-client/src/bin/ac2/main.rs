@@ -67,6 +67,7 @@ struct ChargenSource {
 }
 
 /// A pregame view with its character generation host, and the `--chargen` capture.
+#[allow(clippy::too_many_arguments)]
 fn new_pregame_view(
     store: &Arc<ac2_db::ResourceStore>,
     world: &Arc<ac2_world::Ac2WorldSource>,
@@ -76,6 +77,7 @@ fn new_pregame_view(
     gpu: &Gpu,
     format: wgpu::TextureFormat,
     size: (u32, u32),
+    object_shadows: ac2_render::prefs::ObjectShadows,
 ) -> PregameView {
     let host = ac2_script::host::ScriptHost::new(
         Arc::clone(&chargen.program),
@@ -88,6 +90,7 @@ fn new_pregame_view(
         capture.map(std::path::Path::to_path_buf),
     ));
     view.set_server(&server.0, server.1);
+    view.set_object_shadows(object_shadows);
     view
 }
 
@@ -346,6 +349,7 @@ impl App {
             &state.gpu,
             state.format,
             (state.config.width, state.config.height),
+            self.scene_options.object_shadows,
         );
         if let Some(set) = resume {
             view = view.resume_at_character_selection(set);
@@ -656,6 +660,7 @@ impl ApplicationHandler for App {
                 &gpu,
                 format,
                 (config.width, config.height),
+                self.scene_options.object_shadows,
             )
         });
         self.state = Some(State {

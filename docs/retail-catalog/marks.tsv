@@ -8841,7 +8841,7 @@ key	status	note
 005ad2f0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005ad330	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005ad410	-	Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
-005ad8e0	~	ac2-render ui_scene camera.rs scene_lighting (linked lights or default sun, fog, ortho camera) and UiViews::pick (selection) are ported; not drawn: the stencil volumetric shadows of the scene entities (shadow_strength stays 0) and light coronas (corona: None); needs a sun-shadow pass in ac2-gpu ui_scenes.rs over the UI scene objects
+005ad8e0	x	ac2-render ui_scene camera.rs scene_lighting (linked lights or default sun with m_cVolumetricShadowStrength 0.75, fog, ortho camera), UiViews::pick (selection) and ac2-gpu ui_scenes.rs + SceneRenderer::set_viewport_scene: the scene objects cast their volumetric shadows (stencil volumes from DynamicObjectShadows 2 up, along the default sun) as one sun depth cascade fitted to their sphere (fit_viewport_cascade); UIScene::Render draws no coronas (RenderLightCoronas is a cell effect), so none are drawn; scenes with linked lights have no sun and so no shadow direction
 005adcd0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005add20	x	ac2-render ui_scene figure.rs Figure.local (makePartGroupObject appearance) via ac2-ui paper_doll_scene.rs figures: the avatar figure is made from the visual desc
 005add60	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs

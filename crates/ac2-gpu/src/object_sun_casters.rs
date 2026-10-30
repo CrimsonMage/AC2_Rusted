@@ -310,7 +310,7 @@ impl SunCasterPass {
 
 /// The world-space bounding sphere of an instance: its model's radius, scaled, and twice that for
 /// a posed body whose limbs reach past its rest pose (as the view culling takes it).
-fn bounds(instance: &ObjectInstance<'_>) -> (Vec3, f32) {
+pub(crate) fn bounds(instance: &ObjectInstance<'_>) -> (Vec3, f32) {
     let scale = [
         instance.world.x_axis,
         instance.world.y_axis,

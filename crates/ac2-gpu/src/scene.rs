@@ -8,7 +8,7 @@
 use std::collections::HashMap;
 
 use ac2_core::DataId;
-use ac2_math::Mat4;
+use ac2_math::{Mat4, Vec3};
 use ac2_render::frustum::{Frustum, Relation};
 use ac2_render::object::{ObjectEnvironment, PointLight};
 use ac2_render::prefs::ObjectShadows;
@@ -20,7 +20,7 @@ use ac2_render::{Camera, Image, TextureKey};
 
 use crate::lens_flare::{FlareOrigin, FlareSource, LensFlares};
 use crate::sky::{SkyLook, SkyRenderer};
-use crate::sun_shadow::{fit_cascades, SunShadows};
+use crate::sun_shadow::{fit_cascades, fit_viewport_cascade, SunShadowTier, SunShadows};
 use crate::water_reflection::WaterReflection;
 use crate::{
     DrawGroup, Gpu, GpuFarTerrain, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad,
@@ -66,6 +66,8 @@ pub struct SceneRenderer {
     /// The sun shadow cascades of bodies and objects, and the level they are sized for next.
     sun_shadows: SunShadows,
     object_shadows: ObjectShadows,
+    /// Whether this is a UI viewport's scene (no landscape; one cascade around its objects).
+    viewport: bool,
     models: HashMap<DataId, GpuObjectModel>,
     /// World objects' models by request key.
     world_objects: HashMap<u64, GpuObjectModel>,
@@ -95,6 +97,12 @@ impl SceneRenderer {
     /// World instances the last `prepare` left out as outside the view (bench statistics).
     pub fn culled_count(&self) -> usize {
         self.world_visible.iter().filter(|shown| !**shown).count()
+    }
+
+    /// Makes this the renderer of a UI viewport's scene: no landscape, and its sun shadows
+    /// (`UIScene::Render`'s volumetric shadows) fitted to its objects.
+    pub fn set_viewport_scene(&mut self) {
+        self.viewport = true;
     }
 
     /// Sizes the sun shadows of bodies and objects for the `DynamicObjectShadows` level, from
@@ -164,6 +172,7 @@ impl SceneRenderer {
             terrain,
             shadow_map,
             sun_shadows,
+            viewport: false,
             objects,
             fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
             sky: SkyRenderer::new(gpu, HDR_FORMAT),
@@ -443,47 +452,69 @@ impl SceneRenderer {
 
     /// The sun shadow cascades around `camera`: the near blocks' static objects (no frills) and the
     /// frame's bodies and world objects cast into them, and the receivers read them at the static
-    /// shadow strength. Nothing casts in a scene without a sun (dungeons, UI viewports).
+    /// shadow strength. Nothing casts in a scene without a sun (dungeons). A UI viewport's scene
+    /// has no landscape: its objects cast into one cascade fitted to them
+    /// (`UIScene::Render`'s volumetric shadows, from `DynamicObjectShadows` 2 up).
     fn draw_sun_shadows(&mut self, gpu: &Gpu, camera: &Camera, aspect: f32) {
         let lighting = &self.frame.lighting;
-        let lit = lighting.light_dir.length() > 1e-4
-            && lighting.shadow_strength.iter().any(|s| *s > 0.0)
-            && !self.frame.terrain.is_empty();
-        // The maps are made the first time a sunlit landscape needs them (a UI viewport's scene
-        // never does), and dropped when the level turns them off.
+        let sunlit =
+            lighting.light_dir.length() > 1e-4 && lighting.shadow_strength.iter().any(|s| *s > 0.0);
+        let lit = sunlit
+            && if self.viewport {
+                !self.frame_objects.is_empty()
+            } else {
+                !self.frame.terrain.is_empty()
+            };
+        // The maps are made the first time a sunlit scene needs them, and dropped when the level
+        // turns them off.
         let level = self.object_shadows;
-        if (lit || level == ObjectShadows::Off) && self.sun_shadows.set_level(gpu, level) {
+        let wanted = if self.viewport {
+            SunShadowTier::viewport(level)
+        } else {
+            SunShadowTier::of(level)
+        };
+        if (lit || wanted.is_none()) && self.sun_shadows.set_tier(gpu, wanted) {
             self.terrain.set_sun_shadow(gpu, self.sun_shadows.binding());
             self.objects.set_sun_shadow(gpu, self.sun_shadows.binding());
         }
         let frame = &self.frame;
         let lighting = &frame.lighting;
-        let tier = self.sun_shadows.tier();
-        let cascades = tier
-            .filter(|_| lit)
-            .and_then(|tier| fit_cascades(camera, aspect, lighting.light_dir, &tier))
-            .unwrap_or_default();
-        if !cascades.is_empty() {
-            let casters: Vec<ObjectInstance<'_>> = frame
-                .placements
-                .iter()
-                .filter(|p| p.frill_normal.is_none())
-                .filter_map(|p| {
-                    Some(ObjectInstance {
-                        tint: [1.0, 1.0, 1.0, p.alpha],
-                        detail: p.detail,
-                        ..ObjectInstance::new(self.models.get(&p.visual)?, p.world)
-                    })
+        let tier = self.sun_shadows.tier().filter(|_| lit);
+        let casters: Vec<ObjectInstance<'_>> = frame
+            .placements
+            .iter()
+            .filter(|_| !self.viewport)
+            .filter(|p| p.frill_normal.is_none())
+            .filter_map(|p| {
+                Some(ObjectInstance {
+                    tint: [1.0, 1.0, 1.0, p.alpha],
+                    detail: p.detail,
+                    ..ObjectInstance::new(self.models.get(&p.visual)?, p.world)
                 })
-                .chain(self.frame_objects.iter().filter_map(|o| {
-                    Some(ObjectInstance {
-                        tint: o.tint,
-                        pose: o.pose.as_ref(),
-                        detail: o.detail,
-                        ..ObjectInstance::new(self.world_objects.get(&o.key)?, o.world)
-                    })
-                }))
-                .collect();
+            })
+            .chain(self.frame_objects.iter().filter_map(|o| {
+                Some(ObjectInstance {
+                    tint: o.tint,
+                    pose: o.pose.as_ref(),
+                    detail: o.detail,
+                    ..ObjectInstance::new(self.world_objects.get(&o.key)?, o.world)
+                })
+            }))
+            .collect();
+        let (cascades, splits) = match tier {
+            Some(tier) if self.viewport => casters_sphere(&casters)
+                .and_then(|sphere| {
+                    fit_viewport_cascade(camera.eye, sphere, lighting.light_dir, &tier)
+                })
+                .map(|(cascade, split)| (vec![cascade], vec![split]))
+                .unwrap_or_default(),
+            Some(tier) => (
+                fit_cascades(camera, aspect, lighting.light_dir, &tier).unwrap_or_default(),
+                tier.splits.to_vec(),
+            ),
+            None => Default::default(),
+        };
+        if !cascades.is_empty() {
             let mut encoder = gpu.device.create_command_encoder(&Default::default());
             self.objects.draw_sun_casters(
                 gpu,
@@ -494,8 +525,12 @@ impl SceneRenderer {
             );
             gpu.queue.submit([encoder.finish()]);
         }
-        self.sun_shadows
-            .write(gpu, camera.eye, &cascades, lighting.shadow_strength);
+        self.sun_shadows.write(
+            gpu,
+            camera.eye,
+            (&cascades, &splits),
+            lighting.shadow_strength,
+        );
     }
 
     /// Records the frame laid out by the last `prepare` into a pass cleared to
@@ -554,6 +589,25 @@ impl SceneRenderer {
 /// The frame's lens flares: the sky lights' (`LScapeSky::Draw(1)`, starting unseen as
 /// `LensFlareEffect::LensFlareEffect` does) and the drawn cells' light coronas, each named by its
 /// block and light so it keeps its fade.
+/// The sphere around the casters' bounding spheres, if there are any.
+fn casters_sphere(casters: &[ObjectInstance<'_>]) -> Option<(Vec3, f32)> {
+    let spheres: Vec<(Vec3, f32)> = casters.iter().map(crate::object::bounding_sphere).collect();
+    let low = spheres
+        .iter()
+        .map(|(c, r)| *c - Vec3::splat(*r))
+        .reduce(Vec3::min)?;
+    let high = spheres
+        .iter()
+        .map(|(c, r)| *c + Vec3::splat(*r))
+        .reduce(Vec3::max)?;
+    let center = (low + high) * 0.5;
+    let radius = spheres
+        .iter()
+        .map(|(c, r)| c.distance(center) + r)
+        .fold(0.0_f32, f32::max);
+    Some((center, radius))
+}
+
 fn flare_sources(frame: &SceneFrame) -> Vec<FlareSource<'_>> {
     const SKY: u64 = 1 << 63;
     let sky = frame
