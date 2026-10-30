@@ -275,6 +275,7 @@ mod modern_art_chat;
 mod modern_art_drawer;
 mod modern_art_loot;
 mod modern_art_radar;
+mod modern_art_windows;
 pub mod modern_banner;
 mod modern_chat;
 mod modern_chat_settings;
@@ -300,6 +301,7 @@ mod modern_toolbar_tests;
 mod modern_vitals;
 #[cfg(test)]
 mod modern_vitals_tests;
+mod modern_windows;
 mod text_scroll;
 mod token;
 mod toolbar;

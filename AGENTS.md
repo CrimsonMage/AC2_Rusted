@@ -281,6 +281,17 @@ game rules and server-visible behaviour exactly retail.
   While the targeting pointer is on (`RecvNotice_SetTargetingPointer`), a gold banner at the
   display's top centre says to pick a target (`ac2_ui::modern_banner`, the design's variant B);
   retail showed only the pointer's cursor. It takes no pointer; the targeting stays retail's.
+  Every other window takes the design's shared parts (`ac2_ui::modern_windows`, its "Other
+  windows" component set): retail's shared images are swapped in the toolbar and gameplay layouts
+  before the frameworks make their elements, so every element, state and message stays retail's.
+  The stone frames (`0x41000970`, `0x410011FB`) become teal glass in a stone bevel under a dark
+  stone header (the frame's top 31 rows); the help and close buttons, square dark buttons in a
+  stone line; the tabs' caps, tabs in a fine line (gold for the chosen one); the four families of
+  blue text buttons, bronze pills (gold when lit, faint when ghosted); the check box, a dark well
+  with a gold tick; the expander and drop-down arrows, gold chevrons; the rule, a fine line; the
+  wells' eight pieces, dark wells; the blue scroll bar, the thin one. Retail tiled its header bar
+  (`0x410002CD`, `0x410011FC`) down the room under a side panel's window; that room is left
+  empty. The inventory drawer, the loot window and the stack dialog keep their own design.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

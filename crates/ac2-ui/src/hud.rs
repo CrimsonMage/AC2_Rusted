@@ -229,7 +229,11 @@ pub fn build_styled_hud(
     let gameplay = load_layout_by_enum(store, LAYOUT_GAMEPLAY)?;
     // The modern radar's art (`modern_radar::restyle`), before the radar's roots are made.
     let gameplay = match style {
-        HudStyle::Modern => gameplay.map(|g| Arc::new(crate::modern_radar::restyle(&g))),
+        HudStyle::Modern => gameplay.map(|g| {
+            Arc::new(crate::modern_windows::restyle(
+                &crate::modern_radar::restyle(&g),
+            ))
+        }),
         HudStyle::Classic => gameplay,
     };
     let mut reticle = gameplay
@@ -257,7 +261,12 @@ pub fn build_styled_hud(
     layouts.insert(LAYOUT_GAMEPLAY, gameplay);
     for (layout_enum, name) in GAMEPLAY_ROOTS {
         if let std::collections::hash_map::Entry::Vacant(e) = layouts.entry(layout_enum) {
-            e.insert(load_layout_by_enum(store, layout_enum)?);
+            let layout = load_layout_by_enum(store, layout_enum)?;
+            // The modern windows' parts (`modern_windows::restyle`).
+            e.insert(match style {
+                HudStyle::Modern => layout.map(|l| Arc::new(crate::modern_windows::restyle(&l))),
+                HudStyle::Classic => layout,
+            });
         }
         let Some(layout) = &layouts[&layout_enum] else {
             continue;
