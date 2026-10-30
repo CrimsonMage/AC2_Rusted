@@ -144,6 +144,8 @@ pub(crate) fn bone_storage(
     (buffer, group)
 }
 
+/// `FLAG_DISPLAY_LIT` in `object.wgsl` (bits 14 to 17 are the sky's).
+const FLAG_DISPLAY_LIT_BIT: u32 = 18;
 /// `FLAG_SKY` in `object.wgsl`: the draw is a DAT sky object.
 const FLAG_SKY: u32 = 1 << 14;
 /// `FLAG_SKY_BACKDROP`: the sky object is the backdrop dome ([`crate::sky_backdrop`]).
@@ -235,7 +237,8 @@ pub(crate) fn draw_uniform(pass: &LayerPass) -> DrawUniform {
     ]
     .iter()
     .enumerate()
-    .fold(0_u32, |acc, (bit, on)| acc | (u32::from(*on) << bit));
+    .fold(0_u32, |acc, (bit, on)| acc | (u32::from(*on) << bit))
+        | (u32::from(f.display_lit) << FLAG_DISPLAY_LIT_BIT);
     let mut uniform = DrawUniform {
         ambient: pass.ambient,
         diffuse: pass.diffuse,

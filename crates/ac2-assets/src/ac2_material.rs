@@ -88,6 +88,10 @@ pub struct Ac2LayerLighting {
     pub depth_fog: bool,
     pub depth_alpha_fog: bool,
     pub diffuse_fog_amount: bool,
+    /// Not an AC2 layer switch: the layer is lit in display space as the fixed-function device
+    /// lit it (`texel * min(ambient + sun * N.L + points, 1)`), for the AC1 creatures of the
+    /// `ac1-monsters` branch, whose textures were authored for that light. AC2 layers never set it.
+    pub display_lit: bool,
 }
 
 /// AC2 `MaterialLayer`: one render pass of a material.
@@ -358,6 +362,7 @@ fn read_layer(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2MaterialLayer, Archiv
             depth_fog: flags[11],
             depth_alpha_fog: flags[12],
             diffuse_fog_amount: flags[13],
+            display_lit: false,
         },
         ambient,
         diffuse,

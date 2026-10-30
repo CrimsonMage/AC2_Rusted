@@ -107,6 +107,35 @@ fn modern_light(rel: vec3<f32>, n: vec3<f32>) -> ModernLight {
     return light;
 }
 
+// A display-space lit layer (`FLAG_DISPLAY_LIT`, the AC1 creatures): AC1's fixed-function
+// object light, its world ambient (`LScape::set_landscape_lighting`: the sky's ambient plus a
+// fifth of the sun) times the material ambient, plus the sun's and the point lights' Lambert
+// terms times the material diffuse, summed in display space and saturated as the D3D vertex
+// colour was, times the texel there, then decoded. The sun's term goes in its shadow, kept at
+// one minus the shadow strength at most, as the other programs are.
+fn display_lit(input: VsOut, texel: vec3<f32>) -> vec3<f32> {
+    let n = normalize(input.normal);
+    var light = frame.ambient.rgb * draw.ambient.rgb;
+    var sun = vec3(0.0);
+    var lit = 1.0;
+    if sun_on() {
+        light = light + 0.2 * frame.sun_diffuse.rgb * draw.diffuse.rgb;
+        sun = max(dot(n, normalize(frame.sun_inv_dir.xyz)), 0.0) * frame.sun_diffuse.rgb
+            * draw.diffuse.rgb;
+        lit = sun_lit(input.rel, input.normal);
+    }
+    for (var i = 0u; i < point_count(); i = i + 1u) {
+        let to_light = (draw.points[i * 4u].xyz - frame.eye.xyz) - input.rel;
+        let distance_sq = dot(to_light, to_light);
+        let l = to_light * inverseSqrt(max(distance_sq, 1e-30));
+        light = light + max(dot(n, l), 0.0) * point_attenuation(i, distance_sq)
+            * draw.points[i * 4u + 1u].rgb * draw.diffuse.rgb;
+    }
+    let shaded = srgb_to_linear(clamp(texel * min(light + sun * lit, vec3(1.0)), vec3(0.0), vec3(1.0)));
+    let full = srgb_to_linear(clamp(texel * min(light + sun, vec3(1.0)), vec3(0.0), vec3(1.0)));
+    return min(shaded, full * sun_shadow_keep(lit));
+}
+
 // The modern fragment. The cascade runs on the authored gamma values, exactly as retail does:
 // its ops (ADDSIGNED, SUBTRACT, DOTPRODUCT3 ...) assume the 0.5 neutral point of encoded texels,
 // so decoding the inputs first garbles them. The cascade's output is then decoded to linear light
@@ -132,7 +161,9 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
         return vec4(mix(vec3(1.0), tint_filter, clamp(shaded.a, 0.0, 1.0)), shaded.a);
     }
     var radiance = srgb_to_linear(clamp(shaded.rgb, vec3(0.0), vec3(1.0)));
-    if !pixel_program && program == 1u {
+    if !pixel_program && program == 1u && has(FLAG_DISPLAY_LIT) {
+        radiance = display_lit(input, shaded.rgb);
+    } else if !pixel_program && program == 1u {
         let light = modern_light(input.rel, normalize(input.normal));
         // Retail clamps the specular colour to [0, 1] (`out.color1`); the modern highlights keep
         // the tone curve's roll-off above that. In the sun's shadow the sun's share is gone, and

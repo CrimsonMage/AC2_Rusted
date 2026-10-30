@@ -144,6 +144,8 @@ const FLAG_SKY_BACKDROP: u32 = 32768u;
 const FLAG_SKY_EMISSIVE: u32 = 65536u;
 // A dome-sized alpha sky layer: multiplies the atmosphere by its colour (`shade_modern`).
 const FLAG_SKY_VEIL: u32 = 131072u;
+// A lit layer lit in display space, as the fixed-function device did (the AC1 creatures).
+const FLAG_DISPLAY_LIT: u32 = 262144u;
 
 @group(0) @binding(0) var<uniform> frame: Frame;
 @group(0) @binding(1) var shadow_map: texture_2d<f32>;

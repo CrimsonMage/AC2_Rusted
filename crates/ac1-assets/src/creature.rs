@@ -34,17 +34,16 @@ pub const AC1_VISUAL_BASE: u32 = 0xAC00_0000;
 /// The texture DIDs their images are keyed by.
 const AC1_TEXTURE_BASE: u32 = 0xAC80_0000;
 const PALETTE_SET: u32 = 0x0F;
-/// How much brighter an AC1 texel draws than an AC2 one. AC1 lit its objects in display space
-/// (`texel * (ambient + sun * N.L)`, the region's lights summing past 1 and clamped), and its
-/// textures are authored darker for that; this path lights in linear light as AC2's objects are,
-/// which leaves AC1 creatures dim beside AC2 bodies. The stage doubles the texel
-/// (`D3DTOP_MODULATE2X`) against a material diffuse of half this gain.
-const AC1_TEXEL_GAIN: f32 = 1.4;
+/// AC1's sky over the AC2 one an AC1 creature stands under, as material light scales (the
+/// fixed-function device multiplies the ambient light by the material ambient and each light by
+/// the material diffuse). The AC1 Region (`0x13000000`) lights noon with a sun of 0.8 and an
+/// ambient of 0.35 times its (0.9, 0.9, 1.0) colour; AC2's Dereth region with 0.65 and 0.25.
+const AC1_AMBIENT_SCALE: f32 = 1.3;
+const AC1_SUN_SCALE: f32 = 1.25;
 
 /// D3D values of the one layer an AC1 surface draws as.
 mod d3d {
     pub const TOP_MODULATE: u32 = 4;
-    pub const TOP_MODULATE2X: u32 = 5;
     pub const TOP_SELECTARG1: u32 = 2;
     pub const TA_DIFFUSE: u32 = 0;
     pub const TA_TEXTURE: u32 = 2;
@@ -480,7 +479,8 @@ fn layer(surface: &Surface, texture: DataId) -> Ac2MaterialLayer {
         false_flags: 0,
         stages: vec![Ac2LayerStage {
             texture: Some(texture),
-            color_op: d3d::TOP_MODULATE2X,
+            // The texel itself: the light multiplies it in `display_lit`.
+            color_op: d3d::TOP_SELECTARG1,
             color_arg1: d3d::TA_TEXTURE,
             color_arg2: d3d::TA_DIFFUSE,
             alpha_op: if alpha {
@@ -510,15 +510,11 @@ fn layer(surface: &Surface, texture: DataId) -> Ac2MaterialLayer {
             dynamic: flags & st::LUMINOUS == 0 && surface.luminosity <= 0.0,
             material_diffuse: true,
             depth_fog: true,
+            display_lit: true,
             ..Ac2LayerLighting::default()
         },
-        ambient: [1.0; 4],
-        diffuse: [
-            AC1_TEXEL_GAIN / 2.0,
-            AC1_TEXEL_GAIN / 2.0,
-            AC1_TEXEL_GAIN / 2.0,
-            opacity,
-        ],
+        ambient: [AC1_AMBIENT_SCALE, AC1_AMBIENT_SCALE, AC1_AMBIENT_SCALE, 1.0],
+        diffuse: [AC1_SUN_SCALE, AC1_SUN_SCALE, AC1_SUN_SCALE, opacity],
         specular: [0.0; 4],
         specular_power: Ac2Waveform::constant(0.0),
         options: 0,

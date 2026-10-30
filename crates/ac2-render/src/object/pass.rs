@@ -96,6 +96,8 @@ pub struct ProgramFlags {
     pub unmodulated_color1: bool,
     /// `m_bUseDynamicLighting`: the device lights (and the pixel shader's light colour) are on.
     pub dynamic: bool,
+    /// `Ac2LayerLighting::display_lit`: lit in display space (the AC1 creatures).
+    pub display_lit: bool,
 }
 
 /// One texture stage after `SetupState`.
@@ -239,6 +241,7 @@ pub fn layer_pass_forced(
             pixel_specular: lighting.pixel_specular,
             unmodulated_color1: layer.options & 1 != 0,
             dynamic: lighting.dynamic,
+            display_lit: lighting.display_lit,
         },
         ambient: layer.ambient,
         diffuse,
