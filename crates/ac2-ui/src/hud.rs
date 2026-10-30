@@ -377,7 +377,15 @@ pub fn build_styled_hud(
     };
     let mut toolbar = ToolbarUi::create_styled(&mut tree, style);
     if style == HudStyle::Modern {
-        toolbar.set_drawer(crate::modern_inventory::Drawer::adopt(&mut tree));
+        let gameplay = layouts[&LAYOUT_GAMEPLAY].as_ref();
+        let entries: Vec<&Arc<LayoutDesc>> =
+            [&layouts[&LAYOUT_GAMEPLAY], &layouts[&LAYOUT_TOOLBAR]]
+                .into_iter()
+                .flatten()
+                .collect();
+        toolbar.set_drawer(crate::modern_inventory::Drawer::adopt(
+            &mut tree, gameplay, &entries,
+        ));
     }
     let radar = RadarUi::create(&tree);
     let secure_trade = layouts[&LAYOUT_GAMEPLAY]

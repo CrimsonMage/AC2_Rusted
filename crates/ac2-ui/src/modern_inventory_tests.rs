@@ -105,3 +105,97 @@ fn the_item_slot_restyle_keeps_every_element() {
     ));
     assert_eq!(after.elements.len(), before.elements.len());
 }
+
+const POTIONS: u64 = 0x8000_0000_0000_0010;
+const SWORD: u64 = 0x8000_0000_0000_0011;
+
+/// The player's four pages: the main pack holds a potion stack and a sword.
+struct Pack;
+
+impl crate::InventorySource for Pack {
+    fn item(&self, item: u64) -> Option<crate::ItemSlot> {
+        let name = match item {
+            POTIONS => "Healing Potions",
+            SWORD => "Practice Sword",
+            _ => return None,
+        };
+        Some(crate::ItemSlot {
+            icon: 0x0600_1001,
+            icon_layers: Vec::new(),
+            name: name.into(),
+            quantity: 1,
+            stackable: false,
+            max_stack: 0,
+        })
+    }
+    fn contents_info(&self, _: u64, segment: u32) -> (Vec<u64>, u32, u32) {
+        let size = [35, 14, 21, 28][segment.min(3) as usize];
+        let items = if segment == 0 {
+            vec![POTIONS, SWORD]
+        } else {
+            Vec::new()
+        };
+        (items, 0, size)
+    }
+    fn max_container_size(&self, _: u64) -> u32 {
+        98
+    }
+    fn selection(&self) -> u64 {
+        0
+    }
+}
+
+/// The modern HUD with the player's backpack made over the drawer's restyled slots.
+fn with_backpack() -> Option<(GameplayHud, crate::BackpackUi)> {
+    let mut hud = hud(HudStyle::Modern)?;
+    let layout = hud.inventory_layout.clone().unwrap();
+    let pack = crate::BackpackUi::create(&mut hud.tree, &layout, &Pack, 0x2000_0000_0000_0001);
+    hud.toolbar.follow(&mut hud.tree);
+    hud.toolbar.drawer_tick(&mut hud.tree, &pack, &Pack);
+    Some((hud, pack))
+}
+
+#[test]
+fn each_tab_shows_its_pages_count_and_the_footer_names_the_page_shown() {
+    let Some((hud, pack)) = with_backpack() else {
+        return;
+    };
+    let tree = &hud.tree;
+    let text = |name: &str| tree.el(named(tree, name).unwrap()).text().unwrap();
+    for (i, page) in pack.packs.iter().enumerate() {
+        let used = if i == 0 { 2 } else { 0 };
+        assert_eq!(
+            text(&format!("ModernPackCount{i}")),
+            format!("{used}/{}", page.max_size())
+        );
+    }
+    assert_eq!(
+        text("ModernDrawerFoot"),
+        format!("Main Pack \u{b7} 2/{}", pack.packs[0].max_size())
+    );
+}
+
+/// The search veils the shown page's slots whose item's name lacks the text; the slots, their
+/// order and their items stay.
+#[test]
+fn the_search_veils_the_slots_it_leaves_out() {
+    let Some((mut hud, pack)) = with_backpack() else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let field = named(tree, "ModernDrawerSearch").unwrap();
+    tree.set_text(field, "SWORD");
+    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    let veiled = |tree: &UiTree, item: u64| {
+        let slot = pack.packs[0].items.iter().find(|d| d.item == item).unwrap();
+        tree.child(slot.background, tokenize("ModernSlotVeil"))
+            .is_some_and(|v| tree.el(v).visible)
+    };
+    assert!(veiled(tree, POTIONS));
+    assert!(!veiled(tree, SWORD));
+    let slots: Vec<u64> = pack.packs[0].items.iter().map(|d| d.item).collect();
+    assert_eq!(slots, [POTIONS, SWORD]);
+    tree.set_text(field, "");
+    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    assert!(!veiled(tree, POTIONS));
+}

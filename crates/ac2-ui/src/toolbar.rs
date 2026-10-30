@@ -226,6 +226,18 @@ impl ToolbarUi {
         }
     }
 
+    /// The modern drawer's own parts set for the backpack (every frame; nothing in classic).
+    pub(crate) fn drawer_tick(
+        &self,
+        tree: &mut UiTree,
+        backpack: &crate::BackpackUi,
+        source: &dyn crate::item_display::InventorySource,
+    ) {
+        if let Some(drawer) = &self.drawer {
+            drawer.tick(tree, backpack, source);
+        }
+    }
+
     /// The modern inventory drawer, laid out with the toolbar.
     pub(crate) fn set_drawer(&mut self, drawer: Option<crate::modern_inventory::Drawer>) {
         self.drawer = drawer;

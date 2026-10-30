@@ -46,6 +46,9 @@ const TAB: (i32, i32) = (38, 26);
 const TAB_GAP: i32 = 2;
 /// The grid's columns and its scroll bar's width.
 const COLUMNS: i32 = 7;
+/// The footer's height and the search field's size.
+const FOOT: i32 = 18;
+const SEARCH: (i32, i32) = (90, 20);
 const SCROLL: i32 = 15;
 /// A header button's backing and the button on it.
 const HEADER_BUTTON: i32 = 20;
@@ -160,6 +163,8 @@ pub(crate) struct Drawer {
     backings: [Option<usize>; 2],
     money_row: Option<usize>,
     pub(crate) doll: Option<usize>,
+    /// The drawer's own parts: tab counts, search, footer (`modern_drawer_bar`).
+    bar: Option<crate::modern_drawer_bar::DrawerBar>,
     /// The display the drawer was last laid out for.
     laid_out: std::cell::Cell<Option<(i32, i32)>>,
 }
@@ -172,7 +177,7 @@ fn kept_in_place(desc: &ElementDesc) -> ElementDesc {
 }
 
 /// `element` kept where it is put: its edges `0` in its description (and its referent's).
-fn keep(tree: &mut UiTree, element: usize) {
+pub(crate) fn keep(tree: &mut UiTree, element: usize) {
     let (reference, desc) = {
         let el = tree.el(element);
         (Arc::clone(&el.reference), Arc::clone(&el.desc))
@@ -202,7 +207,11 @@ fn put(tree: &mut UiTree, element: Option<usize>, at: UiBox) {
 impl Drawer {
     /// The inventory panel made a drawer: its art cleared, its parts kept where they are put, the
     /// design's parts made. `None` without the panel. Then laid out.
-    pub(crate) fn adopt(tree: &mut UiTree) -> Option<Self> {
+    pub(crate) fn adopt(
+        tree: &mut UiTree,
+        gameplay: Option<&Arc<LayoutDesc>>,
+        layouts: &[&Arc<LayoutDesc>],
+    ) -> Option<Self> {
         let panel = tree
             .roots()
             .iter()
@@ -259,6 +268,7 @@ impl Drawer {
             backings: [None, None],
             money_row: None,
             doll: None,
+            bar: None,
             laid_out: std::cell::Cell::new(None),
         };
         // Every element the drawer places keeps where it is put; the frames lose their stone art.
@@ -341,6 +351,16 @@ impl Drawer {
             PART_Z,
         );
         drawer.doll = part(tree, "ModernDrawerDoll", art::DOLL_FRAME, None, PART_Z);
+        if let (Some(gameplay), Some(area)) = (gameplay, drawer.pack_area) {
+            drawer.bar = Some(crate::modern_drawer_bar::DrawerBar::make(
+                tree,
+                gameplay,
+                layouts,
+                area,
+                drawer.pages.len(),
+                template,
+            ));
+        }
         drawer.arrange(tree);
         Some(drawer)
     }
@@ -428,15 +448,37 @@ impl Drawer {
         put(tree, self.pack_area, sized(0, area_y, (WIDTH, area_h)));
         let mut tab_x = PAD;
         let grid_y = MAIN_TAB.1 + 4;
-        let grid = sized(PAD, grid_y, (WIDTH - 2 * PAD, area_h - grid_y));
+        // The footer under the grid: the page's name and count.
+        let foot = sized(PAD, area_h - FOOT, (WIDTH - 2 * PAD, FOOT));
+        let grid = sized(PAD, grid_y, (WIDTH - 2 * PAD, area_h - grid_y - FOOT - 2));
+        let mut tabs = Vec::new();
         for (i, (container, button)) in self.pages.iter().enumerate() {
             let size = if i == 0 { MAIN_TAB } else { TAB };
-            put(tree, *button, sized(tab_x, MAIN_TAB.1 - size.1, size));
+            let tab = sized(tab_x, MAIN_TAB.1 - size.1, size);
+            put(tree, *button, tab);
+            tabs.push(tab);
             tab_x += size.0 + TAB_GAP;
             put(tree, *container, grid);
             if let Some(container) = container {
                 self.place_page(tree, *container, grid);
             }
+        }
+        if let Some(bar) = &self.bar {
+            // The search field at the tabs' right, level with their lower edge.
+            let search = sized(WIDTH - PAD - SEARCH.0, MAIN_TAB.1 - SEARCH.1 - 2, SEARCH);
+            bar.place(tree, &tabs, search, foot);
+        }
+    }
+
+    /// The drawer's own parts set for the backpack as it is (every frame).
+    pub(crate) fn tick(
+        &self,
+        tree: &mut UiTree,
+        backpack: &crate::BackpackUi,
+        source: &dyn crate::item_display::InventorySource,
+    ) {
+        if let Some(bar) = &self.bar {
+            bar.tick(tree, backpack, source);
         }
     }
 
@@ -476,7 +518,7 @@ pub(crate) fn doll_frame(tree: &UiTree) -> Option<usize> {
 /// A part of the design under `field`: a copy of `template` (a plain field of the layout) with no
 /// states, named `id`, its art `image` (in nine pieces with corners `nine` when given), taking no
 /// pointer, at depth `z`.
-fn make_part(
+pub(crate) fn make_part(
     tree: &mut UiTree,
     field: usize,
     template: Option<usize>,

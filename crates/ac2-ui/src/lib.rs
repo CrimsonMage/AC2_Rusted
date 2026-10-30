@@ -269,6 +269,7 @@ pub use text_edit::TextPress;
 pub mod ac1_buttons;
 pub mod hud_style;
 pub mod modern_art;
+mod modern_drawer_bar;
 mod modern_inventory;
 #[cfg(test)]
 mod modern_inventory_tests;

@@ -197,6 +197,12 @@ pub const MONEY_ROW: u32 = 0x7E01_0061;
 pub const DOLL_FRAME: u32 = 0x7E01_0062;
 pub const HEADER_BUTTON: u32 = 0x7E01_0063;
 pub const ITEM_WELL: u32 = 0x7E01_0064;
+/// The drawer's search field: a dark pill in a fine bronze line.
+pub const SEARCH_PILL: u32 = 0x7E01_0065;
+/// The veil over an item slot the search leaves out.
+pub const SLOT_VEIL: u32 = 0x7E01_0066;
+/// The search pill's art keeps corners this size when stretched.
+pub const SEARCH_PILL_BORDER: i32 = 10;
 /// The DAT item slot the item well is made of.
 pub const ITEM_SLOT: u32 = 0x4100_02BC;
 /// An item slot's pitch (36 and the gap).
@@ -498,6 +504,26 @@ fn money_row() -> UiPixels {
     c.finish()
 }
 
+/// The search field's pill: dark glass, a fine bronze line, ends fully round.
+fn search_pill() -> UiPixels {
+    let (w, h) = (40usize, 20usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 10.0);
+    c.paint(&shape, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
+    c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, 0.0, 1.0)));
+    c.finish()
+}
+
+/// The veil over a slot the search leaves out: the drawer's glass at 82%, so the slot shows at
+/// about the design's 18%.
+fn slot_veil() -> UiPixels {
+    let side = ITEM_PITCH as usize;
+    let mut c = Canvas::new(side, side);
+    let shape = round_rect(0.0, 0.0, side as f32, side as f32, 3.0);
+    c.paint(&shape, |_, _, d| (rgb(0x001F1D, 0.82), inside(d)));
+    c.finish()
+}
+
 /// The paper doll's frame: a teal glow behind the figure in a fine bronze line, corners 8 round.
 fn doll_frame() -> UiPixels {
     let (w, h) = (132usize, 196usize);
@@ -598,6 +624,8 @@ pub fn bake(images: &mut HashMap<u32, UiPixels>, icons: &HashMap<u32, UiPixels>)
         (STRIP_FADE, fade(48)),
         (DRAWER_HEADER, drawer_header()),
         (MONEY_ROW, money_row()),
+        (SEARCH_PILL, search_pill()),
+        (SLOT_VEIL, slot_veil()),
         (DOLL_FRAME, doll_frame()),
         (HEADER_BUTTON, header_button()),
     ] {

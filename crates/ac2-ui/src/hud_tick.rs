@@ -51,6 +51,7 @@ pub fn tick_pass<P: HudSource>(
         death,
         dialogs,
         toolbar,
+        backpack,
         secure_trade,
         stack,
         money,
@@ -77,6 +78,10 @@ pub fn tick_pass<P: HudSource>(
         bar.refresh_tooltips(tree, player);
         // The modern toolbar follows the panels, the pointer's fan and the shortcut bar.
         bar.follow(tree);
+        // The modern drawer's counts, footer and search veils follow the backpack.
+        if let Some(pack) = backpack.as_ref() {
+            bar.drawer_tick(tree, pack, player);
+        }
     }
     // `gmSecureTradeUI`'s global loop: an ended trade closes; a stack its list dropped asks.
     if let Some(panel) = secure_trade.as_mut() {
