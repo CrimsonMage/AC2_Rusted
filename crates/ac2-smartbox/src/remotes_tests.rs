@@ -164,6 +164,7 @@ fn a_temporary_object_out_of_physics_range_is_destroyed_and_others_stay() {
     remotes.step_quantum(&mut terrain, 0.0, &mut random, &[(1, view)]);
     assert!(remotes.get(temporary).is_none());
     assert!(remotes.get(7).is_some_and(|r| !r.active));
+}
 
 /// `CPhysicsObj::InqCellObjects` / `InqBlockObjects`: the objects of the object's own cell, and of
 /// its whole landblock.
