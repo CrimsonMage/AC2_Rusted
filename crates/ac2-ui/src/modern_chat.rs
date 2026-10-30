@@ -88,6 +88,11 @@ const MIN_OPACITY: f32 = 0.1;
 
 /// The chat's copy of the toolbar layout with the chat's art the design's (`ART`, `MENU_ART`),
 /// drawn over. Every element keeps its id and states.
+/// The main window's default place: 8 pixels in from the left, its foot 60 over the bottom (clear
+/// of the strip), and its width (the design's; retail's was 500).
+const MAIN_PLACE: (i32, i32) = (8, 60);
+const MAIN_WIDTH: i32 = 370;
+
 pub(crate) fn restyle(layout: &LayoutDesc) -> LayoutDesc {
     fn walk(d: &ElementDesc) -> ElementDesc {
         let mut d = d.clone();
@@ -123,8 +128,29 @@ pub(crate) fn restyle(layout: &LayoutDesc) -> LayoutDesc {
     // elsewhere in the layout; the copy serves only the chat).
     for element in &mut layout.elements {
         *element = Arc::new(walk(element));
+        if element.id == tokenize("ChatWindow1") {
+            *element = Arc::new(main_window_place(element));
+        }
     }
     layout
+}
+
+/// The main window's place when the player has saved none: the design's, at the display's
+/// bottom left over the shortcut strip (retail's sat at the bottom centre, where the modern strip
+/// is), following the display's bottom.
+fn main_window_place(d: &ElementDesc) -> ElementDesc {
+    let mut d = d.clone();
+    let (x0, y1) = (MAIN_PLACE.0, 767 - MAIN_PLACE.1);
+    let height = i32::from(d.rect.y1) - i32::from(d.rect.y0);
+    d.rect = crate::layout::Rect {
+        x0: x0 as i16,
+        y0: (y1 - height) as i16,
+        x1: (x0 + MAIN_WIDTH - 1) as i16,
+        y1: y1 as i16,
+    };
+    // Left kept; top and bottom follow the display's growth (`place.rs`).
+    d.edges = [0, 2, 0, 1];
+    d
 }
 
 /// One window's parts beside retail's.

@@ -234,7 +234,9 @@ game rules and server-visible behaviour exactly retail.
   The chat windows are the design's (`ac2_ui::modern_chat`): each of the four `ChatWindow`s on
   teal glass in a bronze line (gold while active) under a bronze header holding its tab (its
   window key and its name, `ID_Option_Chat1`..`4`), the other windows' toggles, an opacity slider
-  (`op`) and the options button (`=`); the log on darker glass with the thin scroll bar; a channel
+  (`op`) and the options button (`=`); the main window opens, until the player places it, at
+  the display's bottom left over the strip, 370 pixels wide (retail's sat 500 wide at the bottom
+  centre, where the strip is); the log on darker glass with the thin scroll bar; a channel
   pill before the entry line (SAY, or the command the line starts with; an addition); retail's
   stone frame, rule and vertical opacity field are gone. The slider is the client's: it sets the
   window's opacity as retail's did (`ChatWindow::SetOpacity`) and saves it on release
