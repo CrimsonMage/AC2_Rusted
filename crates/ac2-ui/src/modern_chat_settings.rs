@@ -2,8 +2,9 @@
 //! player choose per window that retail had no setting for, and the popover the window's options
 //! button (`=`) opens to choose it. A window's name (its tab's label, else `ID_Option_Chat<n>`), a
 //! font size step over the chat options' per-type sizes (small, medium, large), whether its glass
-//! and the log's backing show and the backing's tint, and whether its place is locked (no move,
-//! no resize). The popover also hides the window (`ChatWindow::Show(0)`, as its window key does)
+//! and the log's backing show and the backing's tint, a local time before each new line, old lines
+//! faded while the window is not in use, the most lines the log keeps, and whether its place is
+//! locked (no move, no resize). The popover also hides the window (`ChatWindow::Show(0)`, as its window key does)
 //! and opens the chat options page. The choices are kept with the HUD's layout settings
 //! (`hud_layout`, `chat.<n>.*`).
 
@@ -30,7 +31,14 @@ pub(crate) struct ChatLook {
     /// An index into `TINT_NAMES`.
     pub tint: usize,
     pub locked: bool,
+    pub timestamps: bool,
+    pub fade: bool,
+    /// The most lines the log keeps; 0: all (retail's log kept every line).
+    pub lines: usize,
 }
+
+/// The line limits the chip steps through (0: all).
+const LINE_LIMITS: [usize; 5] = [0, 100, 200, 500, 1000];
 
 impl Default for ChatLook {
     fn default() -> Self {
@@ -40,6 +48,9 @@ impl Default for ChatLook {
             background: true,
             tint: 0,
             locked: false,
+            timestamps: false,
+            fade: false,
+            lines: 0,
         }
     }
 }
@@ -54,6 +65,9 @@ impl ChatLook {
             background: layout.flag(&key("background"), true),
             tint: (layout.number(&key("tint"), 0).max(0) as usize).min(art::TINT_NAMES.len() - 1),
             locked: layout.flag(&key("locked"), false),
+            timestamps: layout.flag(&key("timestamps"), false),
+            fade: layout.flag(&key("fade"), false),
+            lines: layout.number(&key("lines"), 0).max(0) as usize,
         }
     }
 
@@ -65,6 +79,9 @@ impl ChatLook {
         changed |= layout.set(&key("background"), self.background);
         changed |= layout.set(&key("tint"), self.tint);
         changed |= layout.set(&key("locked"), self.locked);
+        changed |= layout.set(&key("timestamps"), self.timestamps);
+        changed |= layout.set(&key("fade"), self.fade);
+        changed |= layout.set(&key("lines"), self.lines);
         changed
     }
 }
@@ -97,13 +114,16 @@ pub(crate) struct Popover {
     sizes: [Chip; 3],
     background: Chip,
     tint: Chip,
+    timestamps: Chip,
+    fade: Chip,
+    lines: Chip,
     lock: Chip,
     hide: Chip,
     options: Chip,
 }
 
 /// The popover's width and height, its padding and row pitch.
-const SIZE: (i32, i32) = (276, 212);
+const SIZE: (i32, i32) = (276, 256);
 const PAD: i32 = 10;
 const ROW: i32 = 22;
 
@@ -235,6 +255,9 @@ impl Popover {
         ];
         let background = make(tree, "ModernChatBackground", "Background");
         let tint = make(tree, "ModernChatTint", art::TINT_NAMES[0]);
+        let timestamps = make(tree, "ModernChatTimestamps", "Timestamps");
+        let fade = make(tree, "ModernChatFade", "Fade old lines");
+        let lines = make(tree, "ModernChatLines", "Max lines: all");
         let lock = make(tree, "ModernChatLock", "Lock position");
         let hide = make(tree, "ModernChatHide", "Hide window");
         let options = make(tree, "ModernChatOptions", "Chat options...");
@@ -261,6 +284,9 @@ impl Popover {
             sizes,
             background,
             tint,
+            timestamps,
+            fade,
+            lines,
             lock,
             hide,
             options,
@@ -290,9 +316,12 @@ impl Popover {
         }
         let x = place_chip(tree, self.background, (PAD, PAD + 4 * ROW + 4)) + 6;
         place_chip(tree, self.tint, (x, PAD + 4 * ROW + 4));
-        place_chip(tree, self.lock, (PAD, PAD + 6 * ROW + 8));
-        let x = place_chip(tree, self.hide, (PAD, PAD + 7 * ROW + 8)) + 6;
-        place_chip(tree, self.options, (x, PAD + 7 * ROW + 8));
+        let x = place_chip(tree, self.timestamps, (PAD, PAD + 5 * ROW + 4)) + 6;
+        place_chip(tree, self.fade, (x, PAD + 5 * ROW + 4));
+        place_chip(tree, self.lines, (PAD, PAD + 6 * ROW + 4));
+        place_chip(tree, self.lock, (PAD, PAD + 8 * ROW + 8));
+        let x = place_chip(tree, self.hide, (PAD, PAD + 9 * ROW + 8)) + 6;
+        place_chip(tree, self.options, (x, PAD + 9 * ROW + 8));
     }
 
     /// Whether the popover shows.
@@ -340,6 +369,16 @@ impl Popover {
         if let Some(label) = self.tint.label {
             tree.set_text(label, art::TINT_NAMES[look.tint]);
         }
+        light(tree, self.timestamps, look.timestamps);
+        light(tree, self.fade, look.fade);
+        light(tree, self.lines, look.lines != 0);
+        if let Some(label) = self.lines.label {
+            let text = match look.lines {
+                0 => "Max lines: all".to_string(),
+                n => format!("Max lines: {n}"),
+            };
+            tree.set_text(label, &text);
+        }
         light(tree, self.lock, look.locked);
         self.arrange(tree);
     }
@@ -360,6 +399,19 @@ impl Popover {
             SettingsAction::Changed
         } else if hit(self.tint) {
             look.tint = (look.tint + 1) % art::TINT_NAMES.len();
+            SettingsAction::Changed
+        } else if hit(self.timestamps) {
+            look.timestamps = !look.timestamps;
+            SettingsAction::Changed
+        } else if hit(self.fade) {
+            look.fade = !look.fade;
+            SettingsAction::Changed
+        } else if hit(self.lines) {
+            let at = LINE_LIMITS
+                .iter()
+                .position(|&n| n == look.lines)
+                .unwrap_or(0);
+            look.lines = LINE_LIMITS[(at + 1) % LINE_LIMITS.len()];
             SettingsAction::Changed
         } else if hit(self.lock) {
             look.locked = !look.locked;

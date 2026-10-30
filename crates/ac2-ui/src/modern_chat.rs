@@ -392,12 +392,9 @@ impl ModernChat {
         changed
     }
 
-    /// Window `i`'s font step and lock.
-    pub fn look_of(&self, i: usize) -> (i32, bool) {
-        self.looks
-            .borrow()
-            .get(i)
-            .map_or((0, false), |l| (l.font, l.locked))
+    /// Window `i`'s choices.
+    pub(crate) fn look_of(&self, i: usize) -> ChatLook {
+        self.looks.borrow().get(i).cloned().unwrap_or_default()
     }
 
     /// Each shown window's parts laid out for its size, its active look (`active`: the window

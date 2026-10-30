@@ -136,7 +136,25 @@ pub(crate) struct ChatWindow {
     pub message_info: HashMap<u32, ChatMessageInfo>,
     /// The modern style's font size step over the chat options' sizes (-1, 0, 1).
     pub font_step: i32,
+    /// The modern style's line choices (`modern_chat_settings`): a local time before each new
+    /// line, old lines faded while the window is not in use, the most lines the log keeps.
+    pub timestamps: bool,
+    pub fade: bool,
+    pub max_lines: Option<usize>,
+    /// When each line still in the log arrived (`Instant`s, oldest first), for the fade.
+    pub line_times: std::collections::VecDeque<std::time::Instant>,
+    /// Whether the log's old lines are faded now.
+    pub faded: bool,
 }
+
+/// The time stamp's colour (the design's `#8fa89c`).
+const STAMP_RGB: [f32; 3] = [
+    0x8F as f32 / 255.0,
+    0xA8 as f32 / 255.0,
+    0x9C as f32 / 255.0,
+];
+/// How long a line stays before it fades, seconds (the design's 12).
+const FADE_AFTER: u64 = 12;
 
 impl ChatWindow {
     /// `ChatWindow::ChatWindow`: the root from the toolbar layout and its parts, hidden.
@@ -179,6 +197,11 @@ impl ChatWindow {
             pending: Vec::new(),
             message_info: HashMap::new(),
             font_step: 0,
+            timestamps: false,
+            fade: false,
+            max_lines: None,
+            line_times: std::collections::VecDeque::new(),
+            faded: false,
         };
         window.show(tree, false);
         Some(window)
@@ -261,6 +284,83 @@ impl ChatWindow {
         }
     }
 
+    /// The modern line limit: the oldest lines past `max_lines` leave the log.
+    pub(crate) fn keep_lines(&mut self, tree: &mut UiTree) {
+        let (Some(max), Some(log)) = (self.max_lines, self.log) else {
+            return;
+        };
+        let Some(text) = tree.el_mut(log).text.as_mut() else {
+            return;
+        };
+        let ends: Vec<usize> = text
+            .glyphs
+            .iter()
+            .enumerate()
+            .filter(|(_, g)| g.ch == 10)
+            .map(|(i, _)| i)
+            .collect();
+        if ends.len() > max {
+            let cut = ends[ends.len() - max - 1] + 1;
+            text.delete_range(0, cut);
+            let gone = ends.len() - max;
+            for _ in 0..gone.min(self.line_times.len()) {
+                self.line_times.pop_front();
+            }
+            tree.mark_changed();
+        }
+    }
+
+    /// The modern fade: while the window is not in use (`in_use`: the pointer is over it or its
+    /// entry is active), lines older than `FADE_AFTER` seconds are hidden; in use, every line
+    /// shows. Only changes the log when a line crosses the age or the use changes.
+    pub(crate) fn fade_lines(&mut self, tree: &mut UiTree, in_use: bool) {
+        let Some(log) = self.log else {
+            return;
+        };
+        let fading = self.fade && !in_use;
+        let old = self
+            .line_times
+            .iter()
+            .take_while(|t| t.elapsed().as_secs() >= FADE_AFTER)
+            .count();
+        let key = if fading { old } else { 0 };
+        if !fading && !self.faded {
+            return;
+        }
+        let Some(text) = tree.el_mut(log).text.as_mut() else {
+            return;
+        };
+        // The lines are the newline-ended runs, oldest first, as many as the times kept; any
+        // text before them (older than the times) counts as old.
+        let lines = self.line_times.len();
+        let ends: Vec<usize> = text
+            .glyphs
+            .iter()
+            .enumerate()
+            .filter(|(_, g)| g.ch == 10)
+            .map(|(i, _)| i)
+            .collect();
+        let hide_before = if key == 0 {
+            0
+        } else {
+            let first_tracked = ends.len().saturating_sub(lines);
+            let last_old = first_tracked + key;
+            ends.get(last_old - 1).map_or(0, |&e| e + 1)
+        };
+        let mut changed = false;
+        for (i, glyph) in text.glyphs.iter_mut().enumerate() {
+            let alpha = if i < hide_before { 0.0 } else { 1.0 };
+            if glyph.color[3] != alpha {
+                glyph.color[3] = alpha;
+                changed = true;
+            }
+        }
+        self.faded = key > 0;
+        if changed {
+            tree.mark_changed();
+        }
+    }
+
     /// `ChatWindow::AllTextToLog`: the pending strings to the end of the log; a hidden window's
     /// toggle button shows a change, a popup type shows the window.
     pub(crate) fn all_text_to_log(&mut self, tree: &mut UiTree) {
@@ -273,8 +373,16 @@ impl ChatWindow {
             popup |= info.popup;
             // The modern font step (`modern_chat_settings`) over the options' size.
             let size = (info.size as i32 + self.font_step).clamp(0, 3) as u32;
+            if self.timestamps {
+                tree.set_font_num_and_color(log, size, info.color);
+                let stamp = chrono::Local::now().format("%H:%M ").to_string();
+                tree.append_text_rgb(log, &stamp, Some(STAMP_RGB));
+            }
             tree.add_text_with_font(log, &text, size, info.color);
+            self.line_times.push_back(std::time::Instant::now());
         }
+        self.keep_lines(tree);
+        self.faded = false;
         if !self.shown(tree) {
             if let Some(button) = self.button(tree) {
                 tree.set_state(button, tokenize("changed"));

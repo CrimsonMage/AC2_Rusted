@@ -407,6 +407,10 @@ impl UiSurface {
             return 0;
         };
         let (glyph_width, height) = (desc.width as i32, font.max_char_height as i32);
+        // A glyph faded out entirely (the modern chat's old lines) keeps its place, undrawn.
+        if color[3] <= 0.0 {
+            return glyph_width;
+        }
         let (window_width, window_height) = (window.width(), window.height());
         if x > window_width || y > window_height || x < -glyph_width || y < -height {
             return glyph_width;

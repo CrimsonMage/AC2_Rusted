@@ -236,7 +236,10 @@ game rules and server-visible behaviour exactly retail.
   The options button (`=`) opens the window's settings (`ac2_ui::modern_chat_settings`; retail's
   button opened the field with its vertical opacity slider): a name for its tab, a font size step
   over the chat options' per-type sizes (small, medium, large; applied to new lines), whether its
-  glass and the log's backing show and the backing's tint, a lock (a locked window neither moves,
+  glass and the log's backing show and the backing's tint, the local time before each new line
+  (`chrono`'s clock, `HH:MM` in the design's grey), old lines faded while the window is not in use
+  (pointer away, entry idle; lines older than 12 seconds are not drawn), the most lines the log
+  keeps (all, as retail, or 100 to 1000; the oldest leave), a lock (a locked window neither moves,
   by its bar or Alt + drag, nor resizes: `UiTree::set_locked`), Hide window (`ChatWindow::Show(0)`,
   as its key does) and the chat options page. The choices, and the vitals' layout, are kept per
   character on this machine in `HudLayout-<character>.txt` beside the window positions

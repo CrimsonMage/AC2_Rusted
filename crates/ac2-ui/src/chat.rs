@@ -206,14 +206,19 @@ impl ChatUi {
         ));
     }
 
-    /// Window `i`'s modern choices applied: its font step (new lines) and its lock.
+    /// Window `i`'s modern choices applied: its font step and time stamps (new lines), its line
+    /// fade and limit, and its lock.
     fn apply_look(&mut self, tree: &mut UiTree, i: usize) {
-        let Some((font, locked)) = self.modern.as_ref().map(|m| m.look_of(i)) else {
+        let Some(look) = self.modern.as_ref().map(|m| m.look_of(i)) else {
             return;
         };
         if let Some(window) = self.windows.get_mut(i) {
-            window.font_step = font;
-            tree.set_locked(window.root, locked);
+            window.font_step = look.font;
+            window.timestamps = look.timestamps;
+            window.fade = look.fade;
+            window.max_lines = (look.lines != 0).then_some(look.lines);
+            window.keep_lines(tree);
+            tree.set_locked(window.root, look.locked);
         }
         self.looks_changed = true;
     }
@@ -257,6 +262,23 @@ impl ChatUi {
         if modern.follow(tree, &self.names) {
             self.looks_changed = true;
         }
+        // Old lines fade while a window is not in use: the pointer away and its entry idle.
+        let (x, y) = tree.pointer();
+        for window in &mut self.windows {
+            if !window.fade && !window.faded {
+                continue;
+            }
+            let at = tree.screen_box(window.root);
+            let over = x >= at.x0 && x <= at.x1 && y >= at.y0 && y <= at.y1;
+            let typing = window.entry.is_some() && tree.active == window.entry;
+            window.fade_lines(tree, over || typing);
+        }
+    }
+
+    /// Window `i` (tests reach its log through it).
+    #[cfg(test)]
+    pub(crate) fn window_mut(&mut self, i: usize) -> &mut ChatWindow {
+        &mut self.windows[i]
     }
 
     /// The windows' roots, first to fourth.

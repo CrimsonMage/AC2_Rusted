@@ -174,3 +174,57 @@ fn the_settings_popover_changes_the_window_and_is_kept_in_the_layout() {
     assert!(!tree.el(popover).visible);
 }
 
+/// The log's text as a string.
+fn log_text(tree: &UiTree, log: usize) -> String {
+    String::from_utf16_lossy(&tree.el(log).text.as_ref().unwrap().text())
+}
+
+/// Time stamps lead each new line, the line limit drops the oldest lines, and the fade hides the
+/// lines older than its age while the window is not in use.
+#[test]
+fn time_stamps_the_line_limit_and_the_fade_follow_the_windows_choices() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let chat = hud.chat.as_mut().unwrap();
+    let window = chat.window_mut(0);
+    let log = window.log.unwrap();
+    window.bitfield = u32::MAX;
+    window.timestamps = true;
+    window.max_lines = Some(2);
+    window.fade = true;
+    if let Some(text) = tree.el_mut(log).text.as_mut() {
+        text.clear();
+    }
+    for line in ["first\n", "second\n", "third\n"] {
+        let units: Vec<u16> = line.encode_utf16().collect();
+        window.display(crate::chat_window::TEXT_TYPE_SAY, &units);
+        window.all_text_to_log(tree);
+    }
+    let text = log_text(tree, log);
+    assert!(!text.contains("first"), "{text}");
+    assert_eq!(text.lines().count(), 2, "{text}");
+    for line in text.lines() {
+        let (stamp, rest) = line.split_at(6);
+        assert!(
+            stamp.as_bytes()[2] == b':' && stamp.ends_with(' '),
+            "{line}"
+        );
+        assert!(rest == "second" || rest == "third");
+    }
+    // The older line is past the fade's age: hidden while the window is not in use.
+    let old = std::time::Instant::now()
+        .checked_sub(std::time::Duration::from_secs(20))
+        .unwrap();
+    window.line_times[0] = old;
+    window.fade_lines(tree, false);
+    let glyphs = &tree.el(log).text.as_ref().unwrap().glyphs;
+    let first_end = glyphs.iter().position(|g| g.ch == 10).unwrap();
+    assert!(glyphs[..=first_end].iter().all(|g| g.color[3] == 0.0));
+    assert!(glyphs[first_end + 1..].iter().all(|g| g.color[3] == 1.0));
+    // In use, every line shows.
+    window.fade_lines(tree, true);
+    let glyphs = &tree.el(log).text.as_ref().unwrap().glyphs;
+    assert!(glyphs.iter().all(|g| g.color[3] == 1.0));
+}

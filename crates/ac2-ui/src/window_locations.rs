@@ -195,6 +195,12 @@ impl UiTree {
         });
     }
 
+    /// The tree drawn again (a change made straight to an element's state, as the modern chat's
+    /// line fade makes to the log's glyphs).
+    pub(crate) fn mark_changed(&mut self) {
+        self.changed = true;
+    }
+
     /// `root` locked in place or freed (the modern style's lock): a locked window neither moves
     /// (by its drag bar or Alt + drag) nor resizes.
     pub fn set_locked(&mut self, root: usize, locked: bool) {
