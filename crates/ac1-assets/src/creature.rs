@@ -46,7 +46,9 @@ mod d3d {
     pub const TOP_MODULATE: u32 = 4;
     pub const TOP_SELECTARG1: u32 = 2;
     pub const TA_DIFFUSE: u32 = 0;
+    pub const TA_CURRENT: u32 = 1;
     pub const TA_TEXTURE: u32 = 2;
+    pub const TA_ALPHAREPLICATE: u32 = 0x20;
     pub const TADDRESS_WRAP: u32 = 1;
     pub const TEXF_LINEAR: u32 = 2;
     pub const CMP_LESSEQUAL: u32 = 4;
@@ -65,6 +67,11 @@ pub struct Ac1Creature {
     pub images: Images,
     /// The idle cycle and heartbeat actions, when the motion table has a default cycle.
     pub idle: Option<IdleBehaviour>,
+    /// The Setup's `default_script` (`PhysicsScript`): its glow and particles; 0 for none.
+    pub script: u32,
+    /// The icon ACE gives it (`CalculateObjDesc`: the ClothingBase template's icon when it has
+    /// one, else `PropertyDataId.Icon`); 0 for none.
+    pub icon: u32,
 }
 
 /// The part changes and palette an `ObjDesc` makes of a weenie.
@@ -76,6 +83,8 @@ struct Appearance {
     /// every indexed surface's own (`CPartArray::SetPalette`); `None` without a base palette or
     /// sub-palettes, when each surface keeps its own.
     palette: Option<Vec<u32>>,
+    /// The palette template's icon, when it has one.
+    icon: Option<u32>,
 }
 
 impl Ac1Dats {
@@ -105,54 +114,16 @@ impl Ac1Dats {
             }
         }
         let bones = appearance.parts.len();
-        let ac2_setup = Ac2Setup {
-            meshes: Arc::from(vec![DataId::new(0); bones]),
-            bones: Arc::from(vec![
-                Ac2Bone {
-                    parent: None,
-                    name: 0
-                };
-                bones
-            ]),
-            // Placement 0 (the rest frame above), then every other `placement_frames` entry by
-            // its AC1 `Placement` key (`RightHandCombat` 1, `RightHandNonCombat` 2, `LeftHand` 3,
-            // ...), which a holder's `SetPlacementFrame` picks.
-            placements: Arc::from(
-                std::iter::once((0, &rest[..]))
-                    .chain(
-                        setup
-                            .placements
-                            .iter()
-                            .filter(|(key, _)| *key != 0)
-                            .map(|(key, frames)| (*key, &frames[..])),
-                    )
-                    .map(|(kind, frames)| Ac2PlacementFrame {
-                        kind,
-                        bones: Arc::from(
-                            (0..bones)
-                                .map(|i| {
-                                    transform(frames.get(i).copied().unwrap_or(Frame::IDENTITY))
-                                })
-                                .collect::<Vec<_>>(),
-                        ),
-                    })
-                    .collect::<Vec<_>>(),
-            ),
-            holding_points: Arc::from([]),
-            connection_points: Arc::from([]),
-            degrade: Ac2DegradeInfo::default(),
-            bounds_min: Vec3::ZERO,
-            bounds_max: Vec3::ZERO,
-        };
-        let skeleton = ObjectSkeleton {
-            groups: vec![SkeletonGroup::new(visual, &ac2_setup, false, None)],
-        };
-        let model = ObjectModel {
-            visual,
-            parts,
-            degrade: None,
-            skeleton: Some(Arc::new(skeleton)),
-        };
+        let placements: Vec<(u32, &[Frame])> = std::iter::once((0, &rest[..]))
+            .chain(
+                setup
+                    .placements
+                    .iter()
+                    .filter(|(key, _)| *key != 0)
+                    .map(|(key, frames)| (*key, &frames[..])),
+            )
+            .collect();
+        let model = rigid_model(visual, parts, bones, &placements);
         let motion_table = if weenie.motion_table != 0 {
             weenie.motion_table
         } else {
@@ -168,7 +139,41 @@ impl Ac1Dats {
             model,
             images: builder.images,
             idle,
+            script: setup.default_script,
+            icon: appearance.icon.unwrap_or(weenie.icon),
         })
+    }
+
+    /// Icon `did` (a `RenderSurface`) as RGBA: its width, height and pixels.
+    pub fn icon_rgba(&self, did: u32) -> Ac1Result<Option<(u32, u32, Vec<u8>)>> {
+        let Some(bytes) = self.image(did)? else {
+            return Ok(None);
+        };
+        let render = RenderSurface::decode(did, &bytes)?;
+        let palette = if render.palette != 0 {
+            self.decode(render.palette, decode_palette)?
+        } else {
+            Vec::new()
+        };
+        Ok(decode_rgba(&render, &palette, false).map(|rgba| (render.width, render.height, rgba)))
+    }
+
+    /// A particle's GfxObj `gfx` as a model drawn under `visual`: one part at the origin, its
+    /// surfaces' own palettes.
+    pub fn particle_model(&self, gfx: u32, visual: DataId) -> Ac1Result<(ObjectModel, Images)> {
+        let mut builder = ModelBuilder {
+            dats: self,
+            palette: None,
+            materials: HashMap::new(),
+            images: Vec::new(),
+            next_texture: AC1_TEXTURE_BASE | ((visual.raw() & 0xFFF) << 11),
+        };
+        let parts = builder
+            .part(0, gfx, [1.0; 3], Frame::IDENTITY, &HashMap::new())?
+            .into_iter()
+            .collect();
+        let model = rigid_model(visual, parts, 1, &[(0, &[Frame::IDENTITY][..])]);
+        Ok((model, builder.images))
     }
 
     /// `WorldObject.CalculateObjDesc` (ACE) as the client applies it: the ClothingBase's
@@ -179,6 +184,7 @@ impl Ac1Dats {
         let mut parts = setup.parts.clone();
         let mut textures = vec![HashMap::new(); parts.len()];
         let mut subpalettes = Vec::new();
+        let mut icon = None;
         if weenie.clothing_base != 0 {
             let table = self.decode(weenie.clothing_base, ClothingTable::decode)?;
             for effect in table.bases.get(&weenie.setup).into_iter().flatten() {
@@ -190,6 +196,11 @@ impl Ac1Dats {
             }
             // ACE (`CalculateObjDesc`) applies the sub-palettes only when the weenie has a shade or
             // a template, taking the table's first template when the weenie's is not in it.
+            icon = weenie
+                .palette_template
+                .and_then(|t| table.template_icons.get(&t))
+                .copied()
+                .filter(|icon| *icon != 0);
             let template = weenie
                 .palette_template
                 .filter(|t| table.templates.contains_key(t))
@@ -238,6 +249,7 @@ impl Ac1Dats {
             parts,
             textures,
             palette,
+            icon,
         })
     }
 
@@ -251,6 +263,52 @@ impl Ac1Dats {
             did: id,
             context: "the palette set has no palette at this shade",
         })
+    }
+}
+
+/// A model of rigid parts, one bone per part (AC1 poses every part in object space), with the
+/// placement frames `placements` by AC1 `Placement` key (0 the rest frame).
+fn rigid_model(
+    visual: DataId,
+    parts: Vec<ObjectPart>,
+    bones: usize,
+    placements: &[(u32, &[Frame])],
+) -> ObjectModel {
+    let ac2_setup = Ac2Setup {
+        meshes: Arc::from(vec![DataId::new(0); bones]),
+        bones: Arc::from(vec![
+            Ac2Bone {
+                parent: None,
+                name: 0
+            };
+            bones
+        ]),
+        placements: Arc::from(
+            placements
+                .iter()
+                .map(|(kind, frames)| Ac2PlacementFrame {
+                    kind: *kind,
+                    bones: Arc::from(
+                        (0..bones)
+                            .map(|i| transform(frames.get(i).copied().unwrap_or(Frame::IDENTITY)))
+                            .collect::<Vec<_>>(),
+                    ),
+                })
+                .collect::<Vec<_>>(),
+        ),
+        holding_points: Arc::from([]),
+        connection_points: Arc::from([]),
+        degrade: Ac2DegradeInfo::default(),
+        bounds_min: Vec3::ZERO,
+        bounds_max: Vec3::ZERO,
+    };
+    ObjectModel {
+        visual,
+        parts,
+        degrade: None,
+        skeleton: Some(Arc::new(ObjectSkeleton {
+            groups: vec![SkeletonGroup::new(visual, &ac2_setup, false, None)],
+        })),
     }
 }
 
@@ -478,14 +536,18 @@ fn oriented(vertices: &[ObjectVertex], [a, b, c]: [u32; 3]) -> [u32; 3] {
 }
 
 /// `CSurface` as a material layer: its texture modulated by the lit diffuse; translucent and
-/// alpha surfaces blend, additive ones add, clip maps alpha-test; luminous surfaces are unlit.
+/// alpha surfaces blend, clip maps alpha-test; luminous surfaces are unlit, their colour the
+/// texel times the material diffuse (which a tint fades). Additive surfaces (glows, flames, the
+/// particles) add the texel premultiplied by its alpha (`ONE`, `ONE`: what retail's
+/// `SRCALPHA`, `ONE` adds) and write no depth, so they cast no sun shadow.
 fn layer(surface: &Surface, texture: DataId) -> Ac2MaterialLayer {
     let flags = surface.flags;
     let translucent = flags & st::TRANSLUCENT != 0 || surface.translucency > 0.0002;
     let alpha = flags & (st::ALPHA | st::INV_ALPHA) != 0 || translucent;
     let additive = flags & st::ADDITIVE != 0;
+    let lit = flags & st::LUMINOUS == 0 && surface.luminosity <= 0.0;
     let (source_blend, dest_blend) = if additive {
-        (blend::SRCALPHA, blend::ONE)
+        (blend::ONE, blend::ONE)
     } else if alpha {
         (blend::SRCALPHA, blend::INVSRCALPHA)
     } else {
@@ -497,30 +559,58 @@ fn layer(surface: &Surface, texture: DataId) -> Ac2MaterialLayer {
         1.0
     };
     let clip = flags & st::BASE1_CLIPMAP != 0;
+    let stage = |color_op, color_arg1, color_arg2, texture| Ac2LayerStage {
+        texture,
+        color_op,
+        color_arg1,
+        color_arg2,
+        alpha_op: if alpha || additive {
+            d3d::TOP_MODULATE
+        } else {
+            d3d::TOP_SELECTARG1
+        },
+        alpha_arg1: d3d::TA_TEXTURE,
+        alpha_arg2: d3d::TA_DIFFUSE,
+        address_u: d3d::TADDRESS_WRAP,
+        address_v: d3d::TADDRESS_WRAP,
+        min_filter: d3d::TEXF_LINEAR,
+        mag_filter: d3d::TEXF_LINEAR,
+        tex_coord: 0,
+        use_projection: false,
+        special_texture: 0,
+    };
+    let mut stages = vec![if lit {
+        // The texel itself: the light multiplies it in `display_lit`.
+        stage(
+            d3d::TOP_SELECTARG1,
+            d3d::TA_TEXTURE,
+            d3d::TA_DIFFUSE,
+            Some(texture),
+        )
+    } else {
+        stage(
+            d3d::TOP_MODULATE,
+            d3d::TA_TEXTURE,
+            d3d::TA_DIFFUSE,
+            Some(texture),
+        )
+    }];
+    if additive {
+        let mut premultiply = stage(
+            d3d::TOP_MODULATE,
+            d3d::TA_CURRENT,
+            d3d::TA_CURRENT | d3d::TA_ALPHAREPLICATE,
+            None,
+        );
+        premultiply.alpha_op = d3d::TOP_SELECTARG1;
+        premultiply.alpha_arg1 = d3d::TA_CURRENT;
+        stages.push(premultiply);
+    }
+    let light = if lit { AC1_SUN_SCALE } else { 1.0 };
     Ac2MaterialLayer {
         true_flags: 0,
         false_flags: 0,
-        stages: vec![Ac2LayerStage {
-            texture: Some(texture),
-            // The texel itself: the light multiplies it in `display_lit`.
-            color_op: d3d::TOP_SELECTARG1,
-            color_arg1: d3d::TA_TEXTURE,
-            color_arg2: d3d::TA_DIFFUSE,
-            alpha_op: if alpha {
-                d3d::TOP_MODULATE
-            } else {
-                d3d::TOP_SELECTARG1
-            },
-            alpha_arg1: d3d::TA_TEXTURE,
-            alpha_arg2: d3d::TA_DIFFUSE,
-            address_u: d3d::TADDRESS_WRAP,
-            address_v: d3d::TADDRESS_WRAP,
-            min_filter: d3d::TEXF_LINEAR,
-            mag_filter: d3d::TEXF_LINEAR,
-            tex_coord: 0,
-            use_projection: false,
-            special_texture: 0,
-        }],
+        stages,
         modifiers: Vec::new(),
         source_blend,
         dest_blend,
@@ -530,14 +620,15 @@ fn layer(surface: &Surface, texture: DataId) -> Ac2MaterialLayer {
         alpha_test_mode: u32::from(clip),
         alpha_test_ref: Ac2Waveform::constant(0.5),
         lighting: Ac2LayerLighting {
-            dynamic: flags & st::LUMINOUS == 0 && surface.luminosity <= 0.0,
+            dynamic: lit,
             material_diffuse: true,
             depth_fog: true,
             display_lit: true,
+            display_glow: additive,
             ..Ac2LayerLighting::default()
         },
         ambient: [AC1_AMBIENT_SCALE, AC1_AMBIENT_SCALE, AC1_AMBIENT_SCALE, 1.0],
-        diffuse: [AC1_SUN_SCALE, AC1_SUN_SCALE, AC1_SUN_SCALE, opacity],
+        diffuse: [light, light, light, opacity],
         specular: [0.0; 4],
         specular_power: Ac2Waveform::constant(0.0),
         options: 0,
@@ -554,6 +645,11 @@ pub struct Ac1Models {
 }
 
 impl Ac1Models {
+    /// A model drawn under `visual` (a particle's).
+    pub fn insert_model(&mut self, visual: DataId, model: ObjectModel, images: Images) {
+        self.models.insert(visual, (model, Vec3::ONE, images));
+    }
+
     pub fn insert(&mut self, creature: &Ac1Creature) {
         self.models.insert(
             creature.visual,

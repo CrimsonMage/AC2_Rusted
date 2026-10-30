@@ -77,6 +77,8 @@ pub struct Ac1Showcase {
     models: Arc<Ac1Models>,
     /// `--ac1-weapons`: the weapons for the player's hand.
     pub weapons: crate::ac1_held::Ac1Weapons,
+    /// The creatures' and weapons' particles (their Setups' default scripts).
+    pub fx: crate::ac1_fx::Ac1Fx,
     /// The ring's centre: the cell and block-relative origin the player first stood at.
     anchor: Option<(u32, [f32; 3])>,
 }
@@ -100,6 +102,13 @@ impl Ac1Showcase {
             Some(dir) => build_dir(&dats, dir, WEAPON_VISUALS, &mut models)?,
             None => Vec::new(),
         };
+        // The weapons' AC1 icons, served to the HUD before it is built.
+        let icons = Arc::new(crate::ac1_held::Ac1Icons::load(&dats, &weapons));
+        ac2_ui::set_foreign_ui_images(Arc::clone(&icons) as Arc<dyn ac2_ui::ForeignUiImages>);
+        let mut fx = crate::ac1_fx::Ac1Fx::default();
+        for built in creatures.iter().chain(&weapons) {
+            fx.add(&dats, &mut models, built.visual.raw(), built.script);
+        }
         for (kind, list) in [("creatures", &creatures), ("weapons", &weapons)] {
             if !list.is_empty() {
                 println!(
@@ -118,7 +127,8 @@ impl Ac1Showcase {
             lineup: false,
             creatures,
             models: Arc::new(models),
-            weapons: crate::ac1_held::Ac1Weapons::new(weapons, store),
+            weapons: crate::ac1_held::Ac1Weapons::new(weapons, &icons, store),
+            fx,
             anchor: None,
         })
     }

@@ -22,6 +22,9 @@ const STAR_GAIN: f32 = 24.0;
 // A veil's colour (the night layer's tint at dusk and dawn) as a filter over the atmosphere:
 // this bright at full opacity, so a pale tint colours the sky rather than darkening it.
 const VEIL_GAIN: f32 = 1.5;
+// The linear-light gain of an additive AC1 layer (`FLAG_DISPLAY_GLOW`): a 0.3 texel added over a
+// 0.5 scene in display space adds about 0.39 in linear light, against 0.07 for the bare texel.
+const DISPLAY_GLOW: f32 = 4.0;
 
 // The lit light of one pixel: diffuse irradiance (multiplies the albedo) and specular radiance.
 struct ModernLight {
@@ -163,6 +166,11 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
     var radiance = srgb_to_linear(clamp(shaded.rgb, vec3(0.0), vec3(1.0)));
     if !pixel_program && program == 1u && has(FLAG_DISPLAY_LIT) {
         radiance = display_lit(input, shaded.rgb);
+    } else if has(FLAG_DISPLAY_GLOW) {
+        // AC1 added its glows in display space, where a dim texel over a lit scene brightens it
+        // several times what the same texel adds in linear light; the gain stands in for that
+        // (the HDR target and the bloom carry the result). Glows take no sun shadow.
+        radiance = radiance * DISPLAY_GLOW;
     } else if !pixel_program && program == 1u {
         let light = modern_light(input.rel, normalize(input.normal));
         // Retail clamps the specular colour to [0, 1] (`out.color1`); the modern highlights keep

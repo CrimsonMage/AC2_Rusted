@@ -23,6 +23,49 @@ const WEAPON_ID: u64 = 0x5000;
 const FIRST_ITEM: u64 = 0x8000_0000_0000_0300;
 /// `CWeapon`'s package.
 const WEAPON_PACKAGE: u32 = 0x1AAB;
+/// The image DIDs the weapons' AC1 icons are served under (`Ac1Icons`).
+const FIRST_ICON: u32 = 0xAC40_0000;
+
+/// The weapons' AC1 icons for the HUD (`ac2_ui::ForeignUiImages`), by image DID.
+pub struct Ac1Icons(HashMap<u32, ac2_ui::UiPixels>);
+
+impl Ac1Icons {
+    /// Each weapon's icon, decoded from the AC1 DATs; a weapon without one keeps the AC2
+    /// sword's.
+    pub fn load(dats: &ac1_assets::Ac1Dats, weapons: &[Ac1Creature]) -> Self {
+        let mut icons = HashMap::new();
+        for (index, weapon) in weapons.iter().enumerate() {
+            if weapon.icon == 0 {
+                continue;
+            }
+            match dats.icon_rgba(weapon.icon) {
+                Ok(Some((width, height, rgba))) => {
+                    icons.insert(
+                        Ac1Weapons::icon_id(index),
+                        ac2_ui::UiPixels {
+                            width,
+                            height,
+                            rgba: Arc::from(rgba),
+                        },
+                    );
+                }
+                Ok(None) => {}
+                Err(error) => eprintln!("world-viewer: {}: {error}", weapon.weenie.name),
+            }
+        }
+        Self(icons)
+    }
+
+    pub fn contains(&self, file: u32) -> bool {
+        self.0.contains_key(&file)
+    }
+}
+
+impl ac2_ui::ForeignUiImages for Ac1Icons {
+    fn image(&self, file: u32) -> Option<ac2_ui::UiPixels> {
+        self.0.get(&file).cloned()
+    }
+}
 /// `RIGHT_HAND_HOLD`: the holding location a wielded weapon hangs from (AC1 and AC2 alike).
 pub const RIGHT_HAND: u32 = 1;
 /// AC1 `Placement.RightHandCombat`.
@@ -31,6 +74,8 @@ const RIGHT_HAND_COMBAT: u32 = 1;
 /// The weapons and which one is in hand.
 pub struct Ac1Weapons {
     pub weapons: Vec<Ac1Creature>,
+    /// Which weapons have an AC1 icon served (`Ac1Icons`).
+    has_icon: Vec<bool>,
     /// The weapon in hand; `None` leaves the session's AC2 sword there.
     pub current: Option<usize>,
     /// `--ac1-weapon-placement`: the AC1 placement frame the weapon takes in the hand.
@@ -41,7 +86,14 @@ pub struct Ac1Weapons {
 }
 
 impl Ac1Weapons {
-    pub fn new(weapons: Vec<Ac1Creature>, store: Arc<ac2_db::ResourceStore>) -> Self {
+    pub fn new(
+        weapons: Vec<Ac1Creature>,
+        icons: &Ac1Icons,
+        store: Arc<ac2_db::ResourceStore>,
+    ) -> Self {
+        let has_icon = (0..weapons.len())
+            .map(|index| icons.contains(Self::icon_id(index)))
+            .collect();
         let world = match ac2_client::DatWorld::new(store) {
             Ok(world) => Some(world),
             Err(error) => {
@@ -50,6 +102,7 @@ impl Ac1Weapons {
             }
         };
         Self {
+            has_icon,
             current: (!weapons.is_empty()).then_some(0),
             weapons,
             placement: RIGHT_HAND_COMBAT,
@@ -84,7 +137,7 @@ impl Ac1Weapons {
     }
 
     /// The weapons as inventory items for the HUD's session: each drawn by its AC1 model when
-    /// wielded, equipped in the primary hand, with the AC2 sword's icon.
+    /// wielded, equipped in the primary hand, with its AC1 icon (else the AC2 sword's).
     pub fn items(&self) -> Vec<ItemSpawn> {
         self.weapons
             .iter()
@@ -94,7 +147,11 @@ impl Ac1Weapons {
                 package: WEAPON_PACKAGE,
                 name: Box::leak(weapon.weenie.name.clone().into_boxed_str()),
                 plural: None,
-                icon: ICON_SWORD,
+                icon: if self.has_icon[index] {
+                    Self::icon_id(index)
+                } else {
+                    ICON_SWORD
+                },
                 quantity: None,
                 value: 50,
                 container: PLAYER,
@@ -107,6 +164,11 @@ impl Ac1Weapons {
                 visual: Some(weapon.visual.raw()),
             })
             .collect()
+    }
+
+    /// The image DID weapon `index`'s AC1 icon is served under.
+    pub fn icon_id(index: usize) -> u32 {
+        FIRST_ICON + index as u32
     }
 
     /// The inventory item of weapon `index` (`items`).

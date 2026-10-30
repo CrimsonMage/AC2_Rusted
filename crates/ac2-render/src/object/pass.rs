@@ -98,6 +98,8 @@ pub struct ProgramFlags {
     pub dynamic: bool,
     /// `Ac2LayerLighting::display_lit`: lit in display space (the AC1 creatures).
     pub display_lit: bool,
+    /// `Ac2LayerLighting::display_glow`: an additive AC1 layer's gain.
+    pub display_glow: bool,
 }
 
 /// One texture stage after `SetupState`.
@@ -242,6 +244,7 @@ pub fn layer_pass_forced(
             unmodulated_color1: layer.options & 1 != 0,
             dynamic: lighting.dynamic,
             display_lit: lighting.display_lit,
+            display_glow: lighting.display_glow,
         },
         ambient: layer.ambient,
         diffuse,

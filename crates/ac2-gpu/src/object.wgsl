@@ -146,6 +146,8 @@ const FLAG_SKY_EMISSIVE: u32 = 65536u;
 const FLAG_SKY_VEIL: u32 = 131072u;
 // A lit layer lit in display space, as the fixed-function device did (the AC1 creatures).
 const FLAG_DISPLAY_LIT: u32 = 262144u;
+// An additive AC1 layer (glows, flames, particles): its addition takes a gain (`DISPLAY_GLOW`).
+const FLAG_DISPLAY_GLOW: u32 = 524288u;
 
 @group(0) @binding(0) var<uniform> frame: Frame;
 @group(0) @binding(1) var shadow_map: texture_2d<f32>;

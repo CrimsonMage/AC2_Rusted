@@ -507,6 +507,10 @@ pub fn load_ui_images(
 ) -> ResourceResult<HashMap<u32, UiPixels>> {
     let mut images = HashMap::new();
     for file in tree.image_files() {
+        if let Some(pixels) = crate::foreign_images::foreign_image(file) {
+            images.insert(file, pixels);
+            continue;
+        }
         if let Some(surface) = ac2_assets::load_ac2_ui_surface(store, DataId::new(file))? {
             images.insert(
                 file,

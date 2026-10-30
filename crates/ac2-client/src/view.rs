@@ -253,6 +253,12 @@ impl ClientView {
         self.scene.set_options(options);
     }
 
+    /// Where object `id` was drawn in the last prepared frame (world frame, scale and posed root
+    /// bones; `WorldScene::object_placement`), for effects that ride a part of it.
+    pub fn object_placement(&self, id: u64) -> Option<&ac2_render::scene::ObjectPlacement> {
+        self.scene.object_placement(id)
+    }
+
     /// Models from outside the AC2 DATs, asked first for every world object
     /// (`WorldScene::set_foreign_models`; the AC1 creatures of `ac1-assets`).
     pub fn set_foreign_models(&mut self, models: Arc<dyn ac2_render::scene::ForeignModels>) {

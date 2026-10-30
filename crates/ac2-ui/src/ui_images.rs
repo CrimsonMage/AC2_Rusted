@@ -26,14 +26,16 @@ impl UiImageLoader {
             .name("ac2 ui images".into())
             .spawn(move || {
                 for file in requests {
-                    let pixels = ac2_assets::load_ac2_ui_surface(&store, DataId::new(file))
-                        .ok()
-                        .flatten()
-                        .map(|surface| UiPixels {
-                            width: surface.width,
-                            height: surface.height,
-                            rgba: surface.rgba,
-                        });
+                    let pixels = crate::foreign_images::foreign_image(file).or_else(|| {
+                        ac2_assets::load_ac2_ui_surface(&store, DataId::new(file))
+                            .ok()
+                            .flatten()
+                            .map(|surface| UiPixels {
+                                width: surface.width,
+                                height: surface.height,
+                                rgba: surface.rgba,
+                            })
+                    });
                     if done.send((file, pixels)).is_err() {
                         return;
                     }

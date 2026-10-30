@@ -20,6 +20,8 @@ pub struct AceWeenie {
     pub clothing_base: u32,
     /// `PropertyDataId.PaletteBase`: the `ObjDesc` palette the sub-palettes go over.
     pub palette_base: u32,
+    /// `PropertyDataId.Icon`: the item's icon (a `RenderSurface`).
+    pub icon: u32,
     /// `PropertyInt.PaletteTemplate`.
     pub palette_template: Option<u32>,
     /// `PropertyFloat.Shade` (0 when unset).
@@ -117,6 +119,7 @@ impl AceWeenie {
                         Some(1) => weenie.setup = at(2).u32().unwrap_or(0),
                         Some(2) => weenie.motion_table = at(2).u32().unwrap_or(0),
                         Some(6) => weenie.palette_base = at(2).u32().unwrap_or(0),
+                        Some(8) => weenie.icon = at(2).u32().unwrap_or(0),
                         Some(7) => weenie.clothing_base = at(2).u32().unwrap_or(0),
                         _ => {}
                     },

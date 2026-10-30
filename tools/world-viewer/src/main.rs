@@ -67,6 +67,7 @@
 //! keys, Enter for the chat, typing in its fields and the wheel over a panel work as in the client.
 
 mod ac1;
+mod ac1_fx;
 mod ac1_held;
 mod bench;
 mod crowd;
@@ -630,6 +631,16 @@ fn snapshot(
     // The scene's particle systems run on the wall clock: let them emit before the frame is
     // taken.
     for step in 0..args.warm_up * 20 {
+        // The AC1 particles run on: their emitters ride last frame's placements.
+        if let Some(showcase) = ac1.as_mut() {
+            showcase.fx.frame(
+                &view,
+                &mut frame,
+                f64::from(step) * 0.05,
+                world.block_size(),
+            );
+            view.update(&gpu, &frame, std::time::Duration::from_millis(4));
+        }
         view.prepare(
             &gpu,
             &frame,

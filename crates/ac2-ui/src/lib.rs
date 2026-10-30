@@ -293,8 +293,10 @@ pub use radar_state::{
     add_map_note, groove_of, MapMarker, MarkerRequest, RadarBlip, RadarFrame, RadarState,
     GROOVE_DELAY,
 };
+mod foreign_images;
 mod ui_images;
 mod ui_text;
+pub use foreign_images::{set_foreign_ui_images, ForeignUiImages};
 pub use ui_images::UiImageLoader;
 pub use ui_text::{
     game_date_time, map_coords_string, shortcut_from_info, shortcut_to_info, UiStringTables,

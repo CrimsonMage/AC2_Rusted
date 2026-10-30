@@ -685,6 +685,12 @@ impl WorldScene {
         }));
     }
 
+    /// Where object `id` was placed for the last frame drawn (`place_objects`), with its posed
+    /// root bones.
+    pub fn object_placement(&self, id: u64) -> Option<&ObjectPlacement> {
+        self.bodies.iter().find(|placement| placement.emitter == id)
+    }
+
     /// The point lights of the FX lights that reach an object at `position` with bounding radius
     /// `radius` at the scene's clock (the heaviest in range, at most the device's point lights).
     pub fn object_point_lights(&self, position: Vec3, radius: f32) -> Vec<PointLight> {

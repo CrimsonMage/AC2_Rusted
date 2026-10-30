@@ -45,6 +45,10 @@ impl<'a> Reader<'a> {
         }
     }
 
+    pub(crate) fn f64(&mut self, context: &'static str) -> Ac1Result<f64> {
+        self.cursor.read_f64().map_err(|_| self.err(context))
+    }
+
     fn u8(&mut self, context: &'static str) -> Ac1Result<u8> {
         self.cursor.read_u8().map_err(|_| self.err(context))
     }
@@ -57,19 +61,19 @@ impl<'a> Reader<'a> {
         self.u16(context).map(|v| v as i16)
     }
 
-    fn u32(&mut self, context: &'static str) -> Ac1Result<u32> {
+    pub(crate) fn u32(&mut self, context: &'static str) -> Ac1Result<u32> {
         self.cursor.read_u32().map_err(|_| self.err(context))
     }
 
-    fn i32(&mut self, context: &'static str) -> Ac1Result<i32> {
+    pub(crate) fn i32(&mut self, context: &'static str) -> Ac1Result<i32> {
         self.cursor.read_i32().map_err(|_| self.err(context))
     }
 
-    fn f32(&mut self, context: &'static str) -> Ac1Result<f32> {
+    pub(crate) fn f32(&mut self, context: &'static str) -> Ac1Result<f32> {
         self.cursor.read_f32().map_err(|_| self.err(context))
     }
 
-    fn vec3(&mut self, context: &'static str) -> Ac1Result<[f32; 3]> {
+    pub(crate) fn vec3(&mut self, context: &'static str) -> Ac1Result<[f32; 3]> {
         Ok([self.f32(context)?, self.f32(context)?, self.f32(context)?])
     }
 
@@ -82,7 +86,7 @@ impl<'a> Reader<'a> {
         Ok(count)
     }
 
-    fn u32_count(&mut self, item: usize, context: &'static str) -> Ac1Result<usize> {
+    pub(crate) fn u32_count(&mut self, item: usize, context: &'static str) -> Ac1Result<usize> {
         let raw = self.u32(context)?;
         self.count(raw, item, context)
     }
@@ -112,7 +116,7 @@ impl<'a> Reader<'a> {
     }
 
     /// The DBObj header: the record's own DID.
-    fn header(&mut self) -> Ac1Result<()> {
+    pub(crate) fn header(&mut self) -> Ac1Result<()> {
         let id = self.u32("missing DBObj id")?;
         if id != self.did {
             return Err(self.err("DBObj id differs from the requested DID"));
@@ -120,7 +124,7 @@ impl<'a> Reader<'a> {
         Ok(())
     }
 
-    fn frame(&mut self, context: &'static str) -> Ac1Result<Frame> {
+    pub(crate) fn frame(&mut self, context: &'static str) -> Ac1Result<Frame> {
         let origin = self.vec3(context)?;
         let rotation = [
             self.f32(context)?,
@@ -135,6 +139,11 @@ impl<'a> Reader<'a> {
     fn skip_hook(&mut self) -> Ac1Result<()> {
         let kind = self.u32("missing AnimHook type")?;
         self.u32("missing AnimHook direction")?;
+        self.skip_hook_body(kind)
+    }
+
+    /// The rest of a hook of type `kind` after its type and direction, and its alignment.
+    pub(crate) fn skip_hook_body(&mut self, kind: u32) -> Ac1Result<()> {
         let len = match kind {
             0 | 4 | 0x11 => 0,
             1 | 2 | 6 | 0x0E | 0x0F | 0x10 | 0x12 | 0x19 => 4,
@@ -193,6 +202,9 @@ pub struct Setup {
     /// `placement_frames` by `Placement` key, one frame per part.
     pub placements: Vec<(u32, Vec<Frame>)>,
     pub default_motion_table: u32,
+    /// `default_script`: the `PhysicsScript` the object runs when it is made (its glow, its
+    /// particles).
+    pub default_script: u32,
 }
 
 impl Setup {
@@ -236,13 +248,14 @@ impl Setup {
         let n = r.u32_count(48, "missing Setup light count")?;
         r.skip(n * 48, "missing Setup lights")?;
         r.u32("missing Setup default animation")?;
-        r.u32("missing Setup default script")?;
+        let default_script = r.u32("missing Setup default script")?;
         let default_motion_table = r.u32("missing Setup default motion table")?;
         Ok(Self {
             parts,
             scales,
             placements,
             default_motion_table,
+            default_script,
         })
     }
 
@@ -643,6 +656,8 @@ pub struct ClothingTable {
     pub bases: HashMap<u32, Vec<CloObjectEffect>>,
     /// `CloSubPalEffect`s by palette template.
     pub templates: HashMap<u32, Vec<CloSubPalette>>,
+    /// Each palette template's icon (`CloSubPalEffect.Icon`; 0 for none).
+    pub template_icons: HashMap<u32, u32>,
     /// The templates' keys in the table's stored order (ACE falls back to the first).
     pub template_order: Vec<u32>,
 }
@@ -681,7 +696,8 @@ impl ClothingTable {
         let n = (r.u32("missing ClothingTable template table")? & 0xFFFF) as usize;
         for _ in 0..n {
             let key = r.u32("missing ClothingTable template key")?;
-            r.u32("missing CloSubPalEffect icon")?;
+            let icon = r.u32("missing CloSubPalEffect icon")?;
+            table.template_icons.insert(key, icon);
             let subs = r.u32_count(8, "missing CloSubPalEffect count")?;
             let mut list = Vec::with_capacity(subs);
             for _ in 0..subs {

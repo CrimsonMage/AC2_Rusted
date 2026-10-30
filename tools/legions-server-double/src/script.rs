@@ -188,13 +188,16 @@ impl State {
                         .1
                         .push(item);
                 }
-                if any_displaced {
-                    self.send_contents(player);
-                }
                 if let Some(hold) = hand_hold(desc.location()) {
                     self.wield(desc.item(), player, hold, 0);
                 }
                 self.send_script(&ScriptMessage::EquipItemDone(desc.clone()));
+                // What the equip displaced went back to the pack: the pack's listing and the
+                // whole equipment (`WM_Inventory` 0x5F) follow, so the paper doll drops it.
+                if any_displaced {
+                    self.send_contents(player);
+                    self.send_equipment();
+                }
             }
             ScriptRequest::UnequipItem(desc) => {
                 let was_held = self
