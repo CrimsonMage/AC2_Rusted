@@ -30,6 +30,12 @@ pub const ICON_COIN: u32 = 0x4100_A21E;
 pub const ICON_SHIELD: u32 = 0x4100_441B;
 /// The starter quests' icon (`icon_it_scroll_generals_quest`).
 pub const ICON_QUEST: u32 = 0x4100_A21A;
+/// The starter shield's visual (`it_hum_shield_basicroundshield_craft.vd`).
+pub const SHIELD_VISUAL: u32 = 0x1F00_1514;
+/// The holding locations the starter gear hangs from: the right and the left weapon holders
+/// (`gmbonetype` `rweaponholder` / `lweaponholder` on the human Setup).
+pub const RIGHT_HAND_HOLD: u32 = 1;
+pub const LEFT_HAND_HOLD: u32 = 2;
 /// The first starter quest's id ([`State::give_starter_quests`]).
 pub const STARTER_QUEST: u32 = 0x100;
 /// `gmQuestInfo::_questStatus`: underway and completed.
@@ -76,6 +82,9 @@ pub struct ItemSpawn {
     /// The entity description (`WeenieDesc` bit 0x0200_0000, an `EntityDesc` DID): the DAT record
     /// that gives the object its usage action and usage qualities.
     pub entity: Option<u32>,
+    /// The item's `VisualDesc` (a DAT visual), for an item that is drawn when wielded; `None` for
+    /// one with no parts.
+    pub visual: Option<u32>,
 }
 
 impl ItemSpawn {
@@ -95,16 +104,22 @@ impl ItemSpawn {
             capacity: None,
             locations: None,
             entity: None,
+            visual: None,
         }
     }
 }
 
-/// `CreateObject` for a contained item: no `VisualDesc` parts, a `PhysicsDesc` without a
-/// position (it is not in the world), the four timestamps, then its `WeenieDesc`.
+/// `CreateObject` for a contained item: its `VisualDesc` (none, or its DAT visual), a
+/// `PhysicsDesc` without a position (it is not in the world), the four timestamps, then its
+/// `WeenieDesc`.
 pub fn item_object_bytes(item: &ItemSpawn) -> Vec<u8> {
     let mut b = 0x0001_0058u32.to_le_bytes().to_vec();
     b.extend(item.id.to_le_bytes());
-    words(&mut b, &[0, 0]);
+    match item.visual {
+        Some(visual) => words(&mut b, &[2, visual]),
+        None => words(&mut b, &[0]),
+    }
+    words(&mut b, &[0]);
     b.extend(1u16.to_le_bytes());
     b.extend(0u16.to_le_bytes());
     for stamp in [1u16, 0, 0, 0] {
@@ -255,20 +270,35 @@ impl State {
 
     /// The starter gear, after [`State::give_starter_items`] and before the player's login state
     /// ([`State::send_init_player`]): a round shield worn in the off hand and the practice sword
-    /// wielded, so the paper doll's slots show worn items (the world viewer's session).
+    /// wielded, so the paper doll's slots show worn items. Both are drawn in the character's
+    /// hands: each gets its visual and hangs from its holding point (`RecvEvt_Parent`), as a
+    /// server wields what the player equips (the world viewer's session).
     pub fn give_starter_gear(&mut self) {
+        let player = self.player();
+        let sword = starter_items()
+            .into_iter()
+            .find(|item| item.id == SWORD)
+            .map(|item| ItemSpawn {
+                visual: Some(crate::SWORD_VISUAL),
+                ..item
+            })
+            .expect("the starter sword");
+        self.send_event(&item_object_bytes(&sword));
         let shield = ItemSpawn {
             icon: ICON_SHIELD,
             value: 30,
             durability: Some((60, 60)),
             locations: Some((SECONDARY_HAND, SECONDARY_HAND)),
-            ..ItemSpawn::new(SHIELD, 0x1AAB, "Round Shield", self.player())
+            visual: Some(SHIELD_VISUAL),
+            ..ItemSpawn::new(SHIELD, 0x1AAB, "Round Shield", player)
         };
         self.send_item(&shield);
         self.inventory_move(SWORD, 0, -1);
         let world = &mut self.script_world;
         world.equipped.push((PRIMARY_HAND, SWORD));
         world.equipped.push((SECONDARY_HAND, SHIELD));
+        self.wield(SWORD, player, RIGHT_HAND_HOLD, 0);
+        self.wield(SHIELD, player, LEFT_HAND_HOLD, 0);
     }
 
     /// Starter quests for the login message ([`State::send_init_player`]): one underway and one

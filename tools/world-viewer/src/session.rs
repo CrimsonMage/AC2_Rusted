@@ -4,7 +4,7 @@
 //! frameworks run against the client every frame as in `bin/ac2`'s world frame: the inventory, the
 //! paper doll, the skills, the shortcut bar and the toolbar's panels and menus all work. The
 //! viewer still walks and draws its own player; the HUD's parts of the frame (inventory, vitals,
-//! progress, selection, calendar) come from the session.
+//! progress, selection, calendar) and what the player holds come from the session.
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -149,6 +149,16 @@ impl Session {
             }
             _ => {}
         }
+        // What the player holds (the starter sword and shield) hangs from the walker's hands:
+        // the walker carries the session player's id, the holder these name.
+        let player_id = session.player.as_ref().map(|p| p.id);
+        frame.objects.extend(
+            session
+                .objects
+                .iter()
+                .filter(|o| o.holder.as_ref().map(|h| h.id) == player_id && player_id.is_some())
+                .cloned(),
+        );
         frame.selection = session.selection;
         frame.player_vitals = session.player_vitals;
         frame.inventory = session.inventory;
@@ -221,6 +231,27 @@ mod tests {
         );
         assert_eq!(view.paper_doll_item(PRIMARY_HAND), Some(SWORD));
         assert_eq!(view.paper_doll_item(SECONDARY_HAND), Some(SHIELD));
+        // The sword and the shield hang from the player's hands in the merged frame.
+        let mut frame = ClientFrame {
+            in_world: true,
+            cell_id: Some(landing.cell()),
+            ..ClientFrame::default()
+        };
+        session.frame(&mut view, &mut frame, 1.0 / 64.0);
+        let player = frame.player.as_ref().expect("the player").id;
+        let held: Vec<(u64, u32)> = frame
+            .objects
+            .iter()
+            .filter_map(|o| Some((o.id, o.holder.as_ref().filter(|h| h.id == player)?.location)))
+            .collect();
+        assert!(
+            held.contains(&(SWORD, legions_server_double::RIGHT_HAND_HOLD)),
+            "{held:?}"
+        );
+        assert!(
+            held.contains(&(SHIELD, legions_server_double::LEFT_HAND_HOLD)),
+            "{held:?}"
+        );
         let (underway, finished) = view.quest_ids().expect("the quest panel");
         assert_eq!(
             (underway, finished),
