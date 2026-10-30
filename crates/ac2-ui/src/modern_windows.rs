@@ -14,14 +14,16 @@
 //! chosen), bronze pills, dark wells, a well with a gold tick, gold chevrons, a fine rule and the
 //! thin scroll bar. Every element, state and message stays retail's; only the images change.
 //! The windows with their own design (the inventory drawer, the loot window, the stack dialog)
-//! are left to it. The room under a side panel's window is left empty.
+//! are left to it. The room under a side panel's window is left empty. A window's title (the text
+//! in its header) is drawn in the design's gold.
 
+use std::collections::HashSet;
 use std::sync::Arc;
 
 use crate::compose::{nine_edges, DRAW_OVER, NINE_SLICE, NINE_SLICE_EDGES};
 use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc};
 use crate::modern_art as art;
-use crate::token::tokenize;
+use crate::token::{tokenize, REFERENCE, REFERENT, STATELESS};
 
 /// A retail image, the design's part for it and that part's nine-slice border (the attribute
 /// and its value).
@@ -218,16 +220,57 @@ fn own_design(id: u32) -> bool {
         .any(|name| tokenize(name) == id)
 }
 
+/// The frames with the design's header, whose title is drawn in gold.
+const HEADED: [u32; 6] = [
+    art::WIN_GLASS,
+    art::WIN_STORE,
+    art::WIN_CATALOG,
+    art::WIN_NEW_SALE,
+    art::WIN_INGREDIENTS_TOP,
+    art::WIN_BOOK_DARK,
+];
+/// The design's gold (`#d9c27a`), the titles' colour.
+const TITLE_GOLD: [f32; 3] = [217.0 / 255.0, 194.0 / 255.0, 122.0 / 255.0];
+
+/// A frame's title: a text in its header (its top `WIN_HEADER_HEIGHT` rows), or a reference
+/// there (retail's titles refer to a shared text; a colour on a reference to anything else is
+/// read by nothing).
+fn is_title(d: &ElementDesc) -> bool {
+    (d.kind == tokenize("text") || d.kind == REFERENCE)
+        && d.rect.y0 <= 4
+        && i32::from(d.rect.y1) <= i32::from(art::WIN_HEADER_HEIGHT)
+        && d.rect.x1 - d.rect.x0 >= 40
+}
+
+/// `d` coloured the design's gold (`font_color_red/green/blue` in every state).
+fn gilded(d: &ElementDesc) -> ElementDesc {
+    let mut d = d.clone();
+    for state in &mut d.states {
+        for (channel, value) in ["red", "green", "blue"].into_iter().zip(TITLE_GOLD) {
+            let id = tokenize(&format!("font_color_{channel}"));
+            state.attributes.retain(|a| a.id != id);
+            state.attributes.push(AttributeDesc {
+                id,
+                value: AttributeValue::Float(value),
+            });
+        }
+    }
+    d
+}
+
 /// `layout` with the windows' images swapped for the design's (every element id and state kept).
 pub(crate) fn restyle(layout: &LayoutDesc) -> LayoutDesc {
     let swaps = swaps();
-    fn walk(d: &ElementDesc, swaps: &[Swap]) -> ElementDesc {
+    fn walk(d: &ElementDesc, swaps: &[Swap], headed_ids: &HashSet<u32>) -> ElementDesc {
         let mut d = d.clone();
         if own_design(d.id) {
             return d;
         }
         // The part's border goes in every state (the element reads it from its base state).
         let mut border = None;
+        // A reference takes its referent's frame (or gives its own to its referent's title).
+        let mut headed =
+            headed_ids.contains(&d.id) || referent(&d).is_some_and(|r| headed_ids.contains(&r));
         for state in &mut d.states {
             state
                 .media
@@ -241,11 +284,21 @@ pub(crate) fn restyle(layout: &LayoutDesc) -> LayoutDesc {
                         *file = to;
                         *draw_mode = DRAW_OVER;
                         border = border.or(nine);
+                        headed |= HEADED.contains(&to);
                     }
                 }
             }
             for child in &mut state.children {
-                *child = Arc::new(walk(child, swaps));
+                *child = Arc::new(walk(child, swaps, headed_ids));
+            }
+        }
+        if headed {
+            for state in &mut d.states {
+                for child in &mut state.children {
+                    if is_title(child) {
+                        *child = Arc::new(gilded(child));
+                    }
+                }
             }
         }
         if let Some((id, value)) = border {
@@ -259,11 +312,47 @@ pub(crate) fn restyle(layout: &LayoutDesc) -> LayoutDesc {
         }
         d
     }
+    // The elements whose frame has the design's header, and the referents of references that
+    // draw one: their titles are gilded.
+    let mut headed_ids = HashSet::new();
+    fn collect(d: &ElementDesc, swaps: &[Swap], out: &mut HashSet<u32>) {
+        let headed = d.states.iter().any(|state| {
+            state.media.iter().any(|m| {
+                matches!(m, MediaDesc::Image { file, .. }
+                    if swaps.iter().any(|(from, to, _)| from == file && HEADED.contains(to)))
+            })
+        });
+        if headed {
+            out.insert(d.id);
+            out.extend(referent(d));
+        }
+        for state in &d.states {
+            for child in &state.children {
+                collect(child, swaps, out);
+            }
+        }
+    }
+    for element in &layout.elements {
+        collect(element, &swaps, &mut headed_ids);
+    }
     let mut layout = layout.clone();
     for element in &mut layout.elements {
-        *element = Arc::new(walk(element, &swaps));
+        *element = Arc::new(walk(element, &swaps, &headed_ids));
     }
     layout
+}
+
+/// The element a reference stands for (its `referent`).
+fn referent(d: &ElementDesc) -> Option<u32> {
+    if d.kind != REFERENCE {
+        return None;
+    }
+    d.states.iter().find(|s| s.id == STATELESS).and_then(|s| {
+        s.attributes.iter().find_map(|a| match (a.id, &a.value) {
+            (REFERENT, AttributeValue::Id(id)) => Some(*id),
+            _ => None,
+        })
+    })
 }
 
 #[cfg(test)]
@@ -322,6 +411,24 @@ mod tests {
                 assert!(own || !FILLERS.contains(&file), "{file:08X}");
             }
             assert!(swapped.contains(&0x4100_0970));
+            let mut gold = 0;
+            fn count(d: &ElementDesc, gold: &mut usize) {
+                for state in &d.states {
+                    *gold += state
+                        .attributes
+                        .iter()
+                        .filter(|a| a.id == tokenize("font_color_red"))
+                        .filter(|a| a.value == AttributeValue::Float(TITLE_GOLD[0]))
+                        .count();
+                    for child in &state.children {
+                        count(child, gold);
+                    }
+                }
+            }
+            for element in &modern.elements {
+                count(element, &mut gold);
+            }
+            assert!(gold > 0, "a title in gold");
         }
     }
 }
