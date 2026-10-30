@@ -491,6 +491,18 @@ impl CollisionParameters {
         &self.movement_weenie
     }
 
+    /// `CPhysicsObj::CheckIfSolid`: whether an object with `id` and `object_mask` blocks the
+    /// mover with these sets ([`Self::blocks`]) and is not on the temporary ethereal list
+    /// (`AddToTempEtherealList`).
+    pub fn check_if_solid(
+        &self,
+        id: InstanceId,
+        object_mask: PhysicsTypeMask,
+        placement: bool,
+    ) -> bool {
+        self.blocks(id, object_mask, placement) && !(id != 0 && self.in_temp_ethereal_list(id))
+    }
+
     /// `CPhysicsObj::IsBlocking(wtype, ptype)` against this body's sets: the placement or the
     /// movement set, as the transition runs. `object_mask` is the object's blocking physics-type
     /// mask (`m_blocking_mask`). When the masks share a type the object blocks only if the id is

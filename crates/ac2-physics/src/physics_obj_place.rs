@@ -85,6 +85,8 @@ impl PhysicsObj {
             frames_stationary_fall: 0,
             containment_radius: self.containment_radius(),
             collision: &self.collision,
+            instance_id: self.instance_id,
+            blocking: self.blocking,
             identity: self.world_id,
         };
         let mut p = position;
@@ -106,11 +108,11 @@ impl PhysicsObj {
             transition.sphere_path.placement_allows_sliding = false;
         }
         if !self.check_position(&mut transition, &mut p, cell, flags, terrain) {
-            self.handle_all_collisions(&transition.collision_info, false);
-            return if transition.collision_info.collide_objects.is_empty() {
-                SetPositionError::NoValidPosition
-            } else {
+            // `SetPositionInternal`: `handle_all_collisions`' result picks `Collided`.
+            return if self.handle_all_collisions(&transition.collision_info, false) {
                 SetPositionError::Collided
+            } else {
+                SetPositionError::NoValidPosition
             };
         }
         if transition.sphere_path.curr_cell.is_none() {

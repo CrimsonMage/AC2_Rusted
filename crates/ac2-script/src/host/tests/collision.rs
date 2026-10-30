@@ -586,3 +586,40 @@ fn the_collide_property_efuns_read_the_record_the_report_listed() {
         );
     }
 }
+
+/// The properties of the objects a report touched reach the script: `GetObjectProperty` reads the
+/// record the object's property list listed (`CollidePropertyList::BeginPropertyCollision`).
+#[test]
+fn the_object_properties_of_a_report_reach_get_object_property() {
+    use ac2_physics::{CollideProperty as PhysicsProperty, CollideType, CollisionReport};
+    let report = CollisionReport {
+        object_properties: vec![PhysicsProperty {
+            id: 21,
+            collide_type: CollideType::Begin,
+            property: ac2_db::Ac2PropertyValue {
+                name: 0x4000_0036,
+                value_type: 0x4000_0007,
+                bytes: 5u32.to_le_bytes().into(),
+            },
+        }],
+        ..CollisionReport::default()
+    };
+    let (mut host, handle) = host_with_profile(CollisionProfile::from_report(&report));
+    let out = host.vm.refs.create_native(
+        ntype::COLLIDE_PROPERTY,
+        NativeObject::CollideProperty(CollideProperty::default()),
+    );
+    assert_eq!(
+        efun_result(&mut host.vm, 0x001B_0005, &[0, out], handle, 4),
+        1
+    );
+    let Some(NativeObject::CollideProperty(c)) = host.vm.native(out) else {
+        panic!("the object property out native");
+    };
+    assert_eq!((c.id, c.collide_type), (21, CollideType::Begin.raw()));
+    assert_eq!(
+        efun_result(&mut host.vm, 0x001B_0005, &[1, out], handle, 4),
+        0,
+        "only one property was listed"
+    );
+}

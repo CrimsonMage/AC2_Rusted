@@ -169,6 +169,11 @@ fn sync_shadow(
             let id = terrain.insert_object(object);
             if let Some(body) = &remote.body {
                 terrain.set_object_ignores_collisions(id, body.ignores_collisions());
+                terrain.set_object_collision(
+                    id,
+                    body.collision_state_ptr(),
+                    body.current_properties(),
+                );
             }
             remote.shadow = Some(id);
             if let Some(body) = remote.body.as_mut() {
@@ -180,6 +185,11 @@ fn sync_shadow(
             terrain.set_object_blocking(id, blocking);
             if let Some(body) = &remote.body {
                 terrain.set_object_ignores_collisions(id, body.ignores_collisions());
+                terrain.set_object_collision(
+                    id,
+                    body.collision_state_ptr(),
+                    body.current_properties(),
+                );
             }
         }
         (None, Some(id)) => {
@@ -661,7 +671,10 @@ impl<B> Remotes<B> {
         for (owner, other) in drops {
             match self.body_mut(other) {
                 Some(body) => {
-                    body.collision_remove_object(owner);
+                    // The properties of `owner` end at once, for `other`'s script.
+                    if let Some(report) = body.collision_remove_object(owner) {
+                        self.traffic.reports.push((other, report));
+                    }
                 }
                 None => self.traffic.drops.push((owner, other)),
             }

@@ -75,7 +75,7 @@ const NAME_IGNORED: u32 = 0x1000_0003;
 fn synthetic_desc(name: u32) -> Option<Ac2PropertyDesc> {
     let report = match name {
         TERRAIN_TYPE_PROPERTY | NAME_REPORTED => REPORT_REPORTABLE,
-        NAME_INQUIRABLE => REPORT_INQUIRABLE,
+        NAME_INQUIRABLE | 0x4000_0042 => REPORT_INQUIRABLE,
         NAME_IGNORED => REPORT_IGNORED,
         _ => return None,
     };
@@ -535,7 +535,7 @@ fn a_removed_object_ends_at_the_next_report_and_is_dropped() {
     assert!(!m.is_empty());
     let first = m.report(10.0, no_contact(), &ContactMaterials::default(), plain());
     assert_eq!(first.objects.len(), 1);
-    assert!(!m.remove_object(OBJECT_ID));
+    assert!(m.remove_object(OBJECT_ID).is_none());
     let second = m.report(10.1, no_contact(), &ContactMaterials::default(), plain());
     assert_eq!(second.objects.len(), 1);
     assert_eq!(second.objects[0].id, OBJECT_ID);
@@ -572,13 +572,13 @@ fn a_body_that_does_not_report_collisions_begins_nothing_until_it_does() {
     let none = ContactMaterials::default();
     assert!(body.report_collisions(&none, false).is_none());
     // Turning reporting on sets the bit and runs a plain report: the object begins.
-    let begun = body.set_report_collisions(true, &none).expect("it begins");
+    let begun = body.set_reporting(true, &none).expect("it begins");
     assert!(body.reports_collisions());
     assert_eq!(objects_of(&begun), vec![(7, true)]);
     // Already reporting: nothing to do.
-    assert!(body.set_report_collisions(true, &none).is_none());
+    assert!(body.set_reporting(true, &none).is_none());
     // Turning it off ends what was reported and clears the bit.
-    let ended = body.set_report_collisions(false, &none).expect("it ends");
+    let ended = body.set_reporting(false, &none).expect("it ends");
     assert!(!body.reports_collisions());
     assert_eq!(objects_of(&ended), vec![(7, false)]);
 }
@@ -648,8 +648,8 @@ fn the_object_that_was_hit_hears_of_the_mover() {
     bare.touched_by(&peer, false, None);
     assert!(bare.collisions_empty());
     // The mover's removal ends the record at the next report, and the report drops it.
-    assert!(hit.collision_remove_object(7));
-    assert!(!bare.collision_remove_object(7));
+    assert!(hit.collision_remove_object(7).is_none());
+    assert!(bare.collision_remove_object(7).is_none());
     hit.set_time(0.6);
     let end = hit
         .report_collisions(&ContactMaterials::default(), false)
@@ -682,4 +682,152 @@ fn the_movement_set_becomes_the_collide_mask_at_the_end_of_a_pass() {
     );
     assert_eq!(body.collision_mut().movement_physics().bits(), 0b001);
     assert!(body.collision_mut().has_movement_physics());
+}
+
+/// The object's property groups: a reported property, an inquirable one, an ignored one.
+fn object_groups() -> Vec<Ac2PropertyGroup> {
+    material(
+        0,
+        &[(NAME_REPORTED, 3), (NAME_INQUIRABLE, 4), (NAME_IGNORED, 5)],
+    )
+    .groups
+    .clone()
+}
+
+#[test]
+fn a_touched_object_with_properties_lists_them_begin_then_end() {
+    // `AddObjectCollision` gives the touched object a `CollidePropertyList` of its inquirable
+    // properties; `ReportCollision` begins it, and ends it when the object expires.
+    let mut m = manager();
+    m.begin_check(10.0);
+    m.touch(OBJECT_ID, false, false);
+    m.touch_properties(OBJECT_ID, &object_groups(), None);
+    assert!(m.find_in_property_list(OBJECT_ID));
+    let begin = m.report(10.0, no_contact(), &ContactMaterials::default(), plain());
+    // Only the property the table reports to the weenie is listed; the ignored one never joined.
+    assert_eq!(
+        listed(&begin.object_properties),
+        vec![(NAME_REPORTED, CollideType::Begin)]
+    );
+    // Touched again: nothing new; the same list.
+    m.begin_check(10.5);
+    m.touch(OBJECT_ID, false, false);
+    m.touch_properties(OBJECT_ID, &object_groups(), None);
+    let same = m.report(10.5, no_contact(), &ContactMaterials::default(), plain());
+    assert!(same.object_properties.is_empty());
+    // Not touched for over a second: it ends and the table is empty.
+    m.begin_check(12.0);
+    let end = m.report(12.0, no_contact(), &ContactMaterials::default(), plain());
+    assert_eq!(
+        listed(&end.object_properties),
+        vec![(NAME_REPORTED, CollideType::End)]
+    );
+    assert!(m.is_empty());
+}
+
+#[test]
+fn removing_an_object_ends_its_properties_at_once() {
+    // `RemoveObjectCollision` ends a reported property list and erases it; the profile is
+    // non-empty, so `CollisionRemoveObject` hands it to `HandleCollision`.
+    let mut m = manager();
+    m.begin_check(10.0);
+    m.touch_properties(OBJECT_ID, &object_groups(), None);
+    assert!(
+        m.remove_object(OBJECT_ID).is_none(),
+        "never reported: nothing to end"
+    );
+    m.touch_properties(OBJECT_ID, &object_groups(), None);
+    m.report(10.0, no_contact(), &ContactMaterials::default(), plain());
+    let ended = m.remove_object(OBJECT_ID).expect("a reported list ends");
+    assert_eq!(
+        listed(&ended.object_properties),
+        vec![(NAME_REPORTED, CollideType::End)]
+    );
+    assert!(!m.find_in_property_list(OBJECT_ID));
+}
+
+#[test]
+fn an_object_that_ignores_collisions_is_not_listed_as_beginning() {
+    // The entry still joins the table; it begins in the report only while its flag is clear, and
+    // a flag change after it was reported lists it once as begun or ended.
+    let mut m = manager();
+    m.begin_check(10.0);
+    m.touch(OBJECT_ID, false, true);
+    let first = m.report(10.0, no_contact(), &ContactMaterials::default(), plain());
+    assert!(first.objects.is_empty());
+    m.begin_check(10.1);
+    m.touch(OBJECT_ID, false, false);
+    let changed = m.report(10.1, no_contact(), &ContactMaterials::default(), plain());
+    assert_eq!(objects_of(&changed), vec![(OBJECT_ID, true)]);
+    m.begin_check(10.2);
+    m.touch(OBJECT_ID, false, true);
+    let again = m.report(10.2, no_contact(), &ContactMaterials::default(), plain());
+    assert_eq!(objects_of(&again), vec![(OBJECT_ID, false)]);
+    let quiet = m.report(10.3, no_contact(), &ContactMaterials::default(), plain());
+    assert!(quiet.objects.is_empty());
+}
+
+#[test]
+fn a_touched_object_with_pusher_vectors_pushes_the_body() {
+    let mut m = manager();
+    m.begin_check(1.0);
+    let push = Ac2PropertyGroup {
+        name: 0x4000_000D,
+        properties: vec![Ac2PropertyValue {
+            name: 0x4000_0042,
+            value_type: 0x4000_0004,
+            bytes: [1.0f32, 0.0, 0.0]
+                .iter()
+                .flat_map(|c| c.to_le_bytes())
+                .collect::<Vec<_>>()
+                .into(),
+        }],
+    };
+    m.touch_properties(OBJECT_ID, &[push], None);
+    assert!(m.find_in_property_list(OBJECT_ID));
+    assert!(m.pushers.get(OBJECT_ID).is_some(), "AddPusherProperties");
+    m.remove_object(OBJECT_ID);
+    assert!(m.pushers.get(OBJECT_ID).is_none());
+}
+
+#[test]
+fn a_mover_hitting_an_object_with_properties_lists_them_in_its_report() {
+    let mut world = flat();
+    let at = position(80.2, 84.0, 0.0);
+    let id = world.insert_object(
+        StaticObject::dynamic(at, Vector::new(1.0, 1.0, 1.0), pillar(), true)
+            .with_instance_id(OBJECT_ID),
+    );
+    world.set_object_collision(id, None, &object_groups());
+    let mut body = walker(80.0, 80.0);
+    body.set_collision_state(&crate::CollisionParameters::default(), &|_| None);
+    body.object_mut().collision_manager.descs = PropertyDescs(synthetic_desc);
+    let mats = ContactMaterials::default();
+    let mut now = 0.0;
+    let mut reports = Vec::new();
+    for _ in 0..5 {
+        now += PHYSICS_QUANTUM as f64;
+        reports.extend(step(&mut body, &world, now, &mats));
+    }
+    body.set_input(MovementInput {
+        motion: [0.0, 1.0, 0.0],
+        heading: Some(0.0),
+        turn: 0.0,
+    });
+    for _ in 0..(3.0 / PHYSICS_QUANTUM).round() as usize {
+        now += PHYSICS_QUANTUM as f64;
+        reports.extend(step(&mut body, &world, now, &mats));
+    }
+    let props: Vec<_> = reports
+        .iter()
+        .flat_map(|r| listed(&r.object_properties))
+        .collect();
+    assert_eq!(
+        props,
+        vec![
+            (NAME_REPORTED, CollideType::Begin),
+            (NAME_REPORTED, CollideType::End)
+        ],
+        "begun with the object and ended once it is left behind"
+    );
 }

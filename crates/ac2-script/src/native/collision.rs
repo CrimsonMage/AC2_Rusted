@@ -122,6 +122,7 @@ impl CollisionProfile {
                 })
                 .collect::<Vec<_>>()
         };
+        profile.object_properties = properties(&report.object_properties);
         profile.env_properties = properties(&report.environment);
         profile.surface_properties = properties(&report.surface);
         profile.water_properties = properties(&report.water);

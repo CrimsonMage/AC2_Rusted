@@ -238,6 +238,41 @@ impl Terrain {
         }
     }
 
+    /// Sets object `id`'s own collision parameters (`GetCollisionStatePtr`; `None` for a body
+    /// without a collision manager), which `CPhysicsObj::Interpermiable` reads from the object's
+    /// side, and its property groups (`GetObjectProperties`), which a touching mover lists.
+    pub fn set_object_collision(
+        &mut self,
+        id: u32,
+        collision: Option<&crate::collision_types::CollisionParameters>,
+        properties: &[ac2_db::Ac2PropertyGroup],
+    ) {
+        if let Some(Some((object, _))) = self.objects.get_mut(id as usize) {
+            if object.collision.as_ref() != collision {
+                object.collision = collision.cloned();
+            }
+            if object.properties != properties {
+                object.properties = properties.to_vec();
+            }
+        }
+    }
+
+    /// Where object `id` stands.
+    pub(crate) fn object_position(&self, id: u32) -> Option<Position> {
+        match self.objects.get(id as usize) {
+            Some(Some((object, _))) => Some(object.position),
+            _ => None,
+        }
+    }
+
+    /// The property groups object `id` carries (`GetObjectProperties`).
+    pub(crate) fn object_properties(&self, id: u32) -> &[ac2_db::Ac2PropertyGroup] {
+        match self.objects.get(id as usize) {
+            Some(Some((object, _))) => &object.properties,
+            _ => &[],
+        }
+    }
+
     pub fn set_object_ethereal(&mut self, id: u32, ethereal: bool) {
         if let Some(Some((object, _))) = self.objects.get_mut(id as usize) {
             object.set_ethereal(ethereal);

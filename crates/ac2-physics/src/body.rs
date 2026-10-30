@@ -784,11 +784,12 @@ impl PhysicsBody {
         std::mem::take(&mut self.object.dropped)
     }
 
-    /// `CPhysicsObj::set_report_collisions`: turning reporting off ends every record the body
+    /// `CPhysicsObj::set_report_collisions` with its `ReportCollisions` calls (the bit alone is
+    /// `set_report_collisions`): turning reporting off ends every record the body
     /// reported (`ReportCollisions(1)`, returned) and clears `REPORT_COLLISIONS_PS`; turning it
     /// on sets the bit and runs a plain report (`ReportCollisions(0)`). No change when the body
     /// is already in that mode.
-    pub fn set_report_collisions(
+    pub fn set_reporting(
         &mut self,
         on: bool,
         materials: &ContactMaterials,
@@ -834,8 +835,9 @@ impl PhysicsBody {
     }
 
     /// `CPhysicsObj::CollisionRemoveObject`: the object `id` left the world; this body's entry
-    /// for it ends at the next report. Returns whether the body has a collision manager.
-    pub fn collision_remove_object(&mut self, id: u64) -> bool {
+    /// for it ends at the next report, and the properties of the object end at once: that
+    /// report is returned when it lists something, for the script (`HandleCollision`).
+    pub fn collision_remove_object(&mut self, id: u64) -> Option<CollisionReport> {
         self.object.collision_remove_object(id)
     }
 

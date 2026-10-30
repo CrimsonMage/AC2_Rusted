@@ -369,7 +369,9 @@ impl Client {
                 .filter(|p| p.id == other)
                 .and_then(|p| p.body.as_mut())
             {
-                body.physics.collision_remove_object(owner);
+                if let Some(report) = body.physics.collision_remove_object(owner) {
+                    reports.push((other, report));
+                }
             }
         }
         reports.extend(self.remotes.take_collision_reports());

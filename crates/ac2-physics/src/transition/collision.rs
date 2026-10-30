@@ -179,6 +179,8 @@ pub(crate) struct CollisionInfo {
     pub collide_objects: Vec<u32>,
     /// `last_collided_object`: the latest object that stopped the transition and was not ethereal.
     pub last_collided_object: Option<u32>,
+    /// The blocking masks of the scenery (objects without an `InstanceID`) that stopped it.
+    pub scenery: Vec<crate::collision_types::PhysicsTypeMask>,
     pub collided_with_environment: bool,
     pub frames_stationary_fall: i32,
 }
@@ -193,6 +195,7 @@ impl CollisionInfo {
         self.collided_with_environment = false;
         self.collide_objects.clear();
         self.last_collided_object = None;
+        self.scenery.clear();
         self.contact_plane_cell_id = 0;
         self.frames_stationary_fall = 0;
         self.contact_plane_is_water = false;

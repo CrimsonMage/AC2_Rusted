@@ -17,6 +17,10 @@ pub struct ConflictPeer {
     pub id: InstanceId,
     pub collision: CollisionParameters,
     pub blocking: PhysicsTypeMask,
+    /// Where it stands (for local-space pusher vectors) and its property groups
+    /// (`GetObjectProperties`), which a body touching it lists in its collision report.
+    pub position: Option<crate::position::Position>,
+    pub properties: Vec<ac2_db::Ac2PropertyGroup>,
 }
 
 /// What a conflict asked of the other object: `AddToTempEtherealList(add)` on `object`.
@@ -135,6 +139,11 @@ impl PhysicsObj {
         let ethereal = self.interpermiable(mover);
         self.collision_manager
             .touch(mover.id, ethereal, mover_ignores);
+        self.collision_manager.touch_properties(
+            mover.id,
+            &mover.properties,
+            mover.position.as_ref(),
+        );
         if let Some((normal, velocity)) = impact {
             if let Some(report) =
                 crate::collision_impact::impact(self.impact_minimums.z, normal, velocity)
@@ -145,16 +154,17 @@ impl PhysicsObj {
     }
 
     /// `CPhysicsObj::CollisionRemoveObject`: the object `id` left the world; its entry in the
-    /// touched table ends and goes at the next report (`CCollisionManager::RemoveObjectCollision`).
-    /// Returns whether this body has a manager. The profile `RemoveObjectCollision` fills only
-    /// carries the object's property list, which is not held, so there is nothing to hand to
-    /// `HandleCollision` here.
-    pub(crate) fn collision_remove_object(&mut self, id: InstanceId) -> bool {
+    /// touched table ends and goes at the next report, and its property list ends at once
+    /// (`CCollisionManager::RemoveObjectCollision`). The report of those ended properties is
+    /// returned when it is not empty, for `HandleCollision`.
+    pub(crate) fn collision_remove_object(
+        &mut self,
+        id: InstanceId,
+    ) -> Option<crate::collision_report::CollisionReport> {
         if !self.has_collision_manager {
-            return false;
+            return None;
         }
-        self.collision_manager.remove_object(id);
-        true
+        self.collision_manager.remove_object(id)
     }
 
     /// `CPhysicsObj::UpdateCollidePhysicsMask` -> `CCollisionManager::UpdateCollidePhysicsMask`:
@@ -181,6 +191,8 @@ impl PhysicsObj {
             id: self.instance_id,
             collision: self.collision.clone(),
             blocking: self.blocking,
+            position: Some(self.position),
+            properties: self.property_info.clone(),
         }
     }
 }

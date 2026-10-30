@@ -190,6 +190,12 @@ pub struct StaticObject {
     /// (`CCollisionManager::AddObjectCollision` lists only objects with an id). `None` for
     /// scenery.
     pub(crate) instance_id: Option<u64>,
+    /// The object's own collision parameters (`GetCollisionStatePtr`), when its body has a
+    /// collision manager: the second direction of `CPhysicsObj::Interpermiable`.
+    pub(crate) collision: Option<CollisionParameters>,
+    /// The property groups of the object's body (`GetObjectProperties`), which a mover touching
+    /// it lists in its collision report (`CCollisionManager::SetProperties`).
+    pub(crate) properties: Vec<ac2_db::Ac2PropertyGroup>,
 }
 
 impl StaticObject {
@@ -229,6 +235,8 @@ impl StaticObject {
             ignore_collisions: false,
             covered: None,
             instance_id: None,
+            collision: None,
+            properties: Vec::new(),
         }
     }
 
@@ -334,20 +342,28 @@ impl StaticObject {
         self.state & MOBILE_PS != 0
     }
 
-    /// `CPhysicsObj::Interpermiable` as the transition asks it (`CheckIfSolid` against the
-    /// mover's placement or movement set): the object is ethereal to the mover when its ETHEREAL
-    /// state is set (an FX object, `FXManager::DoCreateObjectFX`), or when the mover is not
-    /// blocked by it (`CollisionParameters::blocks`, with the object's `InstanceID` for the
-    /// solid and ethereal lists), or when the mover has it on its temporary ethereal list
-    /// (`CPhysicsObj::AddToTempEtherealList`, put there when the two stopped being passable).
-    fn is_ethereal_to(&self, collision: &CollisionParameters, placement: bool) -> bool {
+    /// `CPhysicsObj::Interpermiable(mover, 0)` as the transition asks it: the object is ethereal
+    /// to the mover when its ETHEREAL state is set (an FX object, `FXManager::DoCreateObjectFX`),
+    /// when the mover's set does not make the object solid (`CheckIfSolid`: `blocks` by the
+    /// object's `InstanceID` for the solid and ethereal lists, and the mover's temporary ethereal
+    /// list, `AddToTempEtherealList`), or when the object has a collision manager of its own
+    /// and its set does not make the mover (`mover_id`, `mover_blocking`) solid.
+    fn is_ethereal_to(
+        &self,
+        collision: &CollisionParameters,
+        mover: (u64, PhysicsTypeMask),
+        placement: bool,
+    ) -> bool {
         if self.ethereal {
             return true;
         }
         let id = self.instance_id.unwrap_or(0);
-        let solid = collision.blocks(id, self.blocking, placement)
-            && !(id != 0 && collision.in_temp_ethereal_list(id));
-        !solid
+        if !collision.check_if_solid(id, self.blocking, placement) {
+            return true;
+        }
+        self.collision
+            .as_ref()
+            .is_some_and(|own| !own.check_if_solid(mover.0, mover.1, false))
     }
 
     /// `CPhysicsObj::CanCollide`: the mover at `check` (containment `mover`) is within the
@@ -420,7 +436,7 @@ impl Transition {
         // Outside a placement the transition passes through it; a placement keeps the overlap test
         // with the obstruction marked ethereal.
         let placement = self.sphere_path.placement_ethereal;
-        let ethereal = object.is_ethereal_to(&self.collision, placement);
+        let ethereal = object.is_ethereal_to(&self.collision, self.mover, placement);
         if ethereal && !placement {
             return TransitionState::Ok;
         }
@@ -456,9 +472,15 @@ impl Transition {
             }
         }
         if ts != TransitionState::Ok && !self.sphere_path.step_down {
+            if object.instance_id.is_none() {
+                // Scenery: `AddObjectCollision` adds its blocking mask to the mover's current
+                // collide mask when the two pass through one another.
+                self.collision_info.scenery.push(object.blocking);
+            }
             self.collision_info
                 .add_object(id, self.sphere_path.obstruction_ethereal);
         }
+        self.sphere_path.obstruction_ethereal = false;
         ts
     }
 }

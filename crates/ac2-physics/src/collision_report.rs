@@ -94,6 +94,10 @@ pub struct CollisionReport {
     pub surface: Vec<CollideProperty>,
     /// The water properties (`m_water_properties`).
     pub water: Vec<CollideProperty>,
+    /// The properties of the objects touched (`m_object_properties`): each begun or ended with
+    /// its object's property list (`CollidePropertyList::BeginPropertyCollision` and
+    /// `EndPropertyCollision`).
+    pub object_properties: Vec<CollideProperty>,
     /// The objects the report erased from the table (expired, removed or ended with
     /// everything). A body takes them out of the report (`PhysicsBody::take_dropped`), so a report it hands out has none; they are
     /// not part of what the script hears (`CollisionProfile::NonEmpty` ignores them).
@@ -107,6 +111,7 @@ impl CollisionReport {
             && self.contact.is_none()
             && self.objects.is_empty()
             && self.environment.is_empty()
+            && self.object_properties.is_empty()
             && self.surface.is_empty()
             && self.water.is_empty()
     }
@@ -138,6 +143,18 @@ struct TouchedObject {
     ignore_collisions: bool,
     /// `m_ignore_changed`: set when `ignore_collisions` changed after the entry was reported.
     ignore_changed: bool,
+}
+
+/// One entry of the property table (`CollidePropertyList`): the properties of a touched object.
+#[derive(Debug, Clone, PartialEq)]
+struct ObjectProps {
+    /// `m_physobj_id` (the touched object's table key) and `m_inst_id`: its `InstanceID`.
+    key: InstanceId,
+    touched: f64,
+    remove_now: bool,
+    /// `m_has_been_reported`.
+    reported: bool,
+    props: Vec<CollideProperty>,
 }
 
 /// Which surface a material layer is: the water or the landscape. The two list and terrain
@@ -227,6 +244,8 @@ pub(crate) struct CollisionManager {
     /// `m_last_collide_check_time`: the time of the latest collision check.
     check_time: f64,
     objects: Vec<TouchedObject>,
+    /// `m_prop_collision_table`: the property list of each touched object that has properties.
+    object_props: Vec<ObjectProps>,
     water: MaterialLayer,
     landscape: MaterialLayer,
     /// `m_env_properties` and `m_env_properties_updated`.
@@ -250,6 +269,7 @@ impl Default for CollisionManager {
         Self {
             check_time: 0.0,
             objects: Vec::new(),
+            object_props: Vec::new(),
             water: MaterialLayer::default(),
             landscape: MaterialLayer::default(),
             environment: Vec::new(),
@@ -317,21 +337,77 @@ impl CollisionManager {
         }
     }
 
-    /// `CCollisionManager::IsEmpty`: nothing is touched. (The per-object property table is not
-    /// held, so the object table alone decides.)
+    /// `CCollisionManager::IsEmpty`: neither the object table nor the property table lists
+    /// anything.
     pub(crate) fn is_empty(&self) -> bool {
-        self.objects.is_empty()
+        self.objects.is_empty() && self.object_props.is_empty()
     }
 
     /// `CCollisionManager::RemoveObjectCollision`: the object `id` left the world; its entry is
     /// marked (`m_remove_now`) and the next report ends it if it was reported, then erases it.
-    /// Returns whether the profile this fills is non-empty: only the object's property list
-    /// puts anything in it, and that list is not held, so never.
-    pub(crate) fn remove_object(&mut self, id: InstanceId) -> bool {
+    /// Its property list ends at once, if it had begun, and is erased
+    /// (`RemovePropertiesAndErase`); the returned report carries those ended properties and is
+    /// `Some` only when it is not empty (`CollisionProfile::NonEmpty`).
+    pub(crate) fn remove_object(&mut self, id: InstanceId) -> Option<CollisionReport> {
         if let Some(entry) = self.objects.iter_mut().find(|o| o.id == id) {
             entry.remove_now = true;
         }
-        false
+        let mut out = CollisionReport::default();
+        if let Some(index) = self.object_props.iter().position(|e| e.key == id) {
+            let mut entry = self.object_props.remove(index);
+            if entry.reported {
+                end_object_props(&mut entry, self.descs, &mut out);
+            }
+            self.pushers.remove(id);
+        }
+        (!out.is_empty()).then_some(out)
+    }
+
+    /// The property part of `CCollisionManager::AddObjectCollision`: the touched object `key`
+    /// has `groups` (`GetObjectProperties`). One already listed is only touched again; a new one
+    /// gets a `CollidePropertyList` of its inquirable properties (`SetProperties`, each with the
+    /// next master id), pushes the body when it has pusher vectors (`AddPusherProperties`, with
+    /// `position` for local-space vectors) and joins the table.
+    pub(crate) fn touch_properties(
+        &mut self,
+        key: InstanceId,
+        groups: &[ac2_db::Ac2PropertyGroup],
+        position: Option<&crate::position::Position>,
+    ) {
+        if groups.is_empty() {
+            return;
+        }
+        let now = self.check_time;
+        if let Some(entry) = self.object_props.iter_mut().find(|e| e.key == key) {
+            entry.touched = now;
+            return;
+        }
+        let mut props = Vec::new();
+        for property in groups.iter().flat_map(|g| &g.properties) {
+            if self.descs.inquirable(property.name) {
+                props.push(CollideProperty {
+                    id: self.master_id,
+                    collide_type: CollideType::Begin,
+                    property: property.clone(),
+                });
+                self.master_id += 1;
+            }
+        }
+        let values: Vec<_> = props.iter().map(|p| p.property.clone()).collect();
+        self.pushers.add_properties(key, position, &values);
+        self.object_props.push(ObjectProps {
+            key,
+            touched: now,
+            remove_now: false,
+            reported: false,
+            props,
+        });
+    }
+
+    /// `CCollisionManager::FindInPropertyList`: whether the object `key` has a property list.
+    #[cfg(test)]
+    pub(crate) fn find_in_property_list(&self, key: InstanceId) -> bool {
+        self.object_props.iter().any(|e| e.key == key)
     }
 
     /// The ids of the touched objects (`m_collision_table`), in table order.
@@ -374,6 +450,7 @@ impl CollisionManager {
     ) -> CollisionReport {
         let mut out = CollisionReport::default();
         self.report_objects(now, flags, &mut out);
+        self.report_object_props(now, flags, &mut out);
         if !flags.active {
             // The impact is discarded, as retail clears `m_has_normal` on every report.
             self.set_no_collision_normal();
@@ -442,19 +519,24 @@ impl CollisionManager {
     /// The object table part of `ReportCollision`: an object that expired (untouched for over a
     /// second in a check after its touch), that was removed, or that the report ends, is ended
     /// if reported and dropped when it expired, was removed or the report ends everything; an
-    /// unreported object begins.
+    /// unreported object begins. An object that ignores collisions is never listed as beginning
+    /// (and ends only when its flag changed after it was reported); a reported entry whose
+    /// ignore flag changed is listed as beginning (flag cleared) or ending (flag set) once.
     fn report_objects(&mut self, now: f64, flags: ReportFlags, out: &mut CollisionReport) {
         let check = self.check_time;
         self.objects.retain_mut(|entry| {
             let stale = now - entry.touched > TOUCH_EXPIRY_SECONDS;
             let expired = stale && entry.touched != check;
+            let record = |state| ObjectRecord {
+                id: entry.id,
+                state,
+                ethereal: entry.ethereal,
+            };
             if expired || entry.remove_now || flags.end_reporting || flags.end_all {
                 if entry.reported {
-                    out.objects.push(ObjectRecord {
-                        id: entry.id,
-                        state: RecordState::End,
-                        ethereal: entry.ethereal,
-                    });
+                    if !entry.ignore_collisions || entry.ignore_changed {
+                        out.objects.push(record(RecordState::End));
+                    }
                     entry.reported = false;
                 }
                 // Dropped at once when it expired, was removed or the report ends everything.
@@ -465,12 +547,43 @@ impl CollisionManager {
                 return true;
             }
             if !entry.reported && flags.active {
-                out.objects.push(ObjectRecord {
-                    id: entry.id,
-                    state: RecordState::Begin,
-                    ethereal: entry.ethereal,
-                });
+                if !entry.ignore_collisions {
+                    out.objects.push(record(RecordState::Begin));
+                }
                 entry.reported = true;
+            } else if entry.ignore_changed && entry.reported {
+                let state = if entry.ignore_collisions {
+                    RecordState::End
+                } else {
+                    RecordState::Begin
+                };
+                out.objects.push(record(state));
+                entry.ignore_changed = false;
+            }
+            true
+        });
+    }
+
+    /// The property table part of `ReportCollision`: a list that expired, was removed or is
+    /// ended with the report lists its properties as ended if it had begun and is erased (the
+    /// object stops pushing, `RemovePropertiesAndErase`); a list not yet reported begins.
+    fn report_object_props(&mut self, now: f64, flags: ReportFlags, out: &mut CollisionReport) {
+        let check = self.check_time;
+        let descs = self.descs;
+        let pushers = &mut self.pushers;
+        self.object_props.retain_mut(|entry| {
+            let stale = now - entry.touched > TOUCH_EXPIRY_SECONDS;
+            let expired = stale && entry.touched != check;
+            if expired || entry.remove_now || flags.end_reporting || flags.end_all {
+                if entry.reported {
+                    end_object_props(entry, descs, out);
+                }
+                if expired || entry.remove_now || flags.end_all {
+                    pushers.remove(entry.key);
+                    return false;
+                }
+            } else if !entry.reported && flags.active {
+                begin_object_props(entry, descs, out);
             }
             true
         });
@@ -559,6 +672,30 @@ impl CollisionManager {
             });
         }
     }
+}
+
+/// `CollidePropertyList::BeginPropertyCollision`: each property reported to the weenie is marked
+/// as begun and listed.
+fn begin_object_props(entry: &mut ObjectProps, descs: PropertyDescs, out: &mut CollisionReport) {
+    for prop in &mut entry.props {
+        if descs.reported(prop.name()) {
+            prop.collide_type = CollideType::Begin;
+            out.object_properties.push(prop.clone());
+        }
+    }
+    entry.reported = true;
+}
+
+/// `CollidePropertyList::EndPropertyCollision`: each property reported to the weenie is marked as
+/// ended and listed.
+fn end_object_props(entry: &mut ObjectProps, descs: PropertyDescs, out: &mut CollisionReport) {
+    for prop in &mut entry.props {
+        if descs.reported(prop.name()) {
+            prop.collide_type = CollideType::End;
+            out.object_properties.push(prop.clone());
+        }
+    }
+    entry.reported = false;
 }
 
 /// The parts of the manager a material layer's report writes besides its own list.

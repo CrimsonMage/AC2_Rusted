@@ -3,6 +3,7 @@
 //! `set_on_walkable` and `HandleHitGround`.
 
 use crate::cells::ObjCell;
+use crate::collision_types::PhysicsTypeMask;
 use crate::fpu::{ld, st};
 use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR, ELEMENT_WATER};
 use crate::motion_interp_behaviors::BEHAVIOR_NEAR_LANDING;
@@ -172,6 +173,8 @@ impl PhysicsObj {
             frames_stationary_fall,
             containment_radius: self.containment_radius(),
             collision: &self.collision,
+            instance_id: self.instance_id,
+            blocking: self.blocking,
             identity: self.world_id,
         };
         let begin_cell =
@@ -188,6 +191,11 @@ impl PhysicsObj {
             if let Some((instance, ethereal)) = terrain.object_identity(id) {
                 let ignore = terrain.object_ignores_collisions(id);
                 self.collision_manager.touch(instance, ethereal, ignore);
+                self.collision_manager.touch_properties(
+                    instance,
+                    terrain.object_properties(id),
+                    terrain.object_position(id).as_ref(),
+                );
                 // The other object's manager hears of the mover too, and of the contact normal
                 // when this object was the last one that stopped it (the owner applies it).
                 let impact = (info.collision_normal_valid && info.last_collided_object == Some(id))
@@ -305,12 +313,22 @@ impl PhysicsObj {
         &mut self,
         collisions: &CollisionInfo,
         prev_on_walkable: bool,
-    ) {
+    ) -> bool {
         if self.has_collision_manager {
             // `m_current_collide_mask = m_desired_physics_mask`; the movement set becomes it at
             // the end of the pass.
             self.current_collide_mask = self.desired_collision_mask;
+            // `AddObjectCollision` for scenery (no `InstanceID`): an obstacle the mover passes
+            // through (its set does not make the obstacle solid) adds its blocking mask.
+            for &mask in &collisions.scenery {
+                if !self.collision.blocks(0, mask, false) {
+                    self.current_collide_mask =
+                        PhysicsTypeMask::from_bits(self.current_collide_mask.bits() | mask.bits());
+                }
+            }
         }
+        // The result: 1 when an object was added to the manager's table (never without one).
+        let added = self.has_collision_manager && !collisions.collide_objects.is_empty();
         // `CCollisionManager::SetCollisionNormal` with the velocity before the response: a
         // contact above the vertical minimum records its impact speed.
         if collisions.collision_normal_valid {
@@ -358,5 +376,6 @@ impl PhysicsObj {
             2 => self.transient_state |= STATIONARY_STOP_TS,
             _ => self.transient_state |= STATIONARY_STUCK_TS,
         }
+        added
     }
 }

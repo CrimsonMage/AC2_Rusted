@@ -744,8 +744,12 @@ impl Client {
                     // An object the report erased drops the player too
                     // (`CPhysicsObj::CollisionRemoveObject`).
                     for other in body.physics.take_dropped() {
-                        if let Some(other) = self.remotes.body_mut(other) {
-                            other.collision_remove_object(player_id);
+                        if let Some(report) = self
+                            .remotes
+                            .body_mut(other)
+                            .and_then(|b| b.collision_remove_object(player_id))
+                        {
+                            remote_reports.push((other, report));
                         }
                     }
                     // `SmartBox::PlayerPhysicsUpdatedCallback` (the handler

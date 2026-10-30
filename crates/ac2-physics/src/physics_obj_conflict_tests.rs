@@ -9,6 +9,8 @@ fn peer(collision: CollisionParameters, blocking: PhysicsTypeMask) -> ConflictPe
         id: OTHER,
         collision,
         blocking,
+        position: None,
+        properties: Vec::new(),
     }
 }
 
@@ -110,4 +112,30 @@ fn a_collision_state_with_a_physics_type_sets_the_blocking_mask() {
     // A state that does not name the physics type leaves it alone.
     body.set_collision_state(&CollisionParameters::default(), &|_| None);
     assert_eq!(body.blocking_bits(), 0b1010);
+}
+
+#[test]
+fn a_scenery_obstacle_the_mover_passes_adds_its_mask_to_the_collide_mask() {
+    // `AddObjectCollision` for an object with no `InstanceID`: when it is not solid to the mover
+    // its blocking mask joins the manager's current collide mask; the result is 1 with an object.
+    use crate::collision_types::{CollisionParameters, PhysicsTypeMask};
+    use crate::transition::collision::CollisionInfo;
+    let mut body = body_at(70.0, 70.0, 50.0);
+    let mut info = CollisionParameters::default();
+    info.set_physics_movement_type(PhysicsTypeMask::from_bits(0b0001));
+    body.set_collision_state(&info, &|_| None);
+    let collisions = CollisionInfo {
+        collide_objects: vec![3, 4],
+        // Shares bit 0 with the mover's movement set: ethereal to it. Bit 5 it does not share.
+        scenery: vec![
+            PhysicsTypeMask::from_bits(0b0011),
+            PhysicsTypeMask::from_bits(0b10_0000),
+        ],
+        ..CollisionInfo::default()
+    };
+    let mut added = false;
+    body.with_object(|o| added = o.handle_all_collisions(&collisions, true));
+    assert!(added);
+    // Only the passable one joined: the movement set is the desired mask and its bits.
+    assert_eq!(body.collision_mut().movement_physics().bits(), 0b0011);
 }

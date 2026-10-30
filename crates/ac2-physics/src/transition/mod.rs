@@ -69,6 +69,9 @@ pub(crate) struct Transition {
     /// The mover's own entry in the world's object lists, which its transition skips
     /// (`CObjCell::find_obj_collisions`'s `object_info.object` test).
     pub identity: Option<u32>,
+    /// The mover's `InstanceID` and blocking mask, which an obstacle's own collision set judges
+    /// (`CPhysicsObj::Interpermiable`'s second direction).
+    pub mover: (u64, crate::collision_types::PhysicsTypeMask),
 }
 
 /// The object traits `CPhysicsObj::transition` hands `CTransition` (`get_object_info`,
@@ -91,6 +94,10 @@ pub(crate) struct TransitionObject<'a> {
     pub collision: &'a CollisionParameters,
     /// The body's id in the world's object lists (`PhysicsObj::world_id`).
     pub identity: Option<u32>,
+    /// The body's `InstanceID`.
+    pub instance_id: u64,
+    /// The body's blocking mask (`m_blocking_mask`).
+    pub blocking: crate::collision_types::PhysicsTypeMask,
 }
 
 impl Transition {
@@ -115,6 +122,7 @@ impl Transition {
         transition.object_info.containment_radius = object.containment_radius;
         transition.collision = object.collision.clone();
         transition.identity = object.identity;
+        transition.mover = (object.instance_id, object.blocking);
         if let Some((cell_id, plane, is_water, is_landscape, is_environment)) = object.contact {
             transition.init_contact_plane(cell_id, plane, is_water, is_landscape, is_environment);
         }
