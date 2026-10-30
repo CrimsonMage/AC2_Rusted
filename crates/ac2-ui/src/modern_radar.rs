@@ -218,7 +218,8 @@ impl ModernRadar {
         let (w, h) = art::RADAR_BOX;
         let size = art::RADAR_WELL_SIZE;
         // At the display's top right.
-        let at = (tree.display.0 - MARGIN.0 - w, MARGIN.1);
+        let (ox, oy) = tree.hud_offset("radar");
+        let at = (tree.display.0 - MARGIN.0 - w + ox, MARGIN.1 + oy);
         let now = tree.screen_box(self.root);
         if (now.x0, now.y0) != at {
             tree.move_to(self.root, at.0, at.1);

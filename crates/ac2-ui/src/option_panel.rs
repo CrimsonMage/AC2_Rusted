@@ -40,6 +40,8 @@ pub struct OptionPanel {
     assistance: usize,
     /// The In-Game Wiki button was pressed since the HUD last asked.
     wiki: bool,
+    /// The modern Edit HUD layout button was pressed.
+    edit: bool,
     confirm: u32,
     quit_context: u32,
     logout_context: u32,
@@ -75,6 +77,7 @@ impl OptionPanel {
             quit: tree.child_recursive(field, tokenize("QuitButton"))?,
             assistance: tree.child_recursive(field, tokenize("AssistanceButton"))?,
             wiki: false,
+            edit: false,
             confirm: 0,
             quit_context: 0,
             logout_context: 0,
@@ -85,6 +88,34 @@ impl OptionPanel {
     /// The Assistance button relabelled as the In-Game Wiki button.
     pub fn label_wiki(&self, tree: &mut UiTree) {
         set_label(tree, self.assistance, "In-Game Wiki");
+    }
+
+    /// The modern style's Edit HUD layout button (`modern_layout_edit`): a copy of the In-Game
+    /// Wiki button under it.
+    pub fn add_edit_layout_button(&self, tree: &mut UiTree) {
+        let Some(page) = tree.el(self.assistance).parent_index() else {
+            return;
+        };
+        let layout = std::sync::Arc::clone(&tree.el(self.assistance).layout);
+        let mut desc = (*tree.el(self.assistance).reference).clone();
+        desc.id = tokenize("ModernEditLayoutButton");
+        let Some(button) = tree.create_element(layout, std::sync::Arc::new(desc), false) else {
+            return;
+        };
+        tree.set_parent(button, Some(page));
+        let at = tree.el(self.assistance).rect;
+        tree.move_to(
+            button,
+            at.x0,
+            at.y1 + 1 + (at.y0 - tree.el(self.quit).rect.y1 - 1),
+        );
+        tree.resize_to(button, at.width(), at.height());
+        set_label(tree, button, "Edit HUD layout");
+    }
+
+    /// Whether the Edit HUD layout button was pressed since the last call.
+    pub fn take_edit(&mut self) -> bool {
+        std::mem::take(&mut self.edit)
     }
 
     /// Whether the In-Game Wiki button was pressed since the last call.
@@ -178,6 +209,8 @@ impl OptionPanel {
                 self.update_buttons(tree);
             } else if id == tokenize("AssistanceButton") {
                 self.wiki = true;
+            } else if id == tokenize("ModernEditLayoutButton") {
+                self.edit = true;
             }
         }
         if id == tokenize("CommandTab") {

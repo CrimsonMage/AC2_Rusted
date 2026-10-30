@@ -184,7 +184,7 @@ impl UiTree {
     /// `UIElement::StartMovement`: the element follows the pointer from here. A move in progress
     /// is kept (one drag at a time).
     pub(crate) fn start_movement(&mut self, element: usize) {
-        if self.movement.is_some() || self.el(self.root_of(element)).locked {
+        if self.movement.is_some() || self.hud_locked || self.el(self.root_of(element)).locked {
             return;
         }
         let start_pos = self.position_of(element);
@@ -199,6 +199,11 @@ impl UiTree {
     /// line fade makes to the log's glyphs).
     pub(crate) fn mark_changed(&mut self) {
         self.changed = true;
+    }
+
+    /// The modern layout's offset of the pinned part `name` from its place (none: `(0, 0)`).
+    pub(crate) fn hud_offset(&self, name: &str) -> (i32, i32) {
+        self.hud_offsets.get(name).copied().unwrap_or((0, 0))
     }
 
     /// `root` locked in place or freed (the modern style's lock): a locked window neither moves

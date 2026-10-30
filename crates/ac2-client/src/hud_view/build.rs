@@ -199,6 +199,7 @@ impl HudView {
                     help,
                     help_pages,
                     tracker,
+                    modern_edit,
                     guide_arrow,
                     world_map,
                     guide,
@@ -271,6 +272,7 @@ impl HudView {
                 self.panels.help = help;
                 self.panels.help_pages = help_pages;
                 self.panels.tracker = tracker;
+                self.panels.modern_edit = modern_edit;
                 self.panels.guide_arrow = guide_arrow;
                 self.panels.world_map = world_map;
                 self.panels.guide = guide;

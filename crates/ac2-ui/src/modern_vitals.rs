@@ -121,6 +121,8 @@ pub struct ModernVitals {
     /// The display the edge was sized for.
     edge_display: Cell<(i32, i32)>,
     start: Instant,
+    /// The layout's offset the panel was last placed at.
+    offset_for: Cell<(i32, i32)>,
 }
 
 /// The screen's red edge at low health: its own root, a copy of `template` (a plain field of the
@@ -291,6 +293,7 @@ impl ModernVitals {
             idle: Cell::new(false),
             edge_display: Cell::new((0, 0)),
             start: Instant::now(),
+            offset_for: Cell::new((0, 0)),
         };
         vitals.arrange(tree);
         Some(vitals)
@@ -397,10 +400,12 @@ impl ModernVitals {
         if (root.width(), root.height()) != (w, h) {
             tree.resize_to(self.root, w, h);
         }
-        // At the display's top left.
+        // At the display's top left, moved by the layout's offset.
+        let (ox, oy) = tree.hud_offset("vitals");
+        let at = (MARGIN.0 + ox, MARGIN.1 + oy);
         let now = tree.screen_box(self.root);
-        if (now.x0, now.y0) != MARGIN {
-            tree.move_to(self.root, MARGIN.0, MARGIN.1);
+        if (now.x0, now.y0) != at {
+            tree.move_to(self.root, at.0, at.1);
         }
         place(tree, self.glass, (0, 0, w, h));
         place(
@@ -480,6 +485,12 @@ impl ModernVitals {
             }
         }
         let content = self.content(tree);
+        // The layout's offset (`modern_layout_edit`) moves the panel too.
+        let offset = tree.hud_offset("vitals");
+        if self.offset_for.get() != offset {
+            self.offset_for.set(offset);
+            self.arrange(tree);
+        }
         if self.content.borrow().as_ref() != Some(&content) {
             *self.content.borrow_mut() = Some(content);
             self.arrange(tree);

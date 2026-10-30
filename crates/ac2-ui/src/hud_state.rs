@@ -129,6 +129,8 @@ pub struct Hud {
     pub help_pages: Option<HelpPages>,
     /// The Tracker's eyeball on the radar and its window (`ac2_macro::tracker`).
     pub tracker: Option<crate::tracker_ui::TrackerUi>,
+    /// The modern style's Edit layout mode (`modern_layout_edit`).
+    pub modern_edit: Option<crate::modern_layout_edit::EditLayout>,
     /// The floating arrow (`guide_arrow`).
     pub guide_arrow: Option<crate::guide_arrow::GuideArrow>,
     /// The world map in the navigation panel (`world_map`).

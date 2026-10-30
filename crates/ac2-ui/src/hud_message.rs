@@ -78,6 +78,18 @@ pub fn message_pass<P: HudSource>(
         dialogs.tick(tree, now);
     }
     for message in messages {
+        // The modern Edit layout mode takes the presses on its shield and bar and the drags.
+        if let Some(edit) = hud.modern_edit.as_ref() {
+            let (taken, action) = edit.message(tree, message);
+            if action == Some(crate::modern_layout_edit::EditAction::Reset) {
+                if let Some(chat) = hud.chat.as_mut() {
+                    chat.apply_layout(tree, &crate::hud_layout::HudLayout::default());
+                }
+            }
+            if taken {
+                continue;
+            }
+        }
         // `gmToolbarUI::ListenToMessage`: the dismount button calls `gmCWInterface::Dismount`.
         if hud
             .toolbar

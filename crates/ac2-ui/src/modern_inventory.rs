@@ -461,7 +461,9 @@ impl Drawer {
 
     /// [`Self::arrange`] when the display changed (run every frame).
     pub(crate) fn follow(&self, tree: &mut UiTree) {
-        if self.laid_out.get() != Some(tree.display) {
+        let (ox, oy) = tree.hud_offset("drawer");
+        let key = (tree.display.0 + ox * 100_000, tree.display.1 + oy * 100_000);
+        if self.laid_out.get() != Some(key) {
             self.arrange(tree);
         }
     }
@@ -469,9 +471,11 @@ impl Drawer {
     /// Every part put where the design has it, for the display as it is.
     pub(crate) fn arrange(&self, tree: &mut UiTree) {
         let (width, height) = tree.display;
-        self.laid_out.set(Some((width, height)));
+        let (ox, oy) = tree.hud_offset("drawer");
+        self.laid_out
+            .set(Some((width + ox * 100_000, height + oy * 100_000)));
         let h = (height - TOP - BOTTOM).max(400);
-        let at = (width - WIDTH, TOP);
+        let at = (width - WIDTH + ox, TOP + oy);
         let now = tree.screen_box(self.panel);
         if (now.x0, now.y0, now.width(), now.height()) != (at.0, at.1, WIDTH, h) {
             tree.resize_to(self.panel, WIDTH, h);

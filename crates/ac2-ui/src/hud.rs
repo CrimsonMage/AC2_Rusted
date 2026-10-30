@@ -177,6 +177,8 @@ pub struct GameplayHud {
     /// The Tracker's eyeball on the radar and its window (`ac2_macro::tracker`), hidden until the
     /// eyeball opens it.
     pub tracker: Option<crate::tracker_ui::TrackerUi>,
+    /// The modern style's Edit layout mode (`modern_layout_edit`).
+    pub modern_edit: Option<crate::modern_layout_edit::EditLayout>,
     /// The floating arrow towards the Tracker's pick or a clicked coordinate, hidden until one.
     pub guide_arrow: Option<crate::guide_arrow::GuideArrow>,
     /// The world map in the navigation panel (its notes read here, on the HUD's worker).
@@ -346,6 +348,9 @@ pub fn build_styled_hud(
     let option_panel = crate::OptionPanel::create(&tree);
     if let Some(panel) = &option_panel {
         panel.label_wiki(&mut tree);
+        if style == HudStyle::Modern {
+            panel.add_edit_layout_button(&mut tree);
+        }
     }
     let allegiance = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
@@ -477,6 +482,23 @@ pub fn build_styled_hud(
         crate::tracker_ui::TrackerUi::create(&mut tree, gameplay, &all_layouts, radar_top)
     });
     radar.place_eye(&mut tree, tracker.as_ref().and_then(|t| t.button()));
+    // The modern Edit layout mode, made from the first chat window's layout.
+    let modern_edit = (style == HudStyle::Modern)
+        .then(|| {
+            let window = tree
+                .roots()
+                .iter()
+                .copied()
+                .find(|&r| tree.el(r).id() == tokenize("ChatWindow1"))?;
+            let template = [0x2757_2022, 0x8B36_899A, 0x52EF_E72C]
+                .into_iter()
+                .filter_map(|id| tree.child_recursive(window, id))
+                .find(|&e| tree.el(e).reference.kind == tree.el(e).desc.kind)?;
+            let fonts: Vec<&Arc<LayoutDesc>> =
+                [&layouts[&LAYOUT_TOOLBAR]].into_iter().flatten().collect();
+            crate::modern_layout_edit::EditLayout::make(&mut tree, window, template, &fonts)
+        })
+        .flatten();
     let guide = layouts[&LAYOUT_GAMEPLAY].as_ref().and_then(|gameplay| {
         crate::guide_window::GuideWindow::create(&mut tree, gameplay, &all_layouts)
     });
@@ -534,6 +556,7 @@ pub fn build_styled_hud(
         book,
         help,
         tracker,
+        modern_edit,
         guide_arrow,
         world_map,
         guide,

@@ -257,6 +257,15 @@ game rules and server-visible behaviour exactly retail.
   Each tell also shows for three seconds as a toast in a lane under the vitals, fading at its end
   (`ac2_ui::modern_chat_toasts`; at most three, the oldest leaving), taking no pointer; the tell
   still reaches the windows as retail's did.
+  The option panel has an Edit HUD layout button (a copy of the In-Game Wiki button under it;
+  `ac2_ui::modern_layout_edit`) that turns on the design's Edit layout mode: a clear shield over
+  the display takes every press, each movable part shows a dashed outline and its name, and a drag
+  moves it. The parts laid out by the display's edges (vitals, radar, inventory drawer, shortcut
+  strip, dock; the toolbar's field grows upward as far as the strip or the dock is raised) keep
+  an offset from their place (`UiTree::hud_offset`); the chat windows move as windows. Its bar
+  locks the whole HUD (`hud_locked`: no window or part moves or resizes; turning the mode on
+  releases it), resets the offsets and the chat windows' choices, or closes the mode. The offsets
+  and the lock are kept in the HUD layout (`offset.<part>`, `hud.locked`).
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

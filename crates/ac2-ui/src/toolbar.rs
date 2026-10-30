@@ -124,6 +124,7 @@ type Layout = (
     crate::element::UiBox,
     Option<crate::element::UiBox>,
     [bool; 2],
+    crate::modern_toolbar::Offsets,
 );
 
 impl ToolbarUi {
@@ -190,6 +191,7 @@ impl ToolbarUi {
         let Some(dock) = &self.dock else {
             return;
         };
+        dock.fit_field(tree);
         let shown = ToolbarChild::ALL.map(|c| self.shown(tree, c));
         let bar = tree
             .roots()
@@ -208,6 +210,7 @@ impl ToolbarUi {
             field,
             bar,
             [visible(self.consignments), visible(self.dismount)],
+            crate::modern_toolbar::Offsets::of(tree),
         );
         if self.laid_out.get() != Some(now) {
             dock.arrange(tree, shown);
@@ -221,7 +224,8 @@ impl ToolbarUi {
                         .is_some_and(|e| e.id() == tokenize("ShortcutField"))
                 })
                 .map(|r| tree.screen_box(r));
-            self.laid_out.set(Some((now.0, now.1, now.2, bar, now.4)));
+            self.laid_out
+                .set(Some((now.0, now.1, now.2, bar, now.4, now.5)));
         }
     }
 

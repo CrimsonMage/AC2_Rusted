@@ -27,6 +27,11 @@ pub const CHAT_ADD: u32 = 0x7E01_00D2;
 pub const CHAT_UNREAD: u32 = 0x7E01_00D3;
 /// The "new below" pill: dark gold (`#3a2c08`) in a gold line, ends round.
 pub const CHAT_NEW_PILL: u32 = 0x7E01_00D4;
+/// Edit layout: a movable part's dashed gold outline (corners `OUTLINE_BORDER`) and its name
+/// tag.
+pub const EDIT_OUTLINE: u32 = 0x7E01_00D5;
+pub const EDIT_TAG: u32 = 0x7E01_00D6;
+pub const OUTLINE_BORDER: i32 = 4;
 /// The settings popover's glass.
 pub const CHAT_POPOVER: u32 = 0x7E01_00CD;
 /// The log's backing in each tint (`TINTS`' order: teal, black, bronze, blue).
@@ -157,6 +162,38 @@ fn new_pill() -> UiPixels {
     c.finish()
 }
 
+/// A dashed gold outline (`1px dashed #ffe27a`), 4 on, 3 off along each edge.
+fn outline() -> UiPixels {
+    let side = 14usize;
+    let mut c = Canvas::new(side, side);
+    c.paint(
+        |x, y| {
+            let edge = x < 1.0 || y < 1.0 || x > side as f32 - 1.0 || y > side as f32 - 1.0;
+            let along = if x < 1.0 || x > side as f32 - 1.0 {
+                y
+            } else {
+                x
+            };
+            if edge && (along as i32 % 7) < 4 {
+                -1.0
+            } else {
+                1.0
+            }
+        },
+        |_, _, d| (rgb(0xFFE27A, 1.0), inside(d)),
+    );
+    c.finish()
+}
+
+/// A name tag: the design's gold (`#ffe27a`), its lower right corner round.
+fn tag() -> UiPixels {
+    let (w, h) = (16usize, 14usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(-4.0, -4.0, w as f32, h as f32, 4.0);
+    c.paint(&shape, |_, _, d| (rgb(0xFFE27A, 1.0), inside(d)));
+    c.finish()
+}
+
 /// A plain fill: `color` at `alpha`, `w` by `h`.
 fn fill(color: u32, alpha: f32) -> UiPixels {
     let mut c = Canvas::new(4, 4);
@@ -273,6 +310,8 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (CHAT_ADD, add()),
         (CHAT_UNREAD, unread()),
         (CHAT_NEW_PILL, new_pill()),
+        (EDIT_OUTLINE, outline()),
+        (EDIT_TAG, tag()),
         (CHAT_ENTRY_BAR, entry_bar()),
         (CHAT_INPUT, input()),
         (CHAT_PILL, pill()),

@@ -212,6 +212,7 @@ impl UiTree {
         };
         if self.resizing.is_some()
             || self.movement.is_some_and(|m| m.element == window)
+            || self.hud_locked
             || self.el(self.root_of(window)).locked
         {
             return;

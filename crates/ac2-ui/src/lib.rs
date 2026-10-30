@@ -50,6 +50,7 @@ mod dialog;
 mod drag;
 mod effects;
 mod element;
+mod element_order;
 mod examination;
 mod examination_effects;
 mod examination_tabs;
@@ -284,6 +285,9 @@ mod modern_inventory;
 #[cfg(test)]
 mod modern_inventory_tests;
 mod modern_item_ring;
+pub mod modern_layout_edit;
+#[cfg(test)]
+mod modern_layout_edit_tests;
 mod modern_radar;
 mod modern_stack;
 mod modern_strip;

@@ -99,6 +99,20 @@ impl Hud {
             self.toggle_guide(tree);
             *dirty = true;
         }
+        // The modern Edit HUD layout button: the mode turns on (or off), the option panel closes.
+        if self
+            .option_panel
+            .as_mut()
+            .is_some_and(|panel| panel.take_edit())
+        {
+            if let Some(edit) = self.modern_edit.as_ref() {
+                edit.set_on(tree, !edit.is_on());
+            }
+            if let Some(bar) = self.toolbar.as_ref() {
+                bar.show(tree, crate::ToolbarChild::Option, false);
+            }
+            *dirty = true;
+        }
         if let Some(guide) = self.guide.as_mut() {
             for message in messages {
                 let (taken, request) = guide.message(tree, message);

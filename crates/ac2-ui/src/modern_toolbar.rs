@@ -135,18 +135,48 @@ pub(crate) struct Plan {
     pub pills: [Option<UiBox>; 2],
 }
 
-/// The design laid out on a field `width` wide ([`FIELD_HEIGHT`] tall) for a shortcut bar of
-/// `rows` (width, height) and the status buttons `shown` (consignments, dismount).
-pub(crate) fn plan(width: i32, rows: (i32, i32), shown: [bool; 2]) -> Plan {
-    let bottom = FIELD_HEIGHT - 1;
+/// The parts' offsets from the design's places (the modern layout's, `modern_layout_edit`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub(crate) struct Offsets {
+    pub strip: (i32, i32),
+    pub dock: (i32, i32),
+}
+
+impl Offsets {
+    pub(crate) fn of(tree: &UiTree) -> Self {
+        Self {
+            strip: tree.hud_offset("strip"),
+            dock: tree.hud_offset("dock"),
+        }
+    }
+
+    /// How far above the bottom band a part reaches (the field grows up by it).
+    pub(crate) fn rise(&self) -> i32 {
+        (-self.strip.1).max(-self.dock.1).max(0)
+    }
+}
+
+/// The design laid out on a field `width` wide and `height` tall ([`FIELD_HEIGHT`] and the
+/// parts' rise) for a shortcut bar of `rows` (width, height) and the status buttons `shown`
+/// (consignments, dismount), each part at its offset.
+pub(crate) fn plan(
+    width: i32,
+    height: i32,
+    rows: (i32, i32),
+    shown: [bool; 2],
+    offsets: Offsets,
+) -> Plan {
+    let bottom = height - 1;
+    let (sx, sy) = (offsets.strip.0, offsets.strip.1.min(0));
+    let (dx, dy) = (offsets.dock.0, offsets.dock.1.min(0));
     // The strip.
     let (pl, pt, pr, pb) = STRIP_PAD;
     let attack_width = 2 * art::ATTACK_WELL_SIZE + ATTACK_GAP;
     let strip_w = pl + attack_width + STRIP_GAP + CHIP_WIDTH + STRIP_GAP + rows.0 + pr;
     let strip_h = pt + rows.1 + pb;
     // Centred in the room left of the inventory drawer, as the design places it.
-    let strip_x0 = (width - DRAWER_ROOM) / 2 - strip_w / 2;
-    let strip_y1 = bottom - STRIP_BOTTOM;
+    let strip_x0 = (width - DRAWER_ROOM) / 2 - strip_w / 2 + sx;
+    let strip_y1 = bottom - STRIP_BOTTOM + sy;
     let strip_y0 = strip_y1 - strip_h + 1;
     let room = art::GLOW_ROOM;
     let attack_y = strip_y0 + (strip_h - art::ATTACK_WELL_SIZE) / 2 - room;
@@ -163,8 +193,8 @@ pub(crate) fn plan(width: i32, rows: (i32, i32), shown: [bool; 2]) -> Plan {
     let rows_at = (chip_x + CHIP_WIDTH + STRIP_GAP, strip_y0 + pt);
     // The dock: the orb in the corner, the pills to its left, the fan to theirs.
     let orb = sized(
-        width - DOCK_RIGHT - art::ORB_ART,
-        bottom - DOCK_BOTTOM - art::ORB_ART + 1,
+        width - DOCK_RIGHT - art::ORB_ART + dx,
+        bottom - DOCK_BOTTOM - art::ORB_ART + 1 + dy,
         (art::ORB_ART, art::ORB_ART),
     );
     let mid_y = (orb.y0 + orb.y1) / 2;
@@ -373,9 +403,23 @@ impl Dock {
         let shown = |e: Option<usize>| e.and_then(|e| tree.get(e)).is_some_and(|e| e.visible);
         plan(
             field.width(),
+            field.height(),
             rows,
             [shown(self.status[0]), shown(self.status[1])],
+            Offsets::of(tree),
         )
+    }
+
+    /// The field as tall as the parts reach: [`FIELD_HEIGHT`] and the higher part's rise, along
+    /// the display's bottom edge.
+    pub(crate) fn fit_field(&self, tree: &mut UiTree) {
+        let (width, height) = tree.display;
+        let tall = FIELD_HEIGHT + Offsets::of(tree).rise();
+        let now = tree.screen_box(self.field);
+        if (now.y0, now.width(), now.height()) != (height - tall, width, tall) {
+            tree.resize_to(self.field, width, tall);
+            tree.move_to(self.field, 0, height - tall);
+        }
     }
 
     /// Every part put where [`plan`] says, the fan shown while open, the wells and pips lit for
@@ -659,7 +703,13 @@ mod tests {
 
     #[test]
     fn the_strip_is_centred_on_the_bottom_edge_with_its_parts_in_order() {
-        let p = plan(1365, (350, 35), [false; 2]);
+        let p = plan(
+            1365,
+            FIELD_HEIGHT,
+            (350, 35),
+            [false; 2],
+            Offsets::default(),
+        );
         let middle = (p.fade.x0 + p.fade.x1) / 2;
         assert!(
             (middle - (1365 - DRAWER_ROOM) / 2).abs() <= 1,
@@ -675,7 +725,13 @@ mod tests {
 
     #[test]
     fn the_dock_sits_in_the_corner_and_the_fan_and_pills_go_left_of_the_orb() {
-        let p = plan(1365, (350, 35), [true, true]);
+        let p = plan(
+            1365,
+            FIELD_HEIGHT,
+            (350, 35),
+            [true, true],
+            Offsets::default(),
+        );
         assert_eq!(p.orb.x1, 1365 - 1 - DOCK_RIGHT);
         let (sale, dismount) = (p.pills[0].unwrap(), p.pills[1].unwrap());
         assert!(dismount.x1 < p.orb.x0 + 10 && sale.x1 < dismount.x0);

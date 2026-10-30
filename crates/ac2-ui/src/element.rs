@@ -234,6 +234,10 @@ pub struct UiTree {
     pub(crate) display: (i32, i32),
     /// `gmStackUI::m_globalContext`.
     pub(crate) stack_context: u32,
+    /// The modern style's layout: each pinned part's offset from its place (by the part's
+    /// name, `modern_layout_edit`), and whether the whole HUD is locked in place.
+    pub(crate) hud_offsets: std::collections::BTreeMap<String, (i32, i32)>,
+    pub(crate) hud_locked: bool,
     /// Scaled images are filtered (the modern style, `compose_filter`); else nearest pixel.
     pub(crate) smooth_scaling: bool,
     /// Fonts and strings for text elements.
@@ -338,6 +342,8 @@ impl UiTree {
             update_count: 0,
             display: (width, height),
             stack_context: 0,
+            hud_offsets: Default::default(),
+            hud_locked: false,
             smooth_scaling: false,
             text_data: None,
             messages: Vec::new(),
@@ -956,40 +962,5 @@ impl UiTree {
             self.el_mut(child).created_by_layout = true;
             self.set_parent(child, Some(index));
         }
-    }
-
-    /// `UIElement::SetParent`: out of the old parent's children, into the new one's by z
-    /// (`UIRegion::SetParent_Internal`'s parent link).
-    pub(crate) fn set_parent(&mut self, index: usize, parent: Option<usize>) {
-        if let Some(old) = self.el(index).parent {
-            self.el_mut(old).children.retain(|&c| c != index);
-        }
-        self.el_mut(index).parent = parent;
-        if let Some(parent) = parent {
-            let at = self.z_slot(&self.el(parent).children, self.el(index).z);
-            self.el_mut(parent).children.insert(at, index);
-        }
-        // `UIElement_Meter::SetParent`.
-        self.meter_update_layout(index);
-    }
-
-    /// `UIElement::AddChild`'s position for z `z` in an ascending list: last when `0xFFFF` or
-    /// above the last, else before the first entry whose z is not below it.
-    pub(crate) fn z_slot(&self, list: &[usize], z: i32) -> usize {
-        match list.last() {
-            None => 0,
-            Some(&last) if z == 0xFFFF || self.el(last).z < z => list.len(),
-            Some(_) => list
-                .iter()
-                .position(|&other| z <= self.el(other).z)
-                .unwrap_or(list.len()),
-        }
-    }
-
-    /// Adds a root in z order (`IUIManager` root list).
-    pub(crate) fn add_root(&mut self, index: usize) {
-        self.roots.retain(|&r| r != index);
-        let at = self.z_slot(&self.roots, self.el(index).z);
-        self.roots.insert(at, index);
     }
 }

@@ -51,6 +51,7 @@ pub fn tick_pass<P: HudSource>(
         death,
         dialogs,
         toolbar,
+        modern_edit,
         backpack,
         paper_doll,
         vitals,
@@ -102,6 +103,10 @@ pub fn tick_pass<P: HudSource>(
                 tree.start_use_active(tab);
             }
         }
+    }
+    // The modern Edit layout mode's marks follow the parts.
+    if let Some(edit) = modern_edit.as_ref() {
+        edit.follow(tree);
     }
     // The modern vitals' layout switch follows the pointer.
     if let Some(bar) = vitals.as_ref() {
