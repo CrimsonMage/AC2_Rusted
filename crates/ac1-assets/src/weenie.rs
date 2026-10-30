@@ -18,10 +18,14 @@ pub struct AceWeenie {
     pub motion_table: u32,
     /// `PropertyDataId.ClothingBase`.
     pub clothing_base: u32,
+    /// `PropertyDataId.PaletteBase`: the `ObjDesc` palette the sub-palettes go over.
+    pub palette_base: u32,
     /// `PropertyInt.PaletteTemplate`.
     pub palette_template: Option<u32>,
     /// `PropertyFloat.Shade` (0 when unset).
     pub shade: f64,
+    /// Whether the weenie sets `PropertyFloat.Shade`.
+    pub has_shade: bool,
     /// `PropertyFloat.DefaultScale` (1 when unset).
     pub scale: f32,
     /// `weenie_properties_anim_part`: (part, GfxObj).
@@ -112,6 +116,7 @@ impl AceWeenie {
                     "weenie_properties_d_i_d" => match at(1).u32() {
                         Some(1) => weenie.setup = at(2).u32().unwrap_or(0),
                         Some(2) => weenie.motion_table = at(2).u32().unwrap_or(0),
+                        Some(6) => weenie.palette_base = at(2).u32().unwrap_or(0),
                         Some(7) => weenie.clothing_base = at(2).u32().unwrap_or(0),
                         _ => {}
                     },
@@ -120,7 +125,10 @@ impl AceWeenie {
                     }
                     "weenie_properties_float" => match at(1).u32() {
                         Some(1) => weenie.heartbeat_interval = at(2).f64().unwrap_or(5.0),
-                        Some(12) => weenie.shade = at(2).f64().unwrap_or(0.0),
+                        Some(12) => {
+                            weenie.shade = at(2).f64().unwrap_or(0.0);
+                            weenie.has_shade = true;
+                        }
                         Some(39) => weenie.scale = at(2).f64().unwrap_or(1.0) as f32,
                         _ => {}
                     },
@@ -357,6 +365,7 @@ VALUES (90001,   1, 'Test''s Beast') /* Name */;
 INSERT INTO `weenie_properties_d_i_d` (`object_Id`, `type`, `value`)
 VALUES (90001,   1, 0x02000001) /* Setup */
      , (90001,   2, 0x09000002) /* MotionTable */
+     , (90001,   6, 0x04000005) /* PaletteBase */
      , (90001,   7, 0x10000003) /* ClothingBase */
      , (90001,  32,         80) /* WieldedTreasureType -
                                    |  16.00% chance of (319) */;
@@ -391,6 +400,7 @@ VALUES (@parent_id,  0,   5 /* Motion */, 0, 1, 0x10000051 /* Twitch1 */)
         assert_eq!(weenie.setup, 0x0200_0001);
         assert_eq!(weenie.motion_table, 0x0900_0002);
         assert_eq!(weenie.clothing_base, 0x1000_0003);
+        assert_eq!(weenie.palette_base, 0x0400_0005);
         assert_eq!(weenie.palette_template, Some(48));
         assert_eq!(weenie.shade, 0.5);
         assert_eq!(weenie.scale, 0.95);

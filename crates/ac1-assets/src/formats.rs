@@ -643,6 +643,8 @@ pub struct ClothingTable {
     pub bases: HashMap<u32, Vec<CloObjectEffect>>,
     /// `CloSubPalEffect`s by palette template.
     pub templates: HashMap<u32, Vec<CloSubPalette>>,
+    /// The templates' keys in the table's stored order (ACE falls back to the first).
+    pub template_order: Vec<u32>,
 }
 
 impl ClothingTable {
@@ -698,6 +700,7 @@ impl ClothingTable {
                 });
             }
             table.templates.insert(key, list);
+            table.template_order.push(key);
         }
         Ok(table)
     }

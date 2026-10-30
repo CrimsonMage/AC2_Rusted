@@ -19,6 +19,8 @@ const FIRST_ID: u64 = 0x4000;
 /// The ring's smallest radius and the arc each creature takes, in metres.
 const MIN_RADIUS: f32 = 6.0;
 const SPACING: f32 = 4.0;
+/// The line-up's spacing in metres.
+const LINEUP_SPACING: f32 = 3.0;
 
 /// The creatures and where they stand.
 pub struct Ac1Showcase {
@@ -27,6 +29,8 @@ pub struct Ac1Showcase {
     players: Vec<Option<IdlePlayer>>,
     /// `--ac1-heartbeat`: the heartbeat interval in place of the weenies'.
     pub heartbeat: Option<f64>,
+    /// `--ac1-lineup`: a row through the anchor, west to east, every creature facing south.
+    pub lineup: bool,
     models: Arc<Ac1Models>,
     /// The ring's centre: the cell and block-relative origin the player first stood at.
     anchor: Option<(u32, [f32; 3])>,
@@ -75,6 +79,7 @@ impl Ac1Showcase {
         Ok(Self {
             players: vec![None; creatures.len()],
             heartbeat: None,
+            lineup: false,
             creatures,
             models: Arc::new(models),
             anchor: None,
@@ -108,18 +113,26 @@ impl Ac1Showcase {
         let count = self.creatures.len();
         let heartbeat = self.heartbeat;
         let radius = MIN_RADIUS.max(count as f32 * SPACING / std::f32::consts::TAU);
+        let lineup = self.lineup;
         self.creatures
             .iter()
             .zip(self.players.iter_mut())
             .enumerate()
             .map(|(index, (creature, player))| {
-                let angle = index as f32 / count as f32 * 360.0;
-                let (sin, cos) = angle.to_radians().sin_cos();
-                let x = centre[0] + radius * sin;
-                let y = centre[1] + radius * cos;
+                let (x, y, heading) = if lineup {
+                    let offset = (index as f32 - (count as f32 - 1.0) / 2.0) * LINEUP_SPACING;
+                    (centre[0] + offset, centre[1], 180.0)
+                } else {
+                    let angle = index as f32 / count as f32 * 360.0;
+                    let (sin, cos) = angle.to_radians().sin_cos();
+                    // Heading is clockwise from north; face the ring's centre.
+                    (
+                        centre[0] + radius * sin,
+                        centre[1] + radius * cos,
+                        (angle + 180.0) % 360.0,
+                    )
+                };
                 let z = ground(cell, [x, y, centre[2]]).unwrap_or(centre[2]);
-                // Heading is clockwise from north; face the ring's centre.
-                let heading = (angle + 180.0) % 360.0;
                 let mut frame = Frame::new(Vector::new(0.0, 0.0, 0.0), Quaternion::IDENTITY);
                 frame.set_heading(Heading::from_degrees(heading));
                 let q = frame.q;

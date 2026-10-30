@@ -73,8 +73,10 @@ struct Appearance {
     parts: Vec<u32>,
     /// `SurfaceTexture` swaps per part.
     textures: Vec<HashMap<u32, u32>>,
-    /// (palette, start, count) copied over a texture's palette, in order.
-    subpalettes: Vec<(u32, u32, u32)>,
+    /// The `ObjDesc` palette (`PaletteBase` with the sub-palettes copied over it) that replaces
+    /// every indexed surface's own (`CPartArray::SetPalette`); `None` without a base palette or
+    /// sub-palettes, when each surface keeps its own.
+    palette: Option<Vec<u32>>,
 }
 
 impl Ac1Dats {
@@ -84,7 +86,7 @@ impl Ac1Dats {
         let appearance = self.appearance(weenie, &setup)?;
         let mut builder = ModelBuilder {
             dats: self,
-            subpalettes: &appearance.subpalettes,
+            palette: appearance.palette.as_deref(),
             materials: HashMap::new(),
             images: Vec::new(),
             next_texture: AC1_TEXTURE_BASE | ((visual.raw() & 0xFFF) << 11),
@@ -156,7 +158,8 @@ impl Ac1Dats {
 
     /// `WorldObject.CalculateObjDesc` (ACE) as the client applies it: the ClothingBase's
     /// object effects for this Setup, the PaletteTemplate's sub-palettes at the weenie's shade,
-    /// then the weenie's own anim parts, texture maps and palettes.
+    /// then the weenie's own anim parts, texture maps and palettes; the `ObjDesc` palette is the
+    /// weenie's `PaletteBase` with every sub-palette's ranges copied over it, in order.
     fn appearance(&self, weenie: &AceWeenie, setup: &Setup) -> Ac1Result<Appearance> {
         let mut parts = setup.parts.clone();
         let mut textures = vec![HashMap::new(); parts.len()];
@@ -170,8 +173,16 @@ impl Ac1Dats {
                     textures[part].extend(effect.textures.iter().copied());
                 }
             }
-            let template = weenie.palette_template.unwrap_or(0);
-            for sub in table.templates.get(&template).into_iter().flatten() {
+            // ACE (`CalculateObjDesc`) applies the sub-palettes only when the weenie has a shade or
+            // a template, taking the table's first template when the weenie's is not in it.
+            let template = weenie
+                .palette_template
+                .filter(|t| table.templates.contains_key(t))
+                .or(table.template_order.first().copied());
+            let subs = (weenie.palette_template.is_some() || weenie.has_shade)
+                .then(|| template.and_then(|t| table.templates.get(&t)))
+                .flatten();
+            for sub in subs.into_iter().flatten() {
                 let palette = self.shaded_palette(sub.palette_set, weenie.shade)?;
                 for (start, count) in &sub.ranges {
                     subpalettes.push((palette, *start, *count));
@@ -190,12 +201,28 @@ impl Ac1Dats {
         }
         for (palette, offset, length) in &weenie.palettes {
             let palette = self.shaded_palette(*palette, weenie.shade)?;
+            // The wire's length byte 0 is the whole palette (`Subpalette::UnPack`).
+            let length = if *length == 0 { 256 } else { *length };
             subpalettes.push((palette, offset * 8, length * 8));
         }
+        let palette = if weenie.palette_base != 0 && !subpalettes.is_empty() {
+            let mut base = self.decode(weenie.palette_base, decode_palette)?;
+            for (id, start, count) in &subpalettes {
+                let colors = self.decode(*id, decode_palette)?;
+                for i in *start as usize..(*start + *count) as usize {
+                    if let (Some(slot), Some(color)) = (base.get_mut(i), colors.get(i)) {
+                        *slot = *color;
+                    }
+                }
+            }
+            Some(base)
+        } else {
+            None
+        };
         Ok(Appearance {
             parts,
             textures,
-            subpalettes,
+            palette,
         })
     }
 
@@ -238,7 +265,8 @@ pub(crate) fn part_pose(frame: Frame) -> PartPose {
 
 struct ModelBuilder<'a> {
     dats: &'a Ac1Dats,
-    subpalettes: &'a [(u32, u32, u32)],
+    /// The `ObjDesc` palette (`Appearance::palette`).
+    palette: Option<&'a [u32]>,
     /// Each (surface, texture) pair's material and texture key.
     materials: HashMap<(u32, u32), Option<Arc<ObjectMaterial>>>,
     images: Images,
@@ -377,7 +405,8 @@ impl ModelBuilder<'_> {
     }
 
     /// The largest `RenderSurface` of `SurfaceTexture` `texture`, an indexed one through the
-    /// surface's palette with the object's sub-palettes copied over it.
+    /// object's `ObjDesc` palette, else its own (`CSurface::orig_palette_id`, else the
+    /// `RenderSurface`'s default).
     fn texture_image(
         &self,
         surface: &Surface,
@@ -391,26 +420,25 @@ impl ModelBuilder<'_> {
             return Ok(None);
         };
         let render = RenderSurface::decode(level, &bytes)?;
-        let base = if render.palette != 0 {
-            render.palette
-        } else {
-            surface.palette
-        };
-        let mut palette = if base != 0 {
-            self.dats.decode(base, decode_palette)?
-        } else {
-            Vec::new()
-        };
-        for (id, start, count) in self.subpalettes {
-            let colors = self.dats.decode(*id, decode_palette)?;
-            for i in *start as usize..(*start + *count) as usize {
-                if let (Some(slot), Some(color)) = (palette.get_mut(i), colors.get(i)) {
-                    *slot = *color;
-                }
+        let own;
+        let palette = match self.palette {
+            Some(palette) => palette,
+            None => {
+                let authored = if surface.palette != 0 {
+                    surface.palette
+                } else {
+                    render.palette
+                };
+                own = if authored != 0 {
+                    self.dats.decode(authored, decode_palette)?
+                } else {
+                    Vec::new()
+                };
+                &own[..]
             }
-        }
+        };
         let clip = surface.flags & st::BASE1_CLIPMAP != 0;
-        Ok(decode_rgba(&render, &palette, clip)
+        Ok(decode_rgba(&render, palette, clip)
             .map(|rgba| mip_chain(render.width, render.height, rgba)))
     }
 }

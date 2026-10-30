@@ -6,7 +6,7 @@
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
-//! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR] [--ac1-heartbeat SECONDS]
+//! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR] [--ac1-heartbeat SECONDS] [--ac1-lineup]
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
@@ -42,7 +42,8 @@
 //! `--ace-weenies DIR` stands every ACE weenie patch file (`*.sql`) in DIR, built from the AC1
 //! DATs (`--ac1-dat-dir`, else `AC1_DAT_DIR`), in a ring around where the player first stands,
 //! each idling through its motion table's default cycle and its weenie's HeartBeat emote actions
-//! (`ac1.rs`); `--ac1-heartbeat` rolls those every SECONDS instead of the weenie's interval.
+//! (`ac1.rs`); `--ac1-heartbeat` rolls those every SECONDS instead of the weenie's interval, and
+//! `--ac1-lineup` stands them in a row facing south instead (6 m ahead of a `--fly` camera).
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -133,6 +134,7 @@ struct Args {
     ace_weenies: Option<PathBuf>,
     ac1_dat_dir: Option<PathBuf>,
     ac1_heartbeat: Option<f64>,
+    ac1_lineup: bool,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -169,6 +171,7 @@ fn parse_args() -> Result<Args, String> {
         ace_weenies: None,
         ac1_dat_dir: std::env::var_os(ac1_assets::AC1_DAT_DIR_ENV).map(PathBuf::from),
         ac1_heartbeat: None,
+        ac1_lineup: false,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -257,6 +260,7 @@ fn parse_args() -> Result<Args, String> {
             }
             "--ace-weenies" => args.ace_weenies = Some(value()?.into()),
             "--ac1-dat-dir" => args.ac1_dat_dir = Some(value()?.into()),
+            "--ac1-lineup" => args.ac1_lineup = true,
             "--ac1-heartbeat" => {
                 args.ac1_heartbeat = Some(
                     value()?
@@ -330,6 +334,7 @@ fn main() {
         (Some(weenies), Some(dats)) => match ac1::Ac1Showcase::load(dats, weenies) {
             Ok(mut showcase) => {
                 showcase.heartbeat = args.ac1_heartbeat;
+                showcase.lineup = args.ac1_lineup;
                 Some(showcase)
             }
             Err(error) => {
@@ -532,7 +537,8 @@ fn snapshot(
         if frame.player.is_none() {
             // `--fly`: the ring stands 12 m ahead of the camera, at the ground under it.
             let size = world.block_size();
-            let ahead = fly.position + fly.forward() * 12.0;
+            let reach = if showcase.lineup { 6.0 } else { 12.0 };
+            let ahead = fly.position + fly.forward() * reach;
             let (bx, by) = ((ahead.x / size).floor(), (ahead.y / size).floor());
             let cell = ((bx as u32) << 24) | ((by as u32) << 16) | 1;
             let origin = [ahead.x - bx * size, ahead.y - by * size, fly_ground];
