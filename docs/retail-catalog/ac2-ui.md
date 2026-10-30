@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1381 done, 292 partial, 11 to do, 563 skipped.
+2247 retail functions: 1381 done, 292 partial, 3 to do, 571 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -2166,7 +2166,7 @@ Legend and workflow: [README](README.md).
 
 ### CDetailMapDesc
 - [x] `CDetailMapDesc::StreamPack` · 0051c4e0 · legions 00509c80 — ac2-world region/detail_map.rs: DBObj header, _blockMapDID, PSmartArray<CDetailMapRow>
-- [ ] `CDetailMapDesc::GetSubDataIDs` · 0051c560 · legions 00509d00 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [-] `CDetailMapDesc::GetSubDataIDs` · 0051c560 · legions 00509d00 — GetSubDataIDs lists a record dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it (it calls the int-returning +0x24 slot once when !m_bLoaded). The UI reads its layouts, images, map tiles and scene entities by DID on demand (ui_images.rs requests each image a frame needs, worker-decoded), so no consumer exists
 - [-] `CDetailMapDesc::CDetailMapDesc` · 0051c6b0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `CDetailMapDesc::GetDBOType` · 0051c6e0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 
@@ -2207,7 +2207,7 @@ Legend and workflow: [README](README.md).
 - [-] `CDetailMapRow::CheckXY` · 0051b8c0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `CDetailMapRow::Destroy` · 0051b900 · legions 00509a10 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [x] `CDetailMapRow::StreamPack` · 0051b930 · legions 00509a40 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
-- [ ] `CDetailMapRow::GetSubDataIDs` · 0051b9e0 · legions 00509af0 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [-] `CDetailMapRow::GetSubDataIDs` · 0051b9e0 · legions 00509af0 — GetSubDataIDs lists a record dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it (it calls the int-returning +0x24 slot once when !m_bLoaded). The UI reads its layouts, images, map tiles and scene entities by DID on demand (ui_images.rs requests each image a frame needs, worker-decoded), so no consumer exists
 - [-] `CDetailMapRow::CDetailMapRow` · 0051ba20 · legions 00509b30 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `CDetailMapRow::~CDetailMapRow` · 0051ba50 · legions 00509b60 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `CDetailMapRow::FromFileNode` · 0051baa0 — text source format (admin tools)
@@ -2218,7 +2218,7 @@ Legend and workflow: [README](README.md).
 - [-] `CDetailMapDesc::Destroy` · 00528e60 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 
 ### CMapNoteDesc
-- [ ] `CMapNoteDesc::GetSubDataIDs` · 00528e70 · legions 0050fcd0 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [-] `CMapNoteDesc::GetSubDataIDs` · 00528e70 · legions 0050fcd0 — GetSubDataIDs lists a record dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it (it calls the int-returning +0x24 slot once when !m_bLoaded). The UI reads its layouts, images, map tiles and scene entities by DID on demand (ui_images.rs requests each image a frame needs, worker-decoded), so no consumer exists
 - [-] `CMapNoteDesc::CMapNoteDesc` · 00528ec0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `CMapNoteDesc::GetDBOType` · 00528ef0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `CMapNoteDesc::Allocate` · 00528f00 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
@@ -2319,7 +2319,7 @@ Legend and workflow: [README](README.md).
 - [-] `UIScene::Destroy` · 005acf10 · legions 00578e70 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 - [-] `UIScene::Cleanup` · 005acf50 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 - [x] `UIScene::StreamPack` · 005acf60 · legions 00578ec0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-- [ ] `UIScene::GetSubDataIDs` · 005ad010 · legions 00578f70 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [-] `UIScene::GetSubDataIDs` · 005ad010 · legions 00578f70 — GetSubDataIDs lists a record dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it (it calls the int-returning +0x24 slot once when !m_bLoaded). The UI reads its layouts, images, map tiles and scene entities by DID on demand (ui_images.rs requests each image a frame needs, worker-decoded), so no consumer exists
 
 ### PSmartArray<EntityDesc>
 - [-] `PSmartArray<EntityDesc>::StreamPack` · 005ad050 · legions 00578fb0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -2460,7 +2460,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/uielement/desc/attributedesc.cpp.c` (1/6)
 
 ### AttributeDesc
-- [ ] `AttributeDesc::GetSubDataIDs` · 005e10f0 · legions 005a1e80 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [-] `AttributeDesc::GetSubDataIDs` · 005e10f0 · legions 005a1e80 — GetSubDataIDs lists a record dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it (it calls the int-returning +0x24 slot once when !m_bLoaded). The UI reads its layouts, images, map tiles and scene entities by DID on demand (ui_images.rs requests each image a frame needs, worker-decoded), so no consumer exists
 - [-] `AttributeDesc::AttributeDesc` · 005e1110 · legions 005a1ea0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `AttributeDesc::~AttributeDesc` · 005e1130 · legions 005a1ec0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `AttributeDesc::GetPackSize` · 005e1210 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
@@ -2505,7 +2505,7 @@ Legend and workflow: [README](README.md).
 
 ### MD_Data_Anim
 - [x] `MD_Data_Anim::Reset` · 005e22a0 — ac2-ui media.rs / transition.rs
-- [ ] `MD_Data_Anim::GetSubDataIDs` · 005e22c0 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [-] `MD_Data_Anim::GetSubDataIDs` · 005e22c0 — GetSubDataIDs lists a record dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it (it calls the int-returning +0x24 slot once when !m_bLoaded). The UI reads its layouts, images, map tiles and scene entities by DID on demand (ui_images.rs requests each image a frame needs, worker-decoded), so no consumer exists
 - [x] `MD_Data_Anim::Update` · 005e2300 — ac2-ui media.rs / transition.rs
 - [x] `MD_Data_Anim::StreamPack` · 005e23b0 · legions 005a3140 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [-] `MD_Data_Anim::MD_Data_Anim` · 005e2440 · legions 005a31d0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
@@ -2534,7 +2534,7 @@ Legend and workflow: [README](README.md).
 - [-] `MD_Data_Image::MD_Data_Image` · 005e1f60 · legions 005a2d80 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 
 ### MD_Data_Alpha
-- [ ] `MD_Data_Alpha::GetSubDataIDs` · 005e1f90 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [-] `MD_Data_Alpha::GetSubDataIDs` · 005e1f90 — GetSubDataIDs lists a record dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it (it calls the int-returning +0x24 slot once when !m_bLoaded). The UI reads its layouts, images, map tiles and scene entities by DID on demand (ui_images.rs requests each image a frame needs, worker-decoded), so no consumer exists
 
 ### MD_Data_Image
 - [x] `MD_Data_Image::Update` · 005e1fc0 — ac2-ui media.rs / transition.rs
@@ -2594,7 +2594,7 @@ Legend and workflow: [README](README.md).
 ### StateDesc
 - [-] `StateDesc::GetPackSize` · 005e0380 · legions 005a1110 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `StateDesc::Pack` · 005e04a0 · legions 005a1230 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-- [ ] `StateDesc::GetSubDataIDs` · 005e0690 · legions 005a1420 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [-] `StateDesc::GetSubDataIDs` · 005e0690 · legions 005a1420 — GetSubDataIDs lists a record dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it (it calls the int-returning +0x24 slot once when !m_bLoaded). The UI reads its layouts, images, map tiles and scene entities by DID on demand (ui_images.rs requests each image a frame needs, worker-decoded), so no consumer exists
 - [-] `StateDesc::~StateDesc` · 005e0750 · legions 005a14e0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [x] `StateDesc::UnPack` · 005e0950 · legions 005a16e0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [-] `StateDesc::Copy` · 005e0cd0 · legions 005a1a60 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
