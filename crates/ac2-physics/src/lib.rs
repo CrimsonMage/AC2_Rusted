@@ -86,6 +86,8 @@ mod physics_obj_look;
 mod physics_obj_missile;
 mod physics_obj_place;
 #[cfg(test)]
+mod physics_obj_place_tests;
+#[cfg(test)]
 mod physics_obj_tests;
 mod position;
 mod pushers;
@@ -167,7 +169,10 @@ pub use physics_material::{load_physics_material, PhysicsMaterial};
 pub use physics_obj::{BodyShape, DescSlider};
 pub use physics_obj_conflict::{ConflictEffect, ConflictPeer};
 pub use physics_obj_missile::{MissileEnv, MissileEvent, ObjectLookup, ObjectView};
-pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
+pub use physics_obj_place::{
+    SetPositionError, SetPositionStruct, FORCE_SPF, PLACEMENT_SPF, RANDOMSCATTER_SPF, SCATTER_SPF,
+    SLIDE_SPF,
+};
 pub use position::Position;
 pub use pushers::{PusherSum, PusherValues, Pushers};
 pub use shapes::cylsphere::CylSphere;

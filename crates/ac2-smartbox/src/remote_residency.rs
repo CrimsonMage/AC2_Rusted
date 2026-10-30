@@ -21,7 +21,8 @@ impl<B> Remotes<B> {
         }
     }
 
-    /// `CPhysicsObj::RecvEvt_Position` for an object other than the player, up to the walk: a
+    /// `CPhysicsObj::RecvEvt_Position` (and its `RecvEvt_PositionCell` forwarder) for an object
+    /// other than the player, up to the walk: a
     /// position for an object still being created is stored; one outside a resident cell leaves
     /// visibility there; otherwise the physics range is updated, and a teleport, an object out of
     /// range or out of the world snaps there (`SyncPositionSimple`). The rest interpolates.
@@ -107,7 +108,10 @@ impl<B> Remotes<B> {
     }
 
     /// `CPhysicsObj::SyncPositionSimple(pos, sliding = 1)`: in the world, `SetPositionSimple`;
-    /// out of it, `ReEnterVisibility(pos)` (`EnterWorldSimple`, sliding).
+    /// out of it, `ReEnterVisibility(pos)` (`EnterWorldSimple`, sliding); then
+    /// `SetPlacementPosition(pos)`. (Retail first takes a held object off its parent,
+    /// `unset_parent` and `LeaveWorld`; the parent links live in the child graph, which the
+    /// caller drives.)
     pub fn sync_position_simple(
         &mut self,
         id: u64,
@@ -129,6 +133,11 @@ impl<B> Remotes<B> {
             }
         } else {
             self.enter_world(id, position, records, terrain, &mut effects);
+        }
+        // Either way the sync ends in `SetPlacementPosition(pos)`: the blip is not drawn
+        // across, and the body turns to the heading and restarts its mode.
+        if let Some(body) = self.get_mut(id).and_then(|remote| remote.body.as_mut()) {
+            body.set_placement_position(&position);
         }
         effects
     }
@@ -156,6 +165,8 @@ impl<B> Remotes<B> {
         match body.place(position, ENTER_WORLD_FLAGS, terrain) {
             SetPositionError::Ok => {
                 remote.in_world = true;
+                // `CPhysicsObj::HandleEnterWorld`'s body part.
+                body.handle_enter_world(terrain);
                 self.remove_from_lost_cell(id);
                 effects.push(ResidencyEffect::CancelDestroy(id));
                 true
@@ -182,7 +193,7 @@ impl<B> Remotes<B> {
             return;
         };
         match &mut remote.body {
-            Some(body) => body.set_position(position),
+            Some(body) => body.store_position(position),
             None => remote.stored = Some(position),
         }
         let held = records(id).is_some_and(|r| r.held);
@@ -202,8 +213,9 @@ impl<B> Remotes<B> {
         self.leave_world(id, &mut queued);
     }
 
-    /// `CPhysicsObj::LeaveWorld`: out of the world (`HandleLeaveWorld`), or, already out, out of
-    /// its lost cell; either way queued for destruction (`CBookKeep::AddObjectToBeDestroyed`).
+    /// `CPhysicsObj::LeaveWorld`: out of the world (`HandleLeaveWorld`'s motion part, the
+    /// shadow and cell lists as `sync_shadows` follows the flag, `clear_transient_states`), or,
+    /// already out, out of its lost cell; either way queued for destruction (`CBookKeep::AddObjectToBeDestroyed`).
     fn leave_world(&mut self, id: u64, effects: &mut Vec<ResidencyEffect>) {
         let Some(remote) = self.get_mut(id) else {
             return;

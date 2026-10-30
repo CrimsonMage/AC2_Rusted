@@ -8,6 +8,7 @@ use crate::heading::Heading;
 use crate::physics_obj::{PhysicsObj, LANDSCAPE_CONTACT_TS, SLIDING_TS};
 use crate::physics_obj_contact::WATER_CONTACT_TS;
 use crate::position::Position;
+use crate::terrain::Terrain;
 use crate::vector::{Plane, Sphere, Vector};
 
 use super::PhysicsBody;
@@ -112,6 +113,13 @@ impl PhysicsBody {
     /// `0x80000001` vector property). See `PhysicsObj::update_gravity` for the result.
     pub fn update_gravity(&mut self, material: Option<&crate::PhysicsMaterial>) -> bool {
         self.object.update_gravity(material)
+    }
+
+    /// `CPhysicsObj::HandleEnterWorld`'s body part, run when a placement into the world
+    /// succeeds: the opacity fades in, the element is picked for the new place and the body's
+    /// movement, animation and misc activity begin.
+    pub fn handle_enter_world(&mut self, world: &Terrain) {
+        self.object.handle_enter_world(world);
     }
 
     /// `CPhysicsObj::clear_transient_states`, run when the body leaves the world.

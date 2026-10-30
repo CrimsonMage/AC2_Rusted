@@ -610,19 +610,63 @@ impl PhysicsObj {
             .map_or(1.0, |constraint| constraint.factor(&self.position))
     }
 
-    /// `CPhysicsObj::GetHeightAboveWalkable`: zero in contact or walking on air, else the drop
-    /// to the terrain below (`LOSCheck` against terrain only), negative when below it.
+    /// `CPhysicsObj::GetHeightAboveWalkable`'s height: zero in contact or walking on air, else
+    /// the drop to what a downward line of sight meets (terrain, interior floors, object
+    /// shapes), or, when that meets nothing, minus the climb to what an upward one meets.
     pub(crate) fn height_above_walkable(&self, terrain: &Terrain) -> f32 {
+        self.get_height_above_walkable(terrain).1
+    }
+
+    /// `CPhysicsObj::GetHeightAboveWalkable`: whether the probe found a surface (true without
+    /// tracing in contact or walking on air) and the height. The ray starts at the body's
+    /// origin, ignores the body itself (its id in the ethereal list) and the objects its
+    /// movement physics mask lets it pass, and does not stop at water.
+    pub(crate) fn get_height_above_walkable(&self, terrain: &Terrain) -> (bool, f32) {
         if self.desired_element() == ELEMENT_WALK_ON_AIR || self.has_contact() {
-            return 0.0;
+            return (true, 0.0);
         }
-        terrain.height_above_terrain(&self.position).unwrap_or(0.0)
+        let mut weenie = crate::collision_types::WeenieTypes::empty();
+        if self.instance_id != 0 {
+            // Scenery has no id (0 here), so a body without one must not hide it.
+            weenie.add_to_ethereal_list(self.instance_id);
+        }
+        let mut los = crate::los::LosParameters::new();
+        los.set_los_params(&weenie, self.collision.movement_physics());
+        let origin = self.position.frame.origin;
+        let cell = self.position.cell_id;
+        let down = crate::los::Ray::from_offset(origin, Vector::new(0.0, 0.0, -100_000.0));
+        los.set_ray(down, cell);
+        let found = terrain.los_check(&mut los);
+        if los.trace_result() == 0 {
+            let up = crate::los::Ray::from_offset(origin, Vector::new(0.0, 0.0, 100_000.0));
+            los.set_ray(up, cell);
+            let found = terrain.los_check(&mut los);
+            if found && los.trace_result() != 0 {
+                return (found, st(-ld(los.final_ray().length)));
+            }
+            return (found, 0.0);
+        }
+        if found {
+            return (true, los.final_ray().length);
+        }
+        (false, 0.0)
+    }
+
+    /// `CPhysicsObj::GetGroundPosition`: the body's position, in the world dropped to the
+    /// walkable surface under it (by `GetHeightAboveWalkable`'s height).
+    pub(crate) fn ground_position(&self, in_world: bool, terrain: &Terrain) -> Position {
+        let mut position = self.position;
+        if in_world {
+            let (_, height) = self.get_height_above_walkable(terrain);
+            position.frame.origin.z = st(ld(position.frame.origin.z) - ld(height));
+        }
+        position
     }
 
     /// `CPhysicsObj::CalcElement`: ground or air by contact, water and sea floor by the depth
     /// of the body under its cell's water plane. Retail's no-cell `DoElement(GROUND)` is never
     /// reached: its callers, `UpdateMovementInternal` and `HandleEnterWorld`, run in the world.
-    fn calc_element(&mut self, terrain: &Terrain) {
+    pub(crate) fn calc_element(&mut self, terrain: &Terrain) {
         if !self.is_mobile() {
             return;
         }

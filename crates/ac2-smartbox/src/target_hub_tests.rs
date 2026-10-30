@@ -128,3 +128,20 @@ fn a_target_update_is_ignored_without_a_manager_and_taken_for_the_target() {
     assert_eq!(notices.len(), 1);
     assert_eq!(notices[0].info.last_update_time, 4.0);
 }
+
+#[test]
+fn a_teleport_clears_the_target_and_tells_the_voyeurs() {
+    let mut hub = TargetHub::new();
+    let w = world([(1, 0.0), (2, 10.0)]);
+    hub.set_target(1, 5, 2, 1.0, 0.5, 3.0, &w);
+    // Object 2 is watched by 1; when 2 teleports, 1 hears `Teleported`.
+    let notices = hub.teleport_start(2, 4.0, &w);
+    assert_eq!(notices.len(), 1);
+    assert_eq!(notices[0].object, 1);
+    assert_eq!(notices[0].info.status, TargetStatus::Teleported);
+    // Object 1 teleporting lets go of its own target.
+    let mut hub = TargetHub::new();
+    hub.set_target(1, 5, 2, 1.0, 0.5, 3.0, &w);
+    hub.teleport_start(1, 4.0, &w);
+    assert_eq!(hub.manager(2).expect("manager").voyeurs().count(), 0);
+}

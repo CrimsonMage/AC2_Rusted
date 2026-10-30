@@ -667,6 +667,10 @@ impl Client {
                 let placed = body
                     .physics
                     .place(position, ENTER_WORLD_FLAGS, &self.terrain);
+                if placed == SetPositionError::Ok {
+                    // `CPhysicsObj::HandleEnterWorld`'s body part.
+                    body.physics.handle_enter_world(&self.terrain);
+                }
                 placed == SetPositionError::Ok
             }
             _ => false,
@@ -934,6 +938,8 @@ impl Client {
             Some(body) if player.in_world => {
                 body.physics
                     .place(target, SYNC_POSITION_FLAGS, &self.terrain);
+                // `CPhysicsObj::SyncPositionSimple` ends in `SetPlacementPosition`.
+                body.physics.set_placement_position(&target);
                 if let Some(velocity) = impulse {
                     body.physics.set_velocity(velocity);
                 }

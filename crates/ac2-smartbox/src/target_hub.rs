@@ -9,7 +9,7 @@
 
 use std::collections::{BTreeMap, VecDeque};
 
-use ac2_physics::{TargetEffect, TargetInfo, TargetManager, TargetOwner};
+use ac2_physics::{TargetEffect, TargetInfo, TargetManager, TargetOwner, TargetStatus};
 
 /// What the table knows of an object's body: `None` when it is not in the world.
 pub type TargetOwners<'a> = &'a dyn Fn(u64) -> Option<TargetOwner>;
@@ -153,6 +153,25 @@ impl TargetHub {
             return Vec::new();
         };
         let effects = manager.set_target_quantum(owner, quantum);
+        self.apply(owner, effects, now, owners)
+    }
+
+    /// `CPhysicsObj::HandleTeleportStart`'s target part: the object lets go of its target
+    /// (`ClearTarget`) and its voyeurs are told `Teleported`.
+    pub fn teleport_start(
+        &mut self,
+        owner: u64,
+        now: f64,
+        owners: TargetOwners<'_>,
+    ) -> Vec<TargetNotice> {
+        let Some(body) = owners(owner) else {
+            return Vec::new();
+        };
+        let Some(manager) = self.managers.get_mut(&owner) else {
+            return Vec::new();
+        };
+        let mut effects = manager.clear_target(owner);
+        effects.extend(manager.notify_voyeurs_of_event(&body, TargetStatus::Teleported));
         self.apply(owner, effects, now, owners)
     }
 

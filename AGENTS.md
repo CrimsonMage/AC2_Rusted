@@ -452,6 +452,14 @@ game rules and server-visible behaviour exactly retail.
   `gmShopCatalogUI::~gmShopCatalogUI`: `RequestLeaveCatalog`) called the player's script whenever
   the UI was torn down with the player present; here the log off and the quit ask first, once
   each and only while such a panel is open (`ac2-ui` `hud_tick.rs` `leave_open_stores`).
+- Exception: a placement keeps a pending mode change and its cell. Retail's `CPhysicsObj::SetPlacementPosition`
+  sets the mode tracker to `GetMode()` (the mode reached so far), which only matches the requested
+  mode because retail places an object before its description's `DoMode`; here the object enters
+  the world later, once its cells are resident, so the tracker is set to its desired mode
+  (`PhysicsObj::set_placement_position`) and a door created shut is not reset to its default mode.
+  Retail also passes the requested position, whose cell `AdjustPosition` may have corrected; when
+  the body ended in another cell, the previous position takes the body's own position, so a drawn
+  position never names a cell the body is not in.
 - Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
   read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
 - Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and

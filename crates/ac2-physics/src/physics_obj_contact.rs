@@ -211,7 +211,12 @@ impl PhysicsObj {
             return false;
         }
         self.collided = collided;
+        let previous_cell = self.position.cell_id;
         self.set_position_internal(&transition);
+        if self.position.cell_id != previous_cell {
+            // `SetPositionInternal(CTransition*)` on a new cell: `UpdateCellMaterial`.
+            self.update_cell_material(terrain);
+        }
         true
     }
 
@@ -238,6 +243,7 @@ impl PhysicsObj {
                 self.transient_state |= CONTACT_TS;
             } else {
                 self.transient_state &= !CONTACT_TS;
+                self.set_misc_active(true);
             }
             if c.contact_plane_is_landscape {
                 self.transient_state |= LANDSCAPE_CONTACT_TS;

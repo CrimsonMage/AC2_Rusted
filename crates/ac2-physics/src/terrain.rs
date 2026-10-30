@@ -165,8 +165,10 @@ impl Terrain {
     }
 
     /// Adds a static object and enters it in the shadow lists of the resident cells its shadow
-    /// box touches (`CPhysicsObj::calc_cross_cells` -> `add_shadows_to_cells`); cells made
-    /// resident later pick it up too. Returns its id.
+    /// box touches (`CPhysicsObj::AddStaticObjToCell`, `calc_cross_cells_static` /
+    /// `calc_cross_cells` -> `add_shadows_to_cells`); cells made resident later pick it up too
+    /// (a shadow whose cell is not resident is listed as incomplete,
+    /// [`Self::shadow_objects_complete`]). Returns its id.
     pub fn insert_object(&mut self, mut object: StaticObject) -> u32 {
         let id = self.free.pop().unwrap_or(self.objects.len() as u32);
         let cells = self.cover(&object, object.position());
@@ -303,7 +305,8 @@ impl Terrain {
         }
     }
 
-    /// `CPhysicsObj::leave_cell` then `enter_cell` for a moved object: its position is
+    /// `CPhysicsObj::change_cell` (`leave_cell` then `enter_cell`) and `recalc_cross_cells`
+    /// (`remove_shadows_from_cells`, `calc_cross_cells`) for a moved object: its position is
     /// updated, and its shadow lists are rebuilt only when it has gone far enough from (or
     /// changed its cell or orientation since) the position its list was built for. Between
     /// rebuilds the list is a superset of the cells the object touches, so nothing is missed.
@@ -418,7 +421,8 @@ impl Terrain {
         }
     }
 
-    /// Removes an object from the world and its cells' shadow lists (`CObjCell::RemoveObject`).
+    /// Removes an object from the world and its cells' shadow lists
+    /// (`CPhysicsObj::remove_shadows_from_cells`, `CObjCell::RemoveObject`).
     /// Its id is free for the next insert.
     pub fn remove_object(&mut self, id: u32) {
         let Some(Some((_, cells))) = self.objects.get_mut(id as usize).map(Option::take) else {
@@ -624,6 +628,43 @@ impl Terrain {
         ids.sort_unstable();
         ids.into_iter()
             .find(|id| self.env_cells[id].point_in_cell(point))
+    }
+}
+
+impl Terrain {
+    /// `CEnvCell::find_in_visible_cells`: the id of a resident interior cell whose BSP holds
+    /// `point` (taken in each cell's own landblock frame; retail walks its visible-cell hash,
+    /// here the cells go in id order).
+    pub fn find_in_visible_cells(&self, point: Vector) -> Option<u32> {
+        let mut ids: Vec<u32> = self.env_cells.keys().copied().collect();
+        ids.sort_unstable();
+        ids.into_iter()
+            .find(|id| self.env_cells[id].point_in_cell(point))
+    }
+
+    /// `CPhysicsObj::GetNumShadowObjects` for object `id`: the cells it is listed in (its shadow
+    /// box grown by the cover margin for a mover, so more than retail's exact count). Zero for
+    /// no such object.
+    pub fn shadow_object_count(&self, id: u32) -> usize {
+        match self.objects.get(id as usize) {
+            Some(Some((_, cells))) => cells.len(),
+            _ => 0,
+        }
+    }
+
+    /// `CPhysicsObj::AreShadowObjectsComplete` for object `id`: it is listed in at least one
+    /// cell and every cell it is to be listed in is resident (a cell made resident later picks
+    /// the object up, `insert_env_cell`).
+    pub fn shadow_objects_complete(&self, id: u32) -> bool {
+        match self.objects.get(id as usize) {
+            Some(Some((_, cells))) => {
+                !cells.is_empty()
+                    && cells.iter().all(|cell| {
+                        self.cells.contains_key(cell) || self.env_cells.contains_key(cell)
+                    })
+            }
+            _ => false,
+        }
     }
 }
 

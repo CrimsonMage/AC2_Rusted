@@ -271,6 +271,13 @@ impl PhysicsBody {
         }
     }
 
+    /// `CPhysicsObj::HandleTeleportStart`'s motion part: the interpreter stops interpolating
+    /// and its constraint ends (`CMotionInterp::StopInterpolating`, `UnConstrain`).
+    pub fn handle_teleport_start(&mut self) {
+        self.stop_interpolating();
+        self.unconstrain();
+    }
+
     /// `CPhysicsObj::GetSliderCurrentValue`.
     pub fn slider_value(&self, slider: u32) -> f32 {
         self.object.anim.sliders.value(slider)

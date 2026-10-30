@@ -29,10 +29,12 @@ pub const FX_OBJECT_COLLISION_BIT: u32 = 0x10;
 /// out of physics range (`HandleOutOfPhysicsRange`) and snaps to its positions.
 const PHYSICS_RANGE: f32 = 96.0;
 
-/// `CPhysicsObj::SyncPositionSimple`'s placement flags.
+/// `CPhysicsObj::SyncPositionSimple`'s placement flags (`SetPositionSimple` with sliding:
+/// `SLIDE_SPF` and `SEND_POSITION_EVENT_SPF`).
 pub const SYNC_POSITION_FLAGS: u32 = 0x1010;
 
-/// `CPhysicsObj::EnterWorldSimple`'s placement flags.
+/// `CPhysicsObj::EnterWorld` / `EnterWorldSimple`'s placement flags (`PLACEMENT_SPF` and
+/// `SLIDE_SPF`).
 pub const ENTER_WORLD_FLAGS: u32 = 0x11;
 
 /// The session facts a residency call reads about one object (`RemoteObject`).

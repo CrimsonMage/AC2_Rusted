@@ -19,18 +19,18 @@ use crate::vector::{Quaternion, Sphere, Vector};
 
 const BLOCK: u32 = 0x7F7F_FFFF;
 
-fn cell_at(x: f32, y: f32) -> u32 {
+pub(crate) fn cell_at(x: f32, y: f32) -> u32 {
     lcoord_to_gid(0x7F * 8 + (x / 20.0) as i32, 0x7F * 8 + (y / 20.0) as i32)
 }
 
-fn flat() -> Terrain {
+pub(crate) fn flat() -> Terrain {
     let heights = vec![0.0; SIDE_VERTEX_COUNT * SIDE_VERTEX_COUNT];
     let mut terrain = Terrain::new();
     terrain.insert_heights(BLOCK, &heights, |_, _| false);
     terrain
 }
 
-fn position(x: f32, y: f32, z: f32) -> Position {
+pub(crate) fn position(x: f32, y: f32, z: f32) -> Position {
     Position::new(
         cell_at(x, y),
         Frame::new(Vector::new(x, y, z), Quaternion::IDENTITY),
@@ -38,7 +38,7 @@ fn position(x: f32, y: f32, z: f32) -> Position {
 }
 
 /// A closed box `min..max` of outward-facing quads in one leaf.
-fn box_tree(min: Vector, max: Vector) -> BspTree {
+pub(crate) fn box_tree(min: Vector, max: Vector) -> BspTree {
     let (a, b) = (min, max);
     let v = Vector::new;
     let faces = vec![
@@ -90,18 +90,18 @@ fn box_tree(min: Vector, max: Vector) -> BspTree {
     BspTree::new(vec![leaf], polygons)
 }
 
-fn world_with(object: StaticObject) -> Terrain {
+pub(crate) fn world_with(object: StaticObject) -> Terrain {
     let mut terrain = flat();
     terrain.insert_object(object);
     terrain
 }
 
-fn bsp_box(at: Position, min: Vector, max: Vector) -> StaticObject {
+pub(crate) fn bsp_box(at: Position, min: Vector, max: Vector) -> StaticObject {
     let shape = ObjectShape::new(vec![Arc::new(box_tree(min, max))], Vec::new(), Vec::new());
     StaticObject::new(at, Vector::new(1.0, 1.0, 1.0), Arc::new(shape))
 }
 
-fn walker(x: f32, y: f32, z: f32) -> PhysicsBody {
+pub(crate) fn walker(x: f32, y: f32, z: f32) -> PhysicsBody {
     let mut air = walking_values();
     air.forward_acceleration = 0.0;
     air.backward_acceleration = 0.0;

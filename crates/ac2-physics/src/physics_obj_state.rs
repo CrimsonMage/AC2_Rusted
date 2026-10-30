@@ -18,6 +18,8 @@ use super::{
     STATIONARY_FALL_TS, STATIONARY_STOP_TS, STATIONARY_STUCK_TS,
 };
 
+/// The opacity slider (`DoSlider(0, 0x40000015, ..)`).
+const OPACITY_SLIDER: u32 = 0x4000_0015;
 /// `TransientState` bits: `MOVEMENT_ACTIVE_TS`, `ANIMATION_ACTIVE_TS` (`MISC_ACTIVE_TS` is in
 /// `physics_obj`).
 pub(crate) const MOVEMENT_ACTIVE_TS: u32 = 0x80;
@@ -37,6 +39,17 @@ fn at_rest(v: Vector) -> bool {
 }
 
 impl PhysicsObj {
+    /// `CPhysicsObj::HandleEnterWorld` (the body's part): `PHYSICSOBJREP::HandleEnterWorld`
+    /// fades the opacity slider (`0x40000015`) to 1 over half a second, `CalcElement` picks the
+    /// element for the new place, and movement, animation and misc activity begin.
+    pub(crate) fn handle_enter_world(&mut self, terrain: &crate::terrain::Terrain) {
+        self.anim.do_slider(0, OPACITY_SLIDER, 1.0, 0.5);
+        self.calc_element(terrain);
+        self.set_movement_active(true);
+        self.set_animation_active_to(true);
+        self.set_misc_active(true);
+    }
+
     /// `CPhysicsObj::set_movement_active`: refused for a static body. Going inactive while
     /// active records the current position as the previous one.
     pub(crate) fn set_movement_active(&mut self, active: bool) -> bool {
@@ -218,6 +231,38 @@ mod tests {
         assert!(body
             .object_mut()
             .update_gravity(Some(&gravity_material(-1.5))));
+        assert_eq!(body.object_mut().local_gravity.z, -1.5);
+    }
+
+    /// `CPhysicsObj::SetPositionInternal(CTransition*)`: walking into another land cell takes
+    /// that cell's material, and with it its gravity.
+    #[test]
+    fn walking_into_a_cell_with_another_material_changes_the_gravity() {
+        use crate::body::MovementInput;
+        use crate::landdefs::SIDE_VERTEX_COUNT;
+        use crate::test_support::terrain;
+        let mut ground = terrain(|_, _| 50.0);
+        let mut material = gravity_material(-1.5);
+        material.id = 5;
+        ground.insert_material(std::sync::Arc::new(material));
+        // The vertices from x = 80 m east carry the material.
+        let grid = (0..SIDE_VERTEX_COUNT * SIDE_VERTEX_COUNT)
+            .map(|i| (i / SIDE_VERTEX_COUNT >= 8).then_some(5))
+            .collect();
+        ground.set_block_materials(0x7F7F_0000, grid);
+        let mut body = body_at(70.0, 40.0, 50.0);
+        for _ in 0..5 {
+            body.step_quantum(&ground);
+        }
+        assert_eq!(body.object_mut().local_gravity.z, -9.8);
+        body.set_input(MovementInput {
+            motion: [1.0, 0.0, 0.0],
+            ..MovementInput::default()
+        });
+        for _ in 0..90 {
+            body.step_quantum(&ground);
+        }
+        assert!(body.position().frame.origin.x > 82.0);
         assert_eq!(body.object_mut().local_gravity.z, -1.5);
     }
 

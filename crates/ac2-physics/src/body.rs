@@ -4,14 +4,18 @@
 use std::sync::Arc;
 
 use ac2_anim::Ac2AnimEvent;
+use ac2_core::Random;
 use ac2_world::Ac2MotionInterpDesc;
 
 use crate::collision_report::{Collided, CollisionReport, ContactMaterials};
 use crate::fpu::{ld, st};
+use crate::frame::Frame;
 use crate::heading::Heading;
 use crate::motion_interp::MotionInterp;
 use crate::physics_obj::{BodyShape, PhysicsObj};
-use crate::physics_obj_place::SetPositionError;
+use crate::physics_obj_place::{
+    SetPositionError, SetPositionStruct, RANDOMSCATTER_SPF, SCATTER_SPF,
+};
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::vector::Vector;
@@ -197,7 +201,7 @@ impl PhysicsBody {
     }
 
     /// `CPhysicsObj::m_posPrevious`: where the body was before its last physics quantum
-    /// (`UpdateMovement` saves it; a placement sets it to the placed position).
+    /// (`UpdateMovement` saves it; a `PLACEMENT_SPF` placement sets it to the requested position).
     pub fn previous_position(&self) -> Position {
         self.object.prev_position
     }
@@ -232,6 +236,7 @@ impl PhysicsBody {
     }
 
     /// Places the body (a server position update): velocity and contact are kept.
+    /// (`CPhysicsObj::SetInitialFrame` / `set_frame` for a body not yet in the world.)
     pub fn set_position(&mut self, position: Position) {
         self.object.position = position;
         self.object.prev_position = position;
@@ -242,7 +247,59 @@ impl PhysicsBody {
     /// (`SLIDE_SPF` lets it move to a free spot nearby, `FORCE_SPF` skips the check). On
     /// failure the body stays where it was.
     pub fn place(&mut self, position: Position, flags: u32, world: &Terrain) -> SetPositionError {
-        self.object.set_position_checked(position, flags, world)
+        let sps = SetPositionStruct::new(position, flags & !(SCATTER_SPF | RANDOMSCATTER_SPF));
+        let mut unused = Random::default();
+        self.object.set_position_struct(&sps, world, &mut unused)
+    }
+
+    /// `CPhysicsObj::SetPosition(SetPositionStruct*)`: [`Self::place`] with the scatter flags
+    /// (`SCATTER_SPF` after a failed exact placement, `RANDOMSCATTER_SPF` straight away) rolling
+    /// on `random`, the client's shared generator, and `PLACEMENT_SPF` restarting the body's
+    /// previous position, heading and mode at the requested position.
+    pub fn set_position_struct(
+        &mut self,
+        sps: &SetPositionStruct,
+        world: &Terrain,
+        random: &mut Random,
+    ) -> SetPositionError {
+        self.object.set_position_struct(sps, world, random)
+    }
+
+    /// `CPhysicsObj::GetHeightAboveWalkable`: whether a surface was found and the height above
+    /// it (zero in contact or walking on air; negative when it is above).
+    pub fn get_height_above_walkable(&self, world: &Terrain) -> (bool, f32) {
+        self.object.get_height_above_walkable(world)
+    }
+
+    /// `CPhysicsObj::GetGroundPosition`: the position dropped onto the walkable surface under
+    /// the body when it is `in_world`, else the position itself.
+    pub fn ground_position(&self, in_world: bool, world: &Terrain) -> Position {
+        self.object.ground_position(in_world, world)
+    }
+
+    /// `CPhysicsObj::SetPlacementPosition`: the previous and animation positions become
+    /// `position`, the body turns to its heading and its animation mode is set again (a
+    /// `PLACEMENT_SPF` placement and every `SyncPositionSimple` end with it).
+    pub fn set_placement_position(&mut self, position: &Position) {
+        self.object.set_placement_position(position);
+    }
+
+    /// `CPhysicsObj::StorePosition`: the position of a body that is out of the world or in no
+    /// resident cell; an outdoor position is moved into the land cell under it.
+    pub fn store_position(&mut self, position: Position) {
+        self.object.store_position(position);
+    }
+
+    /// `CPhysicsObj::find_inside_position`: sets `position`'s cell to the interior cell holding
+    /// the body's first sphere placed there. False when none does.
+    pub fn find_inside_position(&self, position: &mut Position, world: &Terrain) -> bool {
+        self.object.find_inside_position(position, world)
+    }
+
+    /// `CPhysicsObj::local_to_global`: `local_frame`, relative to the body, as the position in
+    /// the cell that holds it; `None` when no resident cell does.
+    pub fn local_to_global(&self, local_frame: &Frame, world: &Terrain) -> Option<Position> {
+        self.object.local_to_global(local_frame, world)
     }
 
     /// `CPhysicsObj::DoMotion` with `TurnTo` when a heading is given, and the turn rate. Input

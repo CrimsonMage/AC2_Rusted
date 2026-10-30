@@ -164,4 +164,37 @@ fn a_temporary_object_out_of_physics_range_is_destroyed_and_others_stay() {
     remotes.step_quantum(&mut terrain, 0.0, &mut random, &[(1, view)]);
     assert!(remotes.get(temporary).is_none());
     assert!(remotes.get(7).is_some_and(|r| !r.active));
+
+/// `CPhysicsObj::InqCellObjects` / `InqBlockObjects`: the objects of the object's own cell, and of
+/// its whole landblock.
+#[test]
+fn an_object_lists_the_objects_of_its_cell_and_block() {
+    let mut remotes = Remotes::<()>::default();
+    remotes.insert(7, in_world_remote(None));
+    remotes.insert(8, in_world_remote(None));
+    let mut terrain = ac2_physics::Terrain::new();
+    remotes.sync_shadows(&mut terrain);
+    assert_eq!(remotes.inq_cell_objects(7, false), vec![7, 8]);
+    assert_eq!(remotes.inq_block_objects(8, true), vec![7, 8]);
+    // An object in no cell lists nothing.
+    remotes.insert(9, in_world_remote(None));
+    assert!(remotes.inq_cell_objects(9, false).is_empty());
+    assert!(remotes.inq_block_objects(99, false).is_empty());
+}
+
+/// `CPhysicsObj::SyncPositionSimple` ends in `SetPlacementPosition`, placed or not.
+#[test]
+fn a_synced_position_becomes_the_previous_position() {
+    let mut remotes = Remotes::<()>::default();
+    remotes.insert(7, in_world_remote(None));
+    let mut terrain = ac2_physics::Terrain::new();
+    let mut position = ac2_physics::Position {
+        cell_id: 0x7F7F_0001,
+        ..Default::default()
+    };
+    position.frame.origin = ac2_physics::Vector::new(5.0, 6.0, 7.0);
+    let records = |_: u64| None;
+    remotes.sync_position_simple(7, position, &records, &mut terrain);
+    let body = remotes.get(7).unwrap().body.as_ref().unwrap();
+    assert_eq!(body.previous_position(), position);
 }

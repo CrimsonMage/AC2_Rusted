@@ -292,10 +292,14 @@ fn the_drawn_position_blends_the_last_quantum() {
     let half = body.drawing_position(0.5).frame.origin.y;
     let mid = (previous.frame.origin.y + current.frame.origin.y) * 0.5;
     assert!((half - mid).abs() < 1e-5, "{half} {mid}");
-    // A placement does not blend: the previous position is the placed one.
+    // A placement with `PLACEMENT_SPF` does not blend (`SetPlacementPosition`): the previous
+    // position is the placed one. Any other placement leaves the previous position alone.
     let mut there = current;
     there.frame.origin.x += 3.0;
     let placed = body.place(there, 0, &ground);
+    assert_eq!(placed, crate::physics_obj_place::SetPositionError::Ok);
+    assert_eq!(body.previous_position(), previous);
+    let placed = body.place(there, crate::physics_obj_place::PLACEMENT_SPF, &ground);
     assert_eq!(placed, crate::physics_obj_place::SetPositionError::Ok);
     assert_eq!(body.previous_position(), body.position());
 }
