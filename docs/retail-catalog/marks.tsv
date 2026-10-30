@@ -193,7 +193,7 @@ key	status	note
 004093a0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 004095e0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 004098b0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-004098e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+004098e0	-	STREAMPACK template wrappers with no call site in the Legions wlib (host::tests::efun_coverage); the records they pack are read directly
 00409960	x	
 00409990	x	
 00409a80	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
@@ -204,7 +204,7 @@ key	status	note
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 0040a440	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0040a540	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-0040a590	_	needs port: GameplayOptionsProfile::~GameplayOptionsProfile lifecycle (teardown/creation)
+0040a590	-	Destructor: Rust frees the value on drop
 0040a790	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 0040a810	~	ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (child keys, 0x4100000C via gameplay_show_key, 0x4100000D via take_use_key -> Command::UseSelection); 0xffff0005 and 0xffff0007 notices not here
 0040a960	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
@@ -289,7 +289,7 @@ key	status	note
 00411260	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 004112a0	-	no DAT patching in this client (DDD patch events never come)
 004113b0	-	no DAT patching in this client (DDD patch events never come)
-00411500	_	needs port: CPluginManager::RemovePluginPrototype behaviour
+00411500	-	CPluginManager observer registry for link, data-patch and crash plugins (AddLinkStatusPlugin, gmDataPatchUI::OnDDDEvent): the client delivers session and patch state as events (ac2-weenie SessionEvent, pregame flow) instead of plugin prototypes
 00411550	-	trivial ref-counted string setter of gmClient::m_startChar (read by gmDataPatchUI::Update); no Rust counterpart needed
 004115a0	-	trivial ref-counted string setter of gmClient::m_createChar (read by gmDataPatchUI::Update); no Rust counterpart needed
 004115f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -302,7 +302,7 @@ key	status	note
 00411fd0	-	no DAT patching in this client (DDD patch events never come)
 004121d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412330	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-00412350	_	needs port: CPluginManager::AddPluginPrototype behaviour
+00412350	-	CPluginManager observer registry for link, data-patch and crash plugins (AddLinkStatusPlugin, gmDataPatchUI::OnDDDEvent): the client delivers session and patch state as events (ac2-weenie SessionEvent, pregame flow) instead of plugin prototypes
 004123b0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 004123d0	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 004125c0	x	ac2-ui pregame/disconnected.rs
@@ -579,12 +579,12 @@ key	status	note
 004231b0	x	ac2-ui statusbar.rs show_statusbar: the field shows or hides; the top preclude is precludeheight while shown, else 0 (Legions 0x422fc4; the admin decompile's literal 0 is the masked height), kept on the reticle (hud.rs at build, ac2-client hud_view.rs set_child_shown)
 00423210	x	ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
 004232f0	x	ac2-ui hud.rs + statusbar.rs: root, SetupChildren, and Show(1) once the children exist; ac2-gpu ui.rs + ac2-client hud_view.rs draw it
-004233a0	_	needs port: LandDefs::in_bounds behaviour
+004233a0	-	Linker-folded copy filed under gmselectionui; only caller is LScapeManager::UpdateBlocks (ac2-world landscape streaming owns block bounds)
 004233d0	x	
-00423450	_	needs port: LandDefs::in_same_block behaviour
+00423450	-	Linker-folded copy filed under gmselectionui; callers are CellManager::UpdateVisibleCells and LScapeRender::SetViewerPosition (ac2-world / ac2-render)
 00423490	x	
 00423550	x	
-004235b0	_	needs port: Frame::localtoglobal behaviour
+004235b0	-	Linker-folded copy filed under gmselectionui; callers are StreakEffect::Think and CEnvCell::GetNearbyGeometry (ac2-math Frame::local_to_global_point, ac2-physics)
 00423610	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 00423690	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 00423750	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
@@ -617,7 +617,7 @@ key	status	note
 00424da0	x	ac2-ui stack.rs
 00424e20	x	ac2-ui stack.rs
 00424ed0	x	ac2-ui stack.rs
-00424fe0	_	needs port: Position::get_heading behaviour
+00424fe0	-	Linker-folded copy filed under gmradarui; only caller is CPhysicsObj::RecvEvt_Position (ac2-physics heading, Frame::heading / Position::heading_to)
 00425000	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00425040	x	ac2-ui radar.rs show and location_applied (the radar field and heading ring); ac2-client hud_player.rs applies it after the saved locations; radar_tests the_radar_shows_once_its_location_is_applied
 00425090	x	ac2-ui radar.rs show and location_applied (the radar field and heading ring); ac2-client hud_player.rs applies it after the saved locations; radar_tests the_radar_shows_once_its_location_is_applied
@@ -799,7 +799,7 @@ key	status	note
 0042f7a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042f7c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042f8e0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-0042fb10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0042fb10	-	STREAMPACK template wrappers with no call site in the Legions wlib (host::tests::efun_coverage); the records they pack are read directly
 0042fca0	~	GetFellowXPHash needs the host to return the script-filled LAHash
 0042fdc0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042fdd0	x	ac2-ui fellow_rows.rs clear_fellow (the row) and fellow_markers.rs notice: the listed member's RemoveMarker(4, id), unless the player or fellows hidden
@@ -1234,7 +1234,7 @@ key	status	note
 004484c0	x	ac2-ui skill_tree.rs
 00448630	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 00448810	x	ac2-ui skill_tree.rs
-00448860	_	needs port: SkillUINode::~SkillUINode lifecycle (teardown/creation)
+00448860	-	Destructor: Rust frees the value on drop
 004488c0	x	ac2-ui skill_tree.rs
 004489c0	x	ac2-ui skill_tree.rs
 00448c70	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
@@ -5860,7 +5860,7 @@ key	status	note
 0051c7f0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 0051cab0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 0051cb10	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-0051cbe0	_	needs port: MapInfo::InqPString behaviour
+0051cbe0	-	Only reached from CDetailMapDesc::CheckAll (FromFileNode, the authoring-file importer, skipped as record plumbing)
 0051cc70	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 0051ce30	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 0051cef0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -8821,7 +8821,7 @@ key	status	note
 005ac470	-	D3D device/resource plumbing; wgpu replaces
 005ac870	-	D3D device/resource plumbing; wgpu replaces
 005acba0	-	D3D device/resource plumbing; wgpu replaces
-005acbc0	_	needs port: STREAMPACK_PACKOBJ behaviour
+005acbc0	x	The RGBAColor case of UIScene::StreamPack: ac2-assets ac2_ui_scene.rs reads the fog colour (RGBAColor::UnPack, one packed ARGB word)
 005acd10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005acd50	-	Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 005acdd0	-	Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
@@ -10334,7 +10334,7 @@ key	status	note
 005fe410	x	ac2-ui pregame/persistent.rs (plain data)
 005fe420	x	
 005fe430	-	trivial setter of the sound handle; ac2-audio screen_sounds.rs owns the screens PlayingSoundContexts
-005fe440	_	needs port: CPhysicsObj::GetScale behaviour
+005fe440	-	Linker-folded accessor filed under uipersistantdata with no direct caller (vtable or folded use); scale is ac2-physics state
 005fe450	x	ac2-ui pregame/persistent.rs (plain data)
 005fe470	x	ac2-ui pregame/persistent.rs (plain data)
 005fe4c0	-	copies _generationResultTable into a caller table; ac2-ui pregame/persistent.rs PersistentData exposes it by char_gen_result/current
@@ -15127,9 +15127,9 @@ key	status	note
 00735590	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 007355a0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00735650	-	D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
-00735680	_	needs port: PHYSICSOBJREP::GetBehaviorTableID behaviour
+00735680	-	Linker-folded accessor (one body shared by identical getters) filed under uinosurfaceobject; only caller is StoryManager::DoStoryHook, not UI code
 00735690	-	UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
-007356a0	_	needs port: CPhysicsObj::get_cell_id behaviour
+007356a0	-	Linker-folded accessor filed under uinosurfaceobject; its callers are the authoring-file importers (*::FromFileNode), skipped as record plumbing
 007356b0	-	UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 007356c0	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 007356d0	-	UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1380 done, 292 partial, 26 to do, 549 skipped.
+2247 retail functions: 1381 done, 292 partial, 11 to do, 563 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -230,7 +230,7 @@ Legend and workflow: [README](README.md).
 - [-] `IntrusiveHashData<PStringBase<unsigned_short>,HashTableData<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>_*>::IntrusiveHashData<PStringBase<unsigned_short>,HashTableData<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>_*>` · 004098b0 · legions 004095f0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### (free functions)
-- [ ] `STREAMPACK` · 004098e0 · legions 00409650 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `STREAMPACK` · 004098e0 · legions 00409650 — STREAMPACK template wrappers with no call site in the Legions wlib (host::tests::efun_coverage); the records they pack are read directly
 
 ### PStringBase<unsigned_short>
 - [x] `PStringBase<unsigned_short>::GetPackSize` · 00409960 · legions 004096d0
@@ -251,7 +251,7 @@ Legend and workflow: [README](README.md).
 - [-] `UISaveLocations::~UISaveLocations` · 0040a540 · legions 0040a3c0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ### GameplayOptionsProfile
-- [ ] `GameplayOptionsProfile::~GameplayOptionsProfile` · 0040a590 · legions 0040a410 — needs port: GameplayOptionsProfile::~GameplayOptionsProfile lifecycle (teardown/creation)
+- [-] `GameplayOptionsProfile::~GameplayOptionsProfile` · 0040a590 · legions 0040a410 — Destructor: Rust frees the value on drop
 
 ### gmGamePlayUI
 - [x] `gmGamePlayUI::RecvNotice_SaveLocationsChanged` · 0040a790 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
@@ -362,7 +362,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (29/35)
 
 ### Position
-- [ ] `Position::get_heading` · 00424fe0 · legions 00424dd0 — needs port: Position::get_heading behaviour
+- [-] `Position::get_heading` · 00424fe0 · legions 00424dd0 — Linker-folded copy filed under gmradarui; only caller is CPhysicsObj::RecvEvt_Position (ac2-physics heading, Frame::heading / Position::heading_to)
 
 ### RadarInfo
 - [x] `RadarInfo::RadarInfo` · 00425000 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -450,14 +450,14 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (13/24)
 
 ### LandDefs
-- [ ] `LandDefs::in_bounds` · 004233a0 · legions 00423170 — needs port: LandDefs::in_bounds behaviour
+- [-] `LandDefs::in_bounds` · 004233a0 · legions 00423170 — Linker-folded copy filed under gmselectionui; only caller is LScapeManager::UpdateBlocks (ac2-world landscape streaming owns block bounds)
 - [x] `LandDefs::blockid_to_lcoord` · 004233d0 · legions 004231a0
-- [ ] `LandDefs::in_same_block` · 00423450 · legions 00423220 — needs port: LandDefs::in_same_block behaviour
+- [-] `LandDefs::in_same_block` · 00423450 · legions 00423220 — Linker-folded copy filed under gmselectionui; callers are CellManager::UpdateVisibleCells and LScapeRender::SetViewerPosition (ac2-world / ac2-render)
 - [x] `LandDefs::get_block_offset` · 00423490 · legions 00423260
 
 ### Frame
 - [x] `Frame::globaltolocalvec` · 00423550 · legions 00423320
-- [ ] `Frame::localtoglobal` · 004235b0 · legions 00423380 — needs port: Frame::localtoglobal behaviour
+- [-] `Frame::localtoglobal` · 004235b0 · legions 00423380 — Linker-folded copy filed under gmselectionui; callers are StreakEffect::Think and CEnvCell::GetNearbyGeometry (ac2-math Frame::local_to_global_point, ac2-physics)
 - [x] `Frame::globaltolocal` · 00423610 · legions 004233e0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 
 ### Position
@@ -773,7 +773,7 @@ Legend and workflow: [README](README.md).
 - [-] `PHashTable<InstanceID,float>::StreamPack` · 0042f8e0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### (free functions)
-- [ ] `STREAMPACK` · 0042fb10 · legions 0042f9d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `STREAMPACK` · 0042fb10 · legions 0042f9d0 — STREAMPACK template wrappers with no call site in the Legions wlib (host::tests::efun_coverage); the records they pack are read directly
 
 ### FellowshipHelper
 - [~] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60 — GetFellowXPHash needs the host to return the script-filled LAHash
@@ -1498,7 +1498,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSkillTreeUI::InitElements` · 00448810 · legions 004496b0 — ac2-ui skill_tree.rs
 
 ### SkillUINode
-- [ ] `SkillUINode::~SkillUINode` · 00448860 · legions 00449140 — needs port: SkillUINode::~SkillUINode lifecycle (teardown/creation)
+- [-] `SkillUINode::~SkillUINode` · 00448860 · legions 00449140 — Destructor: Rust frees the value on drop
 
 ### gmSkillTreeUI
 - [x] `gmSkillTreeUI::RecvNotice_UpdateSkill` · 004488c0 — ac2-ui skill_tree.rs
@@ -1873,7 +1873,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmDataPatchUI::OnHeartbeat` · 004113b0 — no DAT patching in this client (DDD patch events never come)
 
 ### CPluginManager
-- [ ] `CPluginManager::RemovePluginPrototype` · 00411500 · legions 004114e0 — needs port: CPluginManager::RemovePluginPrototype behaviour
+- [-] `CPluginManager::RemovePluginPrototype` · 00411500 · legions 004114e0 — CPluginManager observer registry for link, data-patch and crash plugins (AddLinkStatusPlugin, gmDataPatchUI::OnDDDEvent): the client delivers session and patch state as events (ac2-weenie SessionEvent, pregame flow) instead of plugin prototypes
 
 ### gmClient
 - [-] `gmClient::SetStartChar` · 00411550 · legions 00411530 — trivial ref-counted string setter of gmClient::m_startChar (read by gmDataPatchUI::Update); no Rust counterpart needed
@@ -1896,7 +1896,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmDataPatchUI::Create` · 00412330 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ### CPluginManager
-- [ ] `CPluginManager::AddPluginPrototype` · 00412350 · legions 004121d0 — needs port: CPluginManager::AddPluginPrototype behaviour
+- [-] `CPluginManager::AddPluginPrototype` · 00412350 · legions 004121d0 — CPluginManager observer registry for link, data-patch and crash plugins (AddLinkStatusPlugin, gmDataPatchUI::OnDDDEvent): the client delivers session and patch state as events (ac2-weenie SessionEvent, pregame flow) instead of plugin prototypes
 
 ### gmDataPatchUI
 - [-] `gmDataPatchUI::Register` · 004123b0 · legions 00412230 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
@@ -2183,7 +2183,7 @@ Legend and workflow: [README](README.md).
 
 ### MapInfo
 - [-] `MapInfo::MapInfo` · 0051cb10 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-- [ ] `MapInfo::InqPString` · 0051cbe0 — needs port: MapInfo::InqPString behaviour
+- [-] `MapInfo::InqPString` · 0051cbe0 — Only reached from CDetailMapDesc::CheckAll (FromFileNode, the authoring-file importer, skipped as record plumbing)
 
 ### CDetailMapDesc
 - [x] `CDetailMapDesc::InqRowFromValue` · 0051cc70 · legions 00509e60 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
@@ -2267,13 +2267,13 @@ Legend and workflow: [README](README.md).
 - [-] `UINoSurfaceObject::UINoSurfaceObject` · 00735650 · legions 006b1350 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
 
 ### PHYSICSOBJREP
-- [ ] `PHYSICSOBJREP::GetBehaviorTableID` · 00735680 · legions 006b1260 — needs port: PHYSICSOBJREP::GetBehaviorTableID behaviour
+- [-] `PHYSICSOBJREP::GetBehaviorTableID` · 00735680 · legions 006b1260 — Linker-folded accessor (one body shared by identical getters) filed under uinosurfaceobject; only caller is StoryManager::DoStoryHook, not UI code
 
 ### UINoSurfaceObject
 - [-] `UINoSurfaceObject::GetObjectYPos` · 00735690 · legions 006b1270 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
 ### CPhysicsObj
-- [ ] `CPhysicsObj::get_cell_id` · 007356a0 · legions 006b1280 — needs port: CPhysicsObj::get_cell_id behaviour
+- [-] `CPhysicsObj::get_cell_id` · 007356a0 · legions 006b1280 — Linker-folded accessor filed under uinosurfaceobject; its callers are the authoring-file importers (*::FromFileNode), skipped as record plumbing
 
 ### UINoSurfaceObject
 - [-] `UINoSurfaceObject::GetObjectHeight` · 007356b0 · legions 006b0fd0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
@@ -2304,10 +2304,10 @@ Legend and workflow: [README](README.md).
 ### UIRectangleObject
 - [-] `UIRectangleObject::Render` · 00735390 · legions 006b1060 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
-## `portal/client/src/render/ui/uiscene.cpp.c` (5/23)
+## `portal/client/src/render/ui/uiscene.cpp.c` (6/23)
 
 ### (free functions)
-- [ ] `STREAMPACK_PACKOBJ` · 005acbc0 · legions 00578b20 — needs port: STREAMPACK_PACKOBJ behaviour
+- [x] `STREAMPACK_PACKOBJ` · 005acbc0 · legions 00578b20 — The RGBAColor case of UIScene::StreamPack: ac2-assets ac2_ui_scene.rs reads the fog colour (RGBAColor::UnPack, one packed ARGB word)
 
 ### UIScene
 - [x] `UIScene::GetEntity` · 005acd10 · legions 00578c70 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
@@ -2688,7 +2688,7 @@ Legend and workflow: [README](README.md).
 - [-] `UIPersistantData::SetPlayingSoundContext` · 005fe430 — trivial setter of the sound handle; ac2-audio screen_sounds.rs owns the screens PlayingSoundContexts
 
 ### CPhysicsObj
-- [ ] `CPhysicsObj::GetScale` · 005fe440 — needs port: CPhysicsObj::GetScale behaviour
+- [-] `CPhysicsObj::GetScale` · 005fe440 — Linker-folded accessor filed under uipersistantdata with no direct caller (vtable or folded use); scale is ac2-physics state
 
 ### UIPersistantData
 - [x] `UIPersistantData::SetCharGenResult` · 005fe450 — ac2-ui pregame/persistent.rs (plain data)
