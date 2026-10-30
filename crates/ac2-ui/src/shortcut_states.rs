@@ -247,6 +247,7 @@ impl ShortcutUi {
         let width = tree.el(list).rect.width();
         tree.resize_to(list, width, row_height * rows);
         self.update_padding(tree, source);
+        self.rows = rows;
         self.requests
             .push(ShortcutRequest::Height(rows.max(0) as u32));
         self.own_box = Some(tree.screen_box(field));

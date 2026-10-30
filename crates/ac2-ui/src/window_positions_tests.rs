@@ -271,3 +271,34 @@ fn alt_drag_moves_the_radar_as_a_window() {
         .iter()
         .any(|p| p.element == crate::tokenize("RadarField")));
 }
+
+/// `UIElementManager::RefreshEvent`: a window the player moved keeps its place when the display
+/// changes size and back (the saved places apply over the layout's placing, as `gmGamePlayUI`
+/// re-applies the saved locations on the refresh).
+#[test]
+fn a_moved_window_keeps_its_place_across_display_changes() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = load(&store);
+    let tree = &mut hud.tree;
+    let root = bar_less_window(tree);
+    let start = tree.screen_box(root);
+    let at = (start.x0 + 10, start.y0 + 10);
+    tree.set_alt(true);
+    left_press(tree, at);
+    pointer_to(tree, (at.0 - 100, at.1 - 300));
+    left_release(tree);
+    let moved = tree.screen_box(root);
+    assert_ne!(moved, start);
+    assert!(tree.take_positions_changed());
+    tree.set_display(1280, 960);
+    let big = tree.screen_box(root);
+    assert!(
+        big.x0 > moved.x0 && big.y0 > moved.y0,
+        "scaled with the display: {big:?}"
+    );
+    tree.set_display(1024, 768);
+    assert_eq!(tree.screen_box(root), moved);
+}

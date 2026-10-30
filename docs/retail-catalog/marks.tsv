@@ -5850,8 +5850,8 @@ key	status	note
 0051bf90	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 0051bfb0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 0051c390	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
-0051c3b0	_	needs port: MyRect::Include behaviour
-0051c400	_	needs port: MyRect::Include behaviour
+0051c3b0	-	Only reached from CDetailMapDesc::CheckAll (FromFileNode, the authoring-file importer; skipped as record plumbing); the client reads the DAT record
+0051c400	-	Only reached from CDetailMapDesc::CheckAll (FromFileNode, the authoring-file importer; skipped as record plumbing); the client reads the DAT record
 0051c4e0	x	ac2-world region/detail_map.rs: DBObj header, _blockMapDID, PSmartArray<CDetailMapRow>
 0051c560	_	needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
 0051c6b0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
@@ -9709,7 +9709,7 @@ key	status	note
 005e3220	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e3310	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e33c0	-	region construction and teardown: Element construction in UiTree::create_element and Drop
-005e3490	_	needs port: Box2D::Includes behaviour
+005e3490	-	Dirty-rectangle bookkeeping (UIObjectRegionInfo::AddDirtyRect and its Box2D Includes / Subtract): the client composes the whole UI each changed frame on the GPU (compose.rs, UiTree::take_changed), so there are no partial surface redraws to merge
 005e3520	x	ac2-ui element.rs: UiTree::create_root
 005e3580	x	ac2-ui element.rs: UiTree::delete (removes a root and its children)
 005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
@@ -9741,12 +9741,12 @@ key	status	note
 005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e50d0	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
-005e5150	_	needs port: Box2D::Subtract behaviour
+005e5150	-	Dirty-rectangle bookkeeping (UIObjectRegionInfo::AddDirtyRect and its Box2D Includes / Subtract): the client composes the whole UI each changed frame on the GPU (compose.rs, UiTree::take_changed), so there are no partial surface redraws to merge
 005e5260	-	admin-only (no Legions counterpart): raises a UIObject to depth 0 in the D3D object list; Rust orders roots by z (element.rs add_root, place.rs set_z_level)
-005e53a0	_	needs port: UIObjectRegionInfo::AddDirtyRect behaviour
+005e53a0	-	Dirty-rectangle bookkeeping (UIObjectRegionInfo::AddDirtyRect and its Box2D Includes / Subtract): the client composes the whole UI each changed frame on the GPU (compose.rs, UiTree::take_changed), so there are no partial surface redraws to merge
 005e5510	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 005e5830	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
-005e5870	~	ac2-ui place.rs set_display: every root placed again (UpdateSizeAndPosition); missing: the 0xffff0007 / 0xffff0008 broadcasts around it and the cursor reset (saved window locations are applied on reload and login only, frame_passes.rs)
+005e5870	x	ac2-ui place.rs set_display (from ac2-client HudView::resize / pregame resize): every root placed again (UpdateSizeAndPosition), then the saved places applied over them (the 0xffff0007 ApplyLocations of gmGamePlayUI; here every window local place in clip space, recorded at each drag or resize end, AGENTS.md window exception), then the shortcut bar 0xffff0008 re-fit (ShortcutUi::refresh_after_display). The surface redraw is the next composed frame; the cursor is drawn from pointer_cursor each frame. window_positions_tests.rs, shortcut_states_tests.rs
 005e5950	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
@@ -9765,7 +9765,7 @@ key	status	note
 005e6a40	x	ac2-ui element.rs: UiTree::child_recursive(root, id) finds an element by id under its root
 005e6ab0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e6bb0	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
-005e6be0	_	needs port: RefreshEvent_g behaviour
+005e6be0	x	The render device reset callback: ac2-client HudView::resize on a window resize calls UiTree::set_display (RefreshEvent)
 005e6c00	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 005e6f70	~	ac2-ui tooltip_prefs.rs register: Init's two tooltip keys (section 0x4000000C, ID_Misc_TooltipDelay 0..10 default 0.25, ID_Misc_TooltipEnable on) linked to UIElementManager, registered by ac2-client ClientPrefs::load (prefs_7160 test on the DAT names); the rest of Init is construction (UiTree::new), the render refresh callback and the scene manager
 005e7130	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id

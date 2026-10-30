@@ -209,3 +209,24 @@ fn a_resized_bar_snaps_to_whole_rows_and_sends_its_height() {
     bar.resize_loop(tree, &source);
     assert!(bar.take_requests().is_empty(), "nothing moved since");
 }
+
+/// The display refresh's `0xffff0008`: the bar's saved place scales with the display, then the
+/// bar fits its rows again (`max_rows` cleared, `RefreshShortcutHeight`).
+#[test]
+fn after_a_display_change_the_bar_is_its_rows_tall() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let bar = hud.shortcuts.as_mut().expect("the shortcut bar");
+    let source = Bar(vec![skill(MANEUVER)]);
+    bar.reload(&mut hud.tree, &source);
+    let field = bar.elements().0.unwrap();
+    let tree = &mut hud.tree;
+    let saved = tree.window_positions();
+    tree.set_window_positions(&saved);
+    tree.set_display(1280, 960);
+    bar.refresh_after_display(tree);
+    let b = tree.screen_box(field);
+    assert_eq!(b.height(), 44, "one row");
+    assert!(b.y1 >= 940, "still at the bottom: {b:?}");
+}

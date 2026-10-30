@@ -213,6 +213,14 @@ impl UiTree {
         self.changed = true;
     }
 
+    /// A drag or resize ended with a window somewhere new: every window's place becomes the
+    /// saved places (what the client writes, [`UiTree::take_positions_changed`]), so a display
+    /// change puts them back ([`UiTree::set_display`]).
+    pub(crate) fn record_window_positions(&mut self) {
+        self.saved_positions = self.window_positions();
+        self.positions_changed = true;
+    }
+
     /// Whether a window was moved and its drag ended since the last call: the client writes the
     /// positions then ([`UiTree::window_positions`]).
     pub fn take_positions_changed(&mut self) -> bool {

@@ -114,7 +114,8 @@ game rules and server-visible behaviour exactly retail.
   Here a window with a drag bar still moves by it, and any other top-level HUD window moves by
   Alt + left drag anywhere on it. Every window's position is saved locally per character (the
   client's config directory, `ac2_prefs::paths`) and restored at login, over the server's
-  locations; `save_loc` windows still upload to the server as retail does. The HUD's chrome
+  locations, and again after the window changes size (where retail's `RefreshEvent` re-applied
+  the server's saved locations); `save_loc` windows still upload to the server as retail does. The HUD's chrome
   (bars, radar, selection field, toolbar and its side panels) is windows too. Not moved: the
   world's overlays (targeting reticle, name plates, damage text), the heading ring (it follows the
   radar), the doll's 3D viewport (docked to the inventory), the consignment's portrait (docked to

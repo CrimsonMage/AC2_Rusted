@@ -208,7 +208,7 @@ impl UiTree {
     pub(crate) fn end_movement(&mut self) {
         if let Some(m) = self.movement.take() {
             if self.pointer != m.start_pointer {
-                self.positions_changed = true;
+                self.record_window_positions();
             }
         }
     }

@@ -250,12 +250,22 @@ impl UiTree {
         }
     }
 
-    /// The render device changed size: every root placed again (`UIElementManager::RefreshEvent`'s
-    /// `UpdateSizeAndPosition` per root, without its `0xffff0007` / `0xffff0008` broadcasts).
+    /// The render device changed size (`UIElementManager::RefreshEvent`): every root placed again
+    /// (`UpdateSizeAndPosition`), and the player's saved places applied over them, as
+    /// `gmGamePlayUI` re-applies the saved locations on the refresh's `0xffff0007` (here the
+    /// local places of every window, `window_positions.rs`, kept in clip space so they scale
+    /// with the display). The shortcut bar's `0xffff0008` re-fit is the client's
+    /// (`ShortcutUi::refresh_after_display`).
     pub fn set_display(&mut self, width: i32, height: i32) {
         self.display = (width, height);
         for root in self.roots.clone() {
             self.update_size_and_position(root);
+        }
+        if !self.saved_positions.is_empty() {
+            for root in self.roots.clone() {
+                self.apply_saved_position(root);
+            }
+            self.changed = true;
         }
     }
 

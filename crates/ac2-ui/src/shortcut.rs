@@ -149,6 +149,8 @@ pub struct ShortcutUi {
     /// The field's box after the bar last placed it itself; a different box is the
     /// `location_changed` that sets `_bDirty` (`shortcut_states.rs` `resize_loop`).
     pub(crate) own_box: Option<crate::element::UiBox>,
+    /// The rows the bar was last given (`GetShortcutHeight` at the reload, or a resize's rows).
+    pub(crate) rows: i32,
 }
 
 impl ShortcutUi {
@@ -172,6 +174,7 @@ impl ShortcutUi {
             attacking: false,
             requests: Vec::new(),
             own_box: None,
+            rows: 1,
         };
         ui.check_attack_buttons(tree);
         if let Some(list) = ui.list {
@@ -226,6 +229,7 @@ impl ShortcutUi {
             return;
         };
         let rows = rows.clamp(1, 5);
+        self.rows = rows;
         let int =
             |tree: &UiTree, index: usize, name: &str| match tree.get(index)?.attribute(id(name)) {
                 Some(AttributeValue::Int(v)) => Some(*v),
@@ -251,6 +255,19 @@ impl ShortcutUi {
         let width = tree.get(list).map_or(0, |e| e.rect.width());
         tree.resize_to(list, width, row_height * rows);
         self.own_box = Some(tree.screen_box(field));
+    }
+
+    /// `gmShortcutUI::ListenToMessage` on the display refresh's `0xffff0008`
+    /// (`UIElementManager::RefreshEvent`, after [`UiTree::set_display`]): `max_rows` cleared and
+    /// `RefreshShortcutHeight`, so the bar is its rows tall again on the new display.
+    pub fn refresh_after_display(&mut self, tree: &mut UiTree) {
+        let Some(list) = self.list else {
+            return;
+        };
+        tree.el_mut(list)
+            .attributes
+            .insert(id("max_rows"), AttributeValue::Int(0));
+        self.refresh_shortcut_height(tree, self.rows);
     }
 
     /// `RecvNotice_ReloadShortcuts` / `Init`: the set from the options, every slot made again.

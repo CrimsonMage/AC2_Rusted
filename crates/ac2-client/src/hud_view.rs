@@ -72,6 +72,10 @@ impl HudView {
         let display = self.scale.display;
         if let Some((tree, _)) = &mut self.hud {
             tree.set_display(display.0 as i32, display.1 as i32);
+            // `RefreshEvent`'s `0xffff0008`: the shortcut bar fits its rows again.
+            if let Some(bar) = &mut self.panels.shortcuts {
+                bar.refresh_after_display(tree);
+            }
         }
         self.dirty = true;
     }

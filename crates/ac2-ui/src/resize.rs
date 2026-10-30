@@ -275,7 +275,7 @@ impl UiTree {
             self.place_window(r.window, outline);
         }
         if self.screen_box(r.window) != r.start {
-            self.positions_changed = true;
+            self.record_window_positions();
             if self.bool_attribute(r.window, SAVE_LOC)
                 || self.bool_attribute(r.window, BROADCAST_LOC_CHANGE)
             {
