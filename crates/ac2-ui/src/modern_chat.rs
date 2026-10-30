@@ -22,6 +22,7 @@ use crate::element::{UiBox, UiTree};
 use crate::layout::{ElementDesc, LayoutDesc, MediaDesc};
 use crate::modern_art as art;
 use crate::modern_chat_settings::{ChatLook, Popover, SettingsAction};
+use crate::modern_chat_tabs::{DockMenu, TabStrip};
 use crate::modern_drawer_bar::{count_label, place_label};
 use crate::modern_inventory::{keep, make_part};
 use crate::text::Justification;
@@ -80,7 +81,6 @@ const LOG_DOWN: u32 = 0xF94B_392B;
 const HEADER: i32 = 26;
 const ENTRY: i32 = 28;
 const PAD: i32 = 6;
-const TAB_HEIGHT: i32 = 21;
 const SLIDER: i32 = 54;
 const MENU: (i32, i32) = (20, 19);
 /// The least opacity the slider sets.
@@ -129,14 +129,10 @@ pub(crate) fn restyle(layout: &LayoutDesc) -> LayoutDesc {
 
 /// One window's parts beside retail's.
 #[derive(Debug, Clone)]
-struct WindowParts {
-    root: usize,
+pub(crate) struct WindowParts {
+    pub(crate) root: usize,
     glass: Option<usize>,
     header: Option<usize>,
-    tab: Option<usize>,
-    key: Option<usize>,
-    key_label: Option<usize>,
-    name: Option<usize>,
     op_label: Option<usize>,
     track: Option<usize>,
     fill: Option<usize>,
@@ -146,22 +142,36 @@ struct WindowParts {
     input: Option<usize>,
     pill: Option<usize>,
     pill_label: Option<usize>,
+    /// The header's tabs (`modern_chat_tabs`).
+    pub(crate) strip: TabStrip,
     /// What the window was laid out for: its size, its active look, its name, its pill and its
     /// opacity.
-    laid_out: std::cell::RefCell<Option<(i32, i32, bool, String, String, i32)>>,
+    pub(crate) laid_out: std::cell::RefCell<Option<(i32, i32, bool, String, String, i32)>>,
 }
 
 /// The chat windows' parts.
 #[derive(Debug, Clone)]
 pub struct ModernChat {
-    windows: Vec<WindowParts>,
+    pub(crate) windows: Vec<WindowParts>,
     /// The window whose slider is being dragged.
     dragging: Cell<Option<usize>>,
     /// Each window's choices (`modern_chat_settings`).
-    looks: std::cell::RefCell<Vec<ChatLook>>,
+    pub(crate) looks: std::cell::RefCell<Vec<ChatLook>>,
     /// The settings popover and the window it is open for.
     popover: Option<Popover>,
     open_for: Cell<Option<usize>>,
+    /// The windows docked together (indices, in tab order; none or two and more) and the one
+    /// shown in their frame.
+    pub(crate) group: std::cell::RefCell<Vec<usize>>,
+    pub(crate) active: Cell<Option<usize>>,
+    /// Each window's lines taken (`ChatWindow::lines_added`) and the count when its tab was
+    /// last shown (the unread dot).
+    pub(crate) counts: std::cell::RefCell<Vec<u64>>,
+    pub(crate) seen: std::cell::RefCell<Vec<u64>>,
+    /// The `+`'s menu, the window it is open for and the windows it offers.
+    pub(crate) menu: Option<DockMenu>,
+    pub(crate) menu_for: Cell<Option<usize>>,
+    pub(crate) menu_offers: std::cell::RefCell<Vec<usize>>,
 }
 
 /// What a message to the modern windows asks of the chat.
@@ -177,6 +187,15 @@ pub enum ChatEvent {
     Look(usize),
     /// Hide window `i` (`ChatWindow::Show(0)`).
     Hide(usize),
+    /// Show window `show` in the frame's place `at` (screen box), hiding `hide` (the tab that
+    /// was shown), and make it the active window.
+    Activate {
+        show: usize,
+        hide: Option<usize>,
+        at: UiBox,
+    },
+    /// Show window `i` at `at` (popped out of its tabs).
+    PopOut { window: usize, at: UiBox },
     /// Open the options panel's chat page.
     OpenOptions,
 }
@@ -256,35 +275,6 @@ impl ModernChat {
                     930,
                 );
                 let input = part(tree, "ModernChatInput", art::CHAT_INPUT, Some(4), 920);
-                let tab = part(
-                    tree,
-                    "ModernChatTab",
-                    art::CHAT_TAB,
-                    Some(art::TAB_BORDER),
-                    3,
-                );
-                let key = tab.and_then(|t| {
-                    let key = make_part(
-                        tree,
-                        t,
-                        template,
-                        "ModernChatKey",
-                        art::CHAT_KEY,
-                        Some(2),
-                        1,
-                    )?;
-                    keep(tree, key);
-                    tree.set_bool(key, MOUSE_INVISIBLE, true);
-                    Some(key)
-                });
-                let key_label = label(
-                    tree,
-                    key,
-                    "ModernChatKeyText",
-                    Justification::Center,
-                    0xA88F48,
-                );
-                let name = label(tree, tab, "ModernChatName", Justification::Left, 0xFFF4CF);
                 let pill = part(
                     tree,
                     "ModernChatPill",
@@ -327,6 +317,7 @@ impl ModernChat {
                 for p in [track, knob].into_iter().flatten() {
                     tree.set_bool(p, MOUSE_INVISIBLE, false);
                 }
+                let strip = TabStrip::make(tree, root, template, layouts);
                 // Retail's frame, options field (its vertical slider) and entry rule give way.
                 for id in [FRAME, ENTRY_RULE] {
                     if let Some(e) = tree.child_recursive(root, id) {
@@ -337,10 +328,6 @@ impl ModernChat {
                     root,
                     glass,
                     header,
-                    tab,
-                    key,
-                    key_label,
-                    name,
                     op_label,
                     track,
                     fill,
@@ -350,6 +337,7 @@ impl ModernChat {
                     input,
                     pill,
                     pill_label,
+                    strip,
                     laid_out: Default::default(),
                 }
             })
@@ -362,12 +350,27 @@ impl ModernChat {
                 .find(|&e| tree.el(e).reference.kind == tree.el(e).desc.kind)?;
             Popover::make(tree, root, template, gameplay, layouts)
         });
+        let menu = roots.first().and_then(|&root| {
+            let template = [ENTRY_FIELD, LOG_FIELD, TOGGLES]
+                .into_iter()
+                .filter_map(|id| tree.child_recursive(root, id))
+                .find(|&e| tree.el(e).reference.kind == tree.el(e).desc.kind)?;
+            DockMenu::make(tree, root, template, layouts)
+        });
+        let n = windows.len();
         Self {
-            looks: std::cell::RefCell::new(vec![ChatLook::default(); windows.len()]),
+            looks: std::cell::RefCell::new(vec![ChatLook::default(); n]),
             windows,
             dragging: Cell::new(None),
             popover,
             open_for: Cell::new(None),
+            group: Default::default(),
+            active: Cell::new(None),
+            counts: std::cell::RefCell::new(vec![0; n]),
+            seen: std::cell::RefCell::new(vec![0; n]),
+            menu,
+            menu_for: Cell::new(None),
+            menu_offers: Default::default(),
         }
     }
 
@@ -377,6 +380,18 @@ impl ModernChat {
         for (i, look) in looks.iter_mut().enumerate() {
             *look = ChatLook::read(layout, i + 1);
         }
+        let group: Vec<usize> = layout
+            .get("chat.group")
+            .unwrap_or_default()
+            .split(',')
+            .filter_map(|n| n.trim().parse::<usize>().ok())
+            .filter(|&n| (1..=self.windows.len()).contains(&n))
+            .map(|n| n - 1)
+            .collect();
+        *self.group.borrow_mut() = if group.len() >= 2 { group } else { Vec::new() };
+        let active = layout.number("chat.active", 0) as usize;
+        self.active
+            .set((active >= 1 && self.group.borrow().contains(&(active - 1))).then(|| active - 1));
         for w in &self.windows {
             *w.laid_out.borrow_mut() = None;
         }
@@ -389,6 +404,14 @@ impl ModernChat {
         for (i, look) in looks.iter().enumerate() {
             changed |= look.write(layout, i + 1);
         }
+        let group: Vec<String> = self
+            .group
+            .borrow()
+            .iter()
+            .map(|i| (i + 1).to_string())
+            .collect();
+        changed |= layout.set("chat.group", group.join(","));
+        changed |= layout.set("chat.active", self.active.get().map_or(0, |a| a + 1));
         changed
     }
 
@@ -400,7 +423,18 @@ impl ModernChat {
     /// Each shown window's parts laid out for its size, its active look (`active`: the window
     /// whose move bar shows `active`), its name (`names`, by window), the pill for its entry's
     /// text, and its opacity; run every frame.
-    pub fn follow(&self, tree: &mut UiTree, names: &[String]) -> bool {
+    pub fn follow(
+        &self,
+        tree: &mut UiTree,
+        names: &[String],
+        counts: &[u64],
+        events: &mut Vec<ChatEvent>,
+    ) -> bool {
+        for (c, &n) in self.counts.borrow_mut().iter_mut().zip(counts) {
+            *c = n;
+        }
+        self.keep_group(tree, events);
+        let group = self.group.borrow().clone();
         // The name typed in the open popover is the window's.
         let mut renamed = false;
         if let (Some(popover), Some(i)) = (&self.popover, self.open_for.get()) {
@@ -434,11 +468,29 @@ impl ModernChat {
                 .unwrap_or_default();
             let pill = channel(&entry_text);
             let opacity = opacity(tree, w.root);
+            // The tabs: every docked window's when this one is docked, else its own.
+            let members: Vec<usize> = if group.contains(&i) {
+                group.clone()
+            } else {
+                vec![i]
+            };
+            let tabs: Vec<(usize, String, bool, bool)> = {
+                let (counts, seen) = (self.counts.borrow(), self.seen.borrow());
+                members
+                    .iter()
+                    .map(|&m| {
+                        let unread = m != i && counts[m] > seen[m];
+                        (m + 1, self.name_of(m, names), m == i, unread)
+                    })
+                    .collect()
+            };
+            let can_add = members.len() < self.windows.len();
+            let style = format!("{}{}{}{tabs:?}", look.background, look.tint, look.locked);
             let key = (
                 width,
                 height,
                 active,
-                name.clone(),
+                format!("{name}{style}"),
                 pill.clone(),
                 (opacity * 100.0) as i32,
             );
@@ -482,31 +534,11 @@ impl ModernChat {
                     place(tree, Some(part), (width / 2 - 79, 0, 158, 7));
                 }
             }
-            // The tab: the window key's chip, then the name.
-            let key_text = format!("F{}", i + 1);
-            let key_w = 18;
-            let name_w = tree
-                .text_line_width(w.name.unwrap_or(w.root), &name)
-                .unwrap_or(60)
-                .min(96);
-            let tab_w = 6 + key_w + 4 + name_w + 6;
-            place(tree, w.tab, (4, HEADER - TAB_HEIGHT, tab_w, TAB_HEIGHT));
-            place(tree, w.key, (6, 5, key_w, 12));
-            if let Some(label) = w.key_label {
-                tree.set_text_with_font(label, &key_text, 0, 1);
-            }
-            place_label(tree, w.key_label, UiBox::new(0, 0, key_w - 1, 11));
-            if let Some(label) = w.name {
-                tree.set_text_with_font(label, &name, 0, 1);
-            }
-            place_label(
-                tree,
-                w.name,
-                UiBox::new(6 + key_w + 4, 3, 6 + key_w + 4 + name_w, TAB_HEIGHT - 4),
-            );
+            // The tabs, then the `+`.
+            let strip_end = w.strip.lay_out(tree, 4, HEADER, &tabs, can_add);
             // The other windows' toggles after the tab.
             let toggles = find(tree, TOGGLES);
-            place(tree, toggles, (4 + tab_w + 4, 9, 60, 12));
+            place(tree, toggles, (strip_end + 4, 9, 60, 12));
             // The options button (`=`) at the header's right, the opacity slider before it.
             let menu_x = width - PAD - MENU.0;
             let tab_holder = find(tree, OPTIONS_TAB);
@@ -625,6 +657,24 @@ impl ModernChat {
     ) -> Option<ChatEvent> {
         use crate::mouse::{GLOBAL_MOUSE_DOWN, GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP};
         use crate::token::{MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP};
+        // A tab shows its window in the frame; the `+` opens the dock menu; the menu's chips dock.
+        if message.message == MSG_MOUSE_PRESS_TOP {
+            if let Some(element) = message.element {
+                if let Some(event) = self.tab_press(tree, element) {
+                    return Some(event);
+                }
+            }
+        }
+        if message.message == GLOBAL_MOUSE_DOWN && message.element.is_none() {
+            if let (Some(menu), Some(_)) = (&self.menu, self.menu_for.get()) {
+                let (x, y) = tree.pointer();
+                let b = tree.screen_box(menu.root);
+                if !(x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1) {
+                    menu.hide(tree);
+                    self.menu_for.set(None);
+                }
+            }
+        }
         // The options button (`=`) opens the window's popover, or closes it.
         if message.message == MSG_BUTTON_RELEASE_ON {
             if let Some(i) = self.windows.iter().position(|w| {
@@ -654,6 +704,12 @@ impl ModernChat {
                             popover.hide(tree);
                             self.open_for.set(None);
                             Some(ChatEvent::OpenOptions)
+                        }
+                        SettingsAction::Tear => {
+                            popover.hide(tree);
+                            self.open_for.set(None);
+                            drop(looks);
+                            self.tear(tree, i)
                         }
                     };
                 }
@@ -717,7 +773,8 @@ impl ModernChat {
         let at = tree.screen_box(button);
         let header = tree.screen_box(w.root).y0 + HEADER;
         let look = self.looks.borrow().get(i).cloned().unwrap_or_default();
-        popover.show(tree, i + 1, &look, at, header);
+        let docked = self.group.borrow().contains(&i);
+        popover.show(tree, i + 1, &look, docked, at, header);
         self.open_for.set(Some(i));
     }
 }

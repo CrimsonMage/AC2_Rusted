@@ -145,6 +145,8 @@ pub(crate) struct ChatWindow {
     pub line_times: std::collections::VecDeque<std::time::Instant>,
     /// Whether the log's old lines are faded now.
     pub faded: bool,
+    /// The lines the log has taken (the modern tabs' unread dot).
+    pub lines_added: u64,
 }
 
 /// The time stamp's colour (the design's `#8fa89c`).
@@ -202,6 +204,7 @@ impl ChatWindow {
             max_lines: None,
             line_times: std::collections::VecDeque::new(),
             faded: false,
+            lines_added: 0,
         };
         window.show(tree, false);
         Some(window)
@@ -380,6 +383,7 @@ impl ChatWindow {
             }
             tree.add_text_with_font(log, &text, size, info.color);
             self.line_times.push_back(std::time::Instant::now());
+            self.lines_added += 1;
         }
         self.keep_lines(tree);
         self.faded = false;

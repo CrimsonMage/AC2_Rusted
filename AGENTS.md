@@ -244,6 +244,13 @@ game rules and server-visible behaviour exactly retail.
   as its key does) and the chat options page. The choices, and the vitals' layout, are kept per
   character on this machine in `HudLayout-<character>.txt` beside the window positions
   (`ac2_ui::hud_layout`). Retail had none of these choices.
+  Windows may dock together as tabs (`ac2_ui::modern_chat_tabs`; retail's windows were each their
+  own): the header's `+` docks another window into the frame, the window shown carrying a tab per
+  docked window (key, name, an unread dot while a hidden one takes lines); a tab shows its window
+  in the frame's place (`ChatWindow::Show`, the shown one hidden), a docked window shown by its
+  window key takes the frame, and the settings' Pop out / Dock into tabs moves a window out of or
+  into the frame. The frame (`chat.group`, `chat.active`) is kept in the HUD layout; each window
+  stands alone by default, as retail.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

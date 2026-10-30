@@ -275,6 +275,7 @@ mod modern_art_drawer;
 mod modern_art_radar;
 mod modern_chat;
 mod modern_chat_settings;
+mod modern_chat_tabs;
 #[cfg(test)]
 mod modern_chat_tests;
 mod modern_drawer_bar;

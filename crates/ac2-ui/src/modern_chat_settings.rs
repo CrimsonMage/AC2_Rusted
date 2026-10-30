@@ -93,6 +93,8 @@ pub(crate) enum SettingsAction {
     Changed,
     /// `ChatWindow::Show(0)`.
     Hide,
+    /// Pop the window out of its tabs, or dock it into them.
+    Tear,
     /// The options panel's chat page.
     OpenOptions,
 }
@@ -118,12 +120,13 @@ pub(crate) struct Popover {
     fade: Chip,
     lines: Chip,
     lock: Chip,
+    tear: Chip,
     hide: Chip,
     options: Chip,
 }
 
 /// The popover's width and height, its padding and row pitch.
-const SIZE: (i32, i32) = (276, 256);
+const SIZE: (i32, i32) = (276, 278);
 const PAD: i32 = 10;
 const ROW: i32 = 22;
 
@@ -259,6 +262,7 @@ impl Popover {
         let fade = make(tree, "ModernChatFade", "Fade old lines");
         let lines = make(tree, "ModernChatLines", "Max lines: all");
         let lock = make(tree, "ModernChatLock", "Lock position");
+        let tear = make(tree, "ModernChatTear", "Dock into tabs");
         let hide = make(tree, "ModernChatHide", "Hide window");
         let options = make(tree, "ModernChatOptions", "Chat options...");
         let name = gameplay.and_then(|g| {
@@ -288,6 +292,7 @@ impl Popover {
             fade,
             lines,
             lock,
+            tear,
             hide,
             options,
         };
@@ -319,7 +324,8 @@ impl Popover {
         let x = place_chip(tree, self.timestamps, (PAD, PAD + 5 * ROW + 4)) + 6;
         place_chip(tree, self.fade, (x, PAD + 5 * ROW + 4));
         place_chip(tree, self.lines, (PAD, PAD + 6 * ROW + 4));
-        place_chip(tree, self.lock, (PAD, PAD + 8 * ROW + 8));
+        let x = place_chip(tree, self.lock, (PAD, PAD + 8 * ROW + 8)) + 6;
+        place_chip(tree, self.tear, (x, PAD + 8 * ROW + 8));
         let x = place_chip(tree, self.hide, (PAD, PAD + 9 * ROW + 8)) + 6;
         place_chip(tree, self.options, (x, PAD + 9 * ROW + 8));
     }
@@ -331,15 +337,24 @@ impl Popover {
 
     /// The popover shown for window `n` (its title and choices `look`), over the window's
     /// options button `button` (screen box), right-aligned with it, or under the header when
-    /// there is no room above.
+    /// there is no room above; its pop-out chip says what it does for a window `docked` or not.
     pub(crate) fn show(
         &self,
         tree: &mut UiTree,
         n: usize,
         look: &ChatLook,
+        docked: bool,
         button: UiBox,
         header: i32,
     ) {
+        if let Some(label) = self.tear.label {
+            let text = if docked {
+                "Pop out into a window"
+            } else {
+                "Dock into tabs"
+            };
+            tree.set_text(label, text);
+        }
         if let Some(title) = self.title {
             tree.set_text_with_font(title, &format!("WINDOW {n} SETTINGS"), 0, 1);
         }
@@ -416,6 +431,8 @@ impl Popover {
         } else if hit(self.lock) {
             look.locked = !look.locked;
             SettingsAction::Changed
+        } else if hit(self.tear) {
+            SettingsAction::Tear
         } else if hit(self.hide) {
             SettingsAction::Hide
         } else if hit(self.options) {

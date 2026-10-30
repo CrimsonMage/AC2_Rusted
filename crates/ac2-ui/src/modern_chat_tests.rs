@@ -63,7 +63,7 @@ fn a_shown_window_takes_the_designs_header_log_and_entry() {
     assert!(header.y1 < log.y0 && log.y1 < entry.y0 && entry.y1 <= window.y1);
     assert!(menu.x1 <= window.x1 && menu.y1 <= header.y1, "{menu:?}");
     // The tab names the window by its key.
-    let key = part(tree, root, "ModernChatKeyText");
+    let key = part(tree, root, "ModernChatTabKeyText0");
     assert_eq!(tree.el(key).text().unwrap(), "F1");
     // Retail's frame and options field give way.
     assert!(!tree.el(part(tree, root, "OptionsField")).visible);
@@ -227,4 +227,61 @@ fn time_stamps_the_line_limit_and_the_fade_follow_the_windows_choices() {
     window.fade_lines(tree, true);
     let glyphs = &tree.el(log).text.as_ref().unwrap().glyphs;
     assert!(glyphs.iter().all(|g| g.color[3] == 1.0));
+}
+
+fn press(tree: &UiTree, element: usize) -> UiMessage {
+    UiMessage {
+        element_id: tree.el(element).id(),
+        element: Some(element),
+        message: MSG_MOUSE_PRESS_TOP,
+        data: 0,
+        item: None,
+    }
+}
+
+/// The `+` docks another window into the frame as a tab; a press on its tab shows it in the
+/// frame's place and hides the other; the frame is kept in the layout; popping a window out of a
+/// frame of two leaves both standing alone.
+#[test]
+fn windows_dock_as_tabs_switch_by_tab_and_pop_out() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let chat = hud.chat.as_mut().unwrap();
+    let modifiers = crate::chat::Modifiers::default();
+    let roots = chat.roots();
+    chat.window_mut(1).show(tree, true);
+    chat.modern_tick(tree, &Names);
+    // The `+` of the first window offers the others; the first offer (window 2) docks.
+    let add = part(tree, roots[0], "ModernChatAdd");
+    chat.message(tree, &press(tree, add), modifiers);
+    let menu = root_named(tree, "ModernChatDockMenu");
+    assert!(tree.el(menu).visible);
+    let chip = part(tree, menu, "ModernChatDockChip0");
+    chat.message(tree, &press(tree, chip), modifiers);
+    chat.modern_tick(tree, &Names);
+    assert_eq!(chat.modern().unwrap().group(), vec![0, 1]);
+    assert!(tree.el(roots[0]).visible && !tree.el(roots[1]).visible);
+    let second_tab = part(tree, roots[0], "ModernChatTabSlot1");
+    assert!(tree.el(second_tab).visible);
+    // The second tab shows window 2 where the frame is.
+    let frame = tree.screen_box(roots[0]);
+    chat.message(tree, &press(tree, second_tab), modifiers);
+    chat.modern_tick(tree, &Names);
+    assert!(!tree.el(roots[0]).visible && tree.el(roots[1]).visible);
+    assert_eq!(tree.screen_box(roots[1]), frame);
+    let mut layout = crate::hud_layout::HudLayout::default();
+    chat.export_layout(&mut layout);
+    assert_eq!(layout.get("chat.group"), Some("1,2"));
+    assert_eq!(layout.number("chat.active", 0), 2);
+    // Window 2's settings pop it out: the frame of one dissolves and window 1 shows again.
+    let button = part(tree, roots[1], "OptionsButton");
+    chat.message(tree, &release(tree, button), modifiers);
+    let popover = root_named(tree, "ModernChatSettings");
+    let tear = part(tree, popover, "ModernChatTear");
+    chat.message(tree, &press(tree, tear), modifiers);
+    chat.modern_tick(tree, &Names);
+    assert!(chat.modern().unwrap().group().is_empty());
+    assert!(tree.el(roots[0]).visible);
 }

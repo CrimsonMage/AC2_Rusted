@@ -223,6 +223,30 @@ impl ChatUi {
         self.looks_changed = true;
     }
 
+    /// The modern tabs' switch: window `show` takes the place `at` (screen box) and shows,
+    /// active; `hide` (the tab that was shown) hides.
+    fn activate(
+        &mut self,
+        tree: &mut UiTree,
+        show: usize,
+        hide: Option<usize>,
+        at: crate::element::UiBox,
+    ) {
+        if let Some(h) = hide.filter(|&h| h != show) {
+            if let Some(w) = self.windows.get_mut(h) {
+                w.show(tree, false);
+            }
+        }
+        let Some(window) = self.windows.get_mut(show) else {
+            return;
+        };
+        let root = window.root;
+        tree.resize_to(root, at.width(), at.height());
+        tree.move_to(root, at.x0, at.y0);
+        window.show(tree, true);
+        self.set_active_window(tree, show);
+    }
+
     /// The modern windows' choices as the HUD's layout settings keep them.
     pub fn apply_layout(&mut self, tree: &mut UiTree, layout: &crate::hud_layout::HudLayout) {
         if let Some(modern) = &self.modern {
@@ -259,8 +283,23 @@ impl ChatUi {
                 })
                 .collect();
         }
-        if modern.follow(tree, &self.names) {
+        let counts: Vec<u64> = self.windows.iter().map(|w| w.lines_added).collect();
+        let mut events = Vec::new();
+        if modern.follow(tree, &self.names, &counts, &mut events) {
             self.looks_changed = true;
+        }
+        for event in events {
+            match event {
+                crate::modern_chat::ChatEvent::Activate { show, hide, at } => {
+                    self.activate(tree, show, hide, at)
+                }
+                crate::modern_chat::ChatEvent::Hide(i) => {
+                    if let Some(w) = self.windows.get_mut(i) {
+                        w.show(tree, false);
+                    }
+                }
+                _ => {}
+            }
         }
         // Old lines fade while a window is not in use: the pointer away and its entry idle.
         let (x, y) = tree.pointer();
@@ -273,6 +312,12 @@ impl ChatUi {
             let typing = window.entry.is_some() && tree.active == window.entry;
             window.fade_lines(tree, over || typing);
         }
+    }
+
+    /// The modern windows (tests read their docking).
+    #[cfg(test)]
+    pub(crate) fn modern(&self) -> Option<&crate::modern_chat::ModernChat> {
+        self.modern.as_ref()
     }
 
     /// Window `i` (tests reach its log through it).
@@ -378,6 +423,8 @@ impl ChatUi {
                     }
                 }
                 ChatEvent::OpenOptions => self.open_options = true,
+                ChatEvent::Activate { show, hide, at } => self.activate(tree, show, hide, at),
+                ChatEvent::PopOut { window, at } => self.activate(tree, window, None, at),
             }
             return;
         }

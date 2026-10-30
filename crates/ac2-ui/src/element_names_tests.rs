@@ -179,9 +179,11 @@ fn lookup_names(text: &str, out: &mut BTreeSet<String>) {
             let Some(name) = literal_at(text, quote) else {
                 continue;
             };
-            // `ID_*` names are string-table keys, not elements.
-            let capital =
-                name.starts_with(|c: char| c.is_ascii_uppercase()) && !name.starts_with("ID_");
+            // `ID_*` names are string-table keys, not elements; `Modern*` names are the modern
+            // style's own parts, made by the client (AGENTS.md: the HUD's two styles).
+            let capital = name.starts_with(|c: char| c.is_ascii_uppercase())
+                && !name.starts_with("ID_")
+                && !name.starts_with("Modern");
             if capital && ELEMENT_SUFFIXES.iter().any(|s| name.ends_with(s)) {
                 out.insert(name.to_owned());
             }

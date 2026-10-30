@@ -21,6 +21,10 @@ pub const CHAT_MENU_LIT: u32 = 0x7E01_00C9;
 pub const CHAT_GRIP: u32 = 0x7E01_00CA;
 pub const CHAT_KEY: u32 = 0x7E01_00CB;
 pub const CHAT_CLEAR: u32 = 0x7E01_00CC;
+/// A tab not shown (`#00110f` in a fine line), the `+` button, the unread dot.
+pub const CHAT_TAB_OFF: u32 = 0x7E01_00D1;
+pub const CHAT_ADD: u32 = 0x7E01_00D2;
+pub const CHAT_UNREAD: u32 = 0x7E01_00D3;
 /// The settings popover's glass.
 pub const CHAT_POPOVER: u32 = 0x7E01_00CD;
 /// The log's backing in each tint (`TINTS`' order: teal, black, bronze, blue).
@@ -87,6 +91,57 @@ fn tab() -> UiPixels {
         )
     });
     c.paint(&shape, |_, _, d| (rgb(0xD9C27A, 1.0), band(d, -1.0, 0.0)));
+    c.finish()
+}
+
+/// A tab not shown: `#00110f` in a fine line (`#6f6957`), top corners 5.
+fn tab_off() -> UiPixels {
+    let (w, h) = (16usize, 21usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32 + 6.0, 5.0);
+    c.paint(&shape, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
+    c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, -1.0, 0.0)));
+    c.finish()
+}
+
+/// The `+` button: bronze in a light line with a gold cross, corners 4.
+fn add() -> UiPixels {
+    let side = 19usize;
+    let mut c = Canvas::new(side, side);
+    let shape = round_rect(0.0, 0.0, side as f32, side as f32, 4.0);
+    c.paint(&shape, |_, y, d| {
+        (
+            mix(rgb(0x58544A, 1.0), rgb(0x242219, 1.0), y / side as f32),
+            inside(d),
+        )
+    });
+    c.paint(&shape, |_, _, d| (rgb(0xB8B19B, 1.0), band(d, -1.0, 0.0)));
+    const CROSS: [Stroke; 2] = [
+        Stroke::Line(&[(9.5, 5.5), (9.5, 13.5)]),
+        Stroke::Line(&[(5.5, 9.5), (13.5, 9.5)]),
+    ];
+    c.paint(
+        |x, y| stroke_distance(&CROSS, x, y) - 0.8,
+        |_, _, d| (rgb(0xD9C27A, 1.0), inside(d)),
+    );
+    c.finish()
+}
+
+/// The unread dot: the design's teal (`#7fe0c9`) with a glow.
+fn unread() -> UiPixels {
+    let side = 10usize;
+    let mut c = Canvas::new(side, side);
+    let dot = crate::modern_art::circle(5.0, 5.0, 3.0);
+    c.paint(&dot, |_, _, d| {
+        (
+            rgb(0x7FE0C9, 1.0),
+            if d > 0.0 {
+                (0.6 - d / 3.0).max(0.0)
+            } else {
+                1.0
+            },
+        )
+    });
     c.finish()
 }
 
@@ -202,6 +257,9 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (CHAT_HEADER, header()),
         (CHAT_TAB, tab()),
         (CHAT_POPOVER, popover()),
+        (CHAT_TAB_OFF, tab_off()),
+        (CHAT_ADD, add()),
+        (CHAT_UNREAD, unread()),
         (CHAT_ENTRY_BAR, entry_bar()),
         (CHAT_INPUT, input()),
         (CHAT_PILL, pill()),
