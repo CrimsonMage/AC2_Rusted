@@ -192,7 +192,7 @@ fn a_press_on_the_log_scroll_bar_holds_the_log_until_release() {
         chat.message(tree, &m, Modifiers::default());
     };
     for n in 0..60 {
-        chat.display(TEXT_TYPE_SAY, &format!("line {n}"));
+        chat.display(TEXT_TYPE_SAY, &format!("line {n}\n"));
     }
     chat.global_loop(&mut tree, 0.0);
     let view = |tree: &UiTree| tree.el(log).text.as_ref().map_or(0, |text| text.view.1);

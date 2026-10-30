@@ -31,6 +31,15 @@ impl TextState {
         Some((line, self.lines[line].index))
     }
 
+    /// `GlyphList::FindXYFromPosition`: position `start`'s pixels from its line's start
+    /// (`FindPixelsFromPos`) and the heights of the lines above its line; `None` outside the
+    /// text.
+    pub(crate) fn find_xy_from_position(&self, start: isize) -> Option<(i32, i32)> {
+        let (line, _) = self.find_current_line(start)?;
+        let y = self.lines.iter().take(line).map(|l| l.height).sum();
+        Some((self.find_pixels_from_pos(start)?, y))
+    }
+
     /// `GlyphList::FindLineFromY`: the line `y` pixels down the text (`0` at or above the top, the
     /// last line past the bottom).
     pub(crate) fn find_line_from_y(&self, y: i32) -> usize {

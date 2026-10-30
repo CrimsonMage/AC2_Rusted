@@ -9951,13 +9951,13 @@ key	status	note
 005f0370	x	ac2-ui text_clip.rs: retail moves the cursor; drag auto-scroll past the top or bottom of multi-line text is modern (text_drag_auto_scroll on the global loop)
 005f03e0	x	UIElement_Text::DetermineAndSetNewLine done: text_scroll.rs text_line_step
 005f04f0	x	ac2-ui text_scroll.rs text_page_step (vertical): the view moves the element's height, kept in bounds, the bar updated; scrollbar.rs scrollbar_page sends a bar's vertical page to the texts it drives; text_bar_tests
-005f0590	~	ac2-ui text_attr.rs scroll_to_end / scroll_to_home set the view to the end or start (KeepInBounds clamps); no ScrollToPosition for an arbitrary glyph position
+005f0590	x	ac2-ui text_attr.rs scroll_to_position: RecalculateGlyphList, view top = FindXYFromPosition y, KeepInBounds, UpdateScrollbars; nothing for a position outside the text; scroll_to_end / scroll_to_home go through it; text_tests.rs
 005f05f0	x	UIElement_Text::ScrollHorizontalView done: text_edit.rs scroll_to_cursor
 005f06a0	x	ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
 005f0730	x	ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
 005f0740	x	ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
-005f0750	x	UIElement_Text::ScrollToHome done: chat_window.rs scroll_log
-005f0770	x	ac2-ui chat.rs / chat_window.rs
+005f0750	x	ac2-ui text_attr.rs scroll_to_home / scroll_to_end: ScrollToPosition at 0 / at the glyph count (chat_window.rs scroll_log and the log follow); text_tests.rs
+005f0770	x	ac2-ui text_attr.rs scroll_to_home / scroll_to_end: ScrollToPosition at 0 / at the glyph count (chat_window.rs scroll_log and the log follow); text_tests.rs
 005f0790	~	ac2-ui text_scroll.rs: new_position (texts_follow_scrollbar), the vertical line (text_line_step) and page (text_page_step) messages; not the horizontal bar's
 005f0940	x	ac2-ui text_edit.rs: UiTree::move_cursor now covers page up/down (virtual keys 0x21/0x22) beside home/end, line, word, left/right, up/down; not modelled: IME
 005f0ad0	~	ac2-ui text_attr.rs add_text_with_font puts the cursor at the end before appending; no SetCursorPosition side effects or ScrollHorizontalView (only caller is ChatWindow::AllTextToLog)
@@ -10269,7 +10269,7 @@ key	status	note
 005fc2b0	x	ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
 005fc320	x	ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
 005fc3a0	x	ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
-005fc5f0	_	needs port: GlyphList::FindXYFromPosition gives a position (x = FindPixelsFromPos, y = the heights of the lines above its line); only caller is ScrollToPosition/ScrollHorizontalView
+005fc5f0	x	ac2-ui glyph_find.rs TextState::find_xy_from_position: FindPixelsFromPos and the heights of the lines above the position line (FindCurrentLine), None outside the text; text_tests.rs
 005fc6d0	x	ac2-ui text.rs: TextState::clear
 005fc710	x	ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
 005fc7e0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces

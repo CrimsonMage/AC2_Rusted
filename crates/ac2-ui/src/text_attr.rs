@@ -277,23 +277,36 @@ impl UiTree {
         Some(text.paper.1)
     }
 
-    /// `UIElement_Text::ScrollToEnd` (the view is kept in bounds when the text is laid out; retail
-    /// gets there through `ScrollToPosition`, which this does not model for other positions).
-    pub(crate) fn scroll_to_end(&mut self, index: usize) {
-        if let Some(text) = self.el_mut(index).text.as_mut() {
-            text.view.1 = i32::MAX / 2;
-            text.dirty = true;
-            self.changed = true;
-        }
+    /// `UIElement_Text::ScrollToPosition`: the text laid out (`RecalculateGlyphList`), the view's
+    /// top at the line holding glyph `position` (`FindXYFromPosition`'s y), kept in bounds, and
+    /// the bar following (`UpdateScrollbars`). Nothing moves for a position outside the text.
+    pub(crate) fn scroll_to_position(&mut self, index: usize, position: usize) {
+        let rect = self.el(index).rect;
+        let Some(text) = self.el_mut(index).text.as_mut() else {
+            return;
+        };
+        text.dirty = true;
+        text.recalculate(rect.width(), rect.height());
+        let Some((_, y)) = text.find_xy_from_position(position as isize) else {
+            return;
+        };
+        text.view.1 = y;
+        text.keep_in_bounds(rect.width(), rect.height());
+        self.changed = true;
+        self.text_update_scrollbar(index);
     }
 
-    /// `UIElement_Text::ScrollToHome`.
+    /// `UIElement_Text::ScrollToEnd`: `ScrollToPosition` at the end of the text.
+    pub(crate) fn scroll_to_end(&mut self, index: usize) {
+        let Some(end) = self.el(index).text.as_ref().map(|t| t.glyphs.len()) else {
+            return;
+        };
+        self.scroll_to_position(index, end);
+    }
+
+    /// `UIElement_Text::ScrollToHome`: `ScrollToPosition` at the start.
     pub(crate) fn scroll_to_home(&mut self, index: usize) {
-        if let Some(text) = self.el_mut(index).text.as_mut() {
-            text.view = (0, 0);
-            text.dirty = true;
-            self.changed = true;
-        }
+        self.scroll_to_position(index, 0);
     }
 
     /// `UIElement_Text::VerticalPageDecrement` / `VerticalPageIncrement`: the view one element

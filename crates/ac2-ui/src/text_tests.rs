@@ -436,3 +436,25 @@ fn text_the_font_lacks_switches_to_a_fallback_font_that_has_it() {
         Some("こんにちは漢字".to_owned())
     );
 }
+
+/// `UIElement_Text::ScrollToPosition` (`GlyphList::FindXYFromPosition`): the view's top goes to
+/// the line holding the position, kept in bounds; `ScrollToEnd` and `ScrollToHome` go through
+/// it, and a position past the text moves nothing.
+#[test]
+fn scrolling_to_a_position_puts_its_line_at_the_top() {
+    let (mut tree, entry) = entry_with(&[]);
+    tree.set_text(entry, "a\na\na\na\na\na\na\na\na\na");
+    let view = |tree: &UiTree| tree.get(entry).unwrap().text.as_ref().unwrap().view.1;
+    tree.scroll_to_position(entry, 4);
+    let text = tree.get(entry).unwrap().text.as_ref().unwrap();
+    let height = text.lines[0].height;
+    assert!(height > 0 && text.lines.len() == 10);
+    assert_eq!(view(&tree), 2 * height, "glyph 4 is on the third line");
+    let bottom = text.paper.1 - 10;
+    tree.scroll_to_end(entry);
+    assert_eq!(view(&tree), bottom, "the last line's top, kept in bounds");
+    tree.scroll_to_position(entry, 99);
+    assert_eq!(view(&tree), bottom, "outside the text");
+    tree.scroll_to_home(entry);
+    assert_eq!(view(&tree), 0);
+}

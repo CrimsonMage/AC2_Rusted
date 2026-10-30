@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1372 done, 298 partial, 34 to do, 543 skipped.
+2247 retail functions: 1374 done, 297 partial, 33 to do, 543 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -2996,7 +2996,7 @@ Legend and workflow: [README](README.md).
 - [x] `Glyph::IsNewLine` · 005fceb0 · legions 005bd9e0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [-] `Glyph::Glyph` · 005fcec0 · legions 005bd9f0 — copy constructor of Glyph; Rust Glyph is Clone
 
-## `portal/client/src/uielement/types/text/glyphlist.cpp.c` (19/24)
+## `portal/client/src/uielement/types/text/glyphlist.cpp.c` (20/24)
 
 ### LinebreakUtils
 - [x] `LinebreakUtils::IsWhiteSpace` · 005fbe40 · legions 005bc970 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
@@ -3016,7 +3016,7 @@ Legend and workflow: [README](README.md).
 - [x] `GlyphList::FindPrevWord` · 005fc2b0 · legions 005bcde0 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
 - [x] `GlyphList::FindPixelsFromPos` · 005fc320 · legions 005bce50 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
 - [x] `GlyphList::FindPosFromLineAndPixels` · 005fc3a0 · legions 005bced0 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
-- [ ] `GlyphList::FindXYFromPosition` · 005fc5f0 · legions 005bd120 — needs port: GlyphList::FindXYFromPosition gives a position (x = FindPixelsFromPos, y = the heights of the lines above its line); only caller is ScrollToPosition/ScrollHorizontalView
+- [x] `GlyphList::FindXYFromPosition` · 005fc5f0 · legions 005bd120 — ac2-ui glyph_find.rs TextState::find_xy_from_position: FindPixelsFromPos and the heights of the lines above the position line (FindCurrentLine), None outside the text; text_tests.rs
 - [x] `GlyphList::Flush` · 005fc6d0 · legions 005bd200 — ac2-ui text.rs: TextState::clear
 - [x] `GlyphList::Delete` · 005fc710 · legions 005bd240 — ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
 - [~] `GlyphList::AddText` · 005fc7e0 · legions 005bd310 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [-] `StringDownload::OnTopLevelRequestFinished` · 005fd150 — StringDownload async prefetch callback; Rust loads text data up front (text_data.rs)
 - [-] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (59/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (60/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
@@ -3104,13 +3104,13 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::Global_MouseMove` · 005f0370 · legions 005b0ea0 — ac2-ui text_clip.rs: retail moves the cursor; drag auto-scroll past the top or bottom of multi-line text is modern (text_drag_auto_scroll on the global loop)
 - [x] `UIElement_Text::DetermineAndSetNewLine` · 005f03e0 · legions 005b0f10 — UIElement_Text::DetermineAndSetNewLine done: text_scroll.rs text_line_step
 - [x] `UIElement_Text::DetermineAndSetNewPage` · 005f04f0 · legions 005b1020 — ac2-ui text_scroll.rs text_page_step (vertical): the view moves the element's height, kept in bounds, the bar updated; scrollbar.rs scrollbar_page sends a bar's vertical page to the texts it drives; text_bar_tests
-- [~] `UIElement_Text::ScrollToPosition` · 005f0590 · legions 005b10c0 — ac2-ui text_attr.rs scroll_to_end / scroll_to_home set the view to the end or start (KeepInBounds clamps); no ScrollToPosition for an arbitrary glyph position
+- [x] `UIElement_Text::ScrollToPosition` · 005f0590 · legions 005b10c0 — ac2-ui text_attr.rs scroll_to_position: RecalculateGlyphList, view top = FindXYFromPosition y, KeepInBounds, UpdateScrollbars; nothing for a position outside the text; scroll_to_end / scroll_to_home go through it; text_tests.rs
 - [x] `UIElement_Text::ScrollHorizontalView` · 005f05f0 · legions 005b1120 — UIElement_Text::ScrollHorizontalView done: text_edit.rs scroll_to_cursor
 - [x] `UIElement_Text::DeleteSection` · 005f06a0 · legions 005b11d0 — ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
 - [x] `UIElement_Text::VerticalPageDecrement` · 005f0730 · legions 005b1260 — ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
 - [x] `UIElement_Text::VerticalPageIncrement` · 005f0740 · legions 005b1270 — ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
-- [x] `UIElement_Text::ScrollToHome` · 005f0750 · legions 005b1280 — UIElement_Text::ScrollToHome done: chat_window.rs scroll_log
-- [x] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0 — ac2-ui chat.rs / chat_window.rs
+- [x] `UIElement_Text::ScrollToHome` · 005f0750 · legions 005b1280 — ac2-ui text_attr.rs scroll_to_home / scroll_to_end: ScrollToPosition at 0 / at the glyph count (chat_window.rs scroll_log and the log follow); text_tests.rs
+- [x] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0 — ac2-ui text_attr.rs scroll_to_home / scroll_to_end: ScrollToPosition at 0 / at the glyph count (chat_window.rs scroll_log and the log follow); text_tests.rs
 - [~] `UIElement_Text::HandleScrollBarMessage` · 005f0790 · legions 005b12c0 — ac2-ui text_scroll.rs: new_position (texts_follow_scrollbar), the vertical line (text_line_step) and page (text_page_step) messages; not the horizontal bar's
 - [x] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs: UiTree::move_cursor now covers page up/down (virtual keys 0x21/0x22) beside home/end, line, word, left/right, up/down; not modelled: IME
 - [~] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600 — ac2-ui text_attr.rs add_text_with_font puts the cursor at the end before appending; no SetCursorPosition side effects or ScrollHorizontalView (only caller is ChatWindow::AllTextToLog)
