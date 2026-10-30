@@ -248,7 +248,7 @@ impl PetUi {
         self.update_pet_name(tree, pet, name);
         if icon != 0 {
             if let Some(image) = tree.child_recursive(root, id("Icon")) {
-                tree.set_image(image, icon, 0);
+                tree.add_image_to_state(image, icon, 0, crate::token::STATELESS);
             }
         }
         self.update_state(tree);

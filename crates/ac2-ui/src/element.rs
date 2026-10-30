@@ -139,6 +139,9 @@ pub struct UiElement {
     /// `mediaState` (the description and state whose media run) and `m_curMediaIndex`.
     pub(crate) media_state: Option<(Arc<ElementDesc>, usize)>,
     pub(crate) media_index: i32,
+    /// The images `UIElement::AddImageToState` appended to the states of the element's own
+    /// description (state, image), run after that state's media items (`media.rs`).
+    pub(crate) state_images: Vec<(u32, UiImage)>,
     /// `m_transitionArray`, `m_transition_state`, `m_transition_close`.
     pub(crate) transitions: Vec<crate::transition::ActiveTransition>,
     pub(crate) transition_state: u32,
@@ -563,6 +566,7 @@ impl UiTree {
             rotation: 0,
             media_state: None,
             media_index: 0,
+            state_images: Vec::new(),
             transitions: Vec::new(),
             transition_state: 0,
             transition_close: false,
@@ -812,6 +816,31 @@ impl UiTree {
     /// `referenceDesc->defaultState`: the state `UIElement::SetState` returns the element to.
     pub(crate) fn default_state_of(&self, index: usize) -> u32 {
         self.el(index).reference.default_state
+    }
+
+    /// `UIElement::AddImageToState`: the image is appended to state `state` of the element's
+    /// own description (retail copies a shared unnamed reference description first, and edits a
+    /// named one in place, so a remade element of a named description keeps the old images; here
+    /// they are kept per element), so it comes back each time that state's media run
+    /// (`ResetMedia`); shown now when `state` is the stateless state or the current one. False,
+    /// with nothing shown, when the description has no such state.
+    pub fn add_image_to_state(
+        &mut self,
+        index: usize,
+        file: u32,
+        draw_mode: u32,
+        state: u32,
+    ) -> bool {
+        if state_of(&self.el(index).desc, state).is_none() {
+            return false;
+        }
+        self.el_mut(index)
+            .state_images
+            .push((state, UiImage { file, draw_mode }));
+        if state == STATELESS || state == self.el(index).state {
+            self.set_image(index, file, draw_mode);
+        }
+        true
     }
 
     /// `UIElement::SetImage` (also where `UIElement::AddImageToState` ends for a current or

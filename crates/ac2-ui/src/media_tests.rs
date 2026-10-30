@@ -195,3 +195,35 @@ fn an_exit_fade_holds_the_old_state_until_it_ends_and_an_enter_fade_follows() {
     tree.global_loop(11.25);
     assert_eq!(opacity(&tree, root), 0.25);
 }
+
+fn still(file: u32) -> MediaDesc {
+    MediaDesc::Image {
+        file,
+        draw_mode: 0,
+        offset: (0, 0),
+    }
+}
+
+/// `UIElement::AddImageToState`: an image added to the stateless state is shown and comes back
+/// when the element leaves a state with its own image for one without media; a state the
+/// description lacks takes nothing; an image added to another state waits for it.
+#[test]
+fn an_image_added_to_a_state_returns_with_that_state() {
+    let (mut tree, root) = tree(vec![
+        state("stateless", vec![], vec![]),
+        state("lit", vec![still(7)], vec![]),
+        state("dim", vec![], vec![]),
+    ]);
+    assert!(tree.add_image_to_state(root, 5, 2, STATELESS));
+    assert_eq!(image(&tree, root), Some(5));
+    tree.set_state(root, tokenize("lit"));
+    assert_eq!(image(&tree, root), Some(7));
+    tree.set_state(root, tokenize("dim"));
+    assert_eq!(image(&tree, root), Some(5), "the stateless media run again");
+    assert!(!tree.add_image_to_state(root, 9, 2, tokenize("absent")));
+    assert_eq!(image(&tree, root), Some(5));
+    assert!(tree.add_image_to_state(root, 8, 2, tokenize("lit")));
+    assert_eq!(image(&tree, root), Some(5), "not the current state");
+    tree.set_state(root, tokenize("lit"));
+    assert_eq!(image(&tree, root), Some(8), "after the state's own image");
+}

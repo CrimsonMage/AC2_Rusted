@@ -249,7 +249,12 @@ impl BookUi {
         if let Some(foreground) = self.foreground {
             tree.clear_image(foreground);
             if image != 0 {
-                tree.set_image(foreground, image, FOREGROUND_DRAW_MODE);
+                tree.add_image_to_state(
+                    foreground,
+                    image,
+                    FOREGROUND_DRAW_MODE,
+                    crate::token::STATELESS,
+                );
                 tree.set_visible(foreground, true);
             }
         }

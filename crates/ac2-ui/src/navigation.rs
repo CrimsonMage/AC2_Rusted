@@ -224,7 +224,7 @@ impl NavigationUi {
     /// `AddImageToState(MapField, CRegionDesc::GetGameMap(), 2)`).
     pub fn set_game_map(&mut self, tree: &mut UiTree, did: u32) {
         if let (Some(map), true) = (self.map_field, did != 0) {
-            tree.set_image(map, did, MAP_DRAW_MODE);
+            tree.add_image_to_state(map, did, MAP_DRAW_MODE, crate::token::STATELESS);
         }
     }
 
@@ -421,7 +421,12 @@ impl NavigationUi {
             };
             tree.set_parent(element, Some(parent));
             if note.image != 0 {
-                tree.set_image(element, note.image, MAP_DRAW_MODE);
+                tree.add_image_to_state(
+                    element,
+                    note.image,
+                    MAP_DRAW_MODE,
+                    crate::token::STATELESS,
+                );
             }
             tree.set_tooltip(element, Some(note.message.clone()));
             next.push(PlacedNote {

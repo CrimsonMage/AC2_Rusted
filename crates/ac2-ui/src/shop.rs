@@ -292,7 +292,7 @@ impl ShopUi {
             tree.set_text(desc, &s.render_wire(&shop.desc));
         }
         if let Some(portrait) = self.child(tree, "Portrait") {
-            tree.set_image(portrait, shop.portrait, 0);
+            tree.add_image_to_state(portrait, shop.portrait, 0, crate::token::STATELESS);
             tree.set_visible(portrait, true);
         }
         if let Some(sort) = self.child(tree, "SortText") {

@@ -44,10 +44,15 @@ impl UiTree {
     /// run from the first.
     pub(crate) fn reset_media(&mut self, index: usize) {
         let el = self.el(index);
+        // A state of the element's own description also has media when `AddImageToState`
+        // appended an image to it.
+        let added = |desc: &Arc<ElementDesc>, id: u32| {
+            Arc::ptr_eq(desc, &el.desc) && el.state_images.iter().any(|(s, _)| *s == id)
+        };
         let pick = |desc: &Arc<ElementDesc>, id: u32| {
             desc.states
                 .iter()
-                .position(|s| s.id == id && !s.media.is_empty())
+                .position(|s| s.id == id && (!s.media.is_empty() || added(desc, id)))
                 .map(|i| (Arc::clone(desc), i))
         };
         let state = el.state;
@@ -108,11 +113,26 @@ impl UiTree {
             let Ok(item) = usize::try_from(el.media_index) else {
                 return;
             };
-            let Some(media) = desc.states[state].media.get(item) else {
-                return;
-            };
-            if !self.run_media(index, &desc, state, item, media) {
-                return;
+            match desc.states[state].media.get(item) {
+                Some(media) => {
+                    if !self.run_media(index, &desc, state, item, media) {
+                        return;
+                    }
+                }
+                None => {
+                    // The appended images (`MD_Data_Image`, which never waits) follow the
+                    // description's items.
+                    let id = desc.states[state].id;
+                    let extra = item - desc.states[state].media.len();
+                    let image = Arc::ptr_eq(&desc, &el.desc)
+                        .then(|| el.state_images.iter().filter(|(s, _)| *s == id).nth(extra))
+                        .flatten()
+                        .map(|(_, image)| *image);
+                    let Some(image) = image else {
+                        return;
+                    };
+                    self.set_image(index, image.file, image.draw_mode);
+                }
             }
             let Some(el) = self.slots[index].as_mut() else {
                 return;

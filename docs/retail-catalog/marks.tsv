@@ -281,7 +281,7 @@ key	status	note
 004108c0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 004108e0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00410a10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-00410ad0	~	character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
+00410ad0	x	character_selection.rs: all buttons, list, scene presses; the name ellipsis on download_done (TruncateText with ID_Ellipsis, pregame tests)
 00410c00	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00410f00	~	character_selection.rs: roots, handlers, Update; the background's music is requested when the screen opens (PregameRequest::Music, Channel_Main, the previous screen's fading over 2 s); the 3D scene itself is the client's
 00411220	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
@@ -9866,7 +9866,7 @@ key	status	note
 005eb1f0	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 005eb370	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 005eb430	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
-005eb9c0	~	ac2-ui element.rs set_image: sets the image; retail also appends an MD_Data_Image to the target state (copying the desc when shared) so the image returns with that state; not modelled
+005eb9c0	x	ac2-ui element.rs add_image_to_state: appended to the state of the element own description (none when it lacks the state), shown now for stateless or the current state; media.rs replays the appended images after the state media items (ResetMedia picks a state that has only them). Kept per element: retail edits a named reference desc in place so a remade element keeps old images. The 15 retail callers use it; media_tests.rs
 005ebaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ebb80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005ebc80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
@@ -9925,11 +9925,11 @@ key	status	note
 005ee550	x	ac2-ui text_scroll.rs text_update_scrollbar (vertical): layout held while the bar is enabled, its y_widget_size set to min(1, height / paper) and its position to GetPercentageV, then laid out, and disabled when the paper fits (so hide_when_disabled hides it); text_bar_tests
 005ee6a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005ee6f0	x	ac2-ui text_attr.rs determine_font before text is added (set_text, set_string, append, insert, re-add): when the current font lacks a character (text.rs font_contains = Font::ContainsString, newline skipped; ac2-assets Ac2Font::contains), the first of the Korean_12 / Japanese_12 fonts (FONT_GROUP 0x40000004 / 0x40000005, text_data.rs fallback_fonts, read before freeze) with them all becomes the font (text_tests)
-005ee850	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+005ee850	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys, page up/down, wheel (text_scroll.rs), fallback fonts (DetermineFont, text_attr.rs); not modelled: the IME candidate window; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 005eea40	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eec20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eed10	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005eed40	~	ac2-ui text_attr.rs text_size_with_margins: the text laid out in the element's font no wider than max_width (else the display) less the margins, plus the margins. Not ported: DetermineFont's fallback fonts (Korean_12 / 0x40000005) for glyphs the font lacks, which the text module does not model
+005eed40	x	ac2-ui text_attr.rs text_size_with_margins / text_line_width: measured in the font DetermineFont picks (determined_font: own font, else the first fallback font with every character), no wider than max_width (else the display) less the margins, plus the margins. Retail switches the element font here; the switch is left to the setter every caller runs next; text_tests.rs fallback test
 005eef10	~	vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
 005eef60	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 005eefd0	~	ac2-ui text_scroll.rs text_scrollbar: the vertical bar is found by name when its messages arrive; missing: the horizontal bar and UpdateScrollbars when the attribute is set
@@ -9945,8 +9945,8 @@ key	status	note
 005f0080	x	UIElement_Text::SetViewY done: text_attr.rs set_text_view_y
 005f00a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005f00b0	x	ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
-005f01d0	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
-005f0200	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+005f01d0	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys, page up/down, wheel (text_scroll.rs), fallback fonts (DetermineFont, text_attr.rs); not modelled: the IME candidate window; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+005f0200	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys, page up/down, wheel (text_scroll.rs), fallback fonts (DetermineFont, text_attr.rs); not modelled: the IME candidate window; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 005f02e0	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005f0370	x	ac2-ui text_clip.rs: retail moves the cursor; drag auto-scroll past the top or bottom of multi-line text is modern (text_drag_auto_scroll on the global loop)
 005f03e0	x	UIElement_Text::DetermineAndSetNewLine done: text_scroll.rs text_line_step
@@ -9963,7 +9963,7 @@ key	status	note
 005f0ad0	~	ac2-ui text_attr.rs add_text_with_font puts the cursor at the end before appending; no SetCursorPosition side effects or ScrollHorizontalView (only caller is ChatWindow::AllTextToLog)
 005f0b10	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005f0b30	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
-005f0ba0	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+005f0ba0	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys, page up/down, wheel (text_scroll.rs), fallback fonts (DetermineFont, text_attr.rs); not modelled: the IME candidate window; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 005f0cf0	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005f0d50	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005f0e90	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces

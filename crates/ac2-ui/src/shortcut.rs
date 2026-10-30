@@ -330,7 +330,7 @@ impl ShortcutUi {
         tree.set_tooltip(item, source.tooltip(index));
         let image = source.icon(index, shortcut);
         if image != 0 {
-            tree.set_image(icon, image, 2);
+            tree.add_image_to_state(icon, image, 2, crate::token::STATELESS);
         }
         if shortcut.kind == SHORTCUT_ITEM {
             self.setup_item_element(tree, source, shortcut.item, index, item);

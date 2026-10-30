@@ -198,7 +198,7 @@ impl EffectsUi {
         tree.list_insert_item(list, element, at);
         if let Some(field) = tree.child_recursive(element, id("IconField")) {
             // `AddImageToState(icon, 2, stateless)`.
-            tree.set_image(field, effect.icon, 2);
+            tree.add_image_to_state(field, effect.icon, 2, crate::token::STATELESS);
         }
         if effect.duration != -1.0 && effect.time_cast != -1.0 {
             let expiry = effect.time_cast + effect.duration;

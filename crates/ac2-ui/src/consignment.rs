@@ -392,7 +392,7 @@ impl ConsignmentUi {
         }
         if let Some(icon) = tree.child_recursive(row, id("CostIcon")) {
             if sale.cost_icon != 0 {
-                tree.set_image(icon, sale.cost_icon, 2);
+                tree.add_image_to_state(icon, sale.cost_icon, 2, crate::token::STATELESS);
             }
             tree.set_tooltip(icon, Some(s.render_wire(&sale.cost_desc)));
         }

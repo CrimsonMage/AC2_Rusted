@@ -322,7 +322,12 @@ impl NavigationUi {
                 Some(row) => {
                     tree.set_state(element, STATELESS);
                     tree.set_z_level(element, TILE_Z);
-                    tree.set_image(element, row.map_did, TILE_DRAW_MODE);
+                    tree.add_image_to_state(
+                        element,
+                        row.map_did,
+                        TILE_DRAW_MODE,
+                        crate::token::STATELESS,
+                    );
                 }
                 None => {
                     tree.set_state(element, BLANK);

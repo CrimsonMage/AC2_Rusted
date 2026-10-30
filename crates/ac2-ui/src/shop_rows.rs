@@ -80,7 +80,7 @@ impl ShopUi {
         }
         if let Some(cost_icon) = tree.child_recursive(row, id("CostIcon")) {
             if sale.cost_icon != 0 {
-                tree.set_image(cost_icon, sale.cost_icon, 0);
+                tree.add_image_to_state(cost_icon, sale.cost_icon, 0, crate::token::STATELESS);
                 tree.set_visible(cost_icon, true);
                 tree.set_tooltip(cost_icon, Some(s.render_wire(&sale.cost_desc)));
             }

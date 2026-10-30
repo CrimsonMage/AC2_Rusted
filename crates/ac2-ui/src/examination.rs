@@ -340,7 +340,9 @@ impl ExaminationUi {
                 // Type 5: the image in its stateless state (`AddImageToState`, draw mode 0); type
                 // 9: the icon description's layers (`SetIconDesc`).
                 match item {
-                    ExaminationItem::Image(file) => tree.set_image(element, *file, 0),
+                    ExaminationItem::Image(file) => {
+                        tree.add_image_to_state(element, *file, 0, crate::token::STATELESS);
+                    }
                     ExaminationItem::Icon(layers) => tree.set_icon_desc(element, layers),
                     _ => {}
                 }

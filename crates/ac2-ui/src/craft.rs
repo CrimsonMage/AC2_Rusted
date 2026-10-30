@@ -214,7 +214,7 @@ impl CraftUi {
         };
         tree.set_attribute_id(field, tokenize("Token_ShortcutData"), did);
         tree.set_attribute_id(field, tokenize("Token_ShortcutType"), SHORTCUT_RECIPE);
-        tree.set_image(field, icon, 2);
+        tree.add_image_to_state(field, icon, 2, crate::token::STATELESS);
         tree.start_drag(field);
     }
 

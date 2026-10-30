@@ -341,7 +341,7 @@ impl SkillTreeUi {
         let Some(icon) = self.node_child(tree, node, "SkillNodeIcon") else {
             return;
         };
-        tree.set_image(icon, node.icon, 2);
+        tree.add_image_to_state(icon, node.icon, 2, crate::token::STATELESS);
         let attrs = &mut tree.el_mut(icon).attributes;
         attrs.insert(id("Token_ShortcutType"), AttributeValue::Id(NODE_SKILL));
         attrs.insert(id("Token_ShortcutData"), AttributeValue::Id(node.skill));

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1361 done, 314 partial, 34 to do, 538 skipped.
+2247 retail functions: 1364 done, 311 partial, 34 to do, 538 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1813,7 +1813,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 - [x] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 
-## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (21/23)
+## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (22/23)
 
 ### CharacterIdentity
 - [x] `CharacterIdentity::Invalid` · 0040f560 · legions 0040f530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
@@ -1840,7 +1840,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharacterSelectionUI::~gmCharacterSelectionUI` · 00410750 · legions 00410770 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::AddPhysObjToArm` · 004108e0 · legions 004108e0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `gmCharacterSelectionUI::Finish3DSelection` · 00410a10 · legions 00410a10 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-- [~] `gmCharacterSelectionUI::ListenToMessage` · 00410ad0 · legions 00410ad0 — character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
+- [x] `gmCharacterSelectionUI::ListenToMessage` · 00410ad0 · legions 00410ad0 — character_selection.rs: all buttons, list, scene presses; the name ellipsis on download_done (TruncateText with ID_Ellipsis, pregame tests)
 - [x] `gmCharacterSelectionUI::Update` · 00410c00 · legions 00410c00 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [~] `gmCharacterSelectionUI::gmCharacterSelectionUI` · 00410f00 — character_selection.rs: roots, handlers, Update; the background's music is requested when the screen opens (PregameRequest::Music, Channel_Main, the previous screen's fading over 2 s); the 3D scene itself is the client's
 - [x] `gmCharacterSelectionUI::Create` · 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [-] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180 — region construction and teardown: Element construction in UiTree::create_element and Drop
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (75/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (76/104)
 
 ### UIRectangleObject
 - [-] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
@@ -2845,7 +2845,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::StartResizing` · 005eb1f0 · legions 005abdc0 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 - [x] `UIElement::StopResizing` · 005eb370 · legions 005abf40 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 - [x] `UIElement::MouseResizeElement` · 005eb430 · legions 005ac000 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
-- [~] `UIElement::AddImageToState` · 005eb9c0 · legions 005ac590 — ac2-ui element.rs set_image: sets the image; retail also appends an MD_Data_Image to the target state (copying the desc when shared) so the image returns with that state; not modelled
+- [x] `UIElement::AddImageToState` · 005eb9c0 · legions 005ac590 — ac2-ui element.rs add_image_to_state: appended to the state of the element own description (none when it lacks the state), shown now for stateless or the current state; media.rs replays the appended images after the state media items (ResetMedia picks a state that has only them). Kept per element: retail edits a named reference desc in place so a remade element keeps old images. The 15 retail callers use it; media_tests.rs
 - [x] `UIElement::AddAttributesForState` · 005ebaf0 · legions 005ac6c0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIElement::InqLocation` · 005ebb80 · legions 005ac750 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 - [x] `UIElement::CheckLocation` · 005ebc80 · legions 005ac850 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [-] `StringDownload::OnTopLevelRequestFinished` · 005fd150 — StringDownload async prefetch callback; Rust loads text data up front (text_data.rs)
 - [-] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (58/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (59/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
@@ -3074,11 +3074,11 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::UpdateScrollbar` · 005ee550 · legions 005af140 — ac2-ui text_scroll.rs text_update_scrollbar (vertical): layout held while the bar is enabled, its y_widget_size set to min(1, height / paper) and its position to GetPercentageV, then laid out, and disabled when the paper fits (so hide_when_disabled hides it); text_bar_tests
 - [x] `UIElement_Text::ResizeTo` · 005ee6a0 · legions 005af290 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [x] `UIElement_Text::DetermineFont` · 005ee6f0 · legions 005af2e0 — ac2-ui text_attr.rs determine_font before text is added (set_text, set_string, append, insert, re-add): when the current font lacks a character (text.rs font_contains = Font::ContainsString, newline skipped; ac2-assets Ac2Font::contains), the first of the Korean_12 / Japanese_12 fonts (FONT_GROUP 0x40000004 / 0x40000005, text_data.rs fallback_fonts, read before freeze) with them all becomes the font (text_tests)
-- [~] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+- [~] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys, page up/down, wheel (text_scroll.rs), fallback fonts (DetermineFont, text_attr.rs); not modelled: the IME candidate window; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [~] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [-] `UIElement_Text::Create` · 005eed10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-- [~] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0 — ac2-ui text_attr.rs text_size_with_margins: the text laid out in the element's font no wider than max_width (else the display) less the margins, plus the margins. Not ported: DetermineFont's fallback fonts (Korean_12 / 0x40000005) for glyphs the font lacks, which the text module does not model
+- [x] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0 — ac2-ui text_attr.rs text_size_with_margins / text_line_width: measured in the font DetermineFont picks (determined_font: own font, else the first fallback font with every character), no wider than max_width (else the display) less the margins, plus the margins. Retail switches the element font here; the switch is left to the setter every caller runs next; text_tests.rs fallback test
 - [~] `UIElement_Text::UpdateScrollbars` · 005eef10 · legions 005afa70 — vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
 
 ### SmartArray<GlyphLine>
@@ -3098,8 +3098,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::SetViewY` · 005f0080 · legions 005b0bb0 — UIElement_Text::SetViewY done: text_attr.rs set_text_view_y
 - [x] `UIElement_Text::DrawStart` · 005f00a0 · legions 005b0bd0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [x] `UIElement_Text::DeterminePositionFromXY` · 005f00b0 · legions 005b0be0 — ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
-- [~] `UIElement_Text::SetCursorPosition` · 005f01d0 · legions 005b0d00 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
-- [~] `UIElement_Text::MouseDown` · 005f0200 · legions 005b0d30 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+- [~] `UIElement_Text::SetCursorPosition` · 005f01d0 · legions 005b0d00 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys, page up/down, wheel (text_scroll.rs), fallback fonts (DetermineFont, text_attr.rs); not modelled: the IME candidate window; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+- [~] `UIElement_Text::MouseDown` · 005f0200 · legions 005b0d30 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys, page up/down, wheel (text_scroll.rs), fallback fonts (DetermineFont, text_attr.rs); not modelled: the IME candidate window; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [x] `UIElement_Text::MouseUp` · 005f02e0 · legions 005b0e10 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::Global_MouseMove` · 005f0370 · legions 005b0ea0 — ac2-ui text_clip.rs: retail moves the cursor; drag auto-scroll past the top or bottom of multi-line text is modern (text_drag_auto_scroll on the global loop)
 - [x] `UIElement_Text::DetermineAndSetNewLine` · 005f03e0 · legions 005b0f10 — UIElement_Text::DetermineAndSetNewLine done: text_scroll.rs text_line_step
@@ -3116,7 +3116,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600 — ac2-ui text_attr.rs add_text_with_font puts the cursor at the end before appending; no SetCursorPosition side effects or ScrollHorizontalView (only caller is ChatWindow::AllTextToLog)
 - [x] `UIElement_Text::DeleteChar` · 005f0b10 · legions 005b1640 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::DeleteSelection` · 005f0b30 · legions 005b1660 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
-- [~] `UIElement_Text::AddText_Internal` · 005f0ba0 · legions 005b16d0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+- [~] `UIElement_Text::AddText_Internal` · 005f0ba0 · legions 005b16d0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys, page up/down, wheel (text_scroll.rs), fallback fonts (DetermineFont, text_attr.rs); not modelled: the IME candidate window; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [x] `UIElement_Text::Cut` · 005f0cf0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::ActionHandler` · 005f0d50 — ac2-ui input.rs / text_edit.rs: typing into text elements
 - [~] `UIElement_Text::CheckStringDownloads` · 005f0e90 · legions 005b19c0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces

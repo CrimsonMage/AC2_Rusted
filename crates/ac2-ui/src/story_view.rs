@@ -155,7 +155,7 @@ impl StoryView {
         }
         let field = self.fields[active];
         if let (Some(image), Some(element)) = (show.image, field.image) {
-            tree.set_image(element, image, IMAGE_DRAW_MODE);
+            tree.add_image_to_state(element, image, IMAGE_DRAW_MODE, crate::token::STATELESS);
             tree.set_visible(element, true);
         }
         if let (Some(subtitle), Some(element)) = (&show.subtitle, field.text) {

@@ -410,6 +410,15 @@ fn text_the_font_lacks_switches_to_a_fallback_font_that_has_it() {
         |tree: &crate::UiTree| tree.get(name).unwrap().text.as_ref().unwrap().font.clone();
     tree.set_text(name, "Gnome");
     let latin = font_of(tree).expect("a font");
+    // `InqSizewMargins` measures in the font `DetermineFont` picks: Japanese is measured in the
+    // fallback (the element's own font would draw each character as '?').
+    let measured = tree.text_line_width(name, "こんにちは漢字").unwrap();
+    let as_unknown = tree.text_line_width(name, "???????").unwrap();
+    assert_ne!(measured, as_unknown, "measured in the fallback font");
+    assert!(
+        font_of(tree).is_some_and(|f| Arc::ptr_eq(&f, &latin)),
+        "measuring switches nothing"
+    );
     assert!(latin.contains('G' as u16));
     let japanese: Vec<u16> = "こんにちは漢字".encode_utf16().collect();
     assert!(

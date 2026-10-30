@@ -111,13 +111,18 @@ impl UiTree {
 
     /// `UIElement_Text::InqSizewMargins`: the size `text` would take in the element's font,
     /// laid out no wider than `max_width` (else the display) less the margins, plus the margins.
+    ///
+    /// Retail runs `DetermineFont` first, switching the element to a fallback font when its font
+    /// lacks a character of `text`; here the text is measured in the font it picks, and the
+    /// switch is left to the setter that follows (every caller sets the text it measured).
     pub fn text_size_with_margins(&self, index: usize, text: &str) -> Option<(i32, i32)> {
         let el = self.el(index);
         let state = el.text.as_ref()?;
-        let font = state.font.clone()?;
-        let glyphs: Vec<_> = text
-            .encode_utf16()
-            .map(|ch| crate::text::Glyph::new(ch, state.color, Some(font.clone()), state.outline))
+        let units: Vec<u16> = text.encode_utf16().collect();
+        let font = self.determined_font(index, &units)?;
+        let glyphs: Vec<_> = units
+            .iter()
+            .map(|&ch| crate::text::Glyph::new(ch, state.color, Some(font.clone()), state.outline))
             .collect();
         let max_width = match el.attributes.get(&crate::token::MAX_WIDTH) {
             Some(AttributeValue::Int(width)) => *width,
@@ -133,10 +138,11 @@ impl UiTree {
     /// the element's font, margins included (`m_paperWidth` of an unwrapped line).
     pub fn text_line_width(&self, index: usize, text: &str) -> Option<i32> {
         let state = self.el(index).text.as_ref()?;
-        let font = state.font.clone()?;
-        let glyphs: Vec<_> = text
-            .encode_utf16()
-            .map(|ch| crate::text::Glyph::new(ch, state.color, Some(font.clone()), state.outline))
+        let units: Vec<u16> = text.encode_utf16().collect();
+        let font = self.determined_font(index, &units)?;
+        let glyphs: Vec<_> = units
+            .iter()
+            .map(|&ch| crate::text::Glyph::new(ch, state.color, Some(font.clone()), state.outline))
             .collect();
         let [_, _, left, right] = state.margins;
         let (_, width, _) = crate::text::recalculate_lines(&glyphs, i32::MAX / 2, true);
@@ -328,22 +334,29 @@ impl UiTree {
     /// `text`'s characters (`Font::ContainsString`), the first fallback font (Korean, then
     /// Japanese) that has them all becomes the element's font; otherwise it stays.
     pub(crate) fn determine_font(&mut self, index: usize, text: &[u16]) {
-        let Some(current) = self.el(index).text.as_ref().and_then(|t| t.font.clone()) else {
-            return;
-        };
-        if crate::text::font_contains(&current, text) {
-            return;
-        }
-        let Some(data) = self.text_data.as_ref() else {
-            return;
-        };
-        let found = data
-            .fallback_fonts()
-            .into_iter()
-            .find(|font| crate::text::font_contains(font, text));
-        if let (Some(font), Some(state)) = (found, self.el_mut(index).text.as_mut()) {
+        let font = self.determined_font(index, text);
+        if let (Some(font), Some(state)) = (font, self.el_mut(index).text.as_mut()) {
             state.font = Some(font);
         }
+    }
+
+    /// The font `DetermineFont` leaves the element in for `text`: its own when that has every
+    /// character, else the first fallback font that does, else its own.
+    fn determined_font(
+        &self,
+        index: usize,
+        text: &[u16],
+    ) -> Option<std::sync::Arc<ac2_assets::Ac2Font>> {
+        let current = self.el(index).text.as_ref()?.font.clone()?;
+        if crate::text::font_contains(&current, text) {
+            return Some(current);
+        }
+        let found = self.text_data.as_ref().and_then(|data| {
+            data.fallback_fonts()
+                .into_iter()
+                .find(|font| crate::text::font_contains(font, text))
+        });
+        Some(found.unwrap_or(current))
     }
 }
 
