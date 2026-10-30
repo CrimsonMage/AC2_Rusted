@@ -140,6 +140,31 @@ game rules and server-visible behaviour exactly retail.
   Modern changes so far: scaled UI art is filtered (`ac2_ui` `compose_filter`: a box filter where
   it shrinks, bilinear where it grows, mixed in premultiplied alpha), where retail's
   `SurfaceWindow::Blit` took the nearest pixel (classic still does).
+  The toolbar is the design's strip and dock (`ac2_ui::modern_toolbar`, art drawn by the client in
+  `ac2_ui::modern_art` under its own DIDs `0x7E01xxxx`, composited with a source-over draw mode,
+  `compose::DRAW_OVER`, as retail's modes keep the surface's alpha): retail's 798-pixel bar art is
+  gone and `ToolbarField` spans the bottom edge without taking the pointer. The strip sits 6
+  pixels up, centred in the room left of the inventory drawer, on a dark teal fade: the attack
+  buttons side by side in round wells (retail ghosts the start button while the player attacks,
+  drawn lit; and the stop button while the player does not, drawn dim), the set chip (arrows over
+  and under the set's number, shown always where retail's `UpdateSetNumber` showed it only with
+  numbers on), and the shortcut bar restyled as rows of 32-pixel glass wells 3 pixels apart, an
+  empty slot a faint line until the pointer is over the bar or something is dragged
+  (`ac2_ui::modern_strip`). The dock in the bottom-right corner is a teal orb with a pip per panel
+  (gold while it shows); the panel buttons fan out of it in round wells on a bevelled backing
+  while the pointer is over the dock, or always once the orb is pressed; the dismount and
+  consignments buttons stand beside it on their own backings while shown. A chat window that
+  would cover the strip is moved up to sit just over it. Window places are kept per style
+  (`WindowPositions-<character>-modern.txt` beside the classic file), and the modern style
+  neither uploads its windows' places to the server nor applies the server's saved locations
+  (their boxes are the classic layout's), so `gmCWInterface::SetUISaveLocations` runs only in the
+  classic style.
+  The Social and Skills buttons take Asheron's Call 1's toolbar icons (the user's choice: AC1's
+  Social button `0x10000197` and its Skills and attributes button `0x10000199`, images
+  `0x0600111F` and `0x06001122`), read at run time from the player's own AC1 DATs named by
+  `AC1_DAT_DIR` (`ac2_assets::ac1_icons`, AC1's container read by `ac2_dat`'s retail layout;
+  nothing of AC1 is committed) and drawn in AC2's look (`ac2_ui::ac1_buttons`: the AC2 orb's
+  bronze kept, AC1's symbol in the orb symbols' ivory). Without AC1 DATs they keep AC2's own.
 - Exception: the radar shows the player's map coordinates under the compass by default.
   Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
   profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it

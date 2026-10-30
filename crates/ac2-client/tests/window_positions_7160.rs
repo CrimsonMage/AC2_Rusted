@@ -123,7 +123,10 @@ fn an_alt_drag_keeps_a_window_where_it_was_left_and_still_uploads_its_locations(
 
     // The player's file holds every window's place, this one included.
     let player = rig.client.frame().player.expect("the player").id;
-    let kept = rig.client.local_window_positions(player).unwrap();
+    let kept = rig
+        .client
+        .local_window_positions(player, ac2_ui::HudStyle::Classic)
+        .unwrap();
     let expected = rig.view.hud_tree().unwrap().window_positions();
     assert_eq!(kept.len(), expected.len());
     let mine = kept
@@ -194,7 +197,10 @@ fn an_alt_drag_moves_the_radar_and_its_place_is_kept() {
         "moved {dx},{dy}"
     );
     let player = rig.client.frame().player.expect("the player").id;
-    let kept = rig.client.local_window_positions(player).unwrap();
+    let kept = rig
+        .client
+        .local_window_positions(player, ac2_ui::HudStyle::Classic)
+        .unwrap();
     assert!(
         kept.iter()
             .any(|p| p.element == ac2_ui::tokenize("RadarField")),

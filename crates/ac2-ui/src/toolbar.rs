@@ -11,6 +11,9 @@
 //! `ID_Toolbar_TT_Hide` text while the child shows and `ID_Toolbar_TT_Show` while it is hidden,
 //! refreshed when a child's shown state changes ([`ToolbarUi::refresh_tooltips`]).
 //!
+//! In the modern style the same elements are laid out as the design's strip and dock
+//! (`modern_toolbar.rs`, [`ToolbarUi::follow`]); the classic style keeps retail's bar.
+//!
 //! Not modelled yet: the panels' contents (each child's own frameworks), the help buttons
 //! (`KeyStone::OpenHelp`), the key stone and plug-in keys.
 
@@ -18,7 +21,7 @@ use std::cell::Cell;
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
-use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
+use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS, GLOBAL_MOUSE_DOWN, GLOBAL_MOUSE_MOVE};
 use crate::skill_tree::SkillVar;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_RELEASE};
 use crate::ui_string::{UiString, UiStrings};
@@ -53,7 +56,7 @@ impl ToolbarChild {
             .find(|child| child.name().eq_ignore_ascii_case(name))
     }
 
-    fn name(self) -> &'static str {
+    pub(crate) fn name(self) -> &'static str {
         match self {
             Self::Examination => "Examination",
             Self::Navigation => "Navigation",
@@ -105,12 +108,32 @@ pub struct ToolbarUi {
     consignments: Option<usize>,
     /// Each child's shown state when its tooltip was last set (`None`: not yet).
     tooltip_shown: Cell<[Option<bool>; 7]>,
+    /// The modern style's layout of the same elements (`modern_toolbar.rs`), and what it was last
+    /// laid out for.
+    dock: Option<crate::modern_toolbar::Dock>,
+    laid_out: Cell<Option<Layout>>,
 }
+
+/// What the modern toolbar is laid out for: the panels shown, the fan open, the field's and the
+/// shortcut bar's boxes, the status buttons shown.
+type Layout = (
+    [bool; 7],
+    bool,
+    crate::element::UiBox,
+    Option<crate::element::UiBox>,
+    [bool; 2],
+);
 
 impl ToolbarUi {
     /// `gmToolbarUI::SetupChildren`: each child finds its field (`IUIManager::GetElement`) and
     /// hides it.
     pub fn create(tree: &mut UiTree) -> Self {
+        Self::create_styled(tree, crate::HudStyle::Classic)
+    }
+
+    /// [`Self::create`] in `style`: the modern style lays the same elements out as the strip and
+    /// the dock (`modern_toolbar.rs`); the classic one keeps retail's bar.
+    pub fn create_styled(tree: &mut UiTree, style: crate::HudStyle) -> Self {
         let field = tree.roots().iter().copied().find(|&r| {
             tree.get(r)
                 .is_some_and(|e| e.id() == tokenize("ToolbarField"))
@@ -140,11 +163,61 @@ impl ToolbarUi {
             dismount: button("DismountButton"),
             consignments: button("ConsignmentsButton"),
             tooltip_shown: Cell::new([None; 7]),
+            dock: None,
+            laid_out: Cell::new(None),
         };
         for child in ToolbarChild::ALL {
             toolbar.set_field(tree, child, false);
         }
+        let mut toolbar = toolbar;
+        if style == crate::HudStyle::Modern {
+            toolbar.dock = field.map(|field| crate::modern_toolbar::Dock::adopt(tree, field));
+            toolbar.follow(tree);
+        }
         toolbar
+    }
+
+    /// The modern toolbar laid out again when what it is laid out for changed (a panel shown or
+    /// hidden, the fan opened or folded, the display resized, the shortcut bar moved, a status
+    /// button shown or hidden). Run every frame; nothing in the classic style.
+    pub fn follow(&self, tree: &mut UiTree) {
+        let Some(dock) = &self.dock else {
+            return;
+        };
+        let shown = ToolbarChild::ALL.map(|c| self.shown(tree, c));
+        let bar = tree
+            .roots()
+            .iter()
+            .copied()
+            .find(|&r| {
+                tree.get(r)
+                    .is_some_and(|e| e.id() == tokenize("ShortcutField"))
+            })
+            .map(|r| tree.screen_box(r));
+        let field = self.field.map(|f| tree.screen_box(f)).unwrap_or_default();
+        let visible = |e: Option<usize>| e.and_then(|e| tree.get(e)).is_some_and(|e| e.visible);
+        let now = (
+            shown,
+            dock.is_open(),
+            field,
+            bar,
+            [visible(self.consignments), visible(self.dismount)],
+        );
+        dock.keep_chat_clear(tree);
+        if self.laid_out.get() != Some(now) {
+            dock.arrange(tree, shown);
+            // The layout may move the shortcut bar: what it was laid out for is taken after.
+            let bar = tree
+                .roots()
+                .iter()
+                .copied()
+                .find(|&r| {
+                    tree.get(r)
+                        .is_some_and(|e| e.id() == tokenize("ShortcutField"))
+                })
+                .map(|r| tree.screen_box(r));
+            self.laid_out.set(Some((now.0, now.1, now.2, bar, now.4)));
+        }
     }
 
     fn get(&self, child: ToolbarChild) -> &Child {
@@ -283,6 +356,15 @@ impl ToolbarUi {
     /// `ListenToMessage` for its buttons.
     pub fn message(&self, tree: &mut UiTree, message: &UiMessage) {
         if message.element.is_none() {
+            // The modern dock's fan follows the pointer; a press on its orb pins it.
+            if let Some(dock) = &self.dock {
+                let pressed = message.message == GLOBAL_MOUSE_DOWN;
+                if (message.message == GLOBAL_MOUSE_MOVE || pressed)
+                    && dock.pointer_at(tree, pressed)
+                {
+                    self.follow(tree);
+                }
+            }
             if message.message == GLOBAL_KEY_PRESS {
                 let key = match message.data as u32 {
                     // Action 0x40000005 is the examination key too.

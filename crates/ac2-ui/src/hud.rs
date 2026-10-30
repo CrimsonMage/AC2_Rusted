@@ -273,7 +273,16 @@ pub fn build_styled_hud(
             .is_some_and(|e| e.id() == tokenize("ToolbarField"))
     });
     let shortcuts = match (&layouts[&LAYOUT_TOOLBAR], toolbar_field) {
-        (Some(toolbar), Some(field)) => Some(ShortcutUi::create(&mut tree, toolbar, field)),
+        (Some(toolbar), Some(field)) => Some(match style {
+            // The modern bar's wells over the same elements (`modern_strip`).
+            HudStyle::Modern => {
+                let layout = Arc::new(crate::modern_strip::restyle(toolbar));
+                let mut bar = ShortcutUi::create(&mut tree, &layout, field);
+                bar.set_modern();
+                bar
+            }
+            HudStyle::Classic => ShortcutUi::create(&mut tree, toolbar, field),
+        }),
         _ => None,
     };
     // `gmGamePlayUI::SetupChildren` makes the mini panel after the toolbar's roots.
@@ -364,7 +373,7 @@ pub fn build_styled_hud(
         }
         _ => None,
     };
-    let toolbar = ToolbarUi::create(&mut tree);
+    let toolbar = ToolbarUi::create_styled(&mut tree, style);
     let radar = RadarUi::create(&tree);
     let secure_trade = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
@@ -517,6 +526,24 @@ fn chat_strings(store: &ResourceStore) -> ResourceResult<ChatStrings> {
 }
 
 /// Every image the tree shows (`Graphic::Graphic`); a missing image draws nothing.
+/// The UI images `ids` from the DATs (those the DATs have), as [`load_ui_images`] reads them.
+pub fn load_images(store: &ResourceStore, ids: &[u32]) -> ResourceResult<HashMap<u32, UiPixels>> {
+    let mut images = HashMap::new();
+    for &file in ids {
+        if let Some(surface) = ac2_assets::load_ac2_ui_surface(store, DataId::new(file))? {
+            images.insert(
+                file,
+                UiPixels {
+                    width: surface.width,
+                    height: surface.height,
+                    rgba: surface.rgba,
+                },
+            );
+        }
+    }
+    Ok(images)
+}
+
 pub fn load_ui_images(
     store: &ResourceStore,
     tree: &UiTree,

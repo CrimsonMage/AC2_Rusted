@@ -97,6 +97,22 @@ impl HudView {
                         let mut images = ac2_ui::load_ui_images(&store, &hud.tree)?;
                         // The Tracker button's round eye, made from the loaded icon.
                         ac2_ui::tracker_ui::bake_eye(&mut hud.tree, &mut images);
+                        // The modern style's art (`modern_art`): the Social and Skills icons from
+                        // the player's AC1 DATs first (`AC1_DAT_DIR`, else AC2's own), then every
+                        // panel and attack icon set in its well.
+                        if hud.style == ac2_ui::HudStyle::Modern {
+                            if let Some(dir) = ac2_assets::ac1_icons::ac1_dat_dir() {
+                                match ac2_assets::ac1_icons::load_ac1_toolbar_icons(&dir) {
+                                    Ok(icons) => {
+                                        ac2_ui::ac1_buttons::bake(&mut images, &icons);
+                                    }
+                                    Err(error) => eprintln!("ac2: AC1 icons: {error}"),
+                                }
+                            }
+                            let icons =
+                                ac2_ui::load_images(&store, &ac2_ui::modern_art::SOURCE_ICONS)?;
+                            ac2_ui::modern_art::bake(&mut images, &icons);
+                        }
                         Ok((hud, images))
                     });
                 let _ = send.send(built);
@@ -147,7 +163,7 @@ impl HudView {
             Ok((
                 GameplayHud {
                     mut tree,
-                    style: _,
+                    style,
                     reticle,
                     names,
                     damage,
@@ -199,6 +215,9 @@ impl HudView {
                 images,
             )) => {
                 tree.set_display(self.scale.display.0 as i32, self.scale.display.1 as i32);
+                self.panels.style = style;
+                // The modern toolbar laid out for the display.
+                toolbar.follow(&mut tree);
                 if let Some(chat) = &mut chat {
                     // The player's options are not read yet: the chat starts on
                     // `GameplayOptionsProfile::Clear`'s (no filters, default fonts).

@@ -151,6 +151,10 @@ pub struct ShortcutUi {
     pub(crate) own_box: Option<crate::element::UiBox>,
     /// The rows the bar was last given (`GetShortcutHeight` at the reload, or a resize's rows).
     pub(crate) rows: i32,
+    /// The modern style's wells (`modern_strip.rs`), and whether its empty slots show (the
+    /// pointer over the bar, or something dragged).
+    modern: bool,
+    revealed: bool,
 }
 
 impl ShortcutUi {
@@ -175,6 +179,8 @@ impl ShortcutUi {
             requests: Vec::new(),
             own_box: None,
             rows: 1,
+            modern: false,
+            revealed: false,
         };
         ui.check_attack_buttons(tree);
         if let Some(list) = ui.list {
@@ -183,6 +189,46 @@ impl ShortcutUi {
             tree.set_drag_drop_check(list, Some(DragCheck::ShortcutDrop));
         }
         ui
+    }
+
+    /// The modern style's bar: each slot drawn as a well, an empty one as a faint line until it
+    /// is revealed (`modern_strip.rs`).
+    pub fn set_modern(&mut self) {
+        self.modern = true;
+    }
+
+    /// The well a slot holding `kind` draws in the modern style.
+    fn well(&self, kind: u32) -> u32 {
+        match (kind == SHORTCUT_EMPTY, self.revealed) {
+            (false, _) => crate::modern_art::SLOT_WELL,
+            (true, false) => crate::modern_art::SLOT_EMPTY,
+            (true, true) => crate::modern_art::SLOT_EMPTY_SHOWN,
+        }
+    }
+
+    /// The modern bar's empty slots shown while the pointer is over the bar or something is
+    /// dragged, and faint otherwise.
+    fn reveal(&mut self, tree: &mut UiTree) {
+        let (Some(field), Some(list)) = (self.field, self.list) else {
+            return;
+        };
+        let over = {
+            let b = tree.screen_box(field);
+            let p = tree.pointer;
+            (b.x0..=b.x1).contains(&p.0) && (b.y0..=b.y1).contains(&p.1)
+        };
+        let revealed = over || tree.dragged().is_some();
+        if revealed == self.revealed {
+            return;
+        }
+        self.revealed = revealed;
+        for (i, item) in tree.list_items(list).to_vec().into_iter().enumerate() {
+            let kind = self
+                .shortcuts
+                .get(self.offset + i)
+                .map_or(SHORTCUT_EMPTY, |s| s.kind);
+            tree.set_image(item, self.well(kind), crate::compose::DRAW_OVER);
+        }
     }
 
     /// `gmShortcutUI::Show`: the bar's field shows or hides.
@@ -321,6 +367,9 @@ impl ShortcutUi {
         attrs.insert(id("Token_ShortcutType"), AttributeValue::Id(shortcut.kind));
         attrs.insert(id("ShortcutIndex"), AttributeValue::Int(index as i32));
         tree.set_bool(item, id("dragable"), shortcut.kind != SHORTCUT_EMPTY);
+        if self.modern {
+            tree.set_image(item, self.well(shortcut.kind), crate::compose::DRAW_OVER);
+        }
         if let Some(number) = tree.child_recursive(item, id("NumberDisplay")) {
             tree.clear_text(number);
             if shortcut.kind == SHORTCUT_EMPTY && self.show_numbers {
@@ -603,7 +652,8 @@ impl ShortcutUi {
             .iter()
             .find_map(|&r| tree.child_recursive(r, id("SetNumberDisplay")));
         if let Some(display) = display {
-            if self.show_numbers {
+            // The modern strip's set chip always shows the set (retail only with numbers on).
+            if self.show_numbers || self.modern {
                 tree.set_text(display, &set.to_string());
             } else {
                 tree.clear_text(display);
@@ -690,6 +740,12 @@ impl ShortcutUi {
         if message.element.is_none() {
             if message.message == GLOBAL_KEY_PRESS {
                 self.key_press(tree, message.data as u32);
+            }
+            if self.modern
+                && (message.message == crate::mouse::GLOBAL_MOUSE_MOVE
+                    || message.message == crate::mouse::GLOBAL_MOUSE_UP)
+            {
+                self.reveal(tree);
             }
             return;
         }

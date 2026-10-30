@@ -266,7 +266,13 @@ mod text_clipboard;
 mod text_data;
 mod text_edit;
 pub use text_edit::TextPress;
+pub mod ac1_buttons;
 pub mod hud_style;
+pub mod modern_art;
+mod modern_strip;
+mod modern_toolbar;
+#[cfg(test)]
+mod modern_toolbar_tests;
 mod text_scroll;
 mod token;
 mod toolbar;
@@ -357,8 +363,8 @@ pub use game_dialogs::{
     PopupQuestion, ERROR_TEXT_TYPE, LOGOUT_ACTION,
 };
 pub use hud::{
-    build_gameplay_hud, build_styled_hud, load_layout_by_enum, load_ui_images, GameplayHud,
-    GAMEPLAY_ROOTS, LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
+    build_gameplay_hud, build_styled_hud, load_images, load_layout_by_enum, load_ui_images,
+    GameplayHud, GAMEPLAY_ROOTS, LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
 };
 pub use icon_desc::IconLayer;
 pub use indicators::IndicatorsUi;

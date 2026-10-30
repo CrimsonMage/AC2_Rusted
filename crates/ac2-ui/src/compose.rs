@@ -146,6 +146,7 @@ impl UiSurface {
         let op = match mode.draw_mode {
             1 | 2 => BlitOp::Channel,
             3 => BlitOp::Value(alpha_value),
+            DRAW_OVER => BlitOp::Over,
             _ => BlitOp::Copy,
         };
         let local = dirty.offset(-me.x0, -me.y0);
@@ -219,6 +220,7 @@ impl UiSurface {
         let op = match mode.draw_mode {
             1 | 2 => BlitOp::Channel,
             3 => BlitOp::Value(alpha_value),
+            DRAW_OVER => BlitOp::Over,
             _ => BlitOp::Copy,
         };
         // Source and destination cuts along each axis: [start, border, far border, end).
@@ -260,10 +262,28 @@ impl UiSurface {
     }
 }
 
+/// The modern style's own draw mode (no retail mode): the image composited over the surface by its
+/// alpha, the surface's alpha accumulating (source over), so the client's translucent art (glass,
+/// fades, glows) shows on a clear surface. Retail's modes 1 and 2 keep the surface's alpha.
+pub const DRAW_OVER: u32 = 4;
+
 /// One pixel of `SurfaceWindow::Blit`: `source` onto `dest` by `op`.
 fn blend(dest: &mut [u8], source: &[u8], op: BlitOp) {
     let alpha = i32::from(source[3]);
     match op {
+        BlitOp::Over => {
+            let sa = f32::from(source[3]) / 255.0;
+            if sa <= 0.0 {
+                return;
+            }
+            let da = f32::from(dest[3]) / 255.0;
+            let out = sa + da * (1.0 - sa);
+            for c in 0..3 {
+                let v = (f32::from(source[c]) * sa + f32::from(dest[c]) * da * (1.0 - sa)) / out;
+                dest[c] = v.round().clamp(0.0, 255.0) as u8;
+            }
+            dest[3] = (out * 255.0).round() as u8;
+        }
         BlitOp::Copy => dest.copy_from_slice(source),
         BlitOp::Value(value) => {
             // Copied, then the alpha byte times the value (`_ftol2`: truncated).
@@ -290,6 +310,8 @@ enum BlitOp {
     Channel,
     /// 0x20: copied with the alpha scaled by the value.
     Value(f32),
+    /// [`DRAW_OVER`]: composited over by the source's alpha, the alpha accumulating.
+    Over,
 }
 
 impl UiTree {
