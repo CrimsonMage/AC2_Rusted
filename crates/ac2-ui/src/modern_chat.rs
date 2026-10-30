@@ -175,6 +175,8 @@ pub struct ModernChat {
     pub(crate) menu: Option<DockMenu>,
     pub(crate) menu_for: Cell<Option<usize>>,
     pub(crate) menu_offers: std::cell::RefCell<Vec<usize>>,
+    /// The tells' toast lane (`modern_chat_toasts`).
+    pub(crate) toasts: std::cell::RefCell<Option<crate::modern_chat_toasts::Toasts>>,
 }
 
 /// What a message to the modern windows asks of the chat.
@@ -376,6 +378,15 @@ impl ModernChat {
                 .find(|&e| tree.el(e).reference.kind == tree.el(e).desc.kind)?;
             DockMenu::make(tree, root, template, layouts)
         });
+        let toasts = roots.first().and_then(|&root| {
+            let template = [ENTRY_FIELD, LOG_FIELD, TOGGLES]
+                .into_iter()
+                .filter_map(|id| tree.child_recursive(root, id))
+                .find(|&e| tree.el(e).reference.kind == tree.el(e).desc.kind)?;
+            Some(crate::modern_chat_toasts::Toasts::make(
+                tree, root, template, gameplay,
+            ))
+        });
         let n = windows.len();
         Self {
             looks: std::cell::RefCell::new(vec![ChatLook::default(); n]),
@@ -390,6 +401,7 @@ impl ModernChat {
             menu,
             menu_for: Cell::new(None),
             menu_offers: Default::default(),
+            toasts: std::cell::RefCell::new(toasts),
         }
     }
 

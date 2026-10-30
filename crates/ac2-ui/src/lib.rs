@@ -278,6 +278,7 @@ mod modern_chat_settings;
 mod modern_chat_tabs;
 #[cfg(test)]
 mod modern_chat_tests;
+mod modern_chat_toasts;
 mod modern_drawer_bar;
 mod modern_inventory;
 #[cfg(test)]

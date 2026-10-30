@@ -287,6 +287,19 @@ impl ChatUi {
                 })
                 .collect();
         }
+        // The toast lane under the vitals (`StatusbarField`), else under the display's top.
+        let lane = tree
+            .roots()
+            .iter()
+            .copied()
+            .find(|&r| tree.el(r).id() == tokenize("StatusbarField") && tree.el(r).visible)
+            .map_or((8, 150), |r| {
+                let b = tree.screen_box(r);
+                (b.x0, b.y1 + 8)
+            });
+        if let Some(toasts) = modern.toasts.borrow_mut().as_mut() {
+            toasts.tick(tree, lane);
+        }
         let counts: Vec<u64> = self.windows.iter().map(|w| w.lines_added).collect();
         // A log the player scrolled back to its end has seen its waiting lines.
         for window in &mut self.windows {
@@ -656,6 +669,14 @@ impl ChatUi {
         if text_type & TEXT_TYPE_ERROR != 0 {
             if let Some(spew) = &mut self.spew {
                 spew.queue(text);
+            }
+        }
+        // The modern toast lane shows each tell too (`modern_chat_toasts`).
+        if text_type & crate::chat_window::TEXT_TYPE_TELL != 0 {
+            if let Some(modern) = &self.modern {
+                if let Some(toasts) = modern.toasts.borrow_mut().as_mut() {
+                    toasts.push(text);
+                }
             }
         }
     }

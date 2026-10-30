@@ -327,3 +327,46 @@ fn a_scrolled_up_log_holds_its_place_and_the_pill_counts_new_lines() {
     chat.modern_tick(tree, &Names);
     assert!(!tree.el(pill).visible);
 }
+
+/// A tell shows as a toast under the vitals as well as in the windows; other text does not.
+#[test]
+fn a_tell_shows_as_a_toast_under_the_vitals() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let chat = hud.chat.as_mut().unwrap();
+    chat.display(crate::chat_window::TEXT_TYPE_SAY, "Brann says, \"hello\"\n");
+    chat.modern_tick(tree, &Names);
+    let toast = root_named(tree, "ModernChatToast0");
+    assert!(!tree.el(toast).visible);
+    chat.display(
+        crate::chat_window::TEXT_TYPE_TELL,
+        "Telia tells you, \"Got a minute?\"\n",
+    );
+    chat.modern_tick(tree, &Names);
+    assert!(tree.el(toast).visible);
+    let label = part(tree, toast, "ModernChatToastText0");
+    let text = tree
+        .children(label)
+        .iter()
+        .find_map(|&c| tree.el(c).text())
+        .unwrap();
+    assert_eq!(text, "Telia tells you, \"Got a minute?\"");
+    let vitals = root_named(tree, "StatusbarField");
+    assert!(tree.screen_box(toast).y0 > tree.screen_box(vitals).y1);
+    if let Ok(out) = std::env::var("ZZ_OUT") {
+        let dataset = ac2_dat::test_support::env_dataset().unwrap();
+        let store = Arc::new(ResourceStore::new(dataset));
+        let mut images = crate::load_ui_images(&store, tree).unwrap();
+        let icons = crate::load_images(&store, &crate::modern_art::SOURCE_ICONS).unwrap();
+        crate::modern_art::bake(&mut images, &icons);
+        let _ = tree.compose(&images);
+        let s = tree.compose_root(toast, &images);
+        let f = std::fs::File::create(out).unwrap();
+        let mut e = png::Encoder::new(std::io::BufWriter::new(f), s.width, s.height);
+        e.set_color(png::ColorType::Rgba);
+        e.set_depth(png::BitDepth::Eight);
+        e.write_header().unwrap().write_image_data(&s.rgba).unwrap();
+    }
+}

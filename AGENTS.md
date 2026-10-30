@@ -254,6 +254,9 @@ game rules and server-visible behaviour exactly retail.
   A log the player scrolled up keeps its place as lines arrive (retail's `AllTextToLog` scrolled to
   the end unless the bar was held) and a pill over its foot counts them (`N new below`); a press
   on it, or scrolling back down, shows the end.
+  Each tell also shows for three seconds as a toast in a lane under the vitals, fading at its end
+  (`ac2_ui::modern_chat_toasts`; at most three, the oldest leaving), taking no pointer; the tell
+  still reaches the windows as retail's did.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its
