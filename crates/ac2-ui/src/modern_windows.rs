@@ -4,7 +4,10 @@
 //! (`0x41000970`, `0x410002CD`, `0x410011FC`), the help and close buttons (`0x410027DC`,
 //! `0x410002B9`), the tabs' caps (`0x41001E5A`..`0x41001E5F`), four families of blue text
 //! buttons, the check box, the expander and drop-down arrows, the rule (`0x41001E71`), the
-//! wells' eight pieces and the blue scroll bar; the header bar's image (`0x410002CD`,
+//! wells' eight pieces, the dialogs' fill (`0x4100225F`, now the glass in the bevel) and bronze border
+//! (`0x41002259`..`0x41002262`), the secure trade's frame (`0x410023AD`), the whole-window frames
+//! of the store, catalog, new sale, ingredients and book (redrawn at their own sizes with their
+//! wells where retail's were) and the blue scroll bar; the header bar's image (`0x410002CD`,
 //! `0x410011FC`) only filled the room under a side panel's window. Each is swapped in the layout descriptions, before
 //! the frameworks make their elements, for the design's part (`modern_art_windows`): teal glass
 //! under a dark stone header (the frame's top) in a stone bevel, square header buttons, bronze-lined tabs (gold when
@@ -23,6 +26,9 @@ use crate::token::tokenize;
 /// A retail image, the design's part for it and that part's nine-slice border (the attribute
 /// and its value).
 type Swap = (u32, u32, Option<(u32, i32)>);
+
+/// A window without a header: the bevel all round.
+const PANEL: Option<(u32, i32)> = Some((NINE_SLICE, art::WIN_GLASS_BORDER as i32));
 
 /// The window's borders: its header at the top, `WIN_GLASS_BORDER` on the other sides.
 const FRAME: Option<(u32, i32)> = Some((
@@ -58,6 +64,22 @@ const fn well(first: u32) -> [Swap; 8] {
         (first + 5, w[7], None),
         (first + 6, w[6], None),
         (first + 7, w[3], None),
+    ]
+}
+
+/// The dialogs' (and the pet and fellow panels') bronze border's eight pieces (left, bottom
+/// right, bottom, bottom left, right, top left, top, top right) and the design's.
+fn dialog_border() -> [Swap; 8] {
+    let b = art::WIN_BORDER;
+    [
+        (0x4100_2259, b[3], None),
+        (0x4100_225A, b[8], None),
+        (0x4100_225B, b[7], None),
+        (0x4100_225C, b[6], None),
+        (0x4100_225D, b[5], None),
+        (0x4100_2260, b[0], None),
+        (0x4100_2261, b[1], None),
+        (0x4100_2262, b[2], None),
     ]
 }
 
@@ -100,9 +122,78 @@ fn swaps() -> Vec<Swap> {
         text_buttons(0x4100_1A86, 0x4100_1A87, 0x4100_1A88, 0x4100_1A89),
         text_buttons(0x4100_1EBB, 0x4100_1EBC, 0x4100_1EBD, 0x4100_1EBE),
         text_buttons(0x4100_25E7, 0x4100_25E8, 0x4100_25E9, 0x4100_25EA),
+        // The gold, green and grey families (no ghosted image of their own: the pressed one
+        // twice, harmless).
+        text_buttons(0x4100_1A8A, 0x4100_1A8B, 0x4100_1A8C, 0x4100_1A8D),
+        text_buttons(0x4100_1A8E, 0x4100_1A8F, 0x4100_1A90, 0x4100_1A90),
+        text_buttons(0x4100_23D4, 0x4100_23D5, 0x4100_2468, 0x4100_2468),
+        text_buttons(0x4100_3AD1, 0x4100_3AD2, 0x4100_3AD3, 0x4100_3AD3),
+        text_buttons(0x4100_631E, 0x4100_631F, 0x4100_6320, 0x4100_6321),
     ] {
         all.extend(family);
     }
+    let a = art::WIN_ARROW;
+    // Drawn to the arrow's whole box (retail's arrows tile otherwise).
+    const STRETCH: Option<(u32, i32)> = Some((NINE_SLICE, 0));
+    let row = Some((NINE_SLICE, art::WIN_ROW_BORDER));
+    all.extend([
+        // The page arrows (right, left), the pets' mode arrows (left, right), the spinners' (up,
+        // down) and the fold arrows (down, up): gold chevrons.
+        (0x4100_25DF, a[2], STRETCH),
+        (0x4100_25E0, a[3], STRETCH),
+        (0x4100_25E1, a[3], STRETCH),
+        (0x4100_25E2, a[2], STRETCH),
+        (0x4100_25E3, a[0], STRETCH),
+        (0x4100_25E4, a[1], STRETCH),
+        (0x4100_25E5, a[1], STRETCH),
+        (0x4100_25E6, a[0], STRETCH),
+        (0x4100_9F1C, a[0], STRETCH),
+        (0x4100_9F1D, a[1], STRETCH),
+        (0x4100_9F1E, a[2], STRETCH),
+        (0x4100_9F1F, a[3], STRETCH),
+        (0x4100_7FDF, a[4], STRETCH),
+        (0x4100_7FE0, a[5], STRETCH),
+        (0x4100_7FE1, a[4], STRETCH),
+        (0x4100_7FE2, a[6], STRETCH),
+        (0x4100_7FE3, a[7], STRETCH),
+        (0x4100_7FE4, a[6], STRETCH),
+        (0x4100_1D4E, a[6], STRETCH),
+        (0x4100_1D4F, a[7], STRETCH),
+        (0x4100_1D50, a[4], STRETCH),
+        (0x4100_1D51, a[5], STRETCH),
+        // The store's and consignments' page arrows (left, right: normal, lit, pressed, ghosted).
+        (0x4100_877C, a[0], STRETCH),
+        (0x4100_877D, a[1], STRETCH),
+        (0x4100_877E, a[1], STRETCH),
+        (0x4100_877F, a[0], STRETCH),
+        (0x4100_8780, a[2], STRETCH),
+        (0x4100_8781, a[3], STRETCH),
+        (0x4100_8782, a[3], STRETCH),
+        (0x4100_8783, a[2], STRETCH),
+        // The small check box (clear, ticked).
+        (0x4100_6649, art::WIN_CHECK, None),
+        (0x4100_6648, art::WIN_CHECK_ON, None),
+        // List rows: plain, chosen.
+        (0x4100_2B31, art::WIN_ROW, row),
+        (0x4100_2B32, art::WIN_ROW_SEL, row),
+        (0x4100_70AB, art::WIN_ROW, row),
+        (0x4100_70AC, art::WIN_ROW_SEL, row),
+    ]);
+    all.extend(dialog_border());
+    all.extend([
+        (0x4100_225F, art::WIN_PANEL, PANEL),
+        (0x4100_23AD, art::WIN_PANEL, PANEL),
+        (0x4100_8468, art::WIN_STORE, None),
+        (0x4100_87C5, art::WIN_CATALOG, None),
+        (0x4100_8C0C, art::WIN_NEW_SALE, None),
+        (0x4100_7FDA, art::WIN_INGREDIENTS_TOP, None),
+        (0x4100_7FDB, art::WIN_INGREDIENTS_FOOT, None),
+        (0x4100_6F0B, art::WIN_BOOK_TOP, None),
+        (0x4100_7F70, art::WIN_BOOK_PAGE, None),
+        (0x4100_7F71, art::WIN_BOOK_FOOT, None),
+        (0x4100_866A, art::WIN_BOOK_DARK, None),
+        (0x4100_8C80, art::WIN_PRICE, None),
+    ]);
     all.extend(well(0x4100_2251));
     all.extend(well(0x4100_2B33));
     // The scroll bar (not its `0x410002BA`, the close button's lit image above).

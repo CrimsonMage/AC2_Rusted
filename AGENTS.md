@@ -289,7 +289,13 @@ game rules and server-visible behaviour exactly retail.
   stone line; the tabs' caps, tabs in a fine line (gold for the chosen one); the four families of
   blue text buttons, bronze pills (gold when lit, faint when ghosted); the check box, a dark well
   with a gold tick; the expander and drop-down arrows, gold chevrons; the rule, a fine line; the
-  wells' eight pieces, dark wells; the blue scroll bar, the thin one. Retail tiled its header bar
+  wells' eight pieces, dark wells; the dialogs', pets' and fellows' translucent fill and bronze
+  border, and the secure trade's frame, the glass in the bevel; the whole-window frames of the
+  store, consignments, catalog, new sale, ingredients and book, redrawn at their own sizes with
+  their wells where retail's were (retail's light title boxes, which hold dark text, as parchment
+  strips; the book's page as parchment); the green, gold and grey button families, pills too;
+  the page, spinner and fold arrows, gold chevrons; the list rows, clear, the chosen one in a gold
+  ring; the blue scroll bar, the thin one. Retail tiled its header bar
   (`0x410002CD`, `0x410011FC`) down the room under a side panel's window; that room is left
   empty. The inventory drawer, the loot window and the stack dialog keep their own design.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
