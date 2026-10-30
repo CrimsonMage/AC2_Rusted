@@ -4483,7 +4483,7 @@ key	status	note
 004de6d0	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 004de6e0	x	terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 004de6f0	x	terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
-004de700	_	PhysicsBody::add_impulse_local / PhysicsObj::add_impulse_local: the vector through Frame::local_to_global_vec into AddImpulse; tested
+004de700	x	PhysicsBody::add_impulse_local / PhysicsObj::add_impulse_local: the vector through Frame::local_to_global_vec into AddImpulse; tested
 004de780	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004de7b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3); PhysicsObj::do_element sets m_bElementChanged and set_animation_active on a new element
 004de800	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
@@ -4497,7 +4497,7 @@ key	status	note
 004de980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de990	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de9a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004de9b0	_	PhysicsBody::mode (the mode tracker desired mode)
+004de9b0	x	PhysicsBody::mode (the mode tracker desired mode)
 004de9c0	x	ac2-physics physics_obj_contact.rs is_doing_behavior (ModeTracker::IsDoingBehavior, false when the body cannot animate)
 004de9d0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de9e0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
@@ -4506,7 +4506,7 @@ key	status	note
 004dea10	x	CPhysicsObj::IsMovingTo - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004dea20	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004dea30	x	ac2-physics PhysicsBody::last_do_motion_values
-004dea50	_	PhysicsBody::remote_do_motion_values: the newest queued position do-motion while interpolating, else zero (InterpolationManager::last_received_motion); tested
+004dea50	x	PhysicsBody::remote_do_motion_values: the newest queued position do-motion while interpolating, else zero (InterpolationManager::last_received_motion); tested
 004dea70	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
 004deab0	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
 004deac0	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
@@ -4553,7 +4553,7 @@ key	status	note
 004df6e0	x	
 004df700	x	
 004df710	x	ac2-physics interp (slice 3)
-004df740	_	PhysicsObj::velocity_rail = None (SetVelocityRail sets Some; MoveToManager clears it)
+004df740	x	PhysicsObj::velocity_rail = None (SetVelocityRail sets Some; MoveToManager clears it)
 004df750	x	
 004dfa20	x	
 004dfa90	x	
@@ -4568,7 +4568,7 @@ key	status	note
 004e01a0	-	admin/debug or text-file tooling
 004e0200	x	ac2-render selection.rs: the ray into the object local space (drawing frame and scale), then every drawn part mesh triangle (skinned parts at their group matrix), nearest fraction. The potential list, selectability, LookAtSelection and own-item checks are the picking callers (SmartBox), not CPhysicsObj::TraceRay
 004e0380	-	state-bit flag accessor
-004e0410	_	ICPhysicsObj::GetObjectA / CPhysicsObj::GetObjectA is the ObjectLookup trait (physics_obj_missile.rs) over the remotes and the player
+004e0410	x	ICPhysicsObj::GetObjectA / CPhysicsObj::GetObjectA is the ObjectLookup trait (physics_obj_missile.rs) over the remotes and the player
 004e0430	x	The body-to-weenie pointer is not kept: weenie data is keyed by object id (ac2-weenie objects.rs), physics bodies carry no CWeenieObject pointer
 004e0440	x	the caller resolves the parent chain: ObjectView carries the top-level object's position, scale and height
 004e0450	-	state-bit flag accessor
@@ -4649,7 +4649,7 @@ key	status	note
 004e1bf0	x	PhysicsBody::current_properties plus physics_material_id (no direct retail callers; tooling accessor)
 004e1c30	x	ac2-script host/body_state.rs inq_current_properties (efun 0x0080004A) over BodySnapshot.properties = the body's cell material (ac2-physics cell_material, set by UpdateCellMaterial); answers 0 with none; unit-tested
 004e1c60	x	InqCurrentProperty reads the cell material's property (m_pCellMaterial): PhysicsBody::cell_material; BuildOptionalProperties is not used by the client (see its row)
-004e1c90	~	PhysicsObj::object_info_state and transition_to: state, contact plane, sliding, stationary frames, free-rotate and (new) PATH_CLIPPED_OI for a missile body; no admin moves in the client; tested
+004e1c90	x	PhysicsObj::object_info_state and transition_to: state, contact plane, sliding, stationary frames, free-rotate and (new) PATH_CLIPPED_OI for a missile body; no admin moves in the client; tested
 004e1d70	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004e1eb0	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004e1f70	x	ac2-physics physics_obj_state.rs update_gravity (property 0x80000001 vector); run from set_position_checked via update_cell_material
@@ -4724,24 +4724,24 @@ key	status	note
 004e3310	x	ac2-physics interp (slice 3)
 004e3350	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 004e33d0	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
-004e3510	_	PhysicsBody::move_to (MoveToEvent, then the movement becomes active when it started); recv_move_to is the player-only RecvEvt_MoveTo
+004e3510	x	PhysicsBody::move_to (MoveToEvent, then the movement becomes active when it started); recv_move_to is the player-only RecvEvt_MoveTo
 004e3550	-	unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 004e35f0	x	ac2-physics physics_obj_conflict.rs; ICPhysicsObj 0x20c Interpermiable, 0x210 CheckIfSolid, 0x204 AddToTempEtherealList; wired through PhysicsBody::set_collision_state (the player's SetCollisionState in ac2-client)
 004e36a0	x	ac2-physics physics_obj_missile.rs object_offset_pos: height fraction + scaled offset turned by the frame, environment-only LOS against the terrain (the top-level object is resolved by the caller's ObjectView)
-004e39b0	_	detection-manager only (DoIntersection), unreachable in 7160
+004e39b0	-	detection-manager only (DoIntersection), unreachable in 7160
 004e3a50	x	ac2-physics los/objects.rs check_ray_intersect: IsBlocking(m_weenie_LOS, m_physics_LOS) first (collision_types::is_blocking, with LosParameters::set_los_params / set_blocked_by_water holding the sets, empty by default so every object blocks), over the shadow objects of a cell: static scenery and the server objects (StaticObject with an instance id and blocking mask); tested
 004e3a70	x	ac2-smartbox target_hub.rs TargetHub target_id / target_quantum / target_info / receive_target_update / add_voyeur / remove_voyeur over ac2-physics TargetManager (manager made on first use, unknown object ignored); tested
 004e3aa0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-004e3b90	~	PhysicsObj::calc_element; the null-cell DoElement(GROUND) is unreachable (callers run in the world)
+004e3b90	x	PhysicsObj::calc_element; the null-cell DoElement(GROUND) is unreachable (callers run in the world)
 004e3e20	x	ac2-physics physics_obj_forces.rs calc_external_forces over the collision manager's pushers (UpdatePusherValues); the pusher sums are kept as m_vVelocityField/m_vAccelerationField. Pusher properties come from the touched object's CollidePropertyList (AddPusherProperties), not from the object's own physics material
-004e4170	~	PhysicsObj::object_info_state and transition_to: state, contact plane, sliding, stationary frames, free-rotate and (new) PATH_CLIPPED_OI for a missile body; no admin moves in the client; tested
+004e4170	x	PhysicsObj::object_info_state and transition_to: state, contact plane, sliding, stationary frames, free-rotate and (new) PATH_CLIPPED_OI for a missile body; no admin moves in the client; tested
 004e4280	-	render plumbing
 004e42f0	-	state-bit flag accessor
 004e4310	_	needs port: cite-only physics-object method
 004e4360	_	needs port: cite-only physics-object method
 004e43b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e4410	x	CPhysicsObj::SetPlacementFrame - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
-004e4430	~	PhysicsObj::set_velocity_culled (F_EPSILON change test, CullVelocity, movement active) now behind PhysicsBody::set_velocity, kill_velocity and the impulse trigger; tested
+004e4430	x	PhysicsObj::set_velocity_culled (F_EPSILON change test, CullVelocity, movement active) now behind PhysicsBody::set_velocity, kill_velocity and the impulse trigger; tested
 004e44e0	x	
 004e4580	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e4590	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
@@ -4749,7 +4749,7 @@ key	status	note
 004e4640	x	ac2-physics PhysicsBody::own_total_scale x ChildGraph::total_scale / scaled_by_parent (parent chain and m_fChildScale = 1.0); the client view scales a held object by its holder's total scale
 004e4730	x	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 004e47d0	x	ac2-physics physics_obj_state.rs clear_transient_states (contact, water, walkable + LeaveGround, sliding, stationary, activity, landscape contact)
-004e4880	~	PhysicsBody::misc_can_be_inactive (the detection manager is never made in 7160); only bookkeeping bits depend on it
+004e4880	x	PhysicsBody::misc_can_be_inactive (the detection manager is never made in 7160); only bookkeeping bits depend on it
 004e48e0	x	CPhysicsObj::ShouldMuteSound - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e4960	x	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
 004e49b0	x	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
@@ -4797,7 +4797,7 @@ key	status	note
 004e6c30	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
 004e6c40	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
 004e6c50	x	PhysicsObj::do_mode, plus the child tail (Remotes::children_do_mode -> PhysicsBody::follow_holder_mode; tested); the weenie hook is CWPhysicsObject::Notify_DoMode (ac2-weenie rows)
-004e6d00	_	animation events ModeDone/BehaviorDone reach the story manager and scripts (client_story.rs, client_latent.rs)
+004e6d00	x	animation events ModeDone/BehaviorDone reach the story manager and scripts (client_story.rs, client_latent.rs)
 004e6d20	x	ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
 004e6d60	x	ported on PhysicsBody (ac2-physics missile_initialize, missile_request, inquire_direction ..., physics_obj_missile.rs) and tested; the only callers are the gCWPhysicsObject::CallEFun_Missile* efuns, which no Legions wlib function calls (ac2-weenie.md rows), so no script reaches them and nothing binds them. Server-launched missiles (DoStory) take the same body methods
 004e6da0	x	ported on PhysicsBody (ac2-physics missile_initialize, missile_request, inquire_direction ..., physics_obj_missile.rs) and tested; the only callers are the gCWPhysicsObject::CallEFun_Missile* efuns, which no Legions wlib function calls (ac2-weenie.md rows), so no script reaches them and nothing binds them. Server-launched missiles (DoStory) take the same body methods
@@ -4819,16 +4819,16 @@ key	status	note
 004e8850	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e88a0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e88e0	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
-004e88f0	_	admin-only: no Legions body and no caller in either build (no efun); the valid-modes list (DB 0x40000039) is never read
-004e8950	_	admin-only: no Legions body and no caller in either build (no efun); the valid-modes list (DB 0x40000039) is never read
+004e88f0	-	admin-only: no Legions body and no caller in either build (no efun); the valid-modes list (DB 0x40000039) is never read
+004e8950	-	admin-only: no Legions body and no caller in either build (no efun); the valid-modes list (DB 0x40000039) is never read
 004e89c0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e8a40	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e8ac0	_	PhysicsBody::set_motion_desc (SetMIDESC) over the loader-decoded description
+004e8ac0	x	PhysicsBody::set_motion_desc (SetMIDESC) over the loader-decoded description
 004e8ae0	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
 004e8b00	x	ac2-smartbox fx_manager.rs Remotes::set_children_opacity: opacity slider 0x40000015 on each child, tested
 004e8b60	x	ac2-smartbox fx_manager.rs Remotes::do_slider_on_child: DoSlider(0, slider, scalar, ramp) on each direct child, tested
 004e8bc0	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-004e8d10	~	StoryManager in ac2-physics story.rs, driven by client_story.rs
+004e8d10	x	StoryManager in ac2-physics story.rs, driven by client_story.rs
 004e8d50	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
 004e8d80	x	ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
 004e8de0	x	PhysicsBody::recv_retarget_missile ports it. No wire event reaches it: ECM_Physics has no RecvEvt_RetargetMissile in either build, the slot (0x614) has no call site, and its only users are the script efuns (gCWPhysicsObject::CallEFun_MissileRetarget) that no wlib function calls, so there is no opcode to decode
@@ -4843,21 +4843,21 @@ key	status	note
 004e92b0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e92e0	x	ac2-physics PhysicsBody::set_report_collisions: off ends every reported record (ReportCollisions(1)) and clears REPORT_COLLISIONS_PS, on sets it and runs a plain report; the report gate is now reports_collisions() (slot 0x248), so a body without the bit begins nothing; tested. Its only caller, the gCWPhysicsObject::_SetReportCollisions efun, is never called by the Legions wlib, so the bit comes from the server state
 004e9510	-	unreachable in the Legions client: AddToLOSList only feeds the detection manager (DetectionBlockType::AddObject), which is made only by CPhysicsObj::DoIntersection, whose callers are the DoIntersection efun that no Legions wlib function calls (see the CDetectionManager rows)
-004e9700	~	PhysicsObj::update_animation (anim_pose.rs): update step and frame, LookAtManager::Update in the update frame before the sliders (moved there to match retail), slider and FX-script trackers, acceleration into anim velocity, ModeTracker::Update, trigger firing (FX and weenie hooks as events, impulses); UpdateFX is the client FX step
-004e9bb0	_	ReportCollisions per quantum (PhysicsBody::report_collisions via Client::world_manager_update and Remotes::step_quantum); CDetectionManager::CheckDetection is never reached in 7160
+004e9700	x	PhysicsObj::update_animation (anim_pose.rs): update step and frame, LookAtManager::Update in the update frame before the sliders (moved there to match retail), slider and FX-script trackers, acceleration into anim velocity, ModeTracker::Update, trigger firing (FX and weenie hooks as events, impulses); UpdateFX is the client FX step
+004e9bb0	x	ReportCollisions per quantum (PhysicsBody::report_collisions via Client::world_manager_update and Remotes::step_quantum); CDetectionManager::CheckDetection is never reached in 7160
 004e9be0	_	needs port: cite-only physics-object method
 004e9d30	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
 004ea290	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
-004ea490	~	CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior
+004ea490	x	CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior
 004ea500	~	ac2-physics do_behavior with mPropagate to the children (Remotes::children_do_behavior -> follow_holder_behavior; tested); not carried: m_iidFXTarget and mVDescToClone (FX target, cloned appearance), which need FX-target plumbing through the StartFx event
 004ea670	-	unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
-004ea780	~	PhysicsObj::update_movement_internal: missile update, UpdatePositionInternal, F_EPSILON gate, path-aligned heading (set_vector_heading of the velocity), transition_to; TargetManager::HandleTargetting is TargetHub::handle_targetting
+004ea780	x	PhysicsObj::update_movement_internal: missile update, UpdatePositionInternal, F_EPSILON gate, path-aligned heading (set_vector_heading of the velocity), transition_to; TargetManager::HandleTargetting is TargetHub::handle_targetting
 004ea990	~	ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
 004ea9f0	_	needs port: cite-only physics-object method
 004eaa30	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004eab90	-	C++ constructor/destructor; Rust constructor and Drop replace it
-004ead40	_	PhysicsBody::position (m_position, its frame); the body is keyed by its owner (remotes / session) by id
+004ead40	x	PhysicsBody::position (m_position, its frame); the body is keyed by its owner (remotes / session) by id
 004ead60	x	ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 004ead70	-	admin/debug or text-file tooling
 004ead80	-	admin/debug or text-file tooling
@@ -4870,7 +4870,7 @@ key	status	note
 004eae20	x	CPhysicsObj::IsInWorld - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004eae30	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004eae40	-	the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
-004eae50	_	PhysicsBody::position (m_position, its frame); the body is keyed by its owner (remotes / session) by id
+004eae50	x	PhysicsBody::position (m_position, its frame); the body is keyed by its owner (remotes / session) by id
 004eae60	-	state-bit flag accessor
 004eae70	-	state-bit flag accessor
 004eae80	x	ac2-physics PhysicsBody::is_static
@@ -4928,7 +4928,7 @@ key	status	note
 004eb260	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004eb280	-	unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 004eb320	-	unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
-004eb370	~	PhysicsObj::update_movement_in (frozen/mobile gate, previous and anim position saves) with the player-distance range check each quantum in Remotes::step_quantum (Remote::update_physics_range; out of range does not step); parents/missiles handled by their own paths
+004eb370	x	PhysicsObj::update_movement_in (frozen/mobile gate, previous and anim position saves) with the player-distance range check each quantum in Remotes::step_quantum (Remote::update_physics_range; out of range does not step); parents/missiles handled by their own paths
 004eb4c0	_	needs port: cite-only physics-object method
 004eb600	-	admin/debug or text-file tooling
 004eb6d0	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
@@ -4939,7 +4939,7 @@ key	status	note
 004ec1a0	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
 004ec230	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
 004ec290	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
-004ec310	~	structural: the TriggerUpdate is owned by the mode tracker (ac2-anim ModeTracker::triggers_mut), made at creation
+004ec310	x	structural: the TriggerUpdate is owned by the mode tracker (ac2-anim ModeTracker::triggers_mut), made at creation
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec400	~	the bookie part only
 004ec4a0	-	STL/MSVC or archive template helper; Rust collections replace it
@@ -5048,8 +5048,8 @@ key	status	note
 004f0d10	-	render plumbing
 004f0d40	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f0de0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
-004f10c0	_	BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
-004f10e0	_	PhysicsBody::set_motion_desc / MotionInterp::set_desc; CompareAndModify (vdesc change) is its own row
+004f10c0	x	BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
+004f10e0	x	PhysicsBody::set_motion_desc / MotionInterp::set_desc; CompareAndModify (vdesc change) is its own row
 004f1140	_	needs port: cite-only physics-object method
 004f1170	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1190	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -5073,13 +5073,13 @@ key	status	note
 004f14e0	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
 004f14f0	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
 004f1500	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
-004f1510	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
+004f1510	x	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 004f1540	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1560	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1580	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f15a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004f15c0	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
-004f15d0	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
+004f15c0	x	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
+004f15d0	x	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 004f15e0	x	ac2-physics moveto/manager.rs HandleMoveToCallback results via PhysicsBody::take_move_to_results
 004f15f0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1610	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -5112,10 +5112,10 @@ key	status	note
 004f1950	-	the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 004f1970	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f19d0	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
-004f1a00	~	structural: the TriggerUpdate is owned by the mode tracker (ac2-anim ModeTracker::triggers_mut), made at creation
+004f1a00	x	structural: the TriggerUpdate is owned by the mode tracker (ac2-anim ModeTracker::triggers_mut), made at creation
 004f1a20	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 004f1a40	x	ac2-physics PhysicsBody::is_sliding_down / local_velocity
-004f1a70	_	ModeTracker::start_transitioning: transition_cvel = 1 / mode_transition_ramp_time
+004f1a70	x	ModeTracker::start_transitioning: transition_cvel = 1 / mode_transition_ramp_time
 004f1ad0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1b90	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -5123,7 +5123,7 @@ key	status	note
 004f1cb0	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004f1d10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1d70	~	Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
-004f1da0	~	fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
+004f1da0	x	fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
 004f1db0	x	ac2-physics body_parts.rs (PhysicsBody over its part-group tree) has_bone_type (FindMatrixForBoneType into a temporary)
 004f1dd0	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 004f1de0	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first); PartGroupTree::get_holding_location over the live tree
@@ -5157,11 +5157,11 @@ key	status	note
 004f2170	x	ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
 004f2180	x	ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
 004f2190	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-004f21a0	_	repulsors are not modelled (ParticleEmitter::DoRepulse is skipped: placed systems never move)
+004f21a0	-	repulsors are not modelled (ParticleEmitter::DoRepulse is skipped: placed systems never move)
 004f21b0	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-004f22c0	~	fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
-004f2410	_	ac2-render scene particles destroy (CPartArray::DestroyParticleSystem)
-004f2420	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
+004f22c0	x	fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
+004f2410	x	ac2-render scene particles destroy (CPartArray::DestroyParticleSystem)
+004f2420	x	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 004f2440	~	ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
 004f2540	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -5171,16 +5171,16 @@ key	status	note
 004f25e0	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f2620	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-004f2690	~	PHYSICSOBJREP::DoFX is the StartFx animation event, played by the client FX objects
+004f2690	x	PHYSICSOBJREP::DoFX is the StartFx animation event, played by the client FX objects
 004f26c0	-	unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
 004f26f0	x	vdescToClone belongs to retarget clones (DoTargetAndCloningFXs), not ported there; no separate accessor needed
-004f2710	_	the cloned appearance (m_clonedAprID, m_clonedAppAprHash) is set only by a behaviour mVDescToClone, which the client does not carry
+004f2710	-	the cloned appearance (m_clonedAprID, m_clonedAppAprHash) is set only by a behaviour mVDescToClone, which the client does not carry
 004f2730	x	PHYSICSOBJREP::StopFX - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-004f2750	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
-004f2770	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
+004f2750	x	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
+004f2770	x	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 004f2780	x	PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
 004f2790	x	PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
-004f27a0	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
+004f27a0	x	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 004f27d0	-	unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
 004f27e0	-	unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
 004f2800	-	render plumbing
@@ -5201,24 +5201,24 @@ key	status	note
 004f2df0	x	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
 004f2e70	~	ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 004f3280	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-004f3460	_	debug-only file name of the base Setup
-004f3510	~	client_fx_objects.rs start_startup_fx: lights, sounds, objects and decals once per object (the rest is the FXManager::DoStartupFX row)
-004f35f0	_	structural: the loader shares the decoded Setup/table by Arc (the shared rep) and each PhysicsBody is made with its animation; startup FX at InitObjectEnd
-004f36a0	~	anim_pose.rs: the behaviour table layer count and tweak layers go to Ac2Compositor::pose
+004f3460	-	debug-only file name of the base Setup
+004f3510	x	client_fx_objects.rs start_startup_fx: lights, sounds, objects and decals once per object (the rest is the FXManager::DoStartupFX row)
+004f35f0	x	structural: the loader shares the decoded Setup/table by Arc (the shared rep) and each PhysicsBody is made with its animation; startup FX at InitObjectEnd
+004f36a0	x	anim_pose.rs: the behaviour table layer count and tweak layers go to Ac2Compositor::pose
 004f3800	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f3a00	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f3ad0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004f3b10	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f3c60	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 004f3f60	-	C++ constructor/destructor; Rust constructor and Drop replace it
-004f4020	_	the cloned appearance (m_clonedAprID, m_clonedAppAprHash) is set only by a behaviour mVDescToClone, which the client does not carry
+004f4020	-	the cloned appearance (m_clonedAprID, m_clonedAppAprHash) is set only by a behaviour mVDescToClone, which the client does not carry
 004f4090	x	PHYSICSOBJREP::InitFXManager - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f4240	x	PHYSICSOBJREP::InitVisualDescObject - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f4300	x	Part tree built from a DID / VisualDesc: ac2-physics part_load::load_part_group_tree (PartGroupTree::init_visual_desc, CPartGroup::InitSetup for a Setup DID); a changed description is a new total description (ac2_assets::total_visual_desc) drawn by ac2-render; AssemblePartGroupObject = PhysicsBody::new + init_object_begin + load
-004f4360	_	part group follows a new description (PartGroup::compare_and_modify), the MIDESC change is request_motion_desc; a runtime change of the behaviour table or scales on a live body is not applied (bodies animate with their creation-time table)
+004f4360	~	part group follows a new description (PartGroup::compare_and_modify), the MIDESC change is request_motion_desc; a runtime change of the behaviour table or scales on a live body is not applied (bodies animate with their creation-time table)
 004f4400	x	PHYSICSOBJREP::InitVisualDescObject - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f44c0	x	Part tree built from a DID / VisualDesc: ac2-physics part_load::load_part_group_tree (PartGroupTree::init_visual_desc, CPartGroup::InitSetup for a Setup DID); a changed description is a new total description (ac2_assets::total_visual_desc) drawn by ac2-render; AssemblePartGroupObject = PhysicsBody::new + init_object_begin + load
-004f4510	_	structural: the loader shares the decoded Setup/table by Arc (the shared rep) and each PhysicsBody is made with its animation; startup FX at InitObjectEnd
+004f4510	x	structural: the loader shares the decoded Setup/table by Arc (the shared rep) and each PhysicsBody is made with its animation; startup FX at InitObjectEnd
 004f45e0	x	ac2-physics part_group.rs (CPartGroup tree in an arena) init_setup (SetSetupID then InitInternal)
 004f4610	x	ac2-render object/skeleton.rs (render-side bones)
 004f4670	x	ac2-physics los (Terrain::los_check)
@@ -5477,27 +5477,27 @@ key	status	note
 00509220	~	ac2-client client_fx_objects.rs start_startup_fx drives ac2-smartbox fx_objects start_startup (objects made without a sound device, recorded as startup so StopFX leaves them); node sounds (DoSoundFX, no day/night filter) and lights (DoLightSourceFX, LightSourceEffects gated) play with a sound device. Not ported: streak (PHYSICSOBJREP::CreateStreakEffect), decal (DoDecalFX) and repulsor (CreateParticleRepulsor) nodes, which need render support; the light-fails-skips-vdesc branch; the shared rep particle branch (ApplyStartupFX with no object)
 00509440	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00509480	-	C++ constructor/destructor; Rust constructor and Drop replace it
-005094a0	_	the player id is Client.player.id; Remotes::step_quantum takes (id, ObjectView) of the player as ICPhysicsObj::player_id
-005094c0	_	the handler is replaced by the client loop: SmartBox::PlayerPhysicsUpdatedCallback work runs inline per quantum/frame (client.rs world_manager_update)
+005094a0	x	the player id is Client.player.id; Remotes::step_quantum takes (id, ObjectView) of the player as ICPhysicsObj::player_id
+005094c0	x	the handler is replaced by the client loop: SmartBox::PlayerPhysicsUpdatedCallback work runs inline per quantum/frame (client.rs world_manager_update)
 005094d0	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
 005094f0	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
 00509520	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
 00509550	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
-00509580	_	ICPhysicsObj::GetObjectA / CPhysicsObj::GetObjectA is the ObjectLookup trait (physics_obj_missile.rs) over the remotes and the player
+00509580	x	ICPhysicsObj::GetObjectA / CPhysicsObj::GetObjectA is the ObjectLookup trait (physics_obj_missile.rs) over the remotes and the player
 005095a0	x	ICPhysicsObj::IncrementGlobalPhysicsTimeStamp - ICPhysicsObj::IncrementGlobalPhysicsTimeStamp, ac2-physics transition/mod.rs
 005095b0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-00509610	_	MotionInterp::new over the loader-decoded Ac2MotionInterpDesc (CMotionInterpFactory::Create + Init); heading, mCanAnimate (AnimRep::can_animate) and the MoveToManager/InterpolationManager live in PhysicsObj
-00509630	_	MotionInterp::new over the loader-decoded Ac2MotionInterpDesc (CMotionInterpFactory::Create + Init); heading, mCanAnimate (AnimRep::can_animate) and the MoveToManager/InterpolationManager live in PhysicsObj
+00509610	x	MotionInterp::new over the loader-decoded Ac2MotionInterpDesc (CMotionInterpFactory::Create + Init); heading, mCanAnimate (AnimRep::can_animate) and the MoveToManager/InterpolationManager live in PhysicsObj
+00509630	x	MotionInterp::new over the loader-decoded Ac2MotionInterpDesc (CMotionInterpFactory::Create + Init); heading, mCanAnimate (AnimRep::can_animate) and the MoveToManager/InterpolationManager live in PhysicsObj
 005096c0	x	SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
-00509720	_	AnimRep::can_animate / the rep table (the behaviour table id forwarded through the interpreter)
-00509730	_	structural: the interpreter lives inside its PhysicsObj, which is the PHYSICSOBJREP; no separate pointer to set or read
+00509720	x	AnimRep::can_animate / the rep table (the behaviour table id forwarded through the interpreter)
+00509730	x	structural: the interpreter lives inside its PhysicsObj, which is the PHYSICSOBJREP; no separate pointer to set or read
 00509770	x	ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-00509780	_	structural: the interpreter lives inside its PhysicsObj, which is the PHYSICSOBJREP; no separate pointer to set or read
+00509780	x	structural: the interpreter lives inside its PhysicsObj, which is the PHYSICSOBJREP; no separate pointer to set or read
 00509790	x	
 005097b0	x	
 005097d0	x	ac2-physics moveto (slice 3)
 005097e0	x	ac2-physics MovementState turning_to / turn_to_degrees
-005097f0	_	MoveToManager::m_persistent_target_reached is only ever cleared in 7160, so this always answers 0
+005097f0	-	MoveToManager::m_persistent_target_reached is only ever cleared in 7160, so this always answers 0
 00509800	x	ac2-physics interp (slice 3)
 00509910	x	CMotionInterp::GetDesiredModeState - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 00509930	x	ac2-physics moveto (slice 3)
@@ -5506,18 +5506,18 @@ key	status	note
 00509970	x	CMotionInterp::HandleMoveToCallback - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 00509980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00509a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-00509a60	_	standard_motion_values().max_forward_velocity (MotionInterp::standard_motion_values; used for the collision impact minimum)
-00509a70	_	mLocalDesiredVel is assigned in MotionInterp::update_movement / local_desired_for; no caller outside the interpreter
+00509a60	x	standard_motion_values().max_forward_velocity (MotionInterp::standard_motion_values; used for the collision impact minimum)
+00509a70	x	mLocalDesiredVel is assigned in MotionInterp::update_movement / local_desired_for; no caller outside the interpreter
 00509a90	x	
 00509aa0	x	CMotionInterp::ResetHoverHeight - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 00509ab0	x	
-00509ae0	_	PhysicsBody::default_hover_height
+00509ae0	x	PhysicsBody::default_hover_height
 00509af0	x	
 00509b40	x	
 00509b70	x	teleport start: StopInterpolating, UnConstrain, inc_update_time(TELEPORT) on the player (client_teleport.rs, ac2-weenie inc_player_update_time)
-00509b80	_	PhysicsBody::is_interpolating
-00509ba0	_	PhysicsBody::remote_do_motion_values: the newest queued position do-motion while interpolating, else zero (InterpolationManager::last_received_motion); tested
-00509bc0	_	the manager is made on first use in PhysicsObj::interpolate_to / interpolate_and_impulse (get_or_insert_with)
+00509b80	x	PhysicsBody::is_interpolating
+00509ba0	x	PhysicsBody::remote_do_motion_values: the newest queued position do-motion while interpolating, else zero (InterpolationManager::last_received_motion); tested
+00509bc0	x	the manager is made on first use in PhysicsObj::interpolate_to / interpolate_and_impulse (get_or_insert_with)
 00509bf0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 00509c90	x	PhysicsBody::leave_world: slots 0x54/0x78/0x84 verified in the Legions CMotionInterp vtable as MoveToManager::Interrupt, InterpolationManager::StopInterpolating and the constraint reset; then clear_transient_states; called by Remotes::leave_world; tested
 00509cb0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
@@ -5532,7 +5532,7 @@ key	status	note
 0050a290	x	ac2-physics interp (slice 3)
 0050a420	x	ac2-physics interp (slice 3)
 0050a480	x	ac2-physics interp (slice 3)
-0050a4f0	~	MotionInterp::update_movement with its managers run first (interpolation, the player MoveToManager) in PhysicsObj::update_movement_offset; behaviours in motion_interp_behaviors.rs (move, falls, skid, land, swim dive)
+0050a4f0	x	MotionInterp::update_movement with its managers run first (interpolation, the player MoveToManager) in PhysicsObj::update_movement_offset; behaviours in motion_interp_behaviors.rs (move, falls, skid, land, swim dive)
 0050b080	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 0050b230	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 0050b470	x	
@@ -5547,12 +5547,12 @@ key	status	note
 0050b7d0	x	ac2-physics MovementState turning_to / turn_to_degrees
 0050b7f0	x	
 0050b800	x	
-0050b810	_	MotionInterp::acceleration_scale
+0050b810	x	MotionInterp::acceleration_scale
 0050b820	x	
 0050b990	x	ac2-physics interp (slice 3)
 0050ba00	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 0050ba30	-	back-pointer plumbing: the Rust MoveToManager and InterpolationManager are owned by the body they serve (moveto/manager.rs, interp/manager.rs)
-0050ba70	~	Client::track_move_to_target resolves the target to its top-level object (links.top_parent) in the world, losing it otherwise
+0050ba70	x	Client::track_move_to_target resolves the target to its top-level object (links.top_parent) in the world, losing it otherwise
 0050bae0	x	ac2-physics moveto (slice 3)
 0050bb30	-	back-pointer plumbing: the Rust MoveToManager and InterpolationManager are owned by the body they serve (moveto/manager.rs, interp/manager.rs)
 0050bbb0	x	ac2-physics moveto (slice 3)
@@ -11461,7 +11461,7 @@ key	status	note
 00638770	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 00638810	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00638880	-	C++ constructor/destructor; Rust constructor and Drop replace it
-006388c0	~	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
+006388c0	x	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
 00638ee0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 00638f40	-	STL internals
 006395a0	-	admin-only dump, save or error report
@@ -12906,7 +12906,7 @@ key	status	note
 0069c500	-	plain field accessor on a runtime record; Rust struct field replaces it
 0069c520	-	plain field accessor on a runtime record; Rust struct field replaces it
 0069c530	-	UI accessor; ac2-ui owns it
-0069c550	~	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
+0069c550	x	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
 0069c6e0	-	plain field accessor on a runtime record; Rust struct field replaces it
 0069c700	-	UI accessor; ac2-ui owns it
 0069c710	-	plain field accessor on a runtime record; Rust struct field replaces it
@@ -13295,17 +13295,17 @@ key	status	note
 006ad960	-	plain field accessor on a runtime record; Rust struct field replaces it
 006ad970	-	plain field accessor on a runtime record; Rust struct field replaces it
 006ad990	-	C++ constructor/destructor; Rust constructor and Drop replace it
-006ad9f0	~	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
+006ad9f0	x	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
 006adb60	x	ac2-physics story.rs is_null: no hooks and no valid attacker behaviour
 006adb80	-	plain field accessor on a runtime record; Rust struct field replaces it
 006ade30	-	STL/MSVC or archive template helper; Rust collections replace it
 006ae140	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006ae1e0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006ae240	-	plain field accessor on a runtime record; Rust struct field replaces it
-006ae260	~	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
+006ae260	x	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
 006ae420	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006ae4d0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-006ae550	~	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
+006ae550	x	unpack only in ac2-net protocol (Legions instruction-identical); the client never packs these
 006ae650	x	ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
 006ae6f0	x	ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
 006ae8c0	x	ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
@@ -15050,10 +15050,10 @@ key	status	note
 00731bf0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 007320f0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 007321b0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-00732200	~	Timer::local_time (session.local_time) is the physics clock; PhysicsClock::advance steps whole quanta from it
+00732200	x	Timer::local_time (session.local_time) is the physics clock; PhysicsClock::advance steps whole quanta from it
 00732210	-	C++ constructor/destructor; Rust constructor and Drop replace it
-00732240	~	Client::world_manager_update runs PhysicsClock::advance quanta: the player body, then CPhysics::UpdateAllPhysics (Remotes::step_quantum)
-00732280	_	Client::world_manager_update steps AnimationClock (PhysicsModule::UpdateAnimation) then Remotes::update_animation / the player body update_animation
+00732240	x	Client::world_manager_update runs PhysicsClock::advance quanta: the player body, then CPhysics::UpdateAllPhysics (Remotes::step_quantum)
+00732280	x	Client::world_manager_update steps AnimationClock (PhysicsModule::UpdateAnimation) then Remotes::update_animation / the player body update_animation
 007322c0	x	PhysicsClock::render_interpolation
 00732380	x	CPhysics::GetObjectA - CPhysics::GetObjectA: object lookup by id, ac2-client client_objects.rs
 00732400	x	Remotes::step_quantum: each in-world remote steps the quantum when in physics range, range from the player checked every quantum (Remote::update_physics_range); an out-of-range client-made (temporary id) object is destroyed (HandleOutOfPhysicsRange); the player steps before it in Client::world_manager_update
