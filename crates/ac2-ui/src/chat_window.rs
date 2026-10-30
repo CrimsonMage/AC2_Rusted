@@ -147,6 +147,21 @@ pub(crate) struct ChatWindow {
     pub faded: bool,
     /// The lines the log has taken (the modern tabs' unread dot).
     pub lines_added: u64,
+    /// The modern style's held view: a log scrolled up keeps its place as lines arrive, and
+    /// `unseen` counts them (the "new below" pill).
+    pub hold_view: bool,
+    pub unseen: u32,
+}
+
+/// Whether the log `log` shows its last line (its view within half a line of the paper's end).
+pub(crate) fn log_at_end(tree: &mut UiTree, log: usize) -> bool {
+    let rect = tree.el(log).rect;
+    let Some(text) = tree.el_mut(log).text.as_mut() else {
+        return true;
+    };
+    text.recalculate(rect.width(), rect.height());
+    let line = text.lines.first().map_or(12, |l| l.height.max(1));
+    text.view.1 + rect.height() >= text.paper.1 - line / 2
 }
 
 /// The time stamp's colour (the design's `#8fa89c`).
@@ -205,6 +220,8 @@ impl ChatWindow {
             line_times: std::collections::VecDeque::new(),
             faded: false,
             lines_added: 0,
+            hold_view: false,
+            unseen: 0,
         };
         window.show(tree, false);
         Some(window)
@@ -371,7 +388,11 @@ impl ChatWindow {
             return;
         };
         let mut popup = false;
+        // The modern held view: whether the player is reading above the log's end.
+        let reading = self.hold_view && !log_at_end(tree, log);
+        let mut added = 0;
         for (text_type, text) in std::mem::take(&mut self.pending) {
+            added += 1;
             let info = self.chat_message_info(text_type);
             popup |= info.popup;
             // The modern font step (`modern_chat_settings`) over the options' size.
@@ -392,7 +413,9 @@ impl ChatWindow {
                 tree.set_state(button, tokenize("changed"));
             }
         }
-        if !self.lock_scroll {
+        if reading {
+            self.unseen += added;
+        } else if !self.lock_scroll {
             tree.scroll_to_end(log);
         }
         if popup {

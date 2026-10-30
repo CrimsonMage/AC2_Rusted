@@ -285,3 +285,45 @@ fn windows_dock_as_tabs_switch_by_tab_and_pop_out() {
     assert!(chat.modern().unwrap().group().is_empty());
     assert!(tree.el(roots[0]).visible);
 }
+
+/// A log scrolled up keeps its place as lines arrive; the pill counts them and scrolls to the end.
+#[test]
+fn a_scrolled_up_log_holds_its_place_and_the_pill_counts_new_lines() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let chat = hud.chat.as_mut().unwrap();
+    let modifiers = crate::chat::Modifiers::default();
+    let root = chat.roots()[0];
+    let window = chat.window_mut(0);
+    let log = window.log.unwrap();
+    window.bitfield = u32::MAX;
+    let say = |window: &mut crate::chat_window::ChatWindow, tree: &mut UiTree, text: &str| {
+        let units: Vec<u16> = format!("{text}\n").encode_utf16().collect();
+        window.display(crate::chat_window::TEXT_TYPE_SAY, &units);
+        window.all_text_to_log(tree);
+    };
+    for n in 0..40 {
+        say(window, tree, &format!("line {n}"));
+    }
+    assert!(crate::chat_window::log_at_end(tree, log));
+    // Scrolled to the top: a new line leaves the view where it is.
+    tree.el_mut(log).text.as_mut().unwrap().view.1 = 0;
+    say(window, tree, "new");
+    assert_eq!(tree.el(log).text.as_ref().unwrap().view.1, 0);
+    assert_eq!(window.unseen, 1);
+    chat.modern_tick(tree, &Names);
+    let pill = part(tree, root, "ModernChatNewPill");
+    assert!(tree.el(pill).visible);
+    assert_eq!(
+        tree.el(part(tree, pill, "ModernChatNewText"))
+            .text()
+            .unwrap(),
+        "1 new below"
+    );
+    chat.message(tree, &press(tree, pill), modifiers);
+    assert!(crate::chat_window::log_at_end(tree, log));
+    chat.modern_tick(tree, &Names);
+    assert!(!tree.el(pill).visible);
+}

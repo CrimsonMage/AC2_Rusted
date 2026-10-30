@@ -251,6 +251,9 @@ game rules and server-visible behaviour exactly retail.
   window key takes the frame, and the settings' Pop out / Dock into tabs moves a window out of or
   into the frame. The frame (`chat.group`, `chat.active`) is kept in the HUD layout; each window
   stands alone by default, as retail.
+  A log the player scrolled up keeps its place as lines arrive (retail's `AllTextToLog` scrolled to
+  the end unless the bar was held) and a pill over its foot counts them (`N new below`); a press
+  on it, or scrolling back down, shows the end.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

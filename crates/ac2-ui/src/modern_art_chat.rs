@@ -25,6 +25,8 @@ pub const CHAT_CLEAR: u32 = 0x7E01_00CC;
 pub const CHAT_TAB_OFF: u32 = 0x7E01_00D1;
 pub const CHAT_ADD: u32 = 0x7E01_00D2;
 pub const CHAT_UNREAD: u32 = 0x7E01_00D3;
+/// The "new below" pill: dark gold (`#3a2c08`) in a gold line, ends round.
+pub const CHAT_NEW_PILL: u32 = 0x7E01_00D4;
 /// The settings popover's glass.
 pub const CHAT_POPOVER: u32 = 0x7E01_00CD;
 /// The log's backing in each tint (`TINTS`' order: teal, black, bronze, blue).
@@ -145,6 +147,16 @@ fn unread() -> UiPixels {
     c.finish()
 }
 
+/// The "new below" pill.
+fn new_pill() -> UiPixels {
+    let (w, h) = (24usize, 18usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 9.0);
+    c.paint(&shape, |_, _, d| (rgb(0x3A2C08, 1.0), inside(d)));
+    c.paint(&shape, |_, _, d| (rgb(0xD9C27A, 1.0), band(d, -1.0, 0.0)));
+    c.finish()
+}
+
 /// A plain fill: `color` at `alpha`, `w` by `h`.
 fn fill(color: u32, alpha: f32) -> UiPixels {
     let mut c = Canvas::new(4, 4);
@@ -260,6 +272,7 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (CHAT_TAB_OFF, tab_off()),
         (CHAT_ADD, add()),
         (CHAT_UNREAD, unread()),
+        (CHAT_NEW_PILL, new_pill()),
         (CHAT_ENTRY_BAR, entry_bar()),
         (CHAT_INPUT, input()),
         (CHAT_PILL, pill()),

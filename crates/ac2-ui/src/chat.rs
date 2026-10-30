@@ -200,6 +200,10 @@ impl ChatUi {
         gameplay: Option<&Arc<LayoutDesc>>,
         layouts: &[&Arc<LayoutDesc>],
     ) {
+        // A scrolled-up log keeps its place as lines arrive (the "new below" pill).
+        for window in &mut self.windows {
+            window.hold_view = true;
+        }
         let roots: Vec<usize> = self.windows.iter().map(|w| w.root).collect();
         self.modern = Some(crate::modern_chat::ModernChat::adopt(
             tree, &roots, gameplay, layouts,
@@ -284,8 +288,19 @@ impl ChatUi {
                 .collect();
         }
         let counts: Vec<u64> = self.windows.iter().map(|w| w.lines_added).collect();
+        // A log the player scrolled back to its end has seen its waiting lines.
+        for window in &mut self.windows {
+            if window.unseen > 0 {
+                if let Some(log) = window.log {
+                    if crate::chat_window::log_at_end(tree, log) {
+                        window.unseen = 0;
+                    }
+                }
+            }
+        }
+        let unseen: Vec<u32> = self.windows.iter().map(|w| w.unseen).collect();
         let mut events = Vec::new();
-        if modern.follow(tree, &self.names, &counts, &mut events) {
+        if modern.follow(tree, &self.names, &counts, &unseen, &mut events) {
             self.looks_changed = true;
         }
         for event in events {
@@ -424,6 +439,14 @@ impl ChatUi {
                 }
                 ChatEvent::OpenOptions => self.open_options = true,
                 ChatEvent::Activate { show, hide, at } => self.activate(tree, show, hide, at),
+                ChatEvent::ScrollToEnd(i) => {
+                    if let Some(w) = self.windows.get_mut(i) {
+                        if let Some(log) = w.log {
+                            tree.scroll_to_end(log);
+                        }
+                        w.unseen = 0;
+                    }
+                }
                 ChatEvent::PopOut { window, at } => self.activate(tree, window, None, at),
             }
             return;

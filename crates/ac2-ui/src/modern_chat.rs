@@ -142,6 +142,9 @@ pub(crate) struct WindowParts {
     input: Option<usize>,
     pill: Option<usize>,
     pill_label: Option<usize>,
+    /// The "new below" pill over the log's foot and its label.
+    new_pill: Option<usize>,
+    new_label: Option<usize>,
     /// The header's tabs (`modern_chat_tabs`).
     pub(crate) strip: TabStrip,
     /// What the window was laid out for: its size, its active look, its name, its pill and its
@@ -194,6 +197,8 @@ pub enum ChatEvent {
         hide: Option<usize>,
         at: UiBox,
     },
+    /// Window `i`'s log scrolled to its end (the "new below" pill).
+    ScrollToEnd(usize),
     /// Show window `i` at `at` (popped out of its tabs).
     PopOut { window: usize, at: UiBox },
     /// Open the options panel's chat page.
@@ -317,6 +322,18 @@ impl ModernChat {
                 for p in [track, knob].into_iter().flatten() {
                     tree.set_bool(p, MOUSE_INVISIBLE, false);
                 }
+                let new_pill = part(tree, "ModernChatNewPill", art::CHAT_NEW_PILL, Some(8), 2);
+                if let Some(p) = new_pill {
+                    tree.set_bool(p, MOUSE_INVISIBLE, false);
+                    tree.set_visible(p, false);
+                }
+                let new_label = label(
+                    tree,
+                    new_pill,
+                    "ModernChatNewText",
+                    Justification::Center,
+                    0xFFE48A,
+                );
                 let strip = TabStrip::make(tree, root, template, layouts);
                 // Retail's frame, options field (its vertical slider) and entry rule give way.
                 for id in [FRAME, ENTRY_RULE] {
@@ -337,6 +354,8 @@ impl ModernChat {
                     input,
                     pill,
                     pill_label,
+                    new_pill,
+                    new_label,
                     strip,
                     laid_out: Default::default(),
                 }
@@ -428,6 +447,7 @@ impl ModernChat {
         tree: &mut UiTree,
         names: &[String],
         counts: &[u64],
+        unseen: &[u32],
         events: &mut Vec<ChatEvent>,
     ) -> bool {
         for (c, &n) in self.counts.borrow_mut().iter_mut().zip(counts) {
@@ -455,6 +475,24 @@ impl ModernChat {
             let find = |tree: &UiTree, id: u32| tree.child_recursive(w.root, id);
             let r = tree.el(w.root).rect;
             let (width, height) = (r.width(), r.height());
+            // The "new below" pill over the log's foot while lines wait under a held view.
+            let waiting = unseen.get(i).copied().unwrap_or(0);
+            if let (Some(pill), Some(label)) = (w.new_pill, w.new_label) {
+                let shown = waiting > 0;
+                if shown {
+                    let text = format!("{waiting} new below");
+                    if tree.el(label).text().as_deref() != Some(text.as_str()) {
+                        tree.set_text_with_font(label, &text, 0, 1);
+                        let pw = tree.text_line_width(label, &text).unwrap_or(80) + 18;
+                        let y = height - ENTRY - 6 - 18;
+                        place(tree, Some(pill), ((width - pw) / 2, y, pw, 18));
+                        place_label(tree, Some(label), UiBox::new(0, 1, pw - 1, 16));
+                    }
+                }
+                if tree.el(pill).visible != shown {
+                    tree.set_visible(pill, shown);
+                }
+            }
             let active = find(tree, tokenize("MoveBarField"))
                 .is_some_and(|f| tree.el(f).state == tokenize("active"));
             let look = self.looks.borrow().get(i).cloned().unwrap_or_default();
@@ -657,6 +695,16 @@ impl ModernChat {
     ) -> Option<ChatEvent> {
         use crate::mouse::{GLOBAL_MOUSE_DOWN, GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP};
         use crate::token::{MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP};
+        // The "new below" pill scrolls its log to the end.
+        if message.message == MSG_MOUSE_PRESS_TOP {
+            if let Some(i) = self
+                .windows
+                .iter()
+                .position(|w| message.element.is_some() && message.element == w.new_pill)
+            {
+                return Some(ChatEvent::ScrollToEnd(i));
+            }
+        }
         // A tab shows its window in the frame; the `+` opens the dock menu; the menu's chips dock.
         if message.message == MSG_MOUSE_PRESS_TOP {
             if let Some(element) = message.element {
