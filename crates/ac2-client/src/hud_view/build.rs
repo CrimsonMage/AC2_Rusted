@@ -178,6 +178,7 @@ impl HudView {
                     world_map,
                     guide,
                     story,
+                    fellow_marker_image,
                 },
                 images,
             )) => {
@@ -245,6 +246,8 @@ impl HudView {
                 self.panels.world_map = world_map;
                 self.panels.guide = guide;
                 self.panels.story = story;
+                self.panels.fellow_markers =
+                    ac2_ui::fellow_markers::FellowMarkers::new(fellow_marker_image);
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),

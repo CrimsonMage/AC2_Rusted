@@ -802,13 +802,13 @@ key	status	note
 0042fb10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0042fca0	~	GetFellowXPHash needs the host to return the script-filled LAHash
 0042fdc0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-0042fdd0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
-0042feb0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
-0042ff90	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+0042fdd0	x	ac2-ui fellow_rows.rs clear_fellow (the row) and fellow_markers.rs notice: the listed member's RemoveMarker(4, id), unless the player or fellows hidden
+0042feb0	x	ac2-ui fellow_rows.rs remove_all (the list flushed) and fellow_markers.rs notice: ClearMarkers(4) when fellows were listed and are shown on the map (fellow_markers_7160)
+0042ff90	x	ac2-ui fellow_rows.rs notice Cell (FellowInfo::UpdateCellID) and fellow_markers.rs notice: a note at the new cell for a listed member but the player, unless hidden
 00430060	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-00430080	_	needs port: FellowshipHelper::RecvNotice_ReloadGameplayOptions re-sends map markers: no player options bit 0x8000 -> SendNotice_AddMarker(4, id, cell, marker DID, name) for every fellow but the player, else SendNotice_ClearMarkers(4)
+00430080	x	ac2-ui fellow_markers.rs reload (frame_passes.rs reload_pass on the options reload): profile bit 0x8000 clear -> a type 4 note per fellow but the player, set -> ClearMarkers(4); unread options change nothing (fellow_markers tests)
 00430180	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-00430210	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+00430210	x	ac2-ui fellow_rows.rs add_fellow (the row) and fellow_markers.rs notice: a new member's type 4 note at its cell with the fellow marker image (enum 0x41000010), unless the player or fellows hidden on the map (fellow_markers_7160)
 00430390	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430430	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 004304a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs

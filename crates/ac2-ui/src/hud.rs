@@ -186,6 +186,8 @@ pub struct GameplayHud {
     pub catalog: Option<CatalogUi>,
     /// `gmStoryUI`'s background and story fields, hidden until a story starts.
     pub story: Option<StoryView>,
+    /// `FellowshipHelper::_fellowMarkerDID`: the fellows' map note image (0 without one).
+    pub fellow_marker_image: u32,
     /// `gmShopNewSaleUI`, the consignment's new-sale dialog (its managed elements are made when it opens).
     pub new_sale: Option<NewSaleUi>,
     /// `gmShopConsignmentUI`, the storekeeper's consignment (its managed elements are made when it opens).
@@ -462,6 +464,12 @@ pub fn build_gameplay_hud(
         guide,
         help_pages: None,
         story,
+        fellow_marker_image: ac2_assets::ac2_enum_did(
+            store,
+            crate::fellow_markers::FELLOW_MARKER_GROUP,
+            crate::fellow_markers::FELLOW_MARKER_ENUM,
+        )?
+        .map_or(0, |did| did.raw()),
     })
 }
 

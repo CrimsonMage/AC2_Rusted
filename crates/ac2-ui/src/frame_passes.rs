@@ -249,6 +249,13 @@ impl Hud {
             player,
             input.events,
         ));
+        // The fellows' map notes the notices and the reload asked for.
+        requests.extend(
+            self.fellow_markers
+                .take_requests()
+                .into_iter()
+                .map(HudRequest::Marker),
+        );
         if tree.take_changed() {
             *dirty = true;
         }
@@ -381,6 +388,16 @@ impl Hud {
                 net.set_graph_enabled(settings.bits & PROFILE_LATENCY_INDICATOR_GRAPH != 0);
                 *dirty = true;
             }
+        }
+        // `FellowshipHelper::RecvNotice_ReloadGameplayOptions`: the fellows' map notes as the
+        // options now say.
+        if reload_radar {
+            let hidden = host.options_settings().map(|settings| {
+                settings.bits & crate::character_options::PROFILE_HIDE_FELLOWS_ON_MAP != 0
+            });
+            let members = crate::hud_notices::fellowship_members(self);
+            let player = input.player.unwrap_or(0);
+            self.fellow_markers.reload(hidden, player, &members);
         }
         // `gmPetUI::RecvNotice_ReloadGameplayOptions`: `UpdateState` with `GetShowPetUI`.
         if let (true, Some(pets)) = (reload_radar, self.pets.as_mut()) {

@@ -73,6 +73,19 @@ pub fn notice_pass<P: HudSource>(
         if let (Some(panel), Some(dialogs)) = (hud.consignment.as_mut(), hud.dialogs.as_mut()) {
             crate::consignment_notice(panel, tree, dialogs, player, server_time, notice);
         }
+        let moves_fellows = matches!(
+            notice,
+            GameplayNotice::UpdateFellowship(_)
+                | GameplayNotice::ClearFellowship
+                | GameplayNotice::UpdateFellow { .. }
+                | GameplayNotice::ClearFellow(_)
+                | GameplayNotice::UpdateFellowCell { .. }
+        );
+        let before = if moves_fellows {
+            fellowship_members(hud)
+        } else {
+            Vec::new()
+        };
         if let Some(dialogs) = hud.dialogs.as_mut() {
             crate::fellowship_notice(
                 hud.fellowship.as_mut(),
@@ -82,6 +95,13 @@ pub fn notice_pass<P: HudSource>(
                 player,
                 notice,
             );
+        }
+        // `FellowshipHelper`'s map notes for the members it added, moved or removed.
+        if moves_fellows {
+            let after = fellowship_members(hud);
+            let player_id = crate::InventorySource::player(player);
+            hud.fellow_markers
+                .notice(player_id, notice, &before, &after);
         }
         if let Some(panel) = hud.pets.as_mut() {
             crate::pet_notice(panel, tree, player, server_time, notice);
@@ -212,4 +232,20 @@ pub fn notice_pass<P: HudSource>(
         }
     }
     requests
+}
+
+/// The fellowship's members as a helper lists them (the social page's, else the mini panel's).
+pub(crate) fn fellowship_members(hud: &Hud) -> Vec<(u64, String, u32)> {
+    let page = hud
+        .fellowship
+        .as_ref()
+        .map(crate::FellowshipUi::members)
+        .unwrap_or_default();
+    if !page.is_empty() {
+        return page;
+    }
+    hud.mini_fellow
+        .as_ref()
+        .map(crate::mini_fellow::MiniFellowUi::members)
+        .unwrap_or_default()
 }

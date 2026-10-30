@@ -110,6 +110,14 @@ impl MiniFellowUi {
         self.helper = Some(rows);
     }
 
+    /// The members the helper lists (id, name, cell).
+    pub(crate) fn members(&self) -> Vec<(u64, String, u32)> {
+        self.helper
+            .as_ref()
+            .map(crate::fellow_rows::FellowRows::members)
+            .unwrap_or_default()
+    }
+
     /// `gmMiniFellowUI::RecvNotice_ClearFellowship`: the helper goes and the panel hides.
     pub fn clear_fellowship(&mut self, tree: &mut UiTree) {
         if let Some(mut old) = self.helper.take() {

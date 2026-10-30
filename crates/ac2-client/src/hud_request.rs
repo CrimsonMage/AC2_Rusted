@@ -55,6 +55,7 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
             HudRequest::Friends(request) => out.commands.push(Command::Friends(request)),
             // Run against the Tracker by `HudView::tracker_frame` before these.
             HudRequest::Tracker(_) | HudRequest::PointAt { .. } | HudRequest::TextPress(_) => {}
+            HudRequest::Marker(request) => out.commands.push(Command::MapMarker(request)),
             HudRequest::Radar(request) => out.commands.push(match request {
                 RadarRequest::Select(id) => Command::Select(Some(id)),
                 RadarRequest::ShowCoords(show) => Command::SetShowRadarCoords(show),

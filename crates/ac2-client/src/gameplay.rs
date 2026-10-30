@@ -221,6 +221,9 @@ pub enum Command {
     SetShortcutSet(u32),
     /// `gmCWInterface::SetShowRadarCoords` (the radar's coordinates box, `gmRadarUI`).
     SetShowRadarCoords(bool),
+    /// A map note the HUD added, removed or cleared (`CM_Character::SendNotice_AddMarker` /
+    /// `RemoveMarker` / `ClearMarkers` from `FellowshipHelper`), as `gmNavigationUI` takes it.
+    MapMarker(ac2_ui::MarkerRequest),
     /// One of the options page's setters (`gmCharacterUI::Apply`'s `gmCWInterface::Set*`).
     SetGameplayOption(ac2_ui::OptionSetting),
     /// `gmCWInterface::UploadGameOptions`: the options profile to the server.
@@ -539,6 +542,16 @@ impl Client {
                     } else {
                         Vec::new()
                     }
+                }
+                Command::MapMarker(request) => {
+                    match request {
+                        ac2_ui::MarkerRequest::Add(marker) => self.radar.add_marker(marker.clone()),
+                        ac2_ui::MarkerRequest::Remove { kind, id } => {
+                            self.radar.remove_marker(*kind, *id)
+                        }
+                        ac2_ui::MarkerRequest::Clear(kind) => self.radar.clear_markers(*kind),
+                    }
+                    Vec::new()
                 }
                 Command::SetShowRadarCoords(show) => {
                     self.record_radar_coords_choice(*show);

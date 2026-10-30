@@ -133,6 +133,8 @@ pub struct Hud {
     pub guide: Option<crate::guide_window::GuideWindow>,
     /// `gmStoryUI`'s background and story fields, shown while a story holds the slot.
     pub story: Option<StoryView>,
+    /// The fellows' map notes (`FellowshipHelper`'s markers).
+    pub fellow_markers: crate::fellow_markers::FellowMarkers,
     /// `gmChatUI`, the chat window.
     pub chat: Option<ChatUi>,
     /// `gmToolbarUI`, the toolbar.

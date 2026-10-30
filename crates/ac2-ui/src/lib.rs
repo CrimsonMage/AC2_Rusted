@@ -53,6 +53,7 @@ pub use examination_effects::{expand_examination_effects, splice_effects, Examin
 mod examination_tests;
 mod external_container;
 mod fellow_info;
+pub mod fellow_markers;
 mod fellow_rows;
 mod fellowship;
 mod frame_passes;
@@ -284,7 +285,8 @@ pub use window_positions::{
 };
 mod radar_state;
 pub use radar_state::{
-    add_map_note, groove_of, MapMarker, RadarBlip, RadarFrame, RadarState, GROOVE_DELAY,
+    add_map_note, groove_of, MapMarker, MarkerRequest, RadarBlip, RadarFrame, RadarState,
+    GROOVE_DELAY,
 };
 mod ui_images;
 mod ui_text;

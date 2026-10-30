@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1352 done, 318 partial, 49 to do, 528 skipped.
+2247 retail functions: 1357 done, 314 partial, 48 to do, 528 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -743,7 +743,7 @@ Legend and workflow: [README](README.md).
 - [x] `FellowInfo::FellowInfo` · 0043a200 · legions 0043aa50 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowInfo::UpdateInfo` · 0043a4d0 · legions 0043ad20 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (14/24)
+## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (19/24)
 
 ### FellowshipHelper
 - [x] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -778,13 +778,13 @@ Legend and workflow: [README](README.md).
 ### FellowshipHelper
 - [~] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60 — GetFellowXPHash needs the host to return the script-filled LAHash
 - [x] `FellowshipHelper::RecvNotice_UpdateFellowLevel` · 0042fdc0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-- [~] `FellowshipHelper::RemoveFellow` · 0042fdd0 · legions 0042fb90 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
-- [~] `FellowshipHelper::RemoveAllFellows` · 0042feb0 · legions 0042fc70 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
-- [~] `FellowshipHelper::RecvNotice_UpdateFellowCellID` · 0042ff90 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [x] `FellowshipHelper::RemoveFellow` · 0042fdd0 · legions 0042fb90 — ac2-ui fellow_rows.rs clear_fellow (the row) and fellow_markers.rs notice: the listed member's RemoveMarker(4, id), unless the player or fellows hidden
+- [x] `FellowshipHelper::RemoveAllFellows` · 0042feb0 · legions 0042fc70 — ac2-ui fellow_rows.rs remove_all (the list flushed) and fellow_markers.rs notice: ClearMarkers(4) when fellows were listed and are shown on the map (fellow_markers_7160)
+- [x] `FellowshipHelper::RecvNotice_UpdateFellowCellID` · 0042ff90 — ac2-ui fellow_rows.rs notice Cell (FellowInfo::UpdateCellID) and fellow_markers.rs notice: a note at the new cell for a listed member but the player, unless hidden
 - [x] `FellowshipHelper::RecvNotice_ClearFellow` · 00430060 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-- [ ] `FellowshipHelper::RecvNotice_ReloadGameplayOptions` · 00430080 — needs port: FellowshipHelper::RecvNotice_ReloadGameplayOptions re-sends map markers: no player options bit 0x8000 -> SendNotice_AddMarker(4, id, cell, marker DID, name) for every fellow but the player, else SendNotice_ClearMarkers(4)
+- [x] `FellowshipHelper::RecvNotice_ReloadGameplayOptions` · 00430080 — ac2-ui fellow_markers.rs reload (frame_passes.rs reload_pass on the options reload): profile bit 0x8000 clear -> a type 4 note per fellow but the player, set -> ClearMarkers(4); unread options change nothing (fellow_markers tests)
 - [x] `FellowshipHelper::~FellowshipHelper` · 00430180 · legions 0042ff40 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-- [~] `FellowshipHelper::AddFellow` · 00430210 · legions 0042ffd0 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [x] `FellowshipHelper::AddFellow` · 00430210 · legions 0042ffd0 — ac2-ui fellow_rows.rs add_fellow (the row) and fellow_markers.rs notice: a new member's type 4 note at its cell with the fellow marker image (enum 0x41000010), unless the player or fellows hidden on the map (fellow_markers_7160)
 - [x] `FellowshipHelper::AddAllFellows` · 00430390 · legions 00430150 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs

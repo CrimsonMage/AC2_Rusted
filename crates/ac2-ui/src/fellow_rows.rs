@@ -4,7 +4,7 @@
 //! this helper. A member is a [`FellowInfo`] row; the leader's row goes to the top (`SetLeader`).
 //! The member-level notices (`FellowshipHelper::RecvNotice_*`) come in as a [`FellowNotice`].
 //!
-//! Not modelled yet: the map markers (`SendNotice_AddMarker` / `RemoveMarker` / `ClearMarkers`).
+//! The map markers the helper sends are `fellow_markers.rs`, sent once for both helpers.
 
 use std::sync::Arc;
 
@@ -97,6 +97,14 @@ impl FellowRows {
                     .find(|f| f.root == item)
                     .map(|f| (f.id, item))
             })
+            .collect()
+    }
+
+    /// The members: id, name and cell, in the order added.
+    pub(crate) fn members(&self) -> Vec<(u64, String, u32)> {
+        self.fellows
+            .iter()
+            .map(|f| (f.id, f.name.clone(), f.cell))
             .collect()
     }
 

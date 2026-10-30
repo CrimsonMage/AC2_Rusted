@@ -13,8 +13,8 @@
 //! selected. Retail's ListenToMessage takes no choice from it: the chosen method goes out with
 //! Create (`HandleCreateButton` reads the selected index).
 //!
-//! Not modelled yet: the looting items' tooltips (`ID_Fellowship_TT_LootMethod*`), the map markers
-//! (`SendNotice_AddMarker` / `RemoveMarker` / `ClearMarkers`). The radar's mini panel is
+//! The members' map markers are `fellow_markers.rs`. Not modelled yet: the looting items'
+//! tooltips (`ID_Fellowship_TT_LootMethod*`). The radar's mini panel is
 //! `mini_fellow.rs`.
 
 use crate::dialog::{DialogFactory, DIALOG_CONFIRMATION};
@@ -246,6 +246,14 @@ impl FellowshipUi {
         let mut rows = FellowRows::new(list, Arc::clone(&self.layout), false);
         rows.populate(tree, source, &data.fellows, data.leader);
         self.helper = Some(rows);
+    }
+
+    /// The members the helper lists (id, name, cell).
+    pub(crate) fn members(&self) -> Vec<(u64, String, u32)> {
+        self.helper
+            .as_ref()
+            .map(FellowRows::members)
+            .unwrap_or_default()
     }
 
     /// `RecvNotice_ClearFellowship`.

@@ -47,6 +47,16 @@ pub struct MapMarker {
     pub message: StringInfo,
 }
 
+/// A change to the map notes a framework asks of the client: `CM_Character::SendNotice_AddMarker`,
+/// `SendNotice_RemoveMarker`, `SendNotice_ClearMarkers` (the fellows' notes,
+/// `crate::fellow_markers`).
+#[derive(Debug, Clone, PartialEq)]
+pub enum MarkerRequest {
+    Add(MapMarker),
+    Remove { kind: u32, id: u64 },
+    Clear(u32),
+}
+
 /// One object on the radar (`gmRadarUI::RadarInfo`): its look, and where it is from the player.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RadarBlip {

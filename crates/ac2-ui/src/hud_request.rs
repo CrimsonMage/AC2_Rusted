@@ -35,6 +35,8 @@ pub enum HudRequest {
     Friends(FriendsRequest),
     /// `gmRadarUI`: a blip selected, or the coordinates shown or hidden.
     Radar(RadarRequest),
+    /// A map note added, removed or cleared (`FellowshipHelper`'s fellow markers).
+    Marker(crate::MarkerRequest),
     /// The Tracker window: a pattern added or removed, a match picked or dismissed, a reload.
     Tracker(crate::tracker_ui::TrackerRequest),
     /// A press on a map coordinate in chat: the floating arrow points there (north, east).
