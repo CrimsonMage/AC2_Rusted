@@ -448,9 +448,7 @@ impl Client {
     pub(crate) fn lock_player_actions(&mut self, locked: bool) {
         if locked {
             if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
-                let heading = body.physics.heading();
-                body.physics.do_motion([0.0; 3]);
-                body.physics.turn_to(heading.degrees());
+                body.physics.lock_actions();
             }
         }
         self.module.locked = locked;

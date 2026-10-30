@@ -1,9 +1,9 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 963 done, 107 partial, 74 to do, 980 skipped.
+2124 retail functions: 971 done, 105 partial, 68 to do, 980 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/client/src/physics/cphysics.cpp.c` (3/9)
+## `portal/client/src/physics/cphysics.cpp.c` (4/9)
 
 ### CPhysics
 - [-] `CPhysics::CPhysics` · 007321b0 — C++ constructor/destructor; Rust constructor and Drop replace it
@@ -13,7 +13,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysics::UpdateAnimation` · 00732280 — Client::world_manager_update steps AnimationClock (PhysicsModule::UpdateAnimation) then Remotes::update_animation / the player body update_animation
 - [x] `CPhysics::UpdateRenderInterpolation` · 007322c0 · legions 006ae760 — PhysicsClock::render_interpolation
 - [x] `CPhysics::GetObjectA` · 00732380 · legions 006ae820 — CPhysics::GetObjectA - CPhysics::GetObjectA: object lookup by id, ac2-client client_objects.rs
-- [~] `CPhysics::UpdateAllPhysics` · 00732400 — Remotes::step_quantum: each in-world remote in physics range steps the quantum, its range from the player checked first each quantum (Remote::update_physics_range, as CPhysicsObj::UpdateMovement); the player steps before it in Client::world_manager_update. The set_*_active(0) toggles are bookkeeping bits only
+- [x] `CPhysics::UpdateAllPhysics` · 00732400 — Remotes::step_quantum: each in-world remote steps the quantum when in physics range, range from the player checked every quantum (Remote::update_physics_range); an out-of-range client-made (temporary id) object is destroyed (HandleOutOfPhysicsRange); the player steps before it in Client::world_manager_update
 - [x] `CPhysics::UpdateAllAnimation` · 007325a0 — ac2-client: the player's and every object's body
 
 ## `portal/shared/src/bsp/bspleaf.cpp.c` (8/13)
@@ -1565,7 +1565,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [-] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (42/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (43/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680 — MotionInterp::new over the loader-decoded Ac2MotionInterpDesc (CMotionInterpFactory::Create + Init); heading, mCanAnimate (AnimRep::can_animate) and the MoveToManager/InterpolationManager live in PhysicsObj
@@ -1600,7 +1600,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::GetRemoteDoMotionValues` · 00509ba0 — PhysicsBody::remote_do_motion_values: the newest queued position do-motion while interpolating, else zero (InterpolationManager::last_received_motion); tested
 - [ ] `CMotionInterp::MakeInterpolationManager` · 00509bc0 · legions 004f7c00 — the manager is made on first use in PhysicsObj::interpolate_to / interpolate_and_impulse (get_or_insert_with)
 - [x] `CMotionInterp::MakeConstraintManager` · 00509bf0 · legions 004f7c30 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-- [ ] `CMotionInterp::HandleLeaveWorld` · 00509c90 · legions 004f7cd0 — PhysicsBody::leave_world (interrupt move-to, stop interpolating, unconstrain, clear_transient_states), called by Remotes::leave_world for an in-world remote; tested
+- [x] `CMotionInterp::HandleLeaveWorld` · 00509c90 · legions 004f7cd0 — PhysicsBody::leave_world: slots 0x54/0x78/0x84 verified in the Legions CMotionInterp vtable as MoveToManager::Interrupt, InterpolationManager::StopInterpolating and the constraint reset; then clear_transient_states; called by Remotes::leave_world; tested
 - [x] `CMotionInterp::ConstrainTo` · 00509cb0 · legions 004f7cf0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [x] `CMotionInterp::UnConstrain` · 00509cd0 — teleport start: StopInterpolating, UnConstrain, inc_update_time(TELEPORT) on the player (client_teleport.rs, ac2-weenie inc_player_update_time)
 - [x] `CMotionInterp::GetConstraintFactor` · 00509ce0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (325/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (328/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2447,8 +2447,8 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::RestorePlayerCamera` · 004e2750 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::IsPlacingMarkerObjects` · 004e2760 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_DoStory` · 004e2770 — ac2-client client_story.rs apply_story: each DoStory, in arrival order with the other physics events, to the object's StoryManager
-- [ ] `CPhysicsObj::LockActions` · 004e2790 · legions 004d51e0 — Client::lock_player_actions: the player stops where it stands (do_motion zero, turn_to current heading) and PlayerMovementModule.locked follows the animation LockActions/UnlockActions events
-- [ ] `CPhysicsObj::UnLockActions` · 004e27e0 · legions 004d5230 — Client::lock_player_actions: the player stops where it stands (do_motion zero, turn_to current heading) and PlayerMovementModule.locked follows the animation LockActions/UnlockActions events
+- [x] `CPhysicsObj::LockActions` · 004e2790 · legions 004d51e0 — PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
+- [x] `CPhysicsObj::UnLockActions` · 004e27e0 · legions 004d5230 — PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
 - [-] `CPhysicsObj::CacheAnimations` · 004e2800 — render plumbing
 - [x] `CPhysicsObj::DeleteSelf` · 004e2810 — ac2-physics MissileEvent::DeleteSelf -> ac2-smartbox Remotes::delete_self (the opacity slider 0x40000015 over the fade; destruction time is the delay, or the fade when the delay is not positive, as the admin 0x4d7770 body compares) -> OnlineSession::fade_and_destroy_object; ac2-client missile_events_taken
 - [-] `CPhysicsObj::ClearFXTarget` · 004e2860 · legions 004d52b0 — unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
@@ -2570,7 +2570,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0 — ac2-weenie Appearance::from_delta (the effects description is empty)
 - [x] `CPhysicsObj::ApplyAdditiveVisualDesc` · 004e6c30 — ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
 - [x] `CPhysicsObj::ApplySubtractiveVisualDesc` · 004e6c40 — ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
-- [~] `CPhysicsObj::DoMode` · 004e6c50 · legions 004d96a0 — PhysicsObj::do_mode, plus the child tail in Client::children_follow_mode (DoMode(0, mode) on each child body when the holder is not frozen); the weenie hook is CWPhysicsObject::Notify_DoMode (ac2-weenie rows)
+- [x] `CPhysicsObj::DoMode` · 004e6c50 · legions 004d96a0 — PhysicsObj::do_mode, plus the child tail (Remotes::children_do_mode -> PhysicsBody::follow_holder_mode; tested); the weenie hook is CWPhysicsObject::Notify_DoMode (ac2-weenie rows)
 - [ ] `CPhysicsObj::HandleBehaviorDone` · 004e6d00 · legions 004d9750 — animation events ModeDone/BehaviorDone reach the story manager and scripts (client_story.rs, client_latent.rs)
 - [x] `CPhysicsObj::MissilePlaceAndFire` · 004e6d20 · legions 004d9770 — ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
 - [x] `CPhysicsObj::MissilePlace` · 004e6d60 · legions 004d97b0 — ported on PhysicsBody (ac2-physics missile_initialize, missile_request, inquire_direction ..., physics_obj_missile.rs) and tested; the only callers are the gCWPhysicsObject::CallEFun_Missile* efuns, which no Legions wlib function calls (ac2-weenie.md rows), so no script reaches them and nothing binds them. Server-launched missiles (DoStory) take the same body methods
@@ -2624,7 +2624,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::SetPositionInternal` · 004e9f50 · legions 004dc7d0 — no cell residency, shadow or material updates; LeaveGround FX not ported
 - [x] `CPhysicsObj::CombineAndApplyVisualDesc` · 004ea290 — ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
 - [~] `CPhysicsObj::DoBehavior` · 004ea490 — CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior
-- [~] `CPhysicsObj::DoBehavior` · 004ea500 — ac2-physics do_behavior: frozen check, mode, ModeTracker::DoBehavior, with mPropagate to the children (Client::children_follow_behavior); not carried: m_iidFXTarget (FX target) and mVDescToClone (cloned appearance), which need FX-target plumbing through the StartFx event
+- [~] `CPhysicsObj::DoBehavior` · 004ea500 — ac2-physics do_behavior with mPropagate to the children (Remotes::children_do_behavior -> follow_holder_behavior; tested); not carried: m_iidFXTarget and mVDescToClone (FX target, cloned appearance), which need FX-target plumbing through the StartFx event
 - [-] `CPhysicsObj::AddToTargetList` · 004ea670 · legions 004dcfa0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [~] `CPhysicsObj::UpdateMovementInternal` · 004ea780 · legions 004dd0b0 — PhysicsObj::update_movement_internal: missile update, UpdatePositionInternal, F_EPSILON gate, path-aligned heading (set_vector_heading of the velocity), transition_to; TargetManager::HandleTargetting is TargetHub::handle_targetting
 - [~] `CPhysicsObj::ForceIntoCell` · 004ea990 · legions 004dd2c0 — ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (116/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (119/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
@@ -2762,7 +2762,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::StopLayer` · 004f1370 · legions 004e3ca0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::StopAllWeenieBehaviors` · 004f1390 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::StopMoveToCancelsBehaviors` · 004f13b0 · legions 004e3ce0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `PHYSICSOBJREP::DoMotion` · 004f13d0 · legions 004e3d00 — MotionInterp::do_motion + turn_to; used by Client::lock_player_actions
+- [x] `PHYSICSOBJREP::DoMotion` · 004f13d0 · legions 004e3d00 — PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
 - [x] `PHYSICSOBJREP::GetElement` · 004f1420 · legions 004e3d50 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetDesiredElement` · 004f1440 · legions 004e3d70 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetMode` · 004f1460 · legions 004e3d90 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2877,8 +2877,8 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::StopFX` · 004f2730 — PHYSICSOBJREP::StopFX - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [ ] `PHYSICSOBJREP::UpdateFX` · 004f2750 · legions 004e5050 — structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 - [ ] `PHYSICSOBJREP::GetFXManager` · 004f2770 · legions 004e5070 — structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
-- [ ] `PHYSICSOBJREP::UnlockActions` · 004f2780 — Client::lock_player_actions: the player stops where it stands (do_motion zero, turn_to current heading) and PlayerMovementModule.locked follows the animation LockActions/UnlockActions events
-- [ ] `PHYSICSOBJREP::LockActions` · 004f2790 — Client::lock_player_actions: the player stops where it stands (do_motion zero, turn_to current heading) and PlayerMovementModule.locked follows the animation LockActions/UnlockActions events
+- [x] `PHYSICSOBJREP::UnlockActions` · 004f2780 — PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
+- [x] `PHYSICSOBJREP::LockActions` · 004f2790 — PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
 - [ ] `PHYSICSOBJREP::DeleteSelf` · 004f27a0 — structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 - [-] `PHYSICSOBJREP::ClearFXTarget` · 004f27d0 — unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
 - [-] `PHYSICSOBJREP::SetFXTarget` · 004f27e0 · legions 004e50e0 — unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)

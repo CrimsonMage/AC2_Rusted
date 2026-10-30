@@ -466,6 +466,25 @@ impl<B> Remotes<B> {
         }
     }
 
+    /// The tail of `CPhysicsObj::DoMode`: each child body takes the mode (`DoMode(0, mode)`).
+    pub fn children_do_mode(&mut self, children: &[u64], mode: u32) {
+        for &child in children {
+            if let Some(body) = self.body_mut(child) {
+                body.follow_holder_mode(mode);
+            }
+        }
+    }
+
+    /// `CPhysicsObj::DoBehavior`'s `mPropagate`: each child body runs the behaviour at the same
+    /// time scale, without locking actions and with its own children fading.
+    pub fn children_do_behavior(&mut self, children: &[u64], behavior: u32, time_scale: f32) {
+        for &child in children {
+            if let Some(body) = self.body_mut(child) {
+                body.follow_holder_behavior(behavior, time_scale);
+            }
+        }
+    }
+
     /// `CObjectMaint::AllocateTemporaryID`: an id for an object the client makes; `None` when
     /// the temporary range is used up.
     pub fn allocate_temporary_id(&mut self) -> Option<u64> {
@@ -572,12 +591,19 @@ impl<B> Remotes<B> {
         };
         let mut events = Vec::new();
         let mut touches = Vec::new();
+        let mut out_of_range_temporaries = Vec::new();
         // `CPhysicsObj::UpdateMovement`: the range check against the player runs each quantum.
         let player = others.first().map(|(_, view)| view.position);
         for (&guid, remote) in self.objects.iter_mut() {
             if let (true, Some(player)) = (remote.in_world, player) {
                 if let Some(position) = remote.body.as_ref().map(PhysicsBody::position) {
                     remote.update_physics_range(&player, &position);
+                    // `HandleOutOfPhysicsRange`: an object the client made goes
+                    // (`IIDUtils::VerifyTemporary`, `CObjectMaint::DestroyObject`).
+                    if !remote.active && crate::temporary_ids::is_temporary(guid) {
+                        out_of_range_temporaries.push(guid);
+                        continue;
+                    }
                 }
             }
             if remote.in_world && remote.active {
@@ -619,6 +645,9 @@ impl<B> Remotes<B> {
                 }
             }
             sync_shadow(guid, remote, terrain, &mut self.membership);
+        }
+        for id in out_of_range_temporaries {
+            self.removed(id, terrain);
         }
         // The other remotes hear of the movers; the player's body is the client's.
         for touch in touches {

@@ -50,9 +50,9 @@ impl PhysicsBody {
         self.object.state
     }
 
-    /// `CPhysicsObj::set_report_collisions`: sets or clears `REPORT_COLLISIONS_PS`. True when
+    /// `CPhysicsObj::set_report_collisions_bit`: sets or clears `REPORT_COLLISIONS_PS`. True when
     /// the bit changed (retail then calls `ReportCollisions` to join or leave the world's list).
-    pub fn set_report_collisions(&mut self, report: bool) -> bool {
+    pub fn set_report_collisions_bit(&mut self, report: bool) -> bool {
         let was = self.reports_collisions();
         self.object.set_state_bit(REPORT_COLLISIONS_PS, report);
         was != report
@@ -101,7 +101,7 @@ impl PhysicsBody {
     /// then the placement frame and the uniform scale. Always true.
     pub fn apply_phys_obj_profile(&mut self, profile: &PhysObjProfile) -> bool {
         let bit = |n: u32| profile.state >> n & 1 != 0;
-        self.set_report_collisions(bit(2));
+        self.set_report_collisions_bit(bit(2));
         self.set_ignore_collisions_bit(bit(3));
         self.set_lights(bit(10));
         self.set_inelastic(bit(13));
@@ -151,7 +151,7 @@ mod tests {
         assert!(body.init_object_begin(true, true));
         assert!(body.state_bits() & crate::physics_obj::STATIC_PS == 0);
         assert!(body.is_mobile());
-        assert!(!body.set_report_collisions(false));
-        assert!(body.set_report_collisions(true));
+        assert!(!body.set_report_collisions_bit(false));
+        assert!(body.set_report_collisions_bit(true));
     }
 }

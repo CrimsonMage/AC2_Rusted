@@ -148,3 +148,20 @@ fn the_player_distance_sets_physics_range_each_time_it_is_checked() {
     remote.update_physics_range(&at(50.0), &at(97.0));
     assert!(remote.active);
 }
+
+#[test]
+fn a_temporary_object_out_of_physics_range_is_destroyed_and_others_stay() {
+    // `CPhysicsObj::HandleOutOfPhysicsRange`: `VerifyTemporary` ids are destroyed.
+    let mut remotes = Remotes::<()>::default();
+    let temporary = crate::temporary_ids::TEMPORARY_BASE + 1;
+    remotes.insert(temporary, in_world_remote(None));
+    remotes.insert(7, in_world_remote(None));
+    let mut terrain = ac2_physics::Terrain::new();
+    let mut random = ac2_core::Random::default();
+    let body = remotes.get(7).and_then(|r| r.body()).unwrap();
+    let mut view = body.object_view();
+    view.position.frame.origin.x += 500.0;
+    remotes.step_quantum(&mut terrain, 0.0, &mut random, &[(1, view)]);
+    assert!(remotes.get(temporary).is_none());
+    assert!(remotes.get(7).is_some_and(|r| !r.active));
+}

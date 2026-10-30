@@ -4697,8 +4697,8 @@ key	status	note
 004e2750	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2760	-	admin/debug or text-file tooling
 004e2770	x	ac2-client client_story.rs apply_story: each DoStory, in arrival order with the other physics events, to the object's StoryManager
-004e2790	_	Client::lock_player_actions: the player stops where it stands (do_motion zero, turn_to current heading) and PlayerMovementModule.locked follows the animation LockActions/UnlockActions events
-004e27e0	_	Client::lock_player_actions: the player stops where it stands (do_motion zero, turn_to current heading) and PlayerMovementModule.locked follows the animation LockActions/UnlockActions events
+004e2790	x	PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
+004e27e0	x	PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
 004e2800	-	render plumbing
 004e2810	x	ac2-physics MissileEvent::DeleteSelf -> ac2-smartbox Remotes::delete_self (the opacity slider 0x40000015 over the fade; destruction time is the delay, or the fade when the delay is not positive, as the admin 0x4d7770 body compares) -> OnlineSession::fade_and_destroy_object; ac2-client missile_events_taken
 004e2860	-	unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
@@ -4796,7 +4796,7 @@ key	status	note
 004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
 004e6c30	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
 004e6c40	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
-004e6c50	~	PhysicsObj::do_mode, plus the child tail in Client::children_follow_mode (DoMode(0, mode) on each child body when the holder is not frozen); the weenie hook is CWPhysicsObject::Notify_DoMode (ac2-weenie rows)
+004e6c50	x	PhysicsObj::do_mode, plus the child tail (Remotes::children_do_mode -> PhysicsBody::follow_holder_mode; tested); the weenie hook is CWPhysicsObject::Notify_DoMode (ac2-weenie rows)
 004e6d00	_	animation events ModeDone/BehaviorDone reach the story manager and scripts (client_story.rs, client_latent.rs)
 004e6d20	x	ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
 004e6d60	x	ported on PhysicsBody (ac2-physics missile_initialize, missile_request, inquire_direction ..., physics_obj_missile.rs) and tested; the only callers are the gCWPhysicsObject::CallEFun_Missile* efuns, which no Legions wlib function calls (ac2-weenie.md rows), so no script reaches them and nothing binds them. Server-launched missiles (DoStory) take the same body methods
@@ -4850,7 +4850,7 @@ key	status	note
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
 004ea290	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
 004ea490	~	CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior
-004ea500	~	ac2-physics do_behavior: frozen check, mode, ModeTracker::DoBehavior, with mPropagate to the children (Client::children_follow_behavior); not carried: m_iidFXTarget (FX target) and mVDescToClone (cloned appearance), which need FX-target plumbing through the StartFx event
+004ea500	~	ac2-physics do_behavior with mPropagate to the children (Remotes::children_do_behavior -> follow_holder_behavior; tested); not carried: m_iidFXTarget and mVDescToClone (FX target, cloned appearance), which need FX-target plumbing through the StartFx event
 004ea670	-	unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 004ea780	~	PhysicsObj::update_movement_internal: missile update, UpdatePositionInternal, F_EPSILON gate, path-aligned heading (set_vector_heading of the velocity), transition_to; TargetManager::HandleTargetting is TargetHub::handle_targetting
 004ea990	~	ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
@@ -5063,7 +5063,7 @@ key	status	note
 004f1370	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1390	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f13b0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004f13d0	_	MotionInterp::do_motion + turn_to; used by Client::lock_player_actions
+004f13d0	x	PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
 004f1420	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1440	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1460	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -5178,8 +5178,8 @@ key	status	note
 004f2730	x	PHYSICSOBJREP::StopFX - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f2750	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 004f2770	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
-004f2780	_	Client::lock_player_actions: the player stops where it stands (do_motion zero, turn_to current heading) and PlayerMovementModule.locked follows the animation LockActions/UnlockActions events
-004f2790	_	Client::lock_player_actions: the player stops where it stands (do_motion zero, turn_to current heading) and PlayerMovementModule.locked follows the animation LockActions/UnlockActions events
+004f2780	x	PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
+004f2790	x	PhysicsBody::lock_actions (CMotionInterp::DoMotion(zero) then TurnTo(current heading), confirmed in the Legions bytes of PHYSICSOBJREP::DoMotion) called by Client::lock_player_actions; PlayerMovementModule.locked follows the animation LockActions/UnlockActions events; tested
 004f27a0	_	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
 004f27d0	-	unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
 004f27e0	-	unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
@@ -5519,7 +5519,7 @@ key	status	note
 00509ba0	_	PhysicsBody::remote_do_motion_values: the newest queued position do-motion while interpolating, else zero (InterpolationManager::last_received_motion); tested
 00509bc0	_	the manager is made on first use in PhysicsObj::interpolate_to / interpolate_and_impulse (get_or_insert_with)
 00509bf0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-00509c90	_	PhysicsBody::leave_world (interrupt move-to, stop interpolating, unconstrain, clear_transient_states), called by Remotes::leave_world for an in-world remote; tested
+00509c90	x	PhysicsBody::leave_world: slots 0x54/0x78/0x84 verified in the Legions CMotionInterp vtable as MoveToManager::Interrupt, InterpolationManager::StopInterpolating and the constraint reset; then clear_transient_states; called by Remotes::leave_world; tested
 00509cb0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 00509cd0	x	teleport start: StopInterpolating, UnConstrain, inc_update_time(TELEPORT) on the player (client_teleport.rs, ac2-weenie inc_player_update_time)
 00509ce0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
@@ -15056,7 +15056,7 @@ key	status	note
 00732280	_	Client::world_manager_update steps AnimationClock (PhysicsModule::UpdateAnimation) then Remotes::update_animation / the player body update_animation
 007322c0	x	PhysicsClock::render_interpolation
 00732380	x	CPhysics::GetObjectA - CPhysics::GetObjectA: object lookup by id, ac2-client client_objects.rs
-00732400	~	Remotes::step_quantum: each in-world remote in physics range steps the quantum, its range from the player checked first each quantum (Remote::update_physics_range, as CPhysicsObj::UpdateMovement); the player steps before it in Client::world_manager_update. The set_*_active(0) toggles are bookkeeping bits only
+00732400	x	Remotes::step_quantum: each in-world remote steps the quantum when in physics range, range from the player checked every quantum (Remote::update_physics_range); an out-of-range client-made (temporary id) object is destroyed (HandleOutOfPhysicsRange); the player steps before it in Client::world_manager_update
 007325a0	x	ac2-client: the player's and every object's body
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00732750	-	ctor/dtor of plain data

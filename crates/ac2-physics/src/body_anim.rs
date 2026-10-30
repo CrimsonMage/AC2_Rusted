@@ -240,6 +240,30 @@ impl PhysicsBody {
         self.object.clear_transient_states();
     }
 
+    /// A holder's `DoMode` reaching this child: `DoMode(0, mode)`.
+    pub fn follow_holder_mode(&mut self, mode: u32) {
+        self.do_mode(0, mode);
+    }
+
+    /// A holder's propagated `DoBehavior` reaching this child (`mPropagate`): the behaviour at
+    /// the same time scale, without locking actions and with this body's children fading.
+    pub fn follow_holder_behavior(&mut self, behavior: u32, time_scale: f32) -> bool {
+        let mut params = Ac2BehaviorParams::new(behavior);
+        params.time_scale = time_scale;
+        params.lock_actions = false;
+        params.fade_children = true;
+        self.do_behavior(&params)
+    }
+
+    /// The head of `CPhysicsObj::LockActions` for the player: `PHYSICSOBJREP::DoMotion` with no
+    /// motion and the current heading, which is `CMotionInterp::DoMotion(0)` then
+    /// `TurnTo(current heading)`, so the body stops where it stands.
+    pub fn lock_actions(&mut self) {
+        let heading = self.heading();
+        self.do_motion([0.0; 3]);
+        self.turn_to(heading.degrees());
+    }
+
     /// `CMotionInterp::UnConstrain` (`CPhysicsObj::HandleTeleportStart`, leaving the world).
     pub fn unconstrain(&mut self) {
         if let Some(constraint) = self.object.constraint.as_mut() {

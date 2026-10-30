@@ -508,3 +508,26 @@ fn look_at_selection_follows_the_switch() {
         "nothing to clear: nothing sent"
     );
 }
+
+#[test]
+fn locking_actions_stops_a_running_player_where_it_stands() {
+    // `CPhysicsObj::LockActions`: `DoMotion(zero)` and `TurnTo(current heading)`.
+    let mut body = remote_body();
+    body.set_player(true);
+    body.do_motion([0.0, 1.0, 0.0]);
+    assert_eq!(body.last_do_motion_values().y, 1.0);
+    body.lock_actions();
+    assert_eq!(body.last_do_motion_values(), crate::vector::Vector::ZERO);
+    assert!(body.is_turning_to());
+    let target = body.movement_state().turn_to_degrees;
+    assert!((target - body.heading().degrees()).abs() < 0.5);
+}
+
+#[test]
+fn a_holders_mode_and_behaviour_reach_a_child_body() {
+    let mut child = remote_body();
+    child.follow_holder_mode(0x4000_0001);
+    assert_eq!(child.mode(), 0x4000_0001);
+    assert!(child.follow_holder_behavior(MOVE, 2.0));
+    assert!(child.is_doing_behavior(MOVE));
+}

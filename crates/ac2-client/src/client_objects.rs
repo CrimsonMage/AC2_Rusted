@@ -408,11 +408,7 @@ impl Client {
             .children_of(holder)
             .map(|info| info.id)
             .collect();
-        for child in children {
-            if let Some(body) = self.remotes.body_mut(child) {
-                body.do_mode(0, mode);
-            }
-        }
+        self.remotes.children_do_mode(&children, mode);
     }
 
     /// The propagation in `CPhysicsObj::DoBehavior`: when the holder's animation is not frozen,
@@ -437,15 +433,8 @@ impl Client {
             .children_of(holder)
             .map(|info| info.id)
             .collect();
-        for child in children {
-            if let Some(body) = self.remotes.body_mut(child) {
-                let mut propagated = ac2_anim::Ac2BehaviorParams::new(own.behavior);
-                propagated.time_scale = own.time_scale;
-                propagated.lock_actions = false;
-                propagated.fade_children = true;
-                body.do_behavior(&propagated);
-            }
-        }
+        self.remotes
+            .children_do_behavior(&children, own.behavior, own.time_scale);
     }
 
     /// `TargetManager` for the player's move-to an object: each physics quantum the target's
