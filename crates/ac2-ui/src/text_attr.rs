@@ -81,7 +81,8 @@ impl UiTree {
         }
     }
 
-    /// `UIElement_Text::SetText(text)`: the element's text replaced, in font 0 and colour 0
+    /// `UIElement_Text::SetText(text)` and `SetStringInfo(info)`: the element's text replaced, in
+    /// font 0 and colour 0
     /// (`ClearAllText`, then `AddStringInfowFont(si, 0)`, whose string download applies
     /// `SetFontNumAndColor(0, 0)` before the text). The vertical bar follows the new paper
     /// (retail updates it when the glyphs are recalculated, `RecalculateGlyphList` ->
@@ -90,8 +91,8 @@ impl UiTree {
         self.set_text_with_font(index, text, 0, 0);
     }
 
-    /// `UIElement_Text::SetText(text, fontNumber, colorNumber)`: the element's text replaced, in
-    /// that font and colour.
+    /// `UIElement_Text::SetText(text, fontNumber, colorNumber)` and `SetStringInfo(info,
+    /// fontNumber, colorNumber)`: the element's text replaced, in that font and colour.
     pub fn set_text_with_font(&mut self, index: usize, text: &str, font_num: u32, color_num: u32) {
         if self.el(index).text.is_none() {
             return;
@@ -233,7 +234,9 @@ impl UiTree {
     }
 
     /// `UIElement_Text::AddStringInfowFont` once its string arrived (`StringDownload`):
-    /// `SetFontNumAndColor(font_num, color_num)`, then the text at the end.
+    /// `SetFontNumAndColor(font_num, color_num)`, then the text at the end (`AddStringInfo` is font
+    /// 0, colour 0). The cursor goes to the end first, as `MoveCursorToEnd` does, without its
+    /// selection handling or `ScrollHorizontalView`.
     pub(crate) fn add_text_with_font(
         &mut self,
         index: usize,
@@ -262,7 +265,8 @@ impl UiTree {
         Some(text.paper.1)
     }
 
-    /// `UIElement_Text::ScrollToEnd` (the view is kept in bounds when the text is laid out).
+    /// `UIElement_Text::ScrollToEnd` (the view is kept in bounds when the text is laid out; retail
+    /// gets there through `ScrollToPosition`, which this does not model for other positions).
     pub(crate) fn scroll_to_end(&mut self, index: usize) {
         if let Some(text) = self.el_mut(index).text.as_mut() {
             text.view.1 = i32::MAX / 2;

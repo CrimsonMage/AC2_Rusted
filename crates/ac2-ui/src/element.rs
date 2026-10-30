@@ -181,12 +181,13 @@ impl UiElement {
         self.attributes.get(&id)
     }
 
-    /// `UIRegion::IsVisible` (the element's own flag).
     /// The element's rectangle on the screen (`UIRegion`'s bounds).
     pub fn rect(&self) -> UiBox {
         self.rect
     }
 
+    /// `m_visible`, the own flag `UIRegion::IsVisible` ands with its parent's (see
+    /// `UiTree::region_visible`).
     pub fn visible(&self) -> bool {
         self.visible
     }
@@ -675,7 +676,9 @@ impl UiTree {
         })
     }
 
-    /// `UIElement::SetAttribute_Bool`: stores the value; a change of `hide` shows or hides.
+    /// `UIElement::SetAttribute_Bool` (and `UIElement_Panel::SetAttribute_Bool`, its copy for
+    /// panels): stores the value; a change of `hide` shows or hides, one of `mouse_invisible`
+    /// sets the mouse visibility (`size_image_to_owner` is read from the map when drawn).
     pub fn set_bool(&mut self, index: usize, id: u32, value: bool) {
         let previous = self
             .el_mut(index)
@@ -696,7 +699,8 @@ impl UiTree {
         self.text_attribute(index, id, &AttributeValue::Bool(value), changed);
     }
 
-    /// `UIElement::SetAttributeFromDesc`.
+    /// `UIElement::SetAttributeFromDesc`; a string or data id lands as `SetAttribute_StringID` /
+    /// `SetAttribute_DataID` do (stored, and `changed` when it differs from the old value).
     fn set_attribute(&mut self, index: usize, attribute: &AttributeDesc) {
         match attribute.value {
             AttributeValue::Bool(value) => self.set_bool(index, attribute.id, value),
@@ -807,7 +811,8 @@ impl UiTree {
         self.el(index).reference.default_state
     }
 
-    /// `UIElement::SetImage`: the image and, while unset, `m_alphaValue` from `alpha_value`
+    /// `UIElement::SetImage` (also where `UIElement::AddImageToState` ends for a current or
+    /// stateless state): the image and, while unset, `m_alphaValue` from `alpha_value`
     /// (retail reads the attribute into the draw mode's own slot, so without the attribute the
     /// value becomes the draw mode's bits as a float: no alpha).
     pub(crate) fn set_image(&mut self, index: usize, file: u32, draw_mode: u32) {
@@ -824,7 +829,8 @@ impl UiTree {
         self.changed = true;
     }
 
-    /// `UIElement::Update_Internal`.
+    /// `UIElement::Update_Internal` (`UIElement::Update`'s `++updateCount` before it is inlined in
+    /// `create_element` and `enter_state`).
     pub(crate) fn update_internal(&mut self, index: usize) {
         let min = self.update_count;
         let (reference, desc, state) = {
@@ -903,7 +909,8 @@ impl UiTree {
         }
     }
 
-    /// `UIElement::SetParent`: out of the old parent's children, into the new one's by z.
+    /// `UIElement::SetParent`: out of the old parent's children, into the new one's by z
+    /// (`UIRegion::SetParent_Internal`'s parent link).
     pub(crate) fn set_parent(&mut self, index: usize, parent: Option<usize>) {
         if let Some(old) = self.el(index).parent {
             self.el_mut(old).children.retain(|&c| c != index);

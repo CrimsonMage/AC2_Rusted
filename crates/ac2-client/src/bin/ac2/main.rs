@@ -194,7 +194,8 @@ impl State {
     }
 
     /// `CIme::Activate` / `CIme::Deactivate`: the OS input method is on while the keyboard types
-    /// into a text element (`set_ime_allowed`), so composed text reaches the window.
+    /// into a text element (`set_ime_allowed`), so composed text reaches the window
+    /// (`UIElement_Text::IMETurnOn` without its candidate-window box and font).
     fn sync_ime(&mut self) {
         let on = self.controls.input.text_mode();
         if on != self.ime_allowed {

@@ -14,7 +14,8 @@ pub(super) fn register(efuns: &mut EFuns) {
 
 /// `gStringUtils::CallEFun_IsWordInString(str, words)`: 1 when `str` is one of the words in
 /// `words`, compared without case (`_wcsicmp`), 0 otherwise. The words are split at the
-/// separators, and an empty piece is no word.
+/// separators (`PSUtils::FindAllWords`, which pushes only non-empty pieces), and an empty piece is
+/// no word.
 fn is_word_in_string(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let call = Call::new(ctx);
     let (str_ref, words_ref) = (call.word(2), call.word(3));

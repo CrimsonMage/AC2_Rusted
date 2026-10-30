@@ -137,6 +137,7 @@ impl UiTree {
                 file, draw_mode, ..
             } => self.set_image(index, *file, *draw_mode),
             MediaDesc::Alpha { file, .. } => {
+                // `UIElement::SetAlphaImage`: the alpha image replaces the old one.
                 self.el_mut(index).alpha_image = Some(*file);
                 self.changed = true;
             }

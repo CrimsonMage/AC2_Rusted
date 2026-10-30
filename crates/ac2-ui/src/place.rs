@@ -250,7 +250,8 @@ impl UiTree {
         }
     }
 
-    /// The render device changed size: every root placed again.
+    /// The render device changed size: every root placed again (`UIElementManager::RefreshEvent`'s
+    /// `UpdateSizeAndPosition` per root, without its `0xffff0007` / `0xffff0008` broadcasts).
     pub fn set_display(&mut self, width: i32, height: i32) {
         self.display = (width, height);
         for root in self.roots.clone() {

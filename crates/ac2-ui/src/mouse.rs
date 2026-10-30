@@ -118,7 +118,8 @@ impl UiTree {
         }
     }
 
-    /// `UIElementManager::StopInput`.
+    /// `UIElementManager::StopInput` (its `KeyReleaseEvent` for a key action: the global release
+    /// message, without the active element's own release hooks).
     pub fn stop_input(&mut self, action: u32) {
         match action {
             UI_POINTER_X | UI_POINTER_Y => self.mouse_move_event(),

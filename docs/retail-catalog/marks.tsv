@@ -112,7 +112,7 @@ key	status	note
 00405b40	x	base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player (frame_passes notices)
 00405c30	-	ctor/dtor of plain data
 00405d80	x	ac2-ui pregame/flow.rs, pregame/ui.rs
-00405df0	_	needs port (check): UIFlow::GetSmartBox behaviour; implemented area ac2-ui hud.rs but uncited
+00405df0	-	trivial accessor of UIFlow::_smartbox
 00405e00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00405e10	~	screenshot key 0x41000017 on release: crates/ac2-client/src/bin/ac2/screenshot.rs (the other debug keys are admin-only, skip)
 004060b0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -179,7 +179,7 @@ key	status	note
 00408a60	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00408ab0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00408c60	~	ac2-ui gameplay_story.rs GameplayStory::new (_weenieReady, _clientReady, _playingPortalScene = 0); the constructor's SmartBox::EnterPortalSpace(1) when both are not ready is not modelled (the login's fade is the PlayerReady and LoginFinished gate calls)
-00408e60	_	needs port (check): UIFramework::Shown behaviour; implemented area ac2-ui hud.rs but uncited
+00408e60	-	trivial accessor of UIFramework::m_shown; ac2-ui hud.rs keeps its own shown flags
 00408e70	-	admin 7148 factory (new gmGamePlayUI); Legions 7160 has no counterpart; the HUD is constructed directly by ac2-client [vtable-checked: not a slot of any located Legions vtable]
 00408e90	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 00408f50	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
@@ -211,7 +211,7 @@ key	status	note
 0040a9e0	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 0040aa00	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 0040aa30	-	plain data copy operator (Frame::operator=); Rust struct copy
-0040aaa0	_	needs port (check): UIRegion::IsVisible; element.rs visible() exists but the cite sits on rect()
+0040aaa0	x	ac2-ui text_edit.rs UiTree::region_visible (own m_visible and every parent); element.rs Element::visible is the own flag
 0040aad0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040ab10	x	ac2-ui pregame/avatar_modification.rs
 0040ab70	x	ac2-ui pregame/avatar_modification.rs
@@ -290,8 +290,8 @@ key	status	note
 004112a0	-	no DAT patching in this client (DDD patch events never come)
 004113b0	-	no DAT patching in this client (DDD patch events never come)
 00411500	_	needs port: CPluginManager::RemovePluginPrototype behaviour
-00411550	_	needs port (check): gmClient::SetStartChar behaviour; implemented area ac2-client but uncited
-004115a0	_	needs port (check): gmClient::SetCreateChar behaviour; implemented area ac2-client but uncited
+00411550	-	trivial ref-counted string setter of gmClient::m_startChar (read by gmDataPatchUI::Update); no Rust counterpart needed
+004115a0	-	trivial ref-counted string setter of gmClient::m_createChar (read by gmDataPatchUI::Update); no Rust counterpart needed
 004115f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00411630	x	ac2-ui pregame/connect_failed.rs connect_failed_text: ID_DataPatch_ConnectFailed with the reason (BadServerAddress -> ID_NetErr_ResolveHostname(host), Generic -> ID_NetErr_Error(host, port), CantCrypto -> its text with error 0, else the NetError's own, a missing one only for LogonServerMigrated -> ServerClosedConnection); PregameUi::connect_failed before the logon connected (SessionEvent::Disconnected(NetError)); the session's own errors map to ClientTimedOutServer / ServerClosedConnection / CantCrypto / Generic (pregame tests)
 00411890	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -754,7 +754,7 @@ key	status	note
 0042d910	x	ac2-ui item_display.rs
 0042da30	x	ac2-ui drag.rs DragCheck::ContainerDrop on each container list: the coin field or an item
 0042da90	~	ac2-ui external_container.rs ContainerDisplay show: the container field's visibility; backpack.rs show_pack for the pages
-0042dab0	_	needs port (check): ContainerDisplay::RequestContext counter; shop.rs cite is on a constant
+0042dab0	~	ac2-ui shop.rs SHOP_CONTEXT is a fixed drag context; retail ContainerDisplay::m_globalContext (++counter shared by every container display) is not modelled, only gmStackUI counter (stack.rs request_stack_context)
 0042dac0	x	ac2-ui list_box.rs
 0042daf0	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 0042db40	x	ac2-ui item_display.rs
@@ -806,7 +806,7 @@ key	status	note
 0042feb0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 0042ff90	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 00430060	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-00430080	_	needs port (check): FellowshipHelper::RecvNotice_ReloadGameplayOptions behaviour; implemented area ac2-ui fellowship.rs but uncited
+00430080	_	needs port: FellowshipHelper::RecvNotice_ReloadGameplayOptions re-sends map markers: no player options bit 0x8000 -> SendNotice_AddMarker(4, id, cell, marker DID, name) for every fellow but the player, else SendNotice_ClearMarkers(4)
 00430180	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430210	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 00430390	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1283,7 +1283,7 @@ key	status	note
 0044b8e0	x	ac2-ui chat.rs / chat_window.rs
 0044ba70	x	ac2-ui chat.rs / chat_window.rs
 0044bad0	~	ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
-0044bc80	_	needs port (check): PSUtils::FindAllWords split in ac2-script string_utils.rs, cite is on the separator constant
+0044bc80	x	ac2-script glue/string_utils.rs is_word_in_string (also vm/mod.rs ShellTable::add, ac2-weenie shell is_word_in): split at the separators, keep only non-empty pieces
 0044beb0	-	destructor: Rust drop and UiTree roots replace the teardown
 0044bf80	x	ac2-ui chat.rs / chat_window.rs
 0044c020	x	ac2-ui chat_window.rs: pending lines write to the log, the log scrolls to its end unless the scroll bar holds the lock (tested on the real layout)
@@ -8554,7 +8554,7 @@ key	status	note
 0059e700	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059e730	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059e770	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
-0059e850	_	needs port (check): key action lookup in the input manager; Win32 focus plumbing is replaced by winit
+0059e850	-	DirectInput AcquireAll/UnacquireAll replaced by winit; the FocusSwitchHandler call is ac2-ui interpreter.rs focus_switch / controls.rs focus
 0059e970	~	ac2-ui pregame/key_names.rs key_name: stands in for DirectInput's GetObjectInfo(DIK).tszName on macOS/Linux, an unverified US table of scan-code names; a key with no name gives no text (the Key 0x hex form is kept only for keymap files); the retail names are not copied
 0059eb80	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059ebe0	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
@@ -8569,7 +8569,7 @@ key	status	note
 0059fa30	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 0059fbf0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0059ff00	x	ac2-ui input.rs
-0059ff60	_	needs port (check): key action lookup in the input manager; Win32 focus plumbing is replaced by winit
+0059ff60	_	needs port: GetKeyFromInputAction lists every key bound to an input action across the key-map stack (top first), as semantic + metakey from the modifier bits, without duplicates
 005a01f0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005a03a0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005a04a0	x	ac2-ui input.rs
@@ -8843,15 +8843,15 @@ key	status	note
 005ad410	-	Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 005ad8e0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
 005adcd0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-005add20	_	needs port (check): UIScenePhysObjEntity::InitFromVDesc; paper_doll_scene.rs module doc
+005add20	x	ac2-render ui_scene figure.rs Figure.local (makePartGroupObject appearance) via ac2-ui paper_doll_scene.rs figures: the avatar figure is made from the visual desc
 005add60	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005addb0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-005ade20	_	needs port (check): UIScenePhysObjEntity::SetInstanceID behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-005ade60	_	needs port (check): UIScenePhysObjEntity::ApplyVisualDesc behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-005ade80	_	needs port (check): UIScenePhysObjEntity::ApplyAdditiveVisualDesc behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+005ade20	-	forwards the instance id to the physics object; Rust names figures by Figure.key, no instance id
+005ade60	~	ac2-ui paper_doll_scene.rs figures: a changed appearance makes the figure anew instead of applying the VisualDesc to the live physics object
+005ade80	~	ac2-ui paper_doll_scene.rs figures: a changed appearance makes the figure anew instead of applying the additive VisualDesc to the live physics object (the merge itself is ac2-physics appearance_ops.rs apply_additive)
 005adec0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005adf30	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-005adf40	_	needs port (check): UIScenePhysObjEntity::Animate behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+005adf40	-	trivial setter of m_shouldAnimate; ac2-render ui_scene animates every figure, nothing clears the flag
 005adf50	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005ae030	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005ae130	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
@@ -9210,20 +9210,20 @@ key	status	note
 005c3c10	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005c3d00	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c3d80	x	ac2-client bin/ac2/cursor.rs GameCursor: the HUD's pointer cursor (UiTree::pointer_cursor, its image loaded with the UI images) as a winit custom cursor with its hot spot, made once per image and hot spot; the pregame screens keep the system cursor
-005c3f20	_	needs port (check): RenderUI::SetDefaultCursor behaviour; implemented area ac2-ui media.rs but uncited
+005c3f20	-	D3D plumbing: builds the 2x2 white hardware-cursor surface (hotspot 0,0); winit custom cursor in ac2-client replaces it
 005c3f80	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c3fc0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c4000	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c4160	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c42f0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
-005c4340	_	needs port (check): RenderUI::RenderObjects behaviour; implemented area ac2-ui media.rs but uncited
+005c4340	-	D3D plumbing: renders the UIObject list (visible, not queued for delete), IME then cursor; wgpu hud draw replaces it
 005c4460	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c4480	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c4510	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c45d0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c4660	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c46e0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
-005c4750	_	needs port (check): RenderUI::SetObjectDepth behaviour; implemented area ac2-ui media.rs but uncited
+005c4750	-	D3D plumbing: relinks a UIObject in the render list at a new depth; wgpu hud draw order replaces it
 005c4780	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c4800	x	cited in ac2-ui text.rs:29 (UiTextData::font, font by DID with fallback)
 005c4850	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
@@ -9441,7 +9441,7 @@ key	status	note
 005d8750	-	writer for DAT/pack output; the client only reads (tool-only)
 005d8b00	-	writer for DAT/pack output; the client only reads (tool-only)
 005d8d30	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005d8d80	_	needs port (check): UIScenePhysObjEntity::GetPhysObj behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+005d8d80	-	trivial accessor of UIScenePhysObjEntity::m_pPhysObj
 005d8d90	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005d8ed0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005d8f10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
@@ -9694,9 +9694,9 @@ key	status	note
 005e28c0	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 005e28f0	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 005e2930	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
-005e2980	_	needs port (check): UIRegion::SetParent_Internal behaviour; implemented area ac2-ui element.rs but uncited
+005e2980	~	ac2-ui element.rs set_parent: the parent link only; retail also invalidates the old and new object boxes (IUIManager) and clears m_object, which the Rust compositor does not need
 005e2a30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-005e2b50	_	needs port (check): UIRegion::GetScreenClipBox behaviour; implemented area ac2-ui element.rs but uncited
+005e2b50	_	needs port: UIRegion::GetScreenClipBox = GetClipBox (own box clipped by every ancestor, in root-surface coords) shifted to the screen position of the root surface; only caller is the IME candidate box
 005e2c30	x	UIRegion::SetVisible done: element.rs set_visible
 005e2cc0	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 005e2d30	x	UIRegion::ClearImage done: element.rs clear_image
@@ -9714,7 +9714,7 @@ key	status	note
 005e3580	x	ac2-ui element.rs: UiTree::delete (removes a root and its children)
 005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 005e3690	x	ac2-ui media.rs / transition.rs
-005e36b0	_	needs port (check): UIElementManager::KeyReleaseEvent behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e36b0	~	ac2-ui mouse.rs stop_input: broadcasts the global key release 0xffff0004; missing: the active element release hooks for actions 0x40000013-16 and 0x40000018 (admin only, no Legions counterpart)
 005e3740	x	ac2-ui tooltip.rs
 005e37c0	x	ac2-ui drag.rs; shortcut.rs drop
 005e3820	x	ac2-ui drag.rs; shortcut.rs drop
@@ -9742,11 +9742,11 @@ key	status	note
 005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e50d0	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
 005e5150	_	needs port: Box2D::Subtract behaviour
-005e5260	_	needs port (check): UIElementManager::MakeObjectTopmost behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e5260	-	admin-only (no Legions counterpart): raises a UIObject to depth 0 in the D3D object list; Rust orders roots by z (element.rs add_root, place.rs set_z_level)
 005e53a0	_	needs port: UIObjectRegionInfo::AddDirtyRect behaviour
 005e5510	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 005e5830	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
-005e5870	_	needs port (check): UIElementManager::RefreshEvent; client_locations.rs cite is a module doc
+005e5870	~	ac2-ui place.rs set_display: every root placed again (UpdateSizeAndPosition); missing: the 0xffff0007 / 0xffff0008 broadcasts around it and the cursor reset (saved window locations are applied on reload and login only, frame_passes.rs)
 005e5950	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
@@ -9771,7 +9771,7 @@ key	status	note
 005e7130	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
 005e7280	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
 005e7370	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
-005e7590	_	needs port (check): MoveToManager::ReachedPersistentTarget behaviour; implemented area ac2-ui navigation.rs but uncited
+005e7590	-	trivial getter of MoveToManager::m_persistent_target_reached (mis-grouped under ac2-ui; movement code, not UI)
 005e75a0	x	ac2-physics moveto (slice 3)
 005e75b0	~	tooltip owner/timing and default cursor ported; drag, resize and object regions not
 005e7780	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
@@ -9797,7 +9797,7 @@ key	status	note
 005e8b90	x	ac2-ui element.rs: UiElement::kind (desc->type), parent_index, id (referenceDesc->elementID), UiTree::child (GetChild)
 005e8ba0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8c20	-	UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
-005e8c30	_	needs port (check): UIElement::Initialized behaviour; implemented area ac2-ui element.rs but uncited
+005e8c30	-	trivial setter of UIElement::initialized; Rust elements are initialised when created
 005e8c40	x	UIElement::GetRootElement done: place.rs root_of
 005e8c60	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e8c90	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
@@ -9809,18 +9809,18 @@ key	status	note
 005e8e70	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005e8e80	x	ac2-ui media.rs / transition.rs
 005e8e90	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-005e8f30	_	needs port (check): UIElement::SetAlphaImage behaviour; implemented area ac2-ui element.rs but uncited
+005e8f30	x	ac2-ui media.rs run_media (MediaDesc::Alpha arm): alpha_image replaced by the new image id
 005e8f70	x	ac2-ui media.rs / transition.rs
-005e8fd0	_	needs port (check): cited from a caller or a neighbouring helper, not the generic element code; verify and cite, or port
-005e9010	_	needs port (check): cited from a caller or a neighbouring helper, not the generic element code; verify and cite, or port
+005e8fd0	x	ac2-ui selection_notices.rs swap_usage_cursor (off branch): saved cursor restored via set_element_cursor, default cursor when the saved DID is 0 and the pointer is on the element
+005e9010	x	ac2-ui selection_notices.rs swap_usage_cursor (on branch): UiElement.saved_cursor takes the current cursor
 005e9040	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e9060	x	ac2-ui media.rs / transition.rs
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9180	x	ac2-ui drag.rs; shortcut.rs drop
 005e91b0	x	ac2-ui drag.rs; shortcut.rs drop
 005e9250	x	ac2-ui drag.rs; shortcut.rs drop
-005e92b0	_	needs port (check): UIElement::SetDefaultLocation behaviour; implemented area ac2-ui element.rs but uncited
-005e92c0	_	needs port (check): UIElement::InqImageSize behaviour; implemented area ac2-ui element.rs but uncited
+005e92b0	-	stores m_defaultLocation, which no named code reads; Rust derives defaults from the layout (place.rs)
+005e92c0	~	ac2-ui navigation_map.rs size_macro_map takes the image size from the caller (None when missing); no element-level InqImageSize on the element image
 005e9300	x	ac2-ui tooltip.rs
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e93e0	-	the activatable list (RegisterActivatable, ordered by activate_order) is only walked by UIElementManager::ActivateNext on Tab; Legions 0x005A4440 KeyPressEvent dropped admin's 0x40000017 -> ActivateNext case, so the DVD client has no Tab field navigation; activation itself (ActivationAlert, one active element) is text_edit.rs
@@ -9866,22 +9866,22 @@ key	status	note
 005eb1f0	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 005eb370	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 005eb430	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
-005eb9c0	_	needs port (check): UIElement::AddImageToState behaviour; implemented area ac2-ui element.rs but uncited
+005eb9c0	~	ac2-ui element.rs set_image: sets the image; retail also appends an MD_Data_Image to the target state (copying the desc when shared) so the image returns with that state; not modelled
 005ebaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ebb80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005ebc80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005ebcb0	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
-005ebdd0	_	needs port (check): UIElement::DrawStart behaviour; implemented area ac2-ui element.rs but uncited
-005ebe10	_	needs port (check): UIElement::DrawDone behaviour; implemented area ac2-ui element.rs but uncited
+005ebdd0	_	needs port: UIElement::DrawStart broadcasts ElementMsg_draw_start when the notify_on_draw bool attribute is set
+005ebe10	_	needs port: UIElement::DrawDone broadcasts ElementMsg_draw_done when the notify_on_draw bool attribute is set
 005ebe50	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ec020	-	element teardown: Drop of the arena slot (UiTree::delete)
 005ec240	x	UIElement::SetAttribute_ID done: element.rs set_attribute_id
 005ec2e0	x	UIElement::SetAttribute_InstanceID done: panel.rs set_instance_attribute
-005ec380	_	needs port (check): UIElement::SetAttribute_StringID behaviour; implemented area ac2-ui element.rs but uncited
+005ec380	x	ac2-ui element.rs set_attribute (AttributeValue::StringId): stored by id, changed when the value differs (single attribute map, not one table per type)
 005ec420	x	UIElement::SetAttribute_Int done: element.rs set_int
 005ec4d0	x	UIElement::SetAttribute_Float done: meter.rs set_float
 005ec570	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-005ec660	_	needs port (check): UIElement::SetAttribute_DataID behaviour; implemented area ac2-ui element.rs but uncited
+005ec660	x	ac2-ui element.rs set_attribute (AttributeValue::DataId): stored by id, changed when the value differs (single attribute map, not one table per type)
 005ec700	~	Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
 005ec7a0	~	Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
 005ec870	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -9891,22 +9891,22 @@ key	status	note
 005ecd60	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005ed150	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005ed2c0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-005ed330	_	needs port (check): UIElement::Update behaviour; implemented area ac2-ui element.rs but uncited
+005ed330	~	ac2-ui element.rs update_internal: ++update_count then Update_Internal are inlined in create_element and enter_state; no standalone Update entry for outside callers
 005ed340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ed450	~	m_delOnTransStop (delete after the exit transition) not modelled
 005ed7c0	x	ac2-ui stack.rs
 005ed7d0	x	named_scrollbar (scrollbar.rs): GetElement without unique_msg finds a scroll bar in any root, GetUniqueMatchElement with it in the owner's root; text_scroll.rs, list_scroll.rs and tree_scroll.rs bind through it. Real data: scroll_coverage_tests.rs
 005ed840	x	wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 005ed8b0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-005ed950	_	needs port (check): UIElement_Text::IMETurnOn behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005ed950	~	ac2-client bin/ac2/main.rs sync_ime: the OS input method follows the text mode (winit set_ime_allowed); missing: the m_bitField & 0x10 test, the candidate-window box (GetScreenClipBox) and font/colour handed to CIme::Activate
 005ed9a0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005eda10	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
-005eda80	_	needs port (check): UIElement_Text::CleanupStringDownloads behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005eda80	-	frees the pending StringDownload queue; Rust has no per-element async downloads
 005edaf0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005edb30	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005edbf0	x	ac2-ui text_attr.rs text_attribute: one_line sets the flag and marks the text dirty (relaid out and redrawn)
 005edc40	~	vertical share of the scrollable range paper - (y1 - y0 + 1) (text_scroll.rs / tree_scroll.rs); horizontal share not modelled
-005edcc0	_	needs port (check): UIElement_Text::GetPercentageH behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005edcc0	_	needs port: UIElement_Text::GetPercentageH = m_viewX / (m_paperWidth - width) clamped to [0, 1], 0 when the paper is no wider than the element; horizontal text scroll bar is not modelled (text_scroll.rs)
 005edd40	x	ac2-ui text_edit.rs: UiTree::set_cursor clamps the position to 0..=len
 005edd80	x	ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
 005edf30	x	ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
@@ -9924,7 +9924,7 @@ key	status	note
 005ee490	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005ee550	x	ac2-ui text_scroll.rs text_update_scrollbar (vertical): layout held while the bar is enabled, its y_widget_size set to min(1, height / paper) and its position to GetPercentageV, then laid out, and disabled when the paper fits (so hide_when_disabled hides it); text_bar_tests
 005ee6a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-005ee6f0	_	needs port (check): UIElement_Text::DetermineFont behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005ee6f0	_	needs port: UIElement_Text::DetermineFont swaps the current font for the Korean_12 or Japanese_12 font (FONT_GROUP_ENUM 0x4000000b) when the current one lacks a glyph of the text
 005ee850	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 005eea40	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eec20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
@@ -9932,9 +9932,9 @@ key	status	note
 005eed40	~	ac2-ui text_attr.rs text_size_with_margins: the text laid out in the element's font no wider than max_width (else the display) less the margins, plus the margins. Not ported: DetermineFont's fallback fonts (Korean_12 / 0x40000005) for glyphs the font lacks, which the text module does not model
 005eef10	~	vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
 005eef60	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-005eefd0	_	needs port (check): UIElement_Text::SetAttribute_ID behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005eefd0	~	ac2-ui text_scroll.rs text_scrollbar: the vertical bar is found by name when its messages arrive; missing: the horizontal bar and UpdateScrollbars when the attribute is set
 005ef100	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005ef120	_	needs port (check): UIElement_Text::Initialized behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005ef120	~	ac2-ui text_scroll.rs text_update_scrollbar runs on text changes and scrolling; not at creation (Initialized), no horizontal bar, no unique_msg handling
 005ef170	x	ac2-ui text_clip.rs copy_selection: copies the selection to the OS clipboard via text_clipboard.rs; refused for password fields (no retail attribute, modern flag)
 005ef1c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005ef2f0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
@@ -9951,7 +9951,7 @@ key	status	note
 005f0370	x	ac2-ui text_clip.rs: retail moves the cursor; drag auto-scroll past the top or bottom of multi-line text is modern (text_drag_auto_scroll on the global loop)
 005f03e0	x	UIElement_Text::DetermineAndSetNewLine done: text_scroll.rs text_line_step
 005f04f0	x	ac2-ui text_scroll.rs text_page_step (vertical): the view moves the element's height, kept in bounds, the bar updated; scrollbar.rs scrollbar_page sends a bar's vertical page to the texts it drives; text_bar_tests
-005f0590	_	needs port (check): UIElement_Text::ScrollToPosition behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005f0590	~	ac2-ui text_attr.rs scroll_to_end / scroll_to_home set the view to the end or start (KeepInBounds clamps); no ScrollToPosition for an arbitrary glyph position
 005f05f0	x	UIElement_Text::ScrollHorizontalView done: text_edit.rs scroll_to_cursor
 005f06a0	x	ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
 005f0730	x	ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
@@ -9960,7 +9960,7 @@ key	status	note
 005f0770	x	ac2-ui chat.rs / chat_window.rs
 005f0790	~	ac2-ui text_scroll.rs: new_position (texts_follow_scrollbar), the vertical line (text_line_step) and page (text_page_step) messages; not the horizontal bar's
 005f0940	x	ac2-ui text_edit.rs: UiTree::move_cursor now covers page up/down (virtual keys 0x21/0x22) beside home/end, line, word, left/right, up/down; not modelled: IME
-005f0ad0	_	needs port (check): UIElement_Text::MoveCursorToEnd behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005f0ad0	~	ac2-ui text_attr.rs add_text_with_font puts the cursor at the end before appending; no SetCursorPosition side effects or ScrollHorizontalView (only caller is ChatWindow::AllTextToLog)
 005f0b10	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005f0b30	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005f0ba0	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
@@ -9973,9 +9973,9 @@ key	status	note
 005f1350	x	ac2-ui chat.rs / chat_window.rs
 005f13e0	x	ac2-ui chat.rs / chat_window.rs
 005f1470	x	ac2-ui: the global mouse move is text_clip.rs text_drag_move (from mouse.rs), the global loop text_edit.rs text_cursor_flash (from transition.rs element_global_loop)
-005f14b0	_	needs port (check): UIElement_Text::AddStringInfo behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
-005f14c0	_	needs port (check): UIElement_Text::SetStringInfo overload; chat_window.rs prefill_entry cites two overloads
-005f14e0	_	needs port (check): UIElement_Text::SetStringInfo overload; chat_window.rs prefill_entry cites two overloads
+005f14b0	x	ac2-ui text_attr.rs add_text_with_font(index, text, 0, 0): font 0 colour 0 text appended (the StringInfo is already text)
+005f14c0	x	ac2-ui text_attr.rs set_text: ClearAllText then the text in font 0 colour 0 (the StringInfo is already text)
+005f14e0	x	ac2-ui text_attr.rs set_text_with_font: ClearAllText then the text in the given font and colour (the StringInfo is already text)
 005f1510	x	UIElement_Text::AddText done: text_attr.rs append_text
 005f1570	x	UIElement_Text::TruncateText done: skill_tree.rs truncate_text
 005f16e0	x	ac2-ui text_attr.rs set_text: cleared, SetFontNumAndColor(0, 0) (the string download AddStringInfowFont(si, 0) queues), the text added, the scroll bar updated
@@ -9985,7 +9985,7 @@ key	status	note
 005f18c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f1a10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005f1a50	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-005f1aa0	_	needs port (check): UIElement_Text::ListenToMessage; menu.rs cite is a menu selection broadcast
+005f1aa0	~	ac2-ui text_scroll.rs texts_follow_scrollbar (vertical new_position only) and menu.rs menu_new_selection (display_selection sets the display text from the selected text item); missing: the horizontal bar and the unique_msg root check
 005f1b90	x	ac2-ui list_box.rs
 005f1bc0	x	ac2-ui list_box.rs
 005f1bf0	x	ac2-ui list_box.rs
@@ -10049,9 +10049,9 @@ key	status	note
 005f3e70	x	ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
 005f3f30	x	ac2-ui list_box.rs
 005f3fd0	x	ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
-005f4030	_	needs port (check): UIElement_ListBox::SetState behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f4030	_	needs port: UIElement_ListBox::SetState rebuilds the item list from the children (ordered by id, reversed with bitfield bit 1), then UpdateLayout, KeepViewInBounds, UpdateControls
 005f4170	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
-005f4270	_	needs port (check): UIElement_ListBox::SetAttribute_ID behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f4270	~	ac2-ui list_scroll.rs lists_bound_to: scroll bars matched by name when their messages arrive, buttons by scrollbar.rs; missing: the horizontal/vertical flag (bit 0x800) and UpdateControls when the attribute is set, list up/down/left/right buttons are not wired
 005f4420	~	left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
 005f44c0	x	ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
 005f4500	x	ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
@@ -10108,7 +10108,7 @@ key	status	note
 005f5d70	-	C++ scalar deleting destructor: the Rust element is freed by UiTree::delete (menu_delete drops the popup)
 005f5d90	x	ac2-ui tree_view.rs
 005f5e20	x	ac2-ui tree_view.rs
-005f5e30	_	needs port (check): UIElement_Tree::DrawMeBotToTop behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
+005f5e30	-	marks the tree root dirty over the tree box; the Rust compositor redraws on UiTree.changed
 005f5e50	x	ac2-ui tree_scroll.rs: UiTree::tree_percentage (vertical and horizontal share of paper - extent)
 005f5ee0	x	ac2-ui tree_scroll.rs: UiTree::tree_percentage (vertical and horizontal share of paper - extent)
 005f5f70	x	ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
@@ -10128,11 +10128,11 @@ key	status	note
 005f6a50	~	tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
 005f6d10	x	ac2-ui tree_view.rs
 005f6f50	x	ac2-ui tree_view.rs
-005f6f70	_	needs port (check): UIElement_Tree::SetAttribute_ID behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
+005f6f70	~	ac2-ui tree_scroll.rs tree_scrollbar: the vertical bar is matched by name when its messages arrive; missing: the horizontal bar, up/down/left/right hot buttons and UpdateControls when the attribute is set
 005f70d0	x	ac2-ui tree_view.rs
 005f71f0	x	ac2-ui tree_view.rs
 005f7220	x	ac2-ui tree_view.rs
-005f73e0	_	needs port (check): UIElement_Tree::SetSelectedItem behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
+005f73e0	_	needs port: UIElement_Tree::SetSelectedItem selects a child (item_normal_state / item_selected_state on the old and new item when selected_item_state_change), broadcasts TreeMsg_new_selection and updates the layout
 005f74f0	x	ac2-ui tree_view.rs
 005f7590	x	ac2-ui tree_view.rs
 005f75c0	x	ac2-ui tree_view.rs
@@ -10141,7 +10141,7 @@ key	status	note
 005f7b40	~	ac2-ui tree_view.rs: view via tree_end/flush only
 005f7b90	~	ac2-ui tree_view.rs: view via tree_end/flush only
 005f7c50	~	tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
-005f7dd0	_	needs port (check): UIElement_Tree::SetState behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
+005f7dd0	_	needs port: UIElement_Tree::SetState rebuilds the node list from the children (grid or static layout links), then UpdateLayout and UpdateControls
 005f7f30	-	element creation and teardown: UiTree::create_element and Drop
 005f8000	-	element creation and teardown: UiTree::create_element and Drop
 005f8030	-	element creation and teardown: UiTree::create_element and Drop
@@ -10158,7 +10158,7 @@ key	status	note
 005f8480	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005f84d0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005f84f0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-005f8510	_	needs port (check): UIElement_Viewport::ReleaseUIScene behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+005f8510	-	releases the UIScene reference in UISceneManager; Rust scene data is owned by the ac2-render ui_scene cache
 005f8560	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f8580	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005f85e0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
@@ -10168,21 +10168,21 @@ key	status	note
 005f8760	x	ac2-ui panel.rs
 005f87e0	x	ac2-ui panel.rs
 005f8830	x	ac2-ui panel.rs
-005f8890	_	needs port (check): UIElement_PanelPage::Activate behaviour; implemented area ac2-ui panel.rs but uncited
-005f88d0	_	needs port (check): UIElement_PanelPage::Deactivate behaviour; implemented area ac2-ui panel.rs but uncited
+005f8890	-	reached only by UIElement::Activate on a panel page, i.e. the admin-only Tab traversal (UIElementManager::ActivateNext); closed -> rollover state otherwise matches panel.rs panel_page_mouse_over_top
+005f88d0	-	reached only by UIElement::Deactivate on a panel page, i.e. the admin-only Tab traversal (UIElementManager::ActivateNext); rollover -> closed otherwise matches panel.rs panel_page_mouse_over_top
 005f8910	x	ac2-ui panel.rs
 005f8980	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f89a0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f8a30	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005f8a60	_	needs port (check): UIElement_Panel::SetAttribute_Bool behaviour; implemented area ac2-ui panel.rs but uncited
+005f8a60	x	ac2-ui element.rs set_bool: hide -> set_visible(!value), mouse_invisible -> mouse_visible; size_image_to_owner is read from the attribute map when drawn (compose.rs); activatable (UpdateActivatable) is admin-only Tab traversal
 005f8a70	x	ac2-ui panel.rs
 005f8ae0	x	ac2-ui panel.rs
 005f8b60	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f8b80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005f8c30	x	UIElement_Dragbar::MouseUp done: window_locations.rs dragbar_mouse_up
-005f8c90	_	needs port (check): UIElement_Dragbar::UpdateLayout behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f8d60	_	needs port (check): UIElement_Dragbar::SetState behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f8d80	_	needs port (check): UIElement_Dragbar::SetAttribute_Bool behaviour; implemented area ac2-ui window_locations.rs but uncited
+005f8c90	_	needs port: UIElement_Dragbar::UpdateLayout (allow_updating) shows the bar unless disabled and hide_when_disabled both set, hides it when they are, only while it and its parent are visible
+005f8d60	_	needs port: UIElement_Dragbar::SetState runs UIElement::SetState then UpdateLayout (disabled + hide_when_disabled hide the bar)
+005f8d80	_	needs port: UIElement_Dragbar::SetAttribute_Bool reruns UpdateLayout when disabled or hide_when_disabled changes
 005f8dc0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f8e20	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f8e50	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
@@ -10206,13 +10206,13 @@ key	status	note
 005f9670	x	ac2-ui list_msize.rs: list_msize_layout (column widths and row heights, running positions, paper)
 005f98a0	-	ctor/Create/Register are the framework's element creation (UiTree::create_element, the listboxmsize kind in list_box_select.rs)
 005f98c0	x	ac2-ui list_msize.rs: list_msize_layout (column widths and row heights, running positions, paper)
-005f9a20	_	needs port (check): UIElement_Scrollbar::SetAttribute_ID behaviour; implemented area ac2-ui scrollbar.rs but uncited
+005f9a20	x	ac2-ui scrollbar.rs scrollbar_hot_click: a hot button named by up/down/left/right_button steps the bar (matched by name instead of a registered listener)
 005f9a80	x	ac2-ui scrollbar.rs
 005f9aa0	x	ac2-ui scrollbar.rs scrollbar_show: the bar's up/down/left/right buttons shown or hidden with it
-005f9ae0	_	needs port (check): UIElement_Scrollbar::HandleFillChild behaviour; implemented area ac2-ui scrollbar.rs but uncited
+005f9ae0	_	needs port: UIElement_Scrollbar::HandleFillChild sets the fill child (by id) hidden when disabled and sizes/places it by x, y, dx, dy (fill children are not modelled, scrollbar.rs)
 005f9b30	~	ac2-ui scrollbar.rs scrollbar_update_layout: proportional widget size (x/y_widget_size of the track, min_widget_width/height), placement by the position, a disabled hide_when_disabled bar hidden with its buttons and any other bar shown again. Not: the left/right/top/bottom fill children (their geometry sits in registers the decompile lost)
-005fa050	_	needs port (check): UIElement_Scrollbar::StartAnimation behaviour; implemented area ac2-ui scrollbar.rs but uncited
-005fa170	_	needs port (check): UIElement_Scrollbar::StopAnimation behaviour; implemented area ac2-ui scrollbar.rs but uncited
+005fa050	_	needs port: UIElement_Scrollbar::StartAnimation begins the smooth_movement_duration move from the current position to goal_x/goal_y_position (smooth movement is not modelled, scrollbar.rs)
+005fa170	_	needs port: UIElement_Scrollbar::StopAnimation resets goal_x/goal_y_position to -1 and clears the animating bit (smooth movement is not modelled)
 005fa1b0	x	ac2-ui scrollbar.rs
 005fa1d0	x	ac2-ui scrollbar.rs
 005fa200	x	ac2-ui scrollbar.rs
@@ -10220,9 +10220,9 @@ key	status	note
 005fa3a0	x	ac2-ui scrollbar.rs
 005fa4a0	-	element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 005fa5b0	x	ac2-ui scrollbar.rs
-005fa5d0	_	needs port (check): UIElement_Scrollbar::SetAttribute_Bool behaviour; implemented area ac2-ui scrollbar.rs but uncited
+005fa5d0	~	ac2-ui scrollbar.rs: the attributes are read from the map on demand instead of the m_bitField mirror; UpdateLayout is rerun by the callers, not by a change of disabled, hide_when_disabled, proportional, horizontal or vertical through set_bool
 005fa780	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
-005fa820	_	needs port (check): UIElement_Scrollbar::SetAttribute_Int behaviour; implemented area ac2-ui scrollbar.rs but uncited
+005fa820	~	ac2-ui scrollbar.rs scrollbar_update_layout reads min_widget_width/height from the map; not rerun when they change through set_int
 005fa860	x	ac2-ui scrollbar.rs
 005fa910	~	ac2-ui scrollbar.rs scrollbar_global_loop: a held track press pages again every page_interval (0.1 s) after page_first_interval (0.3 s), while the pointer has not reached the widget and the bar can move that way (test list_scroll_tests a_track_press_held_pages_again). Not: the smooth-movement animation (StartAnimation/StopAnimation: nothing in the ported code sets goal_x/y_position yet); retail arms the repeat time only for a vertical press, a horizontal-only press does not repeat here (retail would fire every frame from time 0)
 005fabe0	x	ac2-ui scrollbar.rs
@@ -10251,7 +10251,7 @@ key	status	note
 005fbb10	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbc50	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbc70	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005fbcb0	_	needs port (check): UIElement_Field::MouseOverTop behaviour; implemented area ac2-ui text_edit.rs but uncited
+005fbcb0	_	needs port: UIElement_Field::MouseOverTop puts a container field with drag_rollover into drag_rollover_accept or drag_rollover_reject (reject when disallow_drag_in) while a dragged item is over it, restoring its old state on leave (only lists do this, list_drag.rs)
 005fbdb0	x	ac2-ui drag.rs; shortcut.rs drop
 005fbe20	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fbe40	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
@@ -10269,29 +10269,29 @@ key	status	note
 005fc2b0	x	ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
 005fc320	x	ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
 005fc3a0	x	ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
-005fc5f0	_	needs port (check): GlyphList::FindXYFromPosition behaviour; implemented area ac2-ui text.rs but uncited
+005fc5f0	_	needs port: GlyphList::FindXYFromPosition gives a position (x = FindPixelsFromPos, y = the heights of the lines above its line); only caller is ScrollToPosition/ScrollHorizontalView
 005fc6d0	x	ac2-ui text.rs: TextState::clear
 005fc710	x	ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
 005fc7e0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005fc930	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 005fc960	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
-005fc9f0	_	needs port (check): GlyphList::InqText behaviour; implemented area ac2-ui text.rs but uncited
+005fc9f0	~	ac2-ui text_edit.rs selected_text takes the selection range as chars; no general InqText(start, end) with the clamping to the text
 005fcaf0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-005fcd20	_	needs port (check): GlyphList::InqText behaviour; implemented area ac2-ui text.rs but uncited
-005fcd50	_	needs port (check): Glyph::Glyph overload (newline width); text.rs new() cites it, overload ambiguous
+005fcd20	x	ac2-ui text.rs TextState::text: every glyph character as the string (InqText over the whole list)
+005fcd50	-	default constructor of Glyph (zeroed fields); Rust Glyph::new builds the glyph in one step
 005fcd70	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fcdf0	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 005fce10	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 005fce80	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fceb0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-005fcec0	_	needs port (check): Glyph::Glyph overload (newline width); text.rs new() cites it, overload ambiguous
-005fcef0	_	needs port (check): StringDownload::OnContextFinished behaviour; implemented area ac2-ui text_data.rs but uncited
-005fcf50	_	needs port (check): StringDownload::Init behaviour; implemented area ac2-ui text_data.rs but uncited
-005fd150	_	needs port (check): StringDownload::OnTopLevelRequestFinished behaviour; implemented area ac2-ui text_data.rs but uncited
+005fcec0	-	copy constructor of Glyph; Rust Glyph is Clone
+005fcef0	-	StringDownload async prefetch bookkeeping; Rust loads text data up front (text_data.rs)
+005fcf50	-	StringDownload async DBCache prefetch of the StringInfo tables; Rust loads text data up front (text_data.rs)
+005fd150	-	StringDownload async prefetch callback; Rust loads text data up front (text_data.rs)
 005fd210	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fd250	-	authoring/export/debug-info tooling (checkpoint export, file tree, source line info); no runtime behaviour
-005fd2c0	_	needs port (check): UIFlow::GetUIFlowPtr behaviour; implemented area ac2-ui hud.rs but uncited
-005fd2d0	_	needs port (check): UIFlow::Update behaviour; implemented area ac2-ui hud.rs but uncited
+005fd2c0	-	trivial accessor of the UIFlow singleton
+005fd2d0	-	forwards Update to the current UIMainFramework (vtable); the Rust client loop ticks the pregame or HUD UI directly
 005fd320	~	pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
 005fd410	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fd4c0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
@@ -10309,12 +10309,12 @@ key	status	note
 005fd970	-	child-framework list bookkeeping (a SmartArray of UIChildFramework with swap-remove, Show/LocationApplied fan-out); ac2-ui Hud owns its panels as typed fields and calls them directly, so no framework object or child list exists. CreateElement is UiTree::create_element/create_root
 005fd9c0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fda00	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005fda70	_	needs port (check): UIMainFramework::MakeNoSurface behaviour; implemented area ac2-ui hud.rs but uncited
-005fdaa0	_	needs port (check): UIMainFramework::MakeSurfaceObject behaviour; implemented area ac2-ui hud.rs but uncited
-005fdba0	_	needs port (check): UIMainFramework::GetUIFlow behaviour; implemented area ac2-ui hud.rs but uncited
+005fda70	-	D3D plumbing: allocates the UINoSurfaceObject for an element; wgpu hud draw replaces the UIObject list
+005fdaa0	-	D3D plumbing: allocates the element UISurface/UISurfaceObject and clears it to null; wgpu hud draw replaces it
+005fdba0	-	trivial accessor returning the UIFlow singleton
 005fdbb0	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005fdc40	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
-005fdd40	_	needs port (check): UIMainFramework::DeleteUISurfaceList behaviour; implemented area ac2-ui hud.rs but uncited
+005fdd40	-	D3D plumbing: frees the UIObject surface list at shutdown; Rust drops it
 005fddc0	x	UIMainFramework::RemoveRootElement done: dialog.rs remove_root
 005fde50	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fde90	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
@@ -10333,11 +10333,11 @@ key	status	note
 005fe400	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005fe410	x	ac2-ui pregame/persistent.rs (plain data)
 005fe420	x	
-005fe430	_	needs port (check): UIPersistantData::SetPlayingSoundContext behaviour; implemented area ac2-ui window_positions.rs but uncited
+005fe430	-	trivial setter of the sound handle; ac2-audio screen_sounds.rs owns the screens PlayingSoundContexts
 005fe440	_	needs port: CPhysicsObj::GetScale behaviour
 005fe450	x	ac2-ui pregame/persistent.rs (plain data)
 005fe470	x	ac2-ui pregame/persistent.rs (plain data)
-005fe4c0	_	needs port (check): UIPersistantData::InqGenerationResultTable behaviour; implemented area ac2-ui window_positions.rs but uncited
+005fe4c0	-	copies _generationResultTable into a caller table; ac2-ui pregame/persistent.rs PersistentData exposes it by char_gen_result/current
 005fe640	x	ac2-ui pregame/persistent.rs (plain data)
 005fe6a0	_	needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
 005fe700	x	ac2-script glue::options / examination (Legions layout and efun switch)

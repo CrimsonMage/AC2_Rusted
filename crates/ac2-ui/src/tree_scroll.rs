@@ -21,7 +21,8 @@ const TREE: u32 = tokenize("tree");
 const VERTICAL_SCROLLBAR: &str = "vertical_scrollbar";
 
 impl UiTree {
-    /// The vertical scroll bar a tree names (`GetScrollbar`, see `named_scrollbar`).
+    /// The vertical scroll bar a tree names (`GetScrollbar`, see `named_scrollbar`);
+    /// `UIElement_Tree::SetAttribute_ID` registers for its messages, here it is matched by name.
     pub(crate) fn tree_scrollbar(&self, tree: usize) -> Option<usize> {
         self.named_scrollbar(tree, VERTICAL_SCROLLBAR)
     }

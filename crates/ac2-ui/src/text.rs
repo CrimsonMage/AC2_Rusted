@@ -235,7 +235,8 @@ impl TextState {
         self.dirty = true;
     }
 
-    /// The text, for re-adding it in a new font (`GetText` / `SetText`).
+    /// The text, for re-adding it in a new font (`GetText` / `SetText`); `GlyphList::InqText` over
+    /// every glyph.
     pub(crate) fn text(&self) -> Vec<u16> {
         self.glyphs.iter().map(|g| g.ch).collect()
     }

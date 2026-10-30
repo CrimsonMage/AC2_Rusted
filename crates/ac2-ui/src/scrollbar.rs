@@ -152,7 +152,9 @@ impl UiTree {
             .insert(NUM_STOP_LOCATIONS, AttributeValue::Int(stops));
     }
 
-    /// `UIElement_Scrollbar::UpdateLayout` (admin 0x005F9B30): an enabled bar sizes its widget
+    /// `UIElement_Scrollbar::UpdateLayout` (admin 0x005F9B30; retail's `SetAttribute_Bool` and
+    /// `SetAttribute_Int` run it when `disabled`, `proportional`, a widget size and the like change,
+    /// here its callers do): an enabled bar sizes its widget
     /// (a `proportional` bar to `x_widget_size` / `y_widget_size` of the track, at least
     /// `min_widget_width` / `min_widget_height`; otherwise its own size) and places it along the
     /// track by the position. A disabled `hide_when_disabled` bar then hides with its buttons;
@@ -540,7 +542,8 @@ impl UiTree {
         }
     }
 
-    /// `UIElement_Scrollbar::ListenToMessage(hot_click)`: a hot button named by a scrollbar's
+    /// `UIElement_Scrollbar::ListenToMessage(hot_click)` (retail registers for it in
+    /// `SetAttribute_ID`, here the button is matched by name): a hot button named by a scrollbar's
     /// `left_button` / `up_button` steps it one stop back, `right_button` / `down_button` one on,
     /// when `buttons_interact` is set (`HandleButtonHotclick`).
     pub(crate) fn scrollbar_hot_click(&mut self, button: usize) {

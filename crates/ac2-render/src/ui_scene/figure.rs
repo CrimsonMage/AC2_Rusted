@@ -27,7 +27,8 @@ pub struct Figure {
     /// What `makeObject` reads: an `EntityDesc` template or a visual. For a figure made from an
     /// appearance, its parent visual (the body it animates with).
     pub object: u32,
-    /// `makePartGroupObject`'s appearance, when the figure is made from one.
+    /// `makePartGroupObject`'s appearance, when the figure is made from one
+    /// (`UIScenePhysObjEntity::InitFromVDesc`).
     pub local: Option<Ac2VisualDesc>,
     pub at: At,
     /// What a pick on it answers, if anything.

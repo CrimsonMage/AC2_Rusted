@@ -32,7 +32,8 @@ fn race_factor(race: Option<i32>) -> f64 {
 }
 
 /// The doll's figures: the scene's own, then the player's avatar (its visual and local
-/// appearance) at the scene's origin.
+/// appearance) at the scene's origin. A changed appearance makes the figure anew; retail applies
+/// it to the live entity (`UIScenePhysObjEntity::ApplyVisualDesc` / `ApplyAdditiveVisualDesc`).
 pub fn figures(scene: u32, data: &SceneData, avatar: Option<(u32, &Ac2VisualDesc)>) -> Vec<Figure> {
     let mut out = scene_figures(scene, data);
     if let Some((visual, local)) = avatar {

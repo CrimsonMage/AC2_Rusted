@@ -72,7 +72,8 @@ impl UiTree {
     }
 
     /// The lists that name `scrollbar` as their vertical or horizontal scroll bar, in any root,
-    /// with whether it is their vertical one.
+    /// with whether it is their vertical one (`UIElement_ListBox::SetAttribute_ID` registers for the
+    /// bar's messages; here the bar is matched by name).
     pub(crate) fn lists_bound_to(&self, scrollbar: usize) -> Vec<(usize, bool)> {
         let id = self.el(scrollbar).id();
         let mut lists = Vec::new();

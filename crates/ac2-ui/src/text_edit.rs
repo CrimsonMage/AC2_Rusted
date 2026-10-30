@@ -211,7 +211,8 @@ impl UiTree {
         self.set_selecting(index, false);
     }
 
-    /// `UIElement_Text::GetSelectedText`: the selected characters (none when off).
+    /// `UIElement_Text::GetSelectedText`: the selected characters (none when off), as
+    /// `GlyphList::InqText(start, end)` returns them (here without its clamping to the text).
     pub(crate) fn selected_text(&self, index: usize) -> Vec<u16> {
         let Some((start, end)) = self.selection(index) else {
             return Vec::new();

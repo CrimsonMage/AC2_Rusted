@@ -26,7 +26,9 @@ use crate::token::{tokenize, TEXT};
 const VERTICAL_SCROLLBAR: &str = "vertical_scrollbar";
 
 impl UiTree {
-    /// The vertical scroll bar a text names (`GetScrollbar(Token_Text_vertical_scrollbar)`).
+    /// The vertical scroll bar a text names (`GetScrollbar(Token_Text_vertical_scrollbar)`);
+    /// retail registers for its messages in `UIElement_Text::SetAttribute_ID`, here the bar is looked
+    /// up by name when one arrives.
     pub(crate) fn text_scrollbar(&self, text: usize) -> Option<usize> {
         self.named_scrollbar(text, VERTICAL_SCROLLBAR)
     }
@@ -50,8 +52,9 @@ impl UiTree {
             .collect()
     }
 
-    /// `UIElement_Text::HandleScrollBarMessage` for `new_position`: the text's view follows the
-    /// bar's position over the scrollable range.
+    /// `UIElement_Text::HandleScrollBarMessage` for `new_position` (`UIElement_Text::ListenToMessage`'s
+    /// scroll half, vertical bar only): the text's view follows the bar's position over the
+    /// scrollable range.
     pub(crate) fn texts_follow_scrollbar(&mut self, scrollbar: usize) {
         let position = f64::from(self.scrollbar_position(scrollbar));
         for text in self.texts_bound_to(scrollbar) {
@@ -77,7 +80,8 @@ impl UiTree {
         self.text_update_scrollbar(text);
     }
 
-    /// `UIElement_Text::UpdateScrollbar` (admin 0x005EE550) for the vertical bar: with the bar's
+    /// `UIElement_Text::UpdateScrollbar` (admin 0x005EE550; `UIElement_Text::Initialized` runs it at
+    /// creation, which this does not) for the vertical bar: with the bar's
     /// layout held (`allow_updating`) and the bar enabled, its widget size is the element's share
     /// of the paper (at most one) and its position the view's share of the scrollable range; the
     /// layout then runs, and the bar is disabled when the paper fits the element (so a
