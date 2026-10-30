@@ -269,6 +269,11 @@ game rules and server-visible behaviour exactly retail.
 - Exception: a book's text after its last `<BR>` is a page. Retail's `gmBookUI::ParseText` stops
   at the last `<BR>` and drops anything after it; here that tail is paginated too
   (`book.rs` `segments`), so a book without a closing `<BR>` is not shown empty.
+- Exception: an open store is left as the session ends. Retail's store panel destructors
+  (`gmShopUI::~gmShopUI`, `gmShopConsignmentUI::~gmShopConsignmentUI`: `RequestLeaveStore`;
+  `gmShopCatalogUI::~gmShopCatalogUI`: `RequestLeaveCatalog`) called the player's script whenever
+  the UI was torn down with the player present; here the log off and the quit ask first, once
+  each and only while such a panel is open (`ac2-ui` `hud_tick.rs` `leave_open_stores`).
 - Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
   read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
 - Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and

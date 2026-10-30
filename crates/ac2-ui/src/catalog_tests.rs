@@ -236,3 +236,25 @@ fn the_servers_leave_hides_the_catalog_then_the_loop_destroys_it() {
     assert_eq!(catalog.field(), None, "destroyed after two minutes hidden");
     assert!(catalog.store_ids().is_empty());
 }
+
+/// The session ending with the catalog open leaves it first (`gmShopCatalogUI::~gmShopCatalogUI`:
+/// `RequestLeaveCatalog`); with no store panel open nothing is asked.
+#[test]
+fn ending_the_session_with_the_catalog_open_leaves_it() {
+    use crate::hud_tick::leave_open_stores;
+    use crate::HudRequest;
+    let Some((mut hud, mut catalog)) = setup() else {
+        return;
+    };
+    let mut out = Vec::new();
+    let mut closed = Some(catalog);
+    leave_open_stores(&None, &None, &None, &closed, &mut out);
+    assert!(out.is_empty());
+    catalog = closed.take().unwrap();
+    opened(&mut hud, &mut catalog);
+    leave_open_stores(&None, &None, &None, &Some(catalog), &mut out);
+    assert!(matches!(
+        out.as_slice(),
+        [HudRequest::Catalog(CatalogRequest::LeaveCatalog)]
+    ));
+}

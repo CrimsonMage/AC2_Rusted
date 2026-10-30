@@ -454,7 +454,7 @@ key	status	note
 0041bd20	x	ac2-ui consignment.rs ConsignmentUi::recv_selection_changed: while shown, a selection other than the selected sale's item clears the sale's selection (Select(null)); routed by shop_notices.rs consignment_notice
 0041bd90	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041bde0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-0041bff0	-	no Drop and no notice registration in ac2-ui: the HUD routes the notices, the panel is created hidden; teardown only at logoff/exit
+0041bff0	x	ac2-ui hud_tick.rs leave_open_stores: as the session ends (log off or quit) with the shop, consignment or new-sale panel open, RequestLeaveStore goes out once before it (AGENTS.md exception); the rest of the destructor is teardown
 0041c0f0	x	ac2-ui consignment.rs post_sale: a sold sale (status 3) shows the ProductIcon's sold_icon, any other its icon description when valid, else its icon id (set_sale_icon); drag source with its own context; consignment_tests
 0041c480	x	ac2-ui consignment.rs message: close, new, collect, paging, selection, examination, drop, help (ID_Help_ShopConsignment, hud_help.rs), under the layout token names
 0041c800	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
@@ -468,7 +468,7 @@ key	status	note
 0041cda0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041cde0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041ce30	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
-0041cf10	-	destructor only runs when the gameplay UI is torn down (logoff/exit), where the character logoff ends the catalog session on the server; no Drop in ac2-ui
+0041cf10	x	ac2-ui hud_tick.rs leave_open_stores: as the session ends with the catalog open, RequestLeaveCatalog goes out before the log off (AGENTS.md exception); the rest is teardown
 0041cf80	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041cff0	x	ac2-ui catalog.rs message: close (RequestLeaveCatalog + LeaveCatalog notice), enter, consignment, SelectionField presses incl. double (enter); help opens ID_Help_ShopCatalog (hud_help.rs)
 0041d0f0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
@@ -487,7 +487,7 @@ key	status	note
 0041d9b0	x	ac2-ui shop_rows.rs recv_update_sale: stock text, sold out is unavailable
 0041dac0	x	ac2-ui shop.rs tick: dormant destroy after 120 s, sort text page request, page buttons released
 0041dc40	x	ac2-ui shop.rs purchase: refusals to chat, stack for more than one, else one purchase
-0041de50	-	destructor only runs when the gameplay UI is torn down (logoff/exit), where the character logoff ends the store session on the server; no Drop in ac2-ui
+0041de50	x	ac2-ui hud_tick.rs leave_open_stores: as the session ends (log off or quit) with the shop, consignment or new-sale panel open, RequestLeaveStore goes out once before it (AGENTS.md exception); the rest of the destructor is teardown
 0041df30	x	ac2-ui shop.rs recv_handle_drag_from (the shop's context, a listed sale: PurchaseItem into the slot), reached from hud_message.rs on the pack's DragFrom; the shop icons carry Token_ShortcutType 0x40000002 so the pack's drop check takes them
 0041df90	x	ac2-ui shop_rows.rs post_sale: the item icon from the sale's icon description when IconDesc::IsValid (SetIconDesc), else its icon id in draw mode 2 (icon_desc.rs set_sale_icon); descriptions, cost, stock; drag context on the icon
 0041e2c0	x	ac2-ui shop.rs message: close (RequestLeaveStore), sort text (3 s wait), next/prev, purchase, Sale press select/examine; help opens ID_Help_Shop (hud_help.rs)

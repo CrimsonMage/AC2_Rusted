@@ -7,8 +7,9 @@ use ac2_weenie::SessionEvent;
 
 use crate::{
     allegiance_calls, assistance_outcomes, consignment_requests, death_notices, fellowship_calls,
-    shop_stack_calls, social_dialog_outcomes, DialogRequest, Hud, HudRequest, HudSource,
-    OptionsHost, ShopRequest, ShortcutCalls, ShortcutRequest, UiTree,
+    shop_stack_calls, social_dialog_outcomes, CatalogRequest, CatalogUi, ConsignmentUi,
+    DialogRequest, Hud, HudRequest, HudSource, NewSaleUi, OptionsHost, ShopRequest, ShopUi,
+    ShortcutCalls, ShortcutRequest, UiTree,
 };
 
 /// The text type of the store's purchase messages (`TEXT_TYPE_ERROR`).
@@ -112,6 +113,7 @@ pub fn tick_pass<P: HudSource>(
     }
     if let Some(dialogs) = dialogs.as_mut() {
         if game_dialogs.end_session_loop(tree, dialogs, player, death) {
+            leave_open_stores(shop, consignment, new_sale, catalog, &mut out);
             out.push(HudRequest::LogOff);
         }
     }
@@ -147,7 +149,10 @@ pub fn tick_pass<P: HudSource>(
                         }
                         options.confirm_close(yes);
                     }
-                    crate::OptionAction::Logoff => out.push(HudRequest::Quit),
+                    crate::OptionAction::Logoff => {
+                        leave_open_stores(shop, consignment, new_sale, catalog, &mut out);
+                        out.push(HudRequest::Quit);
+                    }
                     crate::OptionAction::EndCharacterSession => game_dialogs.logout_key(),
                 }
             }
@@ -312,4 +317,26 @@ pub fn tick_pass<P: HudSource>(
         }
     }
     out
+}
+
+/// The store panels' destructors as the session ends (`gmShopUI::~gmShopUI` and
+/// `gmShopConsignmentUI::~gmShopConsignmentUI`: `RequestLeaveStore`; `gmShopCatalogUI::~gmShopCatalogUI`:
+/// `RequestLeaveCatalog`), ahead of the log off or quit. Retail called them whenever the UI was torn
+/// down with the player present; here they go out once each, only while such a panel is open.
+pub(crate) fn leave_open_stores(
+    shop: &Option<ShopUi>,
+    consignment: &Option<ConsignmentUi>,
+    new_sale: &Option<NewSaleUi>,
+    catalog: &Option<CatalogUi>,
+    out: &mut Vec<HudRequest>,
+) {
+    if shop.as_ref().is_some_and(ShopUi::is_shown)
+        || consignment.as_ref().is_some_and(ConsignmentUi::is_shown)
+        || new_sale.as_ref().is_some_and(NewSaleUi::is_shown)
+    {
+        out.push(HudRequest::Shop(ShopRequest::LeaveStore));
+    }
+    if catalog.as_ref().is_some_and(CatalogUi::is_shown) {
+        out.push(HudRequest::Catalog(CatalogRequest::LeaveCatalog));
+    }
 }

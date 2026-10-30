@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1650 done, 1 partial, 0 to do, 596 skipped.
+2247 retail functions: 1653 done, 1 partial, 0 to do, 593 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (43/53)
@@ -481,7 +481,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670 — ac2-ui selection_notices.rs; ac2-client target_select.rs: clear selection, LookAtSelection(none), StopAttacking (IFun 0xB40104), auto-target next foe via Select 0x41000024; UnRegisterAllNoticeHandlers is per-object in Rust
 - [x] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720 — ac2-ui selection_notices.rs; ac2-client target_select.rs: clear selection, LookAtSelection(none), StopAttacking (IFun 0xB40104), auto-target next foe via Select 0x41000024; UnRegisterAllNoticeHandlers is per-object in Rust
 
-## `ac2/client/src/ui/gameplay/gmshopcatalogui.cpp.c` (10/11)
+## `ac2/client/src/ui/gameplay/gmshopcatalogui.cpp.c` (11/11)
 
 ### gmShopCatalogUI
 - [x] `gmShopCatalogUI::DestroyManagedElements` · 0041cc80 · legions 0041caa0 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
@@ -490,13 +490,13 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopCatalogUI::ListenToMessage` · 0041cda0 · legions 0041cbc0 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::EnterStore` · 0041cde0 · legions 0041cc00 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::gmShopCatalogUI` · 0041ce30 · legions 0041cc50 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
-- [-] `gmShopCatalogUI::~gmShopCatalogUI` · 0041cf10 · legions 0041cd30 — destructor only runs when the gameplay UI is torn down (logoff/exit), where the character logoff ends the catalog session on the server; no Drop in ac2-ui
+- [x] `gmShopCatalogUI::~gmShopCatalogUI` · 0041cf10 · legions 0041cd30 — ac2-ui hud_tick.rs leave_open_stores: as the session ends with the catalog open, RequestLeaveCatalog goes out before the log off (AGENTS.md exception); the rest is teardown
 - [x] `gmShopCatalogUI::RecvNotice_LeaveCatalog` · 0041cf80 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::ListenToMessage` · 0041cff0 · legions 0041ce10 — ac2-ui catalog.rs message: close (RequestLeaveCatalog + LeaveCatalog notice), enter, consignment, SelectionField presses incl. double (enter); help opens ID_Help_ShopCatalog (hud_help.rs)
 - [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (23/28)
+## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (24/28)
 
 ### UIShopSale
 - [-] `UIShopSale::~UIShopSale` · 0041b090 · legions 0041aef0 — C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
@@ -530,7 +530,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopConsignmentUI::RecvNotice_SelectionChanged` · 0041bd20 — ac2-ui consignment.rs ConsignmentUi::recv_selection_changed: while shown, a selection other than the selected sale's item clears the sale's selection (Select(null)); routed by shop_notices.rs consignment_notice
 - [x] `gmShopConsignmentUI::ListenToMessage` · 0041bd90 · legions 0041bbb0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::HandleListBoxDrop` · 0041bde0 · legions 0041bc00 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-- [-] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10 — no Drop and no notice registration in ac2-ui: the HUD routes the notices, the panel is created hidden; teardown only at logoff/exit
+- [x] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10 — ac2-ui hud_tick.rs leave_open_stores: as the session ends (log off or quit) with the shop, consignment or new-sale panel open, RequestLeaveStore goes out once before it (AGENTS.md exception); the rest of the destructor is teardown
 - [x] `gmShopConsignmentUI::PostSale` · 0041c0f0 · legions 0041bf10 — ac2-ui consignment.rs post_sale: a sold sale (status 3) shows the ProductIcon's sold_icon, any other its icon description when valid, else its icon id (set_sale_icon); drag source with its own context; consignment_tests
 - [x] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0 — ac2-ui consignment.rs message: close, new, collect, paging, selection, examination, drop, help (ID_Help_ShopConsignment, hud_help.rs), under the layout token names
 - [x] `gmShopConsignmentUI::UpdateSales` · 0041c820 · legions 0041c640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
@@ -560,7 +560,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [x] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); NewSaleHelpButton opens ID_Help_ShopConsignment (hud_help.rs); AddSaleButton; NewSale's mouse_over shows the slot selected while an item (ShortcutType 0x40000002) is dragged and stateless when the pointer leaves; the drop takes the item (newsale_tests.rs)
 
-## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (21/22)
+## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (22/22)
 
 ### gmShopUI
 - [x] `gmShopUI::CreateManagedElements` · 0041d3d0 · legions 0041d1f0 — ac2-ui shop.rs create_managed: the Shop root and its page buttons (Legions 7160)
@@ -577,7 +577,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopUI::RecvNotice_UpdateSale` · 0041d9b0 — ac2-ui shop_rows.rs recv_update_sale: stock text, sold out is unavailable
 - [x] `gmShopUI::ListenToMessage` · 0041dac0 · legions 0041d8e0 — ac2-ui shop.rs tick: dormant destroy after 120 s, sort text page request, page buttons released
 - [x] `gmShopUI::PurchaseItem` · 0041dc40 · legions 0041da60 — ac2-ui shop.rs purchase: refusals to chat, stack for more than one, else one purchase
-- [-] `gmShopUI::~gmShopUI` · 0041de50 · legions 0041dc70 — destructor only runs when the gameplay UI is torn down (logoff/exit), where the character logoff ends the store session on the server; no Drop in ac2-ui
+- [x] `gmShopUI::~gmShopUI` · 0041de50 · legions 0041dc70 — ac2-ui hud_tick.rs leave_open_stores: as the session ends (log off or quit) with the shop, consignment or new-sale panel open, RequestLeaveStore goes out once before it (AGENTS.md exception); the rest of the destructor is teardown
 - [x] `gmShopUI::RecvNotice_HandleDragFrom` · 0041df30 — ac2-ui shop.rs recv_handle_drag_from (the shop's context, a listed sale: PurchaseItem into the slot), reached from hud_message.rs on the pack's DragFrom; the shop icons carry Token_ShortcutType 0x40000002 so the pack's drop check takes them
 - [x] `gmShopUI::PostSale` · 0041df90 · legions 0041ddb0 — ac2-ui shop_rows.rs post_sale: the item icon from the sale's icon description when IconDesc::IsValid (SetIconDesc), else its icon id in draw mode 2 (icon_desc.rs set_sale_icon); descriptions, cost, stock; drag context on the icon
 - [x] `gmShopUI::ListenToMessage` · 0041e2c0 · legions 0041e0e0 — ac2-ui shop.rs message: close (RequestLeaveStore), sort text (3 s wait), next/prev, purchase, Sale press select/examine; help opens ID_Help_Shop (hud_help.rs)
