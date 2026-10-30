@@ -150,6 +150,10 @@ pub struct ChatUi {
     opacity_requests: Vec<(u32, f32)>,
     /// `gmChatUI::_spewBoxPending` / `_spewBoxItems`; `None` when the layout has no spew box.
     spew: Option<SpewBox>,
+    /// The modern style's windows (`modern_chat`); `None` in the classic style.
+    modern: Option<crate::modern_chat::ModernChat>,
+    /// The windows' names (`ID_Option_Chat1`..`4`), once the UI table renders them.
+    names: Vec<String>,
 }
 
 impl ChatUi {
@@ -172,12 +176,39 @@ impl ChatUi {
             requests: Vec::new(),
             opacity_requests: Vec::new(),
             spew,
+            modern: None,
+            names: Vec::new(),
         };
         if !chat.windows.is_empty() {
             chat.windows[0].show(tree, true);
             chat.set_active_window(tree, 0);
         }
         chat
+    }
+
+    /// The modern style's windows laid over the four (`modern_chat`); `layouts` give its small
+    /// font.
+    pub fn set_modern(&mut self, tree: &mut UiTree, layouts: &[&Arc<LayoutDesc>]) {
+        let roots: Vec<usize> = self.windows.iter().map(|w| w.root).collect();
+        self.modern = Some(crate::modern_chat::ModernChat::adopt(tree, &roots, layouts));
+    }
+
+    /// The modern windows laid out for their sizes and states (every frame; nothing in classic);
+    /// their names rendered from the UI table until it has them.
+    pub fn modern_tick(&mut self, tree: &mut UiTree, strings: &dyn crate::ui_string::UiStrings) {
+        let Some(modern) = &self.modern else {
+            return;
+        };
+        if self.names.iter().all(|n| n.is_empty()) {
+            self.names = crate::chat_options_table::WINDOW_NAMES
+                .iter()
+                .map(|name| {
+                    strings
+                        .render_string(&crate::ui_string::UiString::ui(tokenize(name), Vec::new()))
+                })
+                .collect();
+        }
+        modern.follow(tree, &self.names);
     }
 
     /// The windows' roots, first to fourth.
@@ -252,6 +283,19 @@ impl ChatUi {
 
     /// One UI message (`gmChatUI::ListenToMessage` and each `ChatWindow::ListenToMessage`).
     pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage, modifiers: Modifiers) {
+        // The modern opacity slider: it sets the window's opacity as retail's slider did, and a
+        // release saves it (`SetWindowOpacity`).
+        if let Some((i, opacity, released)) =
+            self.modern.as_ref().and_then(|m| m.message(tree, message))
+        {
+            if let Some(window) = self.windows.get(i) {
+                window.apply_opacity(tree, opacity);
+                if released {
+                    self.opacity_requests.push((window.window_id, opacity));
+                }
+            }
+            return;
+        }
         if message.element.is_none() {
             if message.message == GLOBAL_KEY_PRESS {
                 self.key_press(tree, message.data as u32, modifiers);

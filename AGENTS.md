@@ -224,6 +224,15 @@ game rules and server-visible behaviour exactly retail.
   `BaseField`'s state changes make its children anew; the places are set again each update. The
   radar is laid out by the display's top right (12 and 8 pixels in), not a saved window, until the
   design's Edit layout mode lands.
+  The chat windows are the design's (`ac2_ui::modern_chat`): each of the four `ChatWindow`s on
+  teal glass in a bronze line (gold while active) under a bronze header holding its tab (its
+  window key and its name, `ID_Option_Chat1`..`4`), the other windows' toggles, an opacity slider
+  (`op`) and the options button (`=`); the log on darker glass with the thin scroll bar; a channel
+  pill before the entry line (SAY, or the command the line starts with; an addition); retail's
+  stone frame, rule and vertical opacity field are gone. The slider is the client's: it sets the
+  window's opacity as retail's did (`ChatWindow::SetOpacity`) and saves it on release
+  (`SetWindowOpacity`), and the window's glass fades with it as retail's mode 3 frame did
+  (`compose::DRAW_OVER_FADE`). The art is restyled in the chat's own copy of the toolbar layout.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

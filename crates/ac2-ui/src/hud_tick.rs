@@ -85,6 +85,10 @@ pub fn tick_pass<P: HudSource>(
             bar.drawer_tick(tree, pack, paper_doll.as_ref(), player);
         }
     }
+    // The modern chat windows follow their sizes and states.
+    if let Some(chat) = chat.as_mut() {
+        chat.modern_tick(tree, player);
+    }
     // The modern vitals' layout switch follows the pointer.
     if let Some(bar) = vitals.as_ref() {
         bar.modern_tick(tree);

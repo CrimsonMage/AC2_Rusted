@@ -270,8 +270,12 @@ pub mod ac1_buttons;
 pub mod hud_style;
 mod modern_all_view;
 pub mod modern_art;
+mod modern_art_chat;
 mod modern_art_drawer;
 mod modern_art_radar;
+mod modern_chat;
+#[cfg(test)]
+mod modern_chat_tests;
 mod modern_drawer_bar;
 mod modern_inventory;
 #[cfg(test)]

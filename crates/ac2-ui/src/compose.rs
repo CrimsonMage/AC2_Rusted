@@ -146,7 +146,8 @@ impl UiSurface {
         let op = match mode.draw_mode {
             1 | 2 => BlitOp::Channel,
             3 => BlitOp::Value(alpha_value),
-            DRAW_OVER => BlitOp::Over,
+            DRAW_OVER => BlitOp::Over(1.0),
+            DRAW_OVER_FADE => BlitOp::Over(over_alpha(alpha_value)),
             _ => BlitOp::Copy,
         };
         let local = dirty.offset(-me.x0, -me.y0);
@@ -220,7 +221,8 @@ impl UiSurface {
         let op = match mode.draw_mode {
             1 | 2 => BlitOp::Channel,
             3 => BlitOp::Value(alpha_value),
-            DRAW_OVER => BlitOp::Over,
+            DRAW_OVER => BlitOp::Over(1.0),
+            DRAW_OVER_FADE => BlitOp::Over(over_alpha(alpha_value)),
             _ => BlitOp::Copy,
         };
         // Source and destination cuts along each axis: [start, border, far border, end).
@@ -266,13 +268,27 @@ impl UiSurface {
 /// alpha, the surface's alpha accumulating (source over), so the client's translucent art (glass,
 /// fades, glows) shows on a clear surface. Retail's modes 1 and 2 keep the surface's alpha.
 pub const DRAW_OVER: u32 = 4;
+/// [`DRAW_OVER`] times the element's alpha value (when it has one): the modern art of a window
+/// whose opacity the player sets (retail's mode 3 parts faded so).
+pub const DRAW_OVER_FADE: u32 = 5;
+
+/// [`DRAW_OVER_FADE`]'s scale: the element's alpha value when it has one (0 to 1), else whole.
+/// An element whose alpha was never set holds -1, or the draw mode's bits read as a float
+/// (`UIElement::SetImage` without an `alpha_value`, a subnormal), neither an alpha.
+fn over_alpha(alpha_value: f32) -> f32 {
+    if alpha_value == 0.0 || (alpha_value.is_normal() && (0.0..=1.0).contains(&alpha_value)) {
+        alpha_value
+    } else {
+        1.0
+    }
+}
 
 /// One pixel of `SurfaceWindow::Blit`: `source` onto `dest` by `op`.
 fn blend(dest: &mut [u8], source: &[u8], op: BlitOp) {
     let alpha = i32::from(source[3]);
     match op {
-        BlitOp::Over => {
-            let sa = f32::from(source[3]) / 255.0;
+        BlitOp::Over(scale) => {
+            let sa = f32::from(source[3]) / 255.0 * scale;
             if sa <= 0.0 {
                 return;
             }
@@ -310,8 +326,9 @@ enum BlitOp {
     Channel,
     /// 0x20: copied with the alpha scaled by the value.
     Value(f32),
-    /// [`DRAW_OVER`]: composited over by the source's alpha, the alpha accumulating.
-    Over,
+    /// [`DRAW_OVER`] and [`DRAW_OVER_FADE`]: composited over by the source's alpha times the
+    /// scale (the element's alpha value for the fading mode), the alpha accumulating.
+    Over(f32),
 }
 
 impl UiTree {

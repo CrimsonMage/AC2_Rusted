@@ -304,12 +304,18 @@ pub fn build_styled_hud(
         e.insert(load_layout_by_enum(store, LAYOUT_SPEW)?);
     }
     let chat = match (&layouts[&LAYOUT_TOOLBAR], &layouts[&LAYOUT_SPEW]) {
-        (Some(toolbar), Some(messages)) => Some(ChatUi::create(
-            &mut tree,
-            toolbar,
-            messages,
-            chat_strings(store)?,
-        )),
+        (Some(toolbar), Some(messages)) => {
+            // The modern windows' art (`modern_chat::restyle`) in the chat's copy of the layout.
+            let chat_layout = match style {
+                HudStyle::Modern => Arc::new(crate::modern_chat::restyle(toolbar)),
+                HudStyle::Classic => Arc::clone(toolbar),
+            };
+            let mut chat = ChatUi::create(&mut tree, &chat_layout, messages, chat_strings(store)?);
+            if style == HudStyle::Modern {
+                chat.set_modern(&mut tree, &[toolbar]);
+            }
+            Some(chat)
+        }
         _ => None,
     };
     // `gmSkillUI::gmSkillUI`: the skill tree over `SkillField`.

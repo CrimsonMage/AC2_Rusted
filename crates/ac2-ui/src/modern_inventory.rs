@@ -803,6 +803,12 @@ pub(crate) fn make_part(
     desc.z_level = z as u16;
     let part = tree.create_element(layout, Arc::new(desc), false)?;
     tree.set_parent(part, Some(field));
+    // The part's art draws whole: not at the template's alpha value (an attribute `set_image`
+    // reads while the element has none); a window's opacity sets one later, as on retail's parts.
+    tree.el_mut(part)
+        .attributes
+        .remove(&crate::token::ALPHA_VALUE);
+    tree.el_mut(part).alpha_value = -1.0;
     tree.set_image(part, image, DRAW_OVER);
     if let Some(border) = nine {
         tree.set_int(part, NINE_SLICE, border);
