@@ -44,7 +44,9 @@ const BAR: i32 = 9;
 const EXPERIENCE: i32 = 5;
 /// The indicators' column: its gap from the bars and each field's size.
 const INDICATOR_GAP: i32 = 8;
-const INDICATOR: (i32, i32) = (20, 32);
+const INDICATOR: (i32, i32) = (16, 25);
+/// The panel's distance from the display's left and top edges.
+const MARGIN: (i32, i32) = (8, 8);
 /// An effect's room in the effects' rows when its list has none to measure, and the gap between
 /// rows.
 const EFFECT_PITCH: (i32, i32) = (29, 29);
@@ -214,6 +216,8 @@ impl ModernVitals {
         for element in placed {
             keep(tree, element);
         }
+        // Laid out by the display's top left, not a saved window (as the toolbar and the drawer).
+        tree.set_overlay_root(root);
         // The glass, the wells and the switch, copies of the end cap (a plain field).
         let template = find(tree, END_CAP);
         let part = |tree: &mut UiTree, id: &str, image: u32, nine: Option<i32>, z: i32| {
@@ -356,6 +360,12 @@ impl ModernVitals {
         let mut y = 0;
         for (&holder, &on) in self.holders.iter().zip(&shown) {
             place(tree, Some(holder), (0, y, INDICATOR.0, INDICATOR.1));
+            // The indicator's art scaled to the design's size.
+            tree.set_bool(holder, crate::token::SIZE_IMAGE_TO_OWNER, true);
+            for part in tree.children(holder).to_vec() {
+                place(tree, Some(part), (0, 0, INDICATOR.0, INDICATOR.1));
+                tree.set_bool(part, crate::token::SIZE_IMAGE_TO_OWNER, true);
+            }
             if on {
                 y += INDICATOR.1 + GAP;
             }
@@ -387,6 +397,11 @@ impl ModernVitals {
         if (root.width(), root.height()) != (w, h) {
             tree.resize_to(self.root, w, h);
         }
+        // At the display's top left.
+        let now = tree.screen_box(self.root);
+        if (now.x0, now.y0) != MARGIN {
+            tree.move_to(self.root, MARGIN.0, MARGIN.1);
+        }
         place(tree, self.glass, (0, 0, w, h));
         place(
             tree,
@@ -397,7 +412,12 @@ impl ModernVitals {
 
     /// The effects' count and whether each indicator holder's field shows.
     fn content(&self, tree: &UiTree) -> (usize, Vec<bool>) {
-        let count = self.effect_list.map_or(0, |l| tree.list_items(l).len());
+        let count = self.effect_list.map_or(0, |l| {
+            tree.list_items(l)
+                .iter()
+                .filter(|&&i| draws(tree, i))
+                .count()
+        });
         let shown = self.holders.iter().map(|&h| draws(tree, h)).collect();
         (count, shown)
     }

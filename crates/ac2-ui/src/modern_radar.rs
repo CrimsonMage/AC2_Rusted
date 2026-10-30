@@ -47,6 +47,8 @@ const BUTTON_ART: [(u32, u32); 3] = [
 /// The pill's top, height and room either side of the text; the buttons' top.
 const PILL: (i32, i32, i32) = (128, 18, 10);
 const BUTTONS_Y: i32 = 92;
+/// The radar's distance from the display's right and top edges.
+const MARGIN: (i32, i32) = (12, 8);
 /// The range chip's top and height.
 const CHIP: (i32, i32) = (20, 12);
 
@@ -123,12 +125,13 @@ impl ModernRadar {
             .copied()
             .find(|&r| tree.el(r).id() == tokenize("RadarField"))?;
         let (w, h) = art::RADAR_BOX;
-        // The root keeps its place and anchoring (the display's top right); only its size is
-        // the design's.
+        // Laid out by the display's top right (`MARGIN`), not a saved window, as the drawer under
+        // it is.
         let at = tree.el(root).rect;
         if (at.width(), at.height()) != (w, h) {
             tree.resize_to(root, w, h);
         }
+        tree.set_overlay_root(root);
         // The blips on the design's disc.
         let (cx, cy) = art::RADAR_CENTER;
         tree.set_int(root, tokenize("RadarCenter_X"), cx);
@@ -214,6 +217,12 @@ impl ModernRadar {
         let find = |tree: &UiTree, id: u32| tree.child_recursive(self.root, id);
         let (w, h) = art::RADAR_BOX;
         let size = art::RADAR_WELL_SIZE;
+        // At the display's top right.
+        let at = (tree.display.0 - MARGIN.0 - w, MARGIN.1);
+        let now = tree.screen_box(self.root);
+        if (now.x0, now.y0) != at {
+            tree.move_to(self.root, at.0, at.1);
+        }
         place(tree, find(tree, tokenize("BaseField")), (0, 0, w, h));
         place(tree, find(tree, RING), (0, 0, w, w));
         if let Some(piece) = find(tree, RING_PIECE) {

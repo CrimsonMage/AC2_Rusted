@@ -203,7 +203,9 @@ game rules and server-visible behaviour exactly retail.
   stacked over it, the effects under them in as many rows as they take, and the indicators (net,
   PK, vitae) in a column at their right, packed so a hidden one leaves no gap; retail kept them in
   a block left of the bars. A switch at the panel's corner, shown while the pointer is over the
-  panel, changes the layout (not yet saved). The fields are retail's, moved up to the panel (the
+  panel, changes the layout (not yet saved). The panel is laid out by the display's top left (8
+  pixels in), not a saved window, until the design's Edit layout mode lands; the indicators are
+  drawn 16 x 25. The fields are retail's, moved up to the panel (the
   frame's own fields would clip them), so what they show and their presses stay retail's.
   At 30% health or less the health bar grows, its well pulses red, a LOW tag shows under the
   indicators and the screen's edge glows red (a full-display overlay root whose surface opacity
@@ -216,7 +218,9 @@ game rules and server-visible behaviour exactly retail.
   coordinates a pill under the disc, the Tracker eye and the coordinates button in round wells at
   the disc's lower left and right, and a chip at its upper right giving the range in metres
   (retail showed none). The art is restyled in the gameplay layout before the radar is made, as
-  `BaseField`'s state changes make its children anew; the places are set again each update.
+  `BaseField`'s state changes make its children anew; the places are set again each update. The
+  radar is laid out by the display's top right (12 and 8 pixels in), not a saved window, until the
+  design's Edit layout mode lands.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its
