@@ -55,6 +55,8 @@ pub(crate) struct DrawerBar {
     counts: Vec<Option<usize>>,
     /// The search field and its pill.
     search: Option<(usize, Option<usize>)>,
+    /// The hint in the empty search field.
+    hint: Option<usize>,
     /// The footer's label.
     foot: Option<usize>,
     /// The filter chips and their labels, in [`FILTERS`]' order.
@@ -187,9 +189,31 @@ impl DrawerBar {
                 (chip, label)
             })
             .collect();
+        // The hint: the small font in the design's muted teal (`#8da49b`), shown while the field
+        // is empty and not being typed in.
+        let hint = search.and_then(|(_, pill)| pill).and_then(|pill| {
+            count_label(
+                tree,
+                layouts,
+                pill,
+                "ModernDrawerSearchHint",
+                Justification::Left,
+            )
+        });
+        if let Some(hint) = hint {
+            for (channel, value) in [("red", 0x8D), ("green", 0xA4), ("blue", 0x9B)] {
+                let _ = tree.set_float(
+                    hint,
+                    tokenize(&format!("font_color1_{channel}")),
+                    value as f32 / 255.0,
+                );
+            }
+            tree.set_text_with_font(hint, "search", 0, 1);
+        }
         // Each part (and its text) keeps where it is put when the drawer is laid out again.
         let mut parts: Vec<usize> = counts.iter().flatten().copied().collect();
         parts.extend(foot);
+        parts.extend(hint);
         parts.extend(chips.iter().flat_map(|(c, l)| [*c, *l]).flatten());
         if let Some((field, pill)) = search {
             parts.push(field);
@@ -204,6 +228,7 @@ impl DrawerBar {
         Self {
             counts,
             search,
+            hint,
             foot,
             chips,
             filter: Cell::new(0),
@@ -257,6 +282,11 @@ impl DrawerBar {
             tree.move_to(field, search.x0 + 8, search.y0 + 1);
             tree.resize_to(field, search.width() - 16, search.height() - 2);
         }
+        place_label(
+            tree,
+            self.hint,
+            UiBox::new(8, 0, search.width() - 9, search.height() - 1),
+        );
         place_label(tree, self.foot, foot);
         self.shown_for.set(None);
     }
@@ -278,6 +308,13 @@ impl DrawerBar {
         source: &dyn InventorySource,
     ) {
         let query = self.query(tree);
+        // The hint shows while the field is empty and not being typed in.
+        if let (Some(hint), Some((field, _))) = (self.hint, self.search) {
+            let shown = query.is_empty() && tree.active != Some(field);
+            if tree.el(hint).visible != shown {
+                tree.set_visible(hint, shown);
+            }
+        }
         let shown = backpack
             .packs
             .iter()

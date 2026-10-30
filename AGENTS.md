@@ -171,9 +171,11 @@ game rules and server-visible behaviour exactly retail.
   `gmPaperDollUI` sat at its layout offset), and under retail's rail the pack buttons are a row of
   tabs over the page's grid, seven slots wide (`max_columns` 7, retail 6) of 36-pixel slots 4
   apart in glass wells (the backpack's `ItemBackground`, from a restyled copy of the toolbar
-  layout so other containers keep retail's slot), the scroll bar at its right. The drawer adds
+  layout so other containers keep retail's slot), the scroll bar at its right drawn thin (10
+  pixels: a dark track, a bronze thumb with round ends, small chevron arrows, where retail drew
+  15-pixel blue art; the same parts, states and behaviour). The drawer adds
   (`ac2_ui::modern_drawer_bar`) each tab's count of items over slots in the slot numbers' small
-  font, a search field at the tabs' right that veils the shown page's slots whose item's name
+  font, a search field at the tabs' right (a muted "search" hint while it is empty) that veils the shown page's slots whose item's name
   lacks the text, filter chips under the tabs (All, Arms, Armor, Jewelry, Other, by the item's
   preferred equip location, the `*_InvLoc` bits, as retail has no item category; the user chose
   these over the design's Use and Parts) that veil the slots the chip leaves out (both view only:

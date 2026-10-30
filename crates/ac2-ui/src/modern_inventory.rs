@@ -51,7 +51,9 @@ const FOOT: i32 = 18;
 const SEARCH: (i32, i32) = (90, 20);
 /// The filter chips' row, with the gap under it.
 const CHIPS: i32 = 21;
-const SCROLL: i32 = 15;
+const SCROLL: i32 = art::SCROLL_WIDTH;
+/// The tallest of retail's scroll arrows (15), so an arrow is told from the track.
+const ARROW_MAX: i32 = 16;
 /// A header button's backing and the button on it.
 const HEADER_BUTTON: i32 = 20;
 const HEADER_ICON: i32 = 16;
@@ -195,6 +197,67 @@ pub(crate) fn keep(tree: &mut UiTree, element: usize) {
     el.desc = new_desc;
 }
 
+/// The pack pages' scroll bar art (`0x410002A5`..`0x410002B8`, `0x41007FDC`, `0x41007FDD`) and
+/// the thin bar's that stands for it (`modern_art`).
+const SCROLL_ART: [(u32, u32); 11] = [
+    (0x4100_02A8, art::SCROLL_TRACK),
+    (0x4100_02A5, art::THUMB_TOP),
+    (0x4100_02A6, art::THUMB_MID),
+    (0x4100_02A7, art::THUMB_BOTTOM),
+    (0x4100_02B5, art::SCROLL_UP),
+    (0x4100_02B6, art::SCROLL_UP_LIT),
+    (0x4100_7FDD, art::SCROLL_UP_LIT),
+    (0x4100_02B7, art::SCROLL_DOWN),
+    (0x4100_02B8, art::SCROLL_DOWN_LIT),
+    (0x4100_7FDC, art::SCROLL_DOWN_LIT),
+    (0x4100_02BA, art::SCROLL_TRACK),
+];
+
+/// A copy of `desc` whose images in every state are the thin bar's (`SCROLL_ART`), drawn over.
+fn thin_bar(desc: &ElementDesc) -> ElementDesc {
+    let mut desc = desc.clone();
+    for state in &mut desc.states {
+        for media in &mut state.media {
+            if let MediaDesc::Image {
+                file, draw_mode, ..
+            } = media
+            {
+                if let Some(&(_, to)) = SCROLL_ART.iter().find(|(from, _)| from == file) {
+                    *file = to;
+                    *draw_mode = DRAW_OVER;
+                }
+            }
+        }
+    }
+    desc
+}
+
+/// `element` and everything under it drawn as the thin bar: their states' art replaced
+/// (`thin_bar`, in the description and its referent, so a state change keeps it) and the image
+/// shown now swapped, each `SCROLL` wide.
+fn restyle_scroll(tree: &mut UiTree, element: usize) {
+    let (reference, desc) = {
+        let el = tree.el(element);
+        (Arc::clone(&el.reference), Arc::clone(&el.desc))
+    };
+    let new_reference = Arc::new(thin_bar(&reference));
+    let new_desc = if Arc::ptr_eq(&reference, &desc) {
+        Arc::clone(&new_reference)
+    } else {
+        Arc::new(thin_bar(&desc))
+    };
+    let el = tree.el_mut(element);
+    el.reference = new_reference;
+    el.desc = new_desc;
+    let shown = tree.el(element).image().map(|i| i.file);
+    if let Some(&(_, to)) = SCROLL_ART.iter().find(|(from, _)| Some(*from) == shown) {
+        tree.set_image(element, to, DRAW_OVER);
+    }
+    for child in tree.children(element).to_vec() {
+        restyle_scroll(tree, child);
+    }
+}
+
 /// `element` moved and sized to `at` (its parent's coordinates), when it is not there.
 fn put(tree: &mut UiTree, element: Option<usize>, at: UiBox) {
     let Some(element) = element else {
@@ -296,6 +359,12 @@ impl Drawer {
             placed.extend(container.iter().chain(button.iter()).copied());
             if let Some(container) = container {
                 placed.extend(tree.children(*container).to_vec());
+                // The page's scroll bar drawn thin.
+                for part in tree.children(*container).to_vec() {
+                    if tree.el(part).id() != tokenize("ContainerListBox") {
+                        restyle_scroll(tree, part);
+                    }
+                }
                 // The page's list `COLUMNS` wide (`UIElement_ListBox::SetAttribute_Int`).
                 if let Some(list) = tree.child_recursive(*container, tokenize("ContainerListBox")) {
                     tree.set_int(list, tokenize("max_columns"), COLUMNS);
@@ -503,14 +572,24 @@ impl Drawer {
             }
             // The bar's parts by where retail put them: the top arrow, the bottom one, the track.
             let r = tree.el(child).rect;
-            let at = if r.height() <= SCROLL && r.y0 <= 1 {
+            let arrow = r.height() <= ARROW_MAX;
+            let at = if arrow && r.y0 <= 1 {
                 sized(w - SCROLL, 0, (SCROLL, SCROLL))
-            } else if r.height() <= SCROLL {
+            } else if arrow {
                 sized(w - SCROLL, h - SCROLL, (SCROLL, SCROLL))
             } else {
                 sized(w - SCROLL, SCROLL, (SCROLL, h - 2 * SCROLL))
             };
             put(tree, Some(child), at);
+            // The track's pieces and the thumb's as narrow as the bar.
+            let mut under = tree.children(child).to_vec();
+            while let Some(part) = under.pop() {
+                under.extend(tree.children(part).iter().copied());
+                let r = tree.el(part).rect;
+                if r.width() != SCROLL {
+                    tree.resize_to(part, SCROLL, r.height());
+                }
+            }
         }
     }
 }

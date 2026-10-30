@@ -201,6 +201,17 @@ pub const ITEM_WELL: u32 = 0x7E01_0064;
 pub const SEARCH_PILL: u32 = 0x7E01_0065;
 /// The veil over an item slot the search leaves out.
 pub const SLOT_VEIL: u32 = 0x7E01_0066;
+/// The drawer's thin scroll bar: the track, the thumb's top, middle and bottom, and the arrows
+/// (up, up lit, down, down lit), all `SCROLL_WIDTH` wide.
+pub const SCROLL_TRACK: u32 = 0x7E01_0070;
+pub const THUMB_TOP: u32 = 0x7E01_0071;
+pub const THUMB_MID: u32 = 0x7E01_0072;
+pub const THUMB_BOTTOM: u32 = 0x7E01_0073;
+pub const SCROLL_UP: u32 = 0x7E01_0074;
+pub const SCROLL_UP_LIT: u32 = 0x7E01_0075;
+pub const SCROLL_DOWN: u32 = 0x7E01_0076;
+pub const SCROLL_DOWN_LIT: u32 = 0x7E01_0077;
+pub const SCROLL_WIDTH: i32 = 10;
 /// The drawer's filter chips, off and on.
 pub const CHIP: u32 = 0x7E01_0067;
 pub const CHIP_ON: u32 = 0x7E01_0068;
@@ -519,6 +530,63 @@ fn search_pill() -> UiPixels {
     c.finish()
 }
 
+/// The scroll bar's track: the well's dark glass, tiled.
+fn scroll_track() -> UiPixels {
+    let w = SCROLL_WIDTH as usize;
+    let mut c = Canvas::new(w, 4);
+    let shape = round_rect(0.0, -4.0, w as f32, 12.0, 0.0);
+    c.paint(&shape, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
+    c.finish()
+}
+
+/// A piece of the thumb (`part`: 0 top cap, 1 middle, 2 bottom cap): bronze shaded left to
+/// right (`#a8a28a` to `#4d493c`), its ends round.
+fn thumb(part: u8) -> UiPixels {
+    let w = SCROLL_WIDTH as usize;
+    let h = if part == 1 { 4 } else { 7 };
+    let mut c = Canvas::new(w, h);
+    let r = w as f32 / 2.0 - 1.0;
+    let shape = match part {
+        0 => round_rect(1.0, 0.0, w as f32 - 1.0, h as f32 + 2.0 * r, r),
+        2 => round_rect(1.0, -2.0 * r, w as f32 - 1.0, h as f32, r),
+        _ => round_rect(1.0, -4.0, w as f32 - 1.0, h as f32 + 4.0, 0.0),
+    };
+    c.paint(&shape, |x, _, d| {
+        let t = (x / w as f32).clamp(0.0, 1.0);
+        (mix(rgb(0xA8A28A, 1.0), rgb(0x4D493C, 1.0), t), inside(d))
+    });
+    c.finish()
+}
+
+/// A scroll arrow on the track's glass: a small chevron, bronze, or gold when `lit`.
+fn scroll_arrow(up: bool, lit: bool) -> UiPixels {
+    let w = SCROLL_WIDTH as usize;
+    let mut c = Canvas::new(w, w);
+    let back = round_rect(0.0, 0.0, w as f32, w as f32, 0.0);
+    c.paint(&back, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
+    let color = if lit {
+        rgb(0xD9C27A, 1.0)
+    } else {
+        rgb(0x8B846C, 1.0)
+    };
+    let (cx, cy) = (w as f32 / 2.0, w as f32 / 2.0);
+    c.paint(&back, |x, y, _| {
+        // A chevron 6 wide and 3 tall, 1.4 pixels thick.
+        let dy = if up { cy + 1.5 - y } else { y - (cy - 1.5) };
+        let edge = (dy - (3.0 - (x - cx).abs())).abs();
+        let within = (x - cx).abs() <= 3.2 && (-0.5..=3.5).contains(&dy);
+        (
+            color,
+            if within {
+                (1.0 - (edge - 0.7).max(0.0)).clamp(0.0, 1.0)
+            } else {
+                0.0
+            },
+        )
+    });
+    c.finish()
+}
+
 /// A filter chip: a dark pill in a fine bronze line, or (on) filled bronze.
 fn chip(on: bool) -> UiPixels {
     let (w, h) = (24usize, 16usize);
@@ -646,6 +714,14 @@ pub fn bake(images: &mut HashMap<u32, UiPixels>, icons: &HashMap<u32, UiPixels>)
         (SEARCH_PILL, search_pill()),
         (SLOT_VEIL, slot_veil()),
         (CHIP, chip(false)),
+        (SCROLL_TRACK, scroll_track()),
+        (THUMB_TOP, thumb(0)),
+        (THUMB_MID, thumb(1)),
+        (THUMB_BOTTOM, thumb(2)),
+        (SCROLL_UP, scroll_arrow(true, false)),
+        (SCROLL_UP_LIT, scroll_arrow(true, true)),
+        (SCROLL_DOWN, scroll_arrow(false, false)),
+        (SCROLL_DOWN_LIT, scroll_arrow(false, true)),
         (CHIP_ON, chip(true)),
         (DOLL_FRAME, doll_frame()),
         (HEADER_BUTTON, header_button()),
