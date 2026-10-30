@@ -39,7 +39,7 @@ pub struct DrawnGroup {
     pub atoms: Ac2Atoms,
 }
 
-/// `VisualDesc::GetTotalVisualDesc` of `local` (its parent chain, then itself), or of the DAT
+/// `CPhysicsObj::GetTotalVisualDesc` (`VisualDesc::GetTotalVisualDesc`) of `local` (its parent chain, then itself), or of the DAT
 /// `VisualDesc` `visual` alone. A link of the chain that does not load fails it, as
 /// `GetTotalVisualDescInternal` does.
 pub fn total_visual_desc(

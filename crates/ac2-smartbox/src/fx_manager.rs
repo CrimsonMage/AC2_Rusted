@@ -3,6 +3,9 @@
 
 use crate::remotes::Remotes;
 
+/// The opacity slider `CPhysicsObj::SetChildrenOpacity` drives on each child.
+const OPACITY_SLIDER: u32 = 0x4000_0015;
+
 /// What `FXManager::DoAppearanceFX` asks `PHYSICSOBJREP` to do.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppearanceFxStep {
@@ -49,14 +52,40 @@ impl<B> Remotes<B> {
         body.do_slider(0, slider, scalar, ramp_time);
         moved += 1;
         if propagate {
-            for &child in children {
-                if let Some(body) = self.body_mut(child) {
-                    body.do_slider(0, slider, scalar, ramp_time);
-                    moved += 1;
-                }
+            moved += self.do_slider_on_child(slider, scalar, ramp_time, children);
+        }
+        moved
+    }
+
+    /// `CPhysicsObj::DoSliderOnChild` (`PHYSICSOBJREP::DoSliderOnChild`): each direct child, in
+    /// list order, runs `DoSlider(0, slider, scalar, ramp)`. Returns how many bodies moved it
+    /// (a child without a body is skipped).
+    pub fn do_slider_on_child(
+        &mut self,
+        slider: u32,
+        scalar: f32,
+        ramp_time: f32,
+        children: &[u64],
+    ) -> usize {
+        let mut moved = 0;
+        for &child in children {
+            if let Some(body) = self.body_mut(child) {
+                body.do_slider(0, slider, scalar, ramp_time);
+                moved += 1;
             }
         }
         moved
+    }
+
+    /// `CPhysicsObj::SetChildrenOpacity` (`PHYSICSOBJREP::SetChildrenOpacity`): the opacity
+    /// slider `0x40000015` of each direct child moves to `opacity` over `ramp_time`.
+    pub fn set_children_opacity(
+        &mut self,
+        opacity: f32,
+        ramp_time: f32,
+        children: &[u64],
+    ) -> usize {
+        self.do_slider_on_child(OPACITY_SLIDER, opacity, ramp_time, children)
     }
 }
 
@@ -122,6 +151,9 @@ mod tests {
             3
         );
         assert_eq!((desired(&remotes, 2), desired(&remotes, 3)), (0.5, 0.5));
+        // Child opacity is the opacity slider of each direct child.
+        assert_eq!(remotes.set_children_opacity(0.0, 0.0, &[2, 99, 3]), 2);
+        assert_eq!((desired(&remotes, 2), desired(&remotes, 3)), (0.0, 0.0));
         // An emitter without a body does nothing.
         assert_eq!(remotes.do_slider_fx(99, true, SLIDER, 0.5, 0.0, &[2]), 0);
     }

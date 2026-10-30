@@ -60,6 +60,7 @@ mod motion_interp_behaviors;
 #[cfg(test)]
 mod motion_tests;
 mod moveto;
+mod object_visual;
 mod objects;
 #[cfg(test)]
 mod objects_dynamic_tests;
@@ -105,8 +106,8 @@ pub use anim_rep::BodyAnimation;
 pub use appearance::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
 pub use appearance_delta::local_visual_desc;
 pub use body::{
-    is_moving_velocity, AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock,
-    Tuning, ANIM_QUANTUM, PHYSICS_QUANTUM,
+    is_moving_velocity, AnimationClock, MovementInput, MovementState, PhysObjProfile, PhysicsBody,
+    PhysicsClock, Tuning, ANIM_QUANTUM, PHYSICS_QUANTUM,
 };
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
@@ -154,6 +155,7 @@ pub use moveto::{
     MoveToResult, MovementParameters, PackedMovementParameters, MOVE_TO_AWAY, MOVE_TO_MOVE,
     MOVE_TO_OBJECT, MOVE_TO_PERSISTENT, MOVE_TO_TURN, MOVE_TO_USE_CYLINDERS,
 };
+pub use object_visual::{is_visible, ObjectVisualDesc, VISUAL_DESC_TYPE};
 pub use objects::{BBox, ObjectShape, StaticObject};
 pub use part_array::{PartArray, PartMesh, PartSetup, HAS_PHYSICS_BSP_STATE};
 pub use part_group::{FoundHolding, PartGroup, PartGroupTree};

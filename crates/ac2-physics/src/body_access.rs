@@ -74,14 +74,14 @@ impl PhysicsBody {
         self.object.set_scale(Vector::new(scale, scale, scale));
     }
 
-    /// `CPhysicsObj::ApplyPropertyCollection`: the description's property groups applied to the
+    /// `CPhysicsObj::ApplyPropertyCollection` (`ReApplyPropertyCollection` forwards to it): the description's property groups applied to the
     /// body (the blocking mask, the physics material, the graphics state, the game-draw bit),
     /// the properties kept for `InqCurrentProperties`. True when every property applied.
     pub fn apply_property_collection(&mut self, groups: &[ac2_db::Ac2PropertyGroup]) -> bool {
         self.object.apply_property_collection(groups)
     }
 
-    /// `CPhysicsObj::InqCurrentProperties`: the properties `ApplyPropertyCollection` kept.
+    /// `CPhysicsObj::InqCurrentProperties` and `GetObjectProperties` (with `physics_material_id`): the properties `ApplyPropertyCollection` kept.
     pub fn current_properties(&self) -> &[ac2_db::Ac2PropertyGroup] {
         &self.object.property_info
     }

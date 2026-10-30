@@ -117,7 +117,7 @@ pub struct Ac2FxObject {
     /// `m_apr_id`: the appearance table the node applies to its emitter
     /// (`FXManager::DoAppearanceFX`); zero for none.
     pub appearance: u32,
-    /// `m_apr_key` (`AppliedAppearanceKey`): the key and its scalar modifier.
+    /// `m_apr_key` (`AppliedAppearanceKey`, read by `FXNode::GetAppearanceKey`): the key and its scalar modifier.
     pub appearance_key: (u32, f32),
     /// `m_cameraFX_id`: the `CameraFX` the node plays on the camera (`FXManager::DoCameraFX`).
     pub camera_fx: u32,

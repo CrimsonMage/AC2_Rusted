@@ -221,7 +221,7 @@ pub(crate) struct ClientAudio {
     pub(crate) portal: PortalSounds,
 }
 
-/// `DirectXPlayingSound::UpdatePosition`'s view of an object from the listener, through the
+/// `DirectXPlayingSound::UpdatePosition`'s view of an object from the listener (`CPhysicsObj::GetSoundPosition`: the object's own place), through the
 /// physics space: the body's place and velocity.
 fn body_emitter(
     space: &PhysicsSpace<'_>,

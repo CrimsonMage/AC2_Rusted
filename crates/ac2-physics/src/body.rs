@@ -947,6 +947,10 @@ mod anim;
 #[path = "body_parts.rs"]
 mod parts;
 
+#[path = "body_profile.rs"]
+mod profile;
+pub use profile::PhysObjProfile;
+
 #[path = "body_drawn.rs"]
 mod drawn;
 
