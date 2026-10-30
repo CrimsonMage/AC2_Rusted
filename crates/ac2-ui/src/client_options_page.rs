@@ -23,7 +23,7 @@
 //! the rows' names), so the label falls back to the mapper's name, its words spaced. A display
 //! mode's label is its size (`1280 x 720`), as `Device::InitializeRenderingPreferences` wrote it.
 //!
-//! Not modelled: the expanders' `Refit` sizes.
+//! The expanders' `Refit` sizes are `crate::option_expander::refit`.
 
 use std::sync::Arc;
 
@@ -199,6 +199,7 @@ impl ClientOptionsUi {
                 rows: Vec::new(),
                 open: false,
             });
+            crate::option_expander::refit(tree, element, header, list);
             for key in bank.list(section) {
                 let Some(pref) = bank.find(key) else {
                     continue;
@@ -341,6 +342,7 @@ impl ClientOptionsUi {
         let open = expander.open;
         let rows = expander.rows.clone();
         let header = expander.header;
+        let element = expander.element;
         if open {
             for row in rows {
                 tree.list_add_item(list, self.rows[row].element);
@@ -353,6 +355,7 @@ impl ClientOptionsUi {
         if let Some(header) = header {
             tree.set_bool(header, BUTTON_HIGHLIGHTED, open);
         }
+        crate::option_expander::refit(tree, element, header, Some(list));
         for row in self.rows.clone() {
             if let Some(pref) = Self::pref(bank, &row) {
                 sync_row(tree, &row, pref);

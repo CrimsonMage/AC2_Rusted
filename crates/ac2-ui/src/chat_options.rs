@@ -17,8 +17,8 @@
 //! Each drop-down is a `UIElement_Menu` filled with its items when the option is made; its new
 //! selection is read back into the option.
 //!
-//! Not modelled: the tooltips (no help strings are known for these options), the expanders' `Refit`
-//! sizes and the notice registrations.
+//! Not modelled: the tooltips (no help strings are known for these options), and the
+//! notice registrations.
 
 use std::sync::Arc;
 
@@ -205,6 +205,7 @@ impl ChatOptionsUi {
                 open: false,
             }));
             self.main.push(parent);
+            crate::option_expander::refit(tree, element, header, list);
             for spec in specs(row_index, &defaults, labels) {
                 let Some(option) = self.make_option(tree, toolbar, labels, spec, parent) else {
                     continue;
@@ -725,6 +726,7 @@ impl ChatOptionsUi {
         let open = expander.open;
         let children = expander.children.clone();
         let header = expander.header;
+        let element = expander.element;
         if open {
             for child in children {
                 if let Entry::Option(option) = &self.entries[child] {
@@ -739,5 +741,6 @@ impl ChatOptionsUi {
         if let Some(header) = header {
             tree.set_state(header, tokenize(if open { "highlight" } else { "normal" }));
         }
+        crate::option_expander::refit(tree, element, header, Some(list));
     }
 }

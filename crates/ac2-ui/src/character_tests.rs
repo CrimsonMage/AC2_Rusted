@@ -482,6 +482,49 @@ fn the_expanders_collapse_and_expand_their_options() {
     );
     assert_eq!(page.is_open("ID_Options_Combat"), Some(false));
     assert_eq!(page.rows(tree, "ID_Options_Combat"), Some(0));
+    // `OptionExpander::Refit`: closed, the expander is its header's height; open, the header plus
+    // its options; and the list is as tall as the options.
+    // The expander is the header's ancestor that holds the list.
+    let mut expander = tree
+        .get(header)
+        .unwrap()
+        .parent_index()
+        .expect("the expander");
+    while tree
+        .child_recursive(expander, tokenize("TreeList"))
+        .is_none()
+    {
+        expander = tree
+            .get(expander)
+            .unwrap()
+            .parent_index()
+            .expect("the expander");
+    }
+    let height = |tree: &UiTree, element: usize| tree.get(element).unwrap().rect().height();
+    let header_height = height(tree, header);
+    assert_eq!(height(tree, expander), header_height);
+    page.message(
+        tree,
+        &mut dialogs,
+        &message("TreeToggle", Some(header), MSG_BUTTON_RELEASE_ON),
+    );
+    let list = tree
+        .child_recursive(expander, tokenize("TreeList"))
+        .unwrap();
+    let rows: i32 = tree
+        .list_items(list)
+        .iter()
+        .map(|&item| height(tree, item))
+        .sum();
+    assert!(rows > 0);
+    assert_eq!(height(tree, list), rows);
+    assert_eq!(height(tree, expander), header_height + rows);
+    page.message(
+        tree,
+        &mut dialogs,
+        &message("TreeToggle", Some(header), MSG_BUTTON_RELEASE_ON),
+    );
+    assert_eq!(height(tree, expander), header_height);
     // The other expanders are untouched.
     assert_eq!(page.is_open("ID_Options_Social"), Some(false));
 }

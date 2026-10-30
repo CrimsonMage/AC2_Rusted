@@ -19,6 +19,7 @@ mod character;
 mod character_options;
 mod friends;
 mod option_calls;
+mod option_expander;
 mod option_panel;
 pub use option_panel::{OptionAction, OptionPanel};
 mod social_notices;

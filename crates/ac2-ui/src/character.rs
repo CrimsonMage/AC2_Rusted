@@ -17,7 +17,7 @@
 //!
 //! Not modelled: the native `CM_Character::SendNotice_ReloadGameplayOptions` to the other option
 //! listeners (`gmNetStatusUI`, `gmPetUI`, `FellowshipHelper`), the preference bank's handlers
-//! (`PreferenceBank::Change`) and the expanders' `Refit` sizes.
+//! (`PreferenceBank::Change`; `Apply` sends the setters instead).
 
 use std::sync::Arc;
 
@@ -211,6 +211,7 @@ impl CharacterUi {
                 open: false,
             }));
             self.main.push(index);
+            crate::option_expander::refit(tree, element, header, list);
             for option in tree_desc.options {
                 let entry = self.make_option(tree, toolbar, labels, option, index);
                 if let Some(entry) = entry {
@@ -789,6 +790,7 @@ impl CharacterUi {
         let open = tree_entry.open;
         let children = tree_entry.children.clone();
         let header = tree_entry.header;
+        let element = tree_entry.element;
         if open {
             for child in children {
                 if let Entry::Option(entry) = &self.entries[child] {
@@ -803,6 +805,7 @@ impl CharacterUi {
         if let Some(header) = header {
             tree.set_state(header, tokenize(if open { "highlight" } else { "normal" }));
         }
+        crate::option_expander::refit(tree, element, header, Some(list));
     }
 }
 
