@@ -2,9 +2,8 @@
 //! scale: `CWPhysicsObject::InitPhysics` reads it from the weenie) applied to the body, and the
 //! `PhysicsState` setters it calls through the object's vtable.
 //!
-//! Retail's `set_report_collisions` also adds or removes the object from the world's
-//! reporting list (`ReportCollisions`); the Rust step has no such list, so only the bit and
-//! its edge test are modelled (as `physics_obj_state` does for the active bits).
+//! The profile's report-collisions bit goes through `set_report_collisions` (body.rs, vtable slot
+//! 0x1A0, which runs `ReportCollisions`); the other setters here are plain state-bit sets.
 
 use std::sync::Arc;
 
@@ -50,14 +49,6 @@ impl PhysicsBody {
         self.object.state
     }
 
-    /// `CPhysicsObj::set_report_collisions_bit`: sets or clears `REPORT_COLLISIONS_PS`. True when
-    /// the bit changed (retail then calls `ReportCollisions` to join or leave the world's list).
-    pub fn set_report_collisions_bit(&mut self, report: bool) -> bool {
-        let was = self.reports_collisions();
-        self.object.set_state_bit(REPORT_COLLISIONS_PS, report);
-        was != report
-    }
-
     /// `CPhysicsObj::set_ignore_collisions`: sets or clears `IGNORE_COLLISIONS_PS`.
     pub fn set_ignore_collisions_bit(&mut self, ignore: bool) {
         self.object.set_state_bit(IGNORE_COLLISIONS_PS, ignore);
@@ -98,10 +89,16 @@ impl PhysicsBody {
 
     /// `CPhysicsObj::ApplyPhysObjProfile`: report-collisions (bit 2), ignore-collisions (3),
     /// lights (10), inelastic (13), edge-slide (15) and gravity (9) from the profile's state,
-    /// then the placement frame and the uniform scale. Always true.
-    pub fn apply_phys_obj_profile(&mut self, profile: &PhysObjProfile) -> bool {
+    /// then the placement frame and the uniform scale. Retail returns 1; here the result is the
+    /// report `set_report_collisions` (vtable slot 0x1A0, the one that runs `ReportCollisions`)
+    /// makes when the profile turns reporting on or off.
+    pub fn apply_phys_obj_profile(
+        &mut self,
+        profile: &PhysObjProfile,
+        materials: &crate::collision_report::ContactMaterials,
+    ) -> Option<crate::collision_report::CollisionReport> {
         let bit = |n: u32| profile.state >> n & 1 != 0;
-        self.set_report_collisions_bit(bit(2));
+        let report = self.set_report_collisions(bit(2), materials);
         self.set_ignore_collisions_bit(bit(3));
         self.set_lights(bit(10));
         self.set_inelastic(bit(13));
@@ -109,7 +106,7 @@ impl PhysicsBody {
         self.set_affected_by_gravity(bit(9));
         self.set_placement_frame(profile.placement);
         self.set_uniform_scale(profile.scale);
-        true
+        report
     }
 }
 
@@ -126,7 +123,8 @@ mod tests {
             placement: 0,
             scale: 2.0,
         };
-        assert!(body.apply_phys_obj_profile(&profile));
+        let materials = crate::collision_report::ContactMaterials::default();
+        body.apply_phys_obj_profile(&profile, &materials);
         assert!(body.reports_collisions());
         assert!(body.lights_on());
         assert!(body.state_bits() & crate::physics_obj::INELASTIC_PS != 0);
@@ -140,7 +138,7 @@ mod tests {
             placement: 0,
             scale: 1.0,
         };
-        assert!(body.apply_phys_obj_profile(&clear));
+        body.apply_phys_obj_profile(&clear, &materials);
         assert!(!body.reports_collisions());
         assert!(!body.lights_on());
         assert!(body.state_bits() & IGNORE_COLLISIONS_PS != 0);
@@ -151,7 +149,5 @@ mod tests {
         assert!(body.init_object_begin(true, true));
         assert!(body.state_bits() & crate::physics_obj::STATIC_PS == 0);
         assert!(body.is_mobile());
-        assert!(!body.set_report_collisions_bit(false));
-        assert!(body.set_report_collisions_bit(true));
     }
 }
