@@ -531,7 +531,10 @@ pub fn build_styled_hud(
                 .find(|&e| tree.el(e).reference.kind == tree.el(e).desc.kind)?;
             let fonts: Vec<&Arc<LayoutDesc>> =
                 [&layouts[&LAYOUT_TOOLBAR]].into_iter().flatten().collect();
-            crate::modern_layout_edit::EditLayout::make(&mut tree, window, template, &fonts)
+            let gameplay = layouts[&LAYOUT_GAMEPLAY].as_ref();
+            crate::modern_layout_edit::EditLayout::make(
+                &mut tree, window, template, gameplay, &fonts,
+            )
         })
         .flatten();
     let guide = layouts[&LAYOUT_GAMEPLAY].as_ref().and_then(|gameplay| {

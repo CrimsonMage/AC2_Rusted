@@ -146,3 +146,53 @@ fn reset_to_default_puts_the_chat_windows_back() {
     tree.set_window_positions(&saved);
     assert_eq!(tree.screen_box(chat), home);
 }
+
+/// The bar's second row: Save as names the layout from the field, the chosen chip steps through
+/// the saved layouts and Load asks for the chosen one; a saved layout's chat window places come
+/// back when it loads.
+#[test]
+fn the_presets_row_saves_and_loads_a_named_layout() {
+    use crate::modern_layout_edit::{apply_window_lines, window_lines, EditAction};
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let edit = hud.modern_edit.as_ref().unwrap();
+    edit.set_on(tree, true);
+    let field = named(tree, "ModernEditPresetName");
+    tree.set_text(field, "  Raid  ");
+    let save = named(tree, "ModernEditSave");
+    assert_eq!(
+        edit.message(tree, &message(MSG_MOUSE_PRESS_TOP, Some(save))),
+        (true, Some(EditAction::SavePreset("Raid".into())))
+    );
+    // The chat window's place as saved, then moved, then the saved place loaded back.
+    let chat = named(tree, "ChatWindow1");
+    let home = tree.screen_box(chat);
+    let lines = window_lines(tree);
+    assert!(!lines.is_empty());
+    let mut layout = crate::hud_layout::HudLayout::default();
+    layout.save_preset("Raid", &lines);
+    layout.save_preset("Solo", &[]);
+    edit.set_presets(tree, layout.presets(), Some("Raid"));
+    tree.move_to(chat, home.x0 + 150, home.y0 - 100);
+    let load = named(tree, "ModernEditLoad");
+    let EditAction::LoadPreset(name) = edit
+        .message(tree, &message(MSG_MOUSE_PRESS_TOP, Some(load)))
+        .1
+        .unwrap()
+    else {
+        panic!("load");
+    };
+    assert_eq!(name, "Raid");
+    apply_window_lines(tree, &layout.load_preset(&name).unwrap());
+    assert_eq!(tree.screen_box(chat), home);
+    // The chosen chip steps to the next saved layout.
+    let chosen = named(tree, "ModernEditChosen");
+    edit.message(tree, &message(MSG_MOUSE_PRESS_TOP, Some(chosen)));
+    assert_eq!(
+        edit.message(tree, &message(MSG_MOUSE_PRESS_TOP, Some(load)))
+            .1,
+        Some(EditAction::LoadPreset("Solo".into()))
+    );
+}

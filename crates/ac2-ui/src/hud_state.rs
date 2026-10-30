@@ -68,6 +68,8 @@ pub struct Hud {
     pub vitals: Option<VitalsUi>,
     /// The modern HUD's layout settings for the character (`hud_layout`).
     pub hud_layout: crate::hud_layout::HudLayout,
+    /// A layout was saved or loaded (`modern_layout_edit`'s presets): the settings are written.
+    pub(crate) layout_dirty: bool,
     pub effects: Option<EffectsUi>,
     pub vitae: Option<VitaeStatusUi>,
     /// `gmPKStatusUI`, the PK indicator.

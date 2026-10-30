@@ -278,6 +278,10 @@ game rules and server-visible behaviour exactly retail.
   locks the whole HUD (`hud_locked`: no window or part moves or resizes; turning the mode on
   releases it), resets the offsets and the chat windows' choices and places, or closes the mode. The offsets
   and the lock are kept in the HUD layout (`offset.<part>`, `hud.locked`).
+  The bar's second row saves the layout under a typed name and loads a saved one (the design's
+  presets): a copy of the HUD layout's settings and the chat windows' places under
+  `preset.<name>.` in the same file (`HudLayout::save_preset`, `load_preset`); loading applies them
+  as at login.
   The loot window is the design's (its variant A, `ac2_ui::modern_loot`): `ExternalContainerField`
   at 214 by 262 with retail's frame (`0x41000D41`) drawn in nine pieces of their own sizes
   (`compose::NINE_SLICE_EDGES`; retail drew the frame at its 138 by 165) over teal glass, the title

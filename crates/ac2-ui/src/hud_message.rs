@@ -81,12 +81,41 @@ pub fn message_pass<P: HudSource>(
         // The modern Edit layout mode takes the presses on its shield and bar and the drags.
         if let Some(edit) = hud.modern_edit.as_ref() {
             let (taken, action) = edit.message(tree, message);
-            if action == Some(crate::modern_layout_edit::EditAction::Reset) {
-                if let Some(chat) = hud.chat.as_mut() {
-                    chat.apply_layout(tree, &crate::hud_layout::HudLayout::default());
+            use crate::modern_layout_edit::EditAction;
+            match action {
+                Some(EditAction::Reset) => {
+                    if let Some(chat) = hud.chat.as_mut() {
+                        chat.apply_layout(tree, &crate::hud_layout::HudLayout::default());
+                    }
+                    // The chat windows back at their default places.
+                    crate::modern_layout_edit::reset_windows(tree);
                 }
-                // The chat windows back at their default places.
-                crate::modern_layout_edit::reset_windows(tree);
+                // The settings and the chat windows' places saved under the name.
+                Some(EditAction::SavePreset(name)) => {
+                    let windows = crate::modern_layout_edit::window_lines(tree);
+                    if let Some(saved) = hud.hud_layout.save_preset(&name, &windows) {
+                        edit.set_presets(tree, hud.hud_layout.presets(), Some(&saved));
+                        hud.layout_dirty = true;
+                    }
+                }
+                // A saved layout made the settings, applied to each part as at login.
+                Some(EditAction::LoadPreset(name)) => {
+                    if let Some(windows) = hud.hud_layout.load_preset(&name) {
+                        if let Some(vitals) = hud.vitals.as_ref() {
+                            vitals.apply_layout(tree, &hud.hud_layout);
+                        }
+                        if let Some(chat) = hud.chat.as_mut() {
+                            chat.apply_layout(tree, &hud.hud_layout);
+                        }
+                        if let Some(pets) = hud.pets.as_ref() {
+                            pets.apply_layout(&hud.hud_layout);
+                        }
+                        crate::modern_layout_edit::apply(tree, &hud.hud_layout);
+                        crate::modern_layout_edit::apply_window_lines(tree, &windows);
+                        hud.layout_dirty = true;
+                    }
+                }
+                None => {}
             }
             if taken {
                 continue;

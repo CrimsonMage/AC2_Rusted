@@ -5,10 +5,11 @@
 //! drawer, the shortcut strip, the dock) keep an offset from their place (`UiTree::hud_offset`);
 //! the chat windows move as windows (their places kept as every window's are). A bar at the top
 //! locks the whole HUD in place (no part or window moves or resizes; leaving the mode), resets the
-//! layout, or closes the mode. The offsets and the lock are kept in the HUD's layout settings
-//! (`offset.<part>`, `hud.locked`). Retail had none of this.
+//! layout, or closes the mode; its second row saves the layout under a name and loads a saved one
+//! (`HudLayout::save_preset`: the settings and the chat windows' places). The offsets and the lock
+//! are kept in the HUD's layout settings (`offset.<part>`, `hud.locked`). Retail had none of this.
 
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::sync::Arc;
 
 use crate::element::{UiBox, UiTree};
@@ -33,8 +34,10 @@ const PINNED: [(&str, &str, &str); 5] = [
 /// The chat windows, moved as windows.
 const WINDOWS: [&str; 4] = ["ChatWindow1", "ChatWindow2", "ChatWindow3", "ChatWindow4"];
 /// The bar's size and the tag's height.
-const BAR: (i32, i32) = (380, 50);
+const BAR: (i32, i32) = (380, 74);
 const TAG: i32 = 14;
+/// The chosen chip's text while no layout is saved.
+const NO_PRESETS: &str = "(none saved)";
 
 /// A movable part's outline and tag.
 #[derive(Debug, Clone, Copy)]
@@ -45,11 +48,15 @@ struct Mark {
 }
 
 /// What a press on the bar asks.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum EditAction {
     /// Reset to default: the offsets cleared here; the chat's choices are the chat's to reset, and
     /// its windows go back to their places (`reset_windows`).
     Reset,
+    /// Save the layout under this name (the name field's text).
+    SavePreset(String),
+    /// Load the saved layout of this name.
+    LoadPreset(String),
 }
 
 /// The mode's parts and state.
@@ -61,6 +68,14 @@ pub struct EditLayout {
     lock: (Option<usize>, Option<usize>),
     reset: (Option<usize>, Option<usize>),
     done: (Option<usize>, Option<usize>),
+    /// The presets row: the name field, Save as, the saved layout chosen, Load.
+    name: Option<(usize, Option<usize>)>,
+    save: (Option<usize>, Option<usize>),
+    chosen: (Option<usize>, Option<usize>),
+    load: (Option<usize>, Option<usize>),
+    /// The saved layouts' names and the one chosen.
+    presets: RefCell<Vec<String>>,
+    pick: Cell<usize>,
     on: Cell<bool>,
     /// A pinned part being dragged: its index in `PINNED`, the pointer and the offset at the press.
     drag: Cell<Option<(usize, (i32, i32), (i32, i32))>>,
@@ -111,6 +126,36 @@ pub(crate) fn reset_windows(tree: &mut UiTree) {
     }
 }
 
+/// The chat windows' places as window position lines (a saved layout's windows).
+pub(crate) fn window_lines(tree: &UiTree) -> Vec<String> {
+    let ids: Vec<u32> = WINDOWS.iter().map(|n| tokenize(n)).collect();
+    let chat: Vec<_> = tree
+        .window_positions()
+        .into_iter()
+        .filter(|p| ids.contains(&p.element))
+        .collect();
+    crate::window_positions::to_text(&chat)
+        .lines()
+        .filter(|l| !l.starts_with('#'))
+        .map(str::to_string)
+        .collect()
+}
+
+/// A saved layout's window places applied over the windows' places now.
+pub(crate) fn apply_window_lines(tree: &mut UiTree, lines: &[String]) {
+    let Ok(saved) = crate::window_positions::parse(&lines.join("\n")) else {
+        return;
+    };
+    let mut all = tree.window_positions();
+    all.retain(|p| {
+        !saved
+            .iter()
+            .any(|s| s.element == p.element && s.layout == p.layout)
+    });
+    all.extend(saved);
+    tree.set_window_positions(&all);
+}
+
 impl EditLayout {
     /// The mode's shield, marks and bar made from `window`'s layout (a chat window's, copying its
     /// plain field `template`); hidden.
@@ -118,6 +163,7 @@ impl EditLayout {
         tree: &mut UiTree,
         window: usize,
         template: usize,
+        gameplay: Option<&Arc<LayoutDesc>>,
         layouts: &[&Arc<LayoutDesc>],
     ) -> Option<Self> {
         let shield = make_root(tree, window, template, "ModernEditShield", 2)?;
@@ -174,7 +220,7 @@ impl EditLayout {
             tree.set_text_with_font(t, "EDIT LAYOUT  -  drag any outlined part", 0, 1);
             place_label(tree, Some(t), UiBox::new(10, 6, BAR.0 - 10, 19));
         }
-        let chip = |tree: &mut UiTree, id: &str, text: &str, x: i32| {
+        let chip = |tree: &mut UiTree, id: &str, text: &str, (x, y): (i32, i32)| {
             let chip = part(tree, bar, id, art::CHIP, Some(art::CHIP_BORDER));
             let label = label(tree, chip, &format!("{id}Text"), 0xEFE8CC);
             if let (Some(c), Some(l)) = (chip, label) {
@@ -182,14 +228,34 @@ impl EditLayout {
                 tree.set_text_with_font(l, text, 0, 1);
                 let w = tree.text_line_width(l, text).unwrap_or(60) + 14;
                 tree.resize_to(c, w, 16);
-                tree.move_to(c, x, 26);
+                tree.move_to(c, x, y);
                 place_label(tree, Some(l), UiBox::new(7, 1, w - 1, 15));
             }
             (chip, label)
         };
-        let lock = chip(tree, "ModernEditLock", "Lock HUD layout", 10);
-        let reset = chip(tree, "ModernEditReset", "Reset to default", 140);
-        let done = chip(tree, "ModernEditDone", "Done", 300);
+        let lock = chip(tree, "ModernEditLock", "Lock HUD layout", (10, 26));
+        let reset = chip(tree, "ModernEditReset", "Reset to default", (140, 26));
+        let done = chip(tree, "ModernEditDone", "Done", (300, 26));
+        let name = gameplay.and_then(|g| {
+            let name = crate::window_parts::entry_field(
+                tree,
+                g,
+                layouts,
+                bar,
+                ("ModernEditPresetName", "ModernEditPresetBox"),
+                (10, 48, 120, 20),
+            )?;
+            if let Some(pill) = name.1 {
+                keep(tree, pill);
+                tree.set_image(pill, art::SEARCH_PILL, crate::compose::DRAW_OVER);
+                tree.set_int(pill, crate::compose::NINE_SLICE, art::SEARCH_PILL_BORDER);
+            }
+            keep(tree, name.0);
+            Some(name)
+        });
+        let save = chip(tree, "ModernEditSave", "Save as...", (136, 50));
+        let chosen = chip(tree, "ModernEditChosen", NO_PRESETS, (210, 50));
+        let load = chip(tree, "ModernEditLoad", "Load", (330, 50));
         Some(Self {
             shield,
             marks,
@@ -197,9 +263,47 @@ impl EditLayout {
             lock,
             reset,
             done,
+            name,
+            save,
+            chosen,
+            load,
+            presets: RefCell::new(Vec::new()),
+            pick: Cell::new(0),
             on: Cell::new(false),
             drag: Cell::new(None),
         })
+    }
+
+    /// The saved layouts (`HudLayout::presets`), `chosen` the one picked if it is among them.
+    pub(crate) fn set_presets(&self, tree: &mut UiTree, names: Vec<String>, chosen: Option<&str>) {
+        let pick = chosen
+            .and_then(|c| names.iter().position(|n| n == c))
+            .unwrap_or(self.pick.get().min(names.len().saturating_sub(1)));
+        *self.presets.borrow_mut() = names;
+        self.pick.set(pick);
+        self.show_chosen(tree);
+    }
+
+    /// The chosen chip naming the picked layout, as wide as its name, Load after it.
+    fn show_chosen(&self, tree: &mut UiTree) {
+        let text = self
+            .presets
+            .borrow()
+            .get(self.pick.get())
+            .cloned()
+            .unwrap_or_else(|| NO_PRESETS.to_string());
+        let (Some(chip), Some(label)) = self.chosen else {
+            return;
+        };
+        tree.set_text_with_font(label, &text, 0, 1);
+        let w = (tree.text_line_width(label, &text).unwrap_or(60) + 14).min(150);
+        let x = self.save.0.map_or(210, |save| tree.el(save).rect.x1 + 7);
+        tree.resize_to(chip, w, 16);
+        tree.move_to(chip, x, 50);
+        place_label(tree, Some(label), UiBox::new(7, 1, w - 1, 15));
+        if let Some(load) = self.load.0 {
+            tree.move_to(load, x + w + 6, 50);
+        }
     }
 
     pub(crate) fn is_on(&self) -> bool {
@@ -327,6 +431,29 @@ impl EditLayout {
                 tree.hud_offsets.clear();
                 tree.mark_changed();
                 return (true, Some(EditAction::Reset));
+            }
+            if Some(element) == self.save.0 {
+                let typed = self
+                    .name
+                    .and_then(|(field, _)| tree.get(field)?.text())
+                    .unwrap_or_default();
+                let typed = typed.trim().to_string();
+                return (
+                    true,
+                    (!typed.is_empty()).then_some(EditAction::SavePreset(typed)),
+                );
+            }
+            if Some(element) == self.chosen.0 {
+                let count = self.presets.borrow().len();
+                if count > 0 {
+                    self.pick.set((self.pick.get() + 1) % count);
+                    self.show_chosen(tree);
+                }
+                return (true, None);
+            }
+            if Some(element) == self.load.0 {
+                let name = self.presets.borrow().get(self.pick.get()).cloned();
+                return (true, name.map(EditAction::LoadPreset));
             }
             if element != self.shield {
                 return (false, None);

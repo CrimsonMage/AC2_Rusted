@@ -370,6 +370,7 @@ impl Hud {
                 changed |= pets.export_layout(&mut self.hud_layout);
             }
             changed |= crate::modern_layout_edit::export(tree, &mut self.hud_layout);
+            changed |= std::mem::take(&mut self.layout_dirty);
             if let (true, Some(player)) = (changed, input.player) {
                 host.save_local_hud_layout(player, &self.hud_layout);
             }
@@ -422,6 +423,9 @@ impl Hud {
                     pets.apply_layout(&self.hud_layout);
                 }
                 crate::modern_layout_edit::apply(tree, &self.hud_layout);
+                if let Some(edit) = self.modern_edit.as_ref() {
+                    edit.set_presets(tree, self.hud_layout.presets(), None);
+                }
             }
         }
         // `gmCharacterUI::RecvNotice_ReloadOptions`: the page's values as the profile has them.
