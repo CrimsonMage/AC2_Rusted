@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 854 done, 157 partial, 165 to do, 948 skipped.
+2124 retail functions: 863 done, 134 partial, 151 to do, 976 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1058,7 +1058,7 @@ Legend and workflow: [README](README.md).
 
 ### DetectionVolume
 - [-] `DetectionVolume::DetectionVolume` · 006a1ae0 · legions 0063e880 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [~] `DetectionVolume::GetGlobalBox` · 006a1b30 · legions 0063e8d0 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
+- [-] `DetectionVolume::GetGlobalBox` · 006a1b30 · legions 0063e8d0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 
 ### (free functions)
 - [-] `STREAMPACK_STREAMPACKOBJ` · 006a1c00 · legions 0063e9c0 — STL/MSVC or archive template helper; Rust collections replace it
@@ -1070,15 +1070,15 @@ Legend and workflow: [README](README.md).
 - [-] `Cylsphere::Cylsphere` · 006a1d20 · legions 0063eae0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### DetectionVolume
-- [~] `DetectionVolume::IsWithin` · 006a1d50 · legions 0063eb10 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
-- [~] `DetectionVolume::IsWithin` · 006a1f40 · legions 0063ed00 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
-- [~] `DetectionVolume::IsWithin` · 006a2070 · legions 0063ee30 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
+- [-] `DetectionVolume::IsWithin` · 006a1d50 · legions 0063eb10 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `DetectionVolume::IsWithin` · 006a1f40 · legions 0063ed00 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `DetectionVolume::IsWithin` · 006a2070 · legions 0063ee30 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [-] `DetectionVolume::StreamPack` · 006a21b0 · legions 0063ef70 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [-] `DetectionVolume::CopyInto` · 006a23e0 · legions 0063f190 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `DetectionVolume::Destroy` · 006a2540 · legions 0063f2f0 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [~] `DetectionVolume::CreateBBox` · 006a2650 · legions 0063f400 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
-- [~] `DetectionVolume::CreateCylinder` · 006a26f0 · legions 0063f4a0 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
-- [~] `DetectionVolume::CreateSphere` · 006a2750 · legions 0063f500 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
+- [-] `DetectionVolume::CreateBBox` · 006a2650 · legions 0063f400 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `DetectionVolume::CreateCylinder` · 006a26f0 · legions 0063f4a0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `DetectionVolume::CreateSphere` · 006a2750 · legions 0063f500 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [-] `DetectionVolume::CreateSphereCone` · 006a27b0 · legions 0063f560 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `DetectionVolume::CreateSpherePlaneCone` · 006a2810 · legions 0063f5c0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `DetectionVolume::~DetectionVolume` · 006a2880 · legions 0063f630 — C++ constructor/destructor; Rust constructor and Drop replace it
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (267/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (276/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2265,37 +2265,37 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::MissileInitEnd` · 004dece0 · legions 004d1740 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
 - [x] `CPhysicsObj::MissileReportOutOfFuel` · 004ded10 — queued as MissileEvent::{OutOfFuel,Expired}, handed out by Remotes::follow_missiles; the weenie slots 0x80/0x84 are CWeenieObject defaults in the Legions image (0x401b60: xor eax,eax; ret) with no overriding class, so the client has nothing to run
 - [x] `CPhysicsObj::MissileReportExpired` · 004ded30 — queued as MissileEvent::{OutOfFuel,Expired}, handed out by Remotes::follow_missiles; the weenie slots 0x80/0x84 are CWeenieObject defaults in the Legions image (0x401b60: xor eax,eax; ret) with no overriding class, so the client has nothing to run
-- [~] `CPhysicsObj::NumTargetedDetectionCylSpheres` · 004ded50 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::NumTargetedDetectionCylSpheres` · 004ded80 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::NumGlobalDetectionCylSpheres` · 004deda0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::RemoveTargetedDetectionSpheres` · 004dedc0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::HasDetectionCylsphere` · 004dedf0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::DeleteDetectionCylsphere` · 004dee10 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::DeleteAllTargetedDetectionCylspheres` · 004dee30 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::InqDetectors` · 004dee50 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::ReceiveDetectionUpdate` · 004dee70 · legions 004d18d0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+- [-] `CPhysicsObj::NumTargetedDetectionCylSpheres` · 004ded50 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::NumTargetedDetectionCylSpheres` · 004ded80 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::NumGlobalDetectionCylSpheres` · 004deda0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::RemoveTargetedDetectionSpheres` · 004dedc0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::HasDetectionCylsphere` · 004dedf0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::DeleteDetectionCylsphere` · 004dee10 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::DeleteAllTargetedDetectionCylspheres` · 004dee30 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::InqDetectors` · 004dee50 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::ReceiveDetectionUpdate` · 004dee70 · legions 004d18d0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [~] `CPhysicsObj::SetCollisionState` · 004deea0 · legions 004d1900 — minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 - [ ] `CPhysicsObj::GetCollisionState` · 004deef0 · legions 004d1950 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetCollisionStatePtr` · 004def40 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetCollisionProfile` · 004def50 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::Interpermiable` · 004defc0 — ac2-physics physics_obj_conflict.rs; ICPhysicsObj 0x20c Interpermiable, 0x210 CheckIfSolid, 0x204 AddToTempEtherealList; wired through PhysicsBody::set_collision_state (the player's SetCollisionState in ac2-client)
-- [~] `CPhysicsObj::InitDetectionList` · 004df050 · legions 004d1ab0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::DoIntersection` · 004df0b0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+- [-] `CPhysicsObj::InitDetectionList` · 004df050 · legions 004d1ab0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::DoIntersection` · 004df0b0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [x] `CPhysicsObj::IsBlocking` · 004df190 · legions 004d1bf0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-- [~] `CPhysicsObj::WithinDetectVolume` · 004df1f0 · legions 004d1c50 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+- [-] `CPhysicsObj::WithinDetectVolume` · 004df1f0 · legions 004d1c50 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [x] `CPhysicsObj::SetTarget` · 004df300 · legions 004d1d60 — forwarders to TargetManager (made on first use): ac2-smartbox TargetHub::{set_target,clear_target,set_target_quantum} over ac2-physics target.rs TargetManager
 - [x] `CPhysicsObj::ClearTarget` · 004df360 — forwarders to TargetManager (made on first use): ac2-smartbox TargetHub::{set_target,clear_target,set_target_quantum} over ac2-physics target.rs TargetManager
-- [ ] `CPhysicsObj::GetTargetID` · 004df370 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetTargetID` · 004df370 — ac2-smartbox target_hub.rs TargetHub target_id / target_quantum / target_info / receive_target_update / add_voyeur / remove_voyeur over ac2-physics TargetManager (manager made on first use, unknown object ignored); tested
 - [x] `CPhysicsObj::SetTargetQuantum` · 004df3b0 — forwarders to TargetManager (made on first use): ac2-smartbox TargetHub::{set_target,clear_target,set_target_quantum} over ac2-physics target.rs TargetManager
-- [ ] `CPhysicsObj::GetTargetQuantum` · 004df3d0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetTargetQuantum` · 004df3d0 — ac2-smartbox target_hub.rs TargetHub target_id / target_quantum / target_info / receive_target_update / add_voyeur / remove_voyeur over ac2-physics TargetManager (manager made on first use, unknown object ignored); tested
 
 ### TargetInfo
 - [-] `TargetInfo::operator=` · 004df3f0 · legions 004d1e50 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 
 ### CPhysicsObj
-- [ ] `CPhysicsObj::ReceiveTargetUpdate` · 004df4f0 · legions 004d1f50 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::AddVoyeur` · 004df510 · legions 004d1f70 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::RemoveVoyeur` · 004df570 · legions 004d1fd0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::ReceiveTargetUpdate` · 004df4f0 · legions 004d1f50 — ac2-smartbox target_hub.rs TargetHub target_id / target_quantum / target_info / receive_target_update / add_voyeur / remove_voyeur over ac2-physics TargetManager (manager made on first use, unknown object ignored); tested
+- [x] `CPhysicsObj::AddVoyeur` · 004df510 · legions 004d1f70 — ac2-smartbox target_hub.rs TargetHub target_id / target_quantum / target_info / receive_target_update / add_voyeur / remove_voyeur over ac2-physics TargetManager (manager made on first use, unknown object ignored); tested
+- [x] `CPhysicsObj::RemoveVoyeur` · 004df570 · legions 004d1fd0 — ac2-smartbox target_hub.rs TargetHub target_id / target_quantum / target_info / receive_target_update / add_voyeur / remove_voyeur over ac2-physics TargetManager (manager made on first use, unknown object ignored); tested
 - [x] `CPhysicsObj::can_jump` · 004df5a0 · legions 004d2000 — ac2-physics physics_obj_contact.rs can_jump: contact 0.5 s, not IsDoingBehavior(jump), desired and reached element on ground or sea floor
 - [x] `CPhysicsObj::IsSlidingDown` · 004df670 · legions 004d20d0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPhysicsObj::ClampHeading` · 004df6a0 · legions 004d2100
@@ -2430,7 +2430,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::SetCameraAnimTarget` · 004e2400 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::SetTargetedCamera` · 004e2410 · legions 004d4e60 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [x] `CPhysicsObj::DoBehaviorOnObject` · 004e2440 · legions 004d4e90 — ac2-client client_camera.rs camera_animation_events: the target (player or remote body) runs PhysicsBody::do_behavior(BehaviorParams::new(behavior)); the targeted camera follows only when it starts
-- [ ] `CPhysicsObj::InitLookAtManager` · 004e2480 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::InitLookAtManager` · 004e2480 — PhysicsObj::look is always present (LookAtManager::default), so no lazy InitLookAtManager
 - [-] `CPhysicsObj::GetMouseLookState` · 004e24f0 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::SetMouseLookState` · 004e2500 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::GetFirstPersonState` · 004e2510 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
@@ -2451,8 +2451,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UnLockActions` · 004e27e0 · legions 004d5230 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::CacheAnimations` · 004e2800 — render plumbing
 - [x] `CPhysicsObj::DeleteSelf` · 004e2810 — ac2-physics MissileEvent::DeleteSelf -> ac2-smartbox Remotes::delete_self (the opacity slider 0x40000015 over the fade; destruction time is the delay, or the fade when the delay is not positive, as the admin 0x4d7770 body compares) -> OnlineSession::fade_and_destroy_object; ac2-client missile_events_taken
-- [ ] `CPhysicsObj::ClearFXTarget` · 004e2860 · legions 004d52b0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetFXTarget` · 004e2890 · legions 004d52e0 — needs port: cite-only physics-object method
+- [-] `CPhysicsObj::ClearFXTarget` · 004e2860 · legions 004d52b0 — unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
+- [-] `CPhysicsObj::SetFXTarget` · 004e2890 · legions 004d52e0 — unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
 - [ ] `CPhysicsObj::InqCellObjects` · 004e28b0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::InqBlockObjects` · 004e28d0 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::HandleOutOfPhysicsRange` · 004e2900 · legions 004d5350 — ac2-client: the object stops stepping physics
@@ -2487,12 +2487,12 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::AddImpulse` · 004e3350 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [x] `CPhysicsObj::AddTargetedImpulse` · 004e33d0 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [ ] `CPhysicsObj::MoveTo` · 004e3510 · legions 004d5f60 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::CreateDetectionCylsphere` · 004e3550 · legions 004d5fa0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+- [-] `CPhysicsObj::CreateDetectionCylsphere` · 004e3550 · legions 004d5fa0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [x] `CPhysicsObj::CheckIfSolid` · 004e35f0 — ac2-physics physics_obj_conflict.rs; ICPhysicsObj 0x20c Interpermiable, 0x210 CheckIfSolid, 0x204 AddToTempEtherealList; wired through PhysicsBody::set_collision_state (the player's SetCollisionState in ac2-client)
 - [x] `CPhysicsObj::GetObjectOffsetPos` · 004e36a0 — ac2-physics physics_obj_missile.rs object_offset_pos: height fraction + scaled offset turned by the frame, environment-only LOS against the terrain (the top-level object is resolved by the caller's ObjectView)
 - [ ] `CPhysicsObj::CheckTypeMatch` · 004e39b0 · legions 004d6400 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::IsLOSBlocking` · 004e3a50 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
-- [ ] `CPhysicsObj::GetTargetInfo` · 004e3a70 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetTargetInfo` · 004e3a70 — ac2-smartbox target_hub.rs TargetHub target_id / target_quantum / target_info / receive_target_update / add_voyeur / remove_voyeur over ac2-physics TargetManager (manager made on first use, unknown object ignored); tested
 - [x] `CPhysicsObj::Jump` · 004e3aa0 · legions 004d64f0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `CPhysicsObj::CalcElement` · 004e3b90 · legions 004d65e0 — elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
 - [x] `CPhysicsObj::CalcExternalForces` · 004e3e20 · legions 004d6870 — ac2-physics physics_obj_forces.rs calc_external_forces over the collision manager's pushers (UpdatePusherValues); the pusher sums are kept as m_vVelocityField/m_vAccelerationField. Pusher properties come from the touched object's CollidePropertyList (AddPusherProperties), not from the object's own physics material
@@ -2608,7 +2608,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::RecvEvt_RetargetMissile` · 004e8de0 · legions 004db7c0 — PhysicsBody::recv_retarget_missile ports it. No wire event reaches it: ECM_Physics has no RecvEvt_RetargetMissile in either build, the slot (0x614) has no call site, and its only users are the script efuns (gCWPhysicsObject::CallEFun_MissileRetarget) that no wlib function calls, so there is no opcode to decode
 - [x] `CPhysicsObj::MissileInitialize` · 004e8e40 — ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
 - [~] `CPhysicsObj::MissileInitMissileParameters` · 004e8ec0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
-- [~] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [x] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20 — PhysicsBody::missile_init_targeting_parameters via missile_initialize, wired in ac2-client client_story_missiles.rs for story launches; tested
 - [x] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
 - [x] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 - [x] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
@@ -2625,7 +2625,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::CombineAndApplyVisualDesc` · 004ea290 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::DoBehavior` · 004ea490 — CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior (the params overload's path; the 0x198(1) activation call is not separate)
 - [~] `CPhysicsObj::DoBehavior` · 004ea500 — ac2-physics do_behavior: frozen check, params mode, ModeTracker::DoBehavior; no story manager, children, FX target or cloned visual
-- [ ] `CPhysicsObj::AddToTargetList` · 004ea670 · legions 004dcfa0 — needs port: cite-only physics-object method
+- [-] `CPhysicsObj::AddToTargetList` · 004ea670 · legions 004dcfa0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [~] `CPhysicsObj::UpdateMovementInternal` · 004ea780 · legions 004dd0b0 — no path-aligned heading, targeting or missiles
 - [~] `CPhysicsObj::ForceIntoCell` · 004ea990 · legions 004dd2c0 — ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
 - [ ] `CPhysicsObj::recalc_cross_cells` · 004ea9f0 · legions 004dd320 — needs port: cite-only physics-object method
@@ -2638,7 +2638,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetWeenieObj` · 004ead90 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::HasPhysicsBSP` · 004eada0 — ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 - [ ] `CPhysicsObj::HasPhysicsPresence` · 004eadb0 · legions 004dd6e0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::GetLookAtIID` · 004eade0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetLookAtIID` · 004eade0 — ac2-physics PhysicsObj::look_target (None is INVALID_IID)
 - [x] `CPhysicsObj::GetLookAtX` · 004eae00 — ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 - [x] `CPhysicsObj::GetLookAtZ` · 004eae10 — ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 - [x] `CPhysicsObj::IsInWorld` · 004eae20 — CPhysicsObj::IsInWorld - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -2700,8 +2700,8 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::SetPhysicsCollideMask` · 004eb230 — CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
 - [x] `CPhysicsObj::GetNumChildren` · 004eb250 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [x] `CPhysicsObj::GetChild` · 004eb260 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [~] `CPhysicsObj::AddToIntersection` · 004eb280 · legions 004ddbc0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [~] `CPhysicsObj::AddToIntersection_Targeted` · 004eb320 · legions 004ddc60 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+- [-] `CPhysicsObj::AddToIntersection` · 004eb280 · legions 004ddbc0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
+- [-] `CPhysicsObj::AddToIntersection_Targeted` · 004eb320 · legions 004ddc60 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
 - [~] `CPhysicsObj::UpdateMovement` · 004eb370 — no player-distance range checks, parent or missile paths
 - [ ] `CPhysicsObj::SetScatterPositionInternal` · 004eb4c0 · legions 004dde00 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::CleanupMarkerObjects` · 004eb600 · legions 004ddf40 — admin/debug or text-file tooling
@@ -2871,7 +2871,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::GetAnimVelocity` · 004f2620 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::IsThePlayer` · 004f2670 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `PHYSICSOBJREP::DoFX` · 004f2690 — ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
-- [ ] `PHYSICSOBJREP::DoTargettedFX` · 004f26c0 · legions 004e4fc0 — needs port: cite-only physics-object method
+- [-] `PHYSICSOBJREP::DoTargettedFX` · 004f26c0 · legions 004e4fc0 — unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
 - [ ] `PHYSICSOBJREP::GetVDescToClone` · 004f26f0 · legions 004e4ff0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::GetClonedAppearanceID` · 004f2710 · legions 004e5010 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::StopFX` · 004f2730 — PHYSICSOBJREP::StopFX - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
@@ -2880,8 +2880,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::UnlockActions` · 004f2780 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::LockActions` · 004f2790 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::DeleteSelf` · 004f27a0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::ClearFXTarget` · 004f27d0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::SetFXTarget` · 004f27e0 · legions 004e50e0 — needs port: cite-only physics-object method
+- [-] `PHYSICSOBJREP::ClearFXTarget` · 004f27d0 — unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
+- [-] `PHYSICSOBJREP::SetFXTarget` · 004f27e0 · legions 004e50e0 — unreachable in the Legions client: only the DoTargettedFX efun (0x800048, gCWPhysicsObject) sets or clears the FX target, and no Legions wlib function calls it (efun-call scan of the library)
 - [-] `PHYSICSOBJREP::CacheAnimations` · 004f2800 · legions 004e5100 — render plumbing
 
 ### SmartArray<Ray>

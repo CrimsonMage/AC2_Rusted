@@ -1,4 +1,4 @@
-use ac2_physics::{Position, TargetOwner, TargetStatus, Vector};
+use ac2_physics::{Position, TargetInfo, TargetOwner, TargetStatus, Vector};
 
 use super::*;
 
@@ -86,4 +86,45 @@ fn a_moved_target_updates_the_watcher_past_its_radius() {
     assert_eq!(notices.len(), 1);
     assert_eq!(notices[0].info.status, TargetStatus::Ok);
     assert_eq!(notices[0].info.interpolated_position.frame.origin.x, 15.0);
+}
+
+#[test]
+fn the_object_accessors_read_the_target_record() {
+    let mut hub = TargetHub::new();
+    let w = world([(1, 0.0), (2, 10.0)]);
+    assert_eq!((hub.target_id(1), hub.target_quantum(1)), (0, 0.0));
+    assert!(hub.target_info(1).is_none());
+    hub.set_target(1, 5, 2, 1.0, 0.5, 3.0, &w);
+    assert_eq!((hub.target_id(1), hub.target_quantum(1)), (2, 0.5));
+    assert_eq!(hub.target_info(1).unwrap().context_id, 5);
+}
+
+#[test]
+fn add_and_remove_voyeur_reach_the_object_manager() {
+    let mut hub = TargetHub::new();
+    let w = world([(1, 0.0), (2, 10.0)]);
+    // An object the table lacks ignores the call.
+    assert!(hub.add_voyeur(9, 1, 1.0, 0.5, 1.0, &w).is_empty());
+    assert!(hub.manager(9).is_none());
+    hub.add_voyeur(2, 1, 1.0, 0.5, 1.0, &w);
+    assert_eq!(hub.manager(2).unwrap().voyeurs().count(), 1);
+    assert!(hub.remove_voyeur(2, 1));
+    assert!(!hub.remove_voyeur(2, 1));
+    assert!(!hub.remove_voyeur(7, 1));
+}
+
+#[test]
+fn a_target_update_is_ignored_without_a_manager_and_taken_for_the_target() {
+    let mut hub = TargetHub::new();
+    let w = world([(1, 0.0), (2, 10.0)]);
+    let update = TargetInfo {
+        object_id: 2,
+        status: TargetStatus::Ok,
+        ..TargetInfo::default()
+    };
+    assert!(hub.receive_target_update(1, &update, 2.0, &w).is_empty());
+    hub.set_target(1, 5, 2, 1.0, 0.5, 3.0, &w);
+    let notices = hub.receive_target_update(1, &update, 4.0, &w);
+    assert_eq!(notices.len(), 1);
+    assert_eq!(notices[0].info.last_update_time, 4.0);
 }

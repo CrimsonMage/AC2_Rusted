@@ -43,6 +43,70 @@ impl TargetHub {
         self.managers.remove(&object);
     }
 
+    /// `CPhysicsObj::GetTargetID`: the id of `object`'s target (0, `INVALID_IID`, when it has no
+    /// manager or no target).
+    pub fn target_id(&self, object: u64) -> u64 {
+        self.target_info(object).map_or(0, |info| info.object_id)
+    }
+
+    /// `CPhysicsObj::GetTargetQuantum`: the quantum `object` asked its target for (0 without one).
+    pub fn target_quantum(&self, object: u64) -> f64 {
+        self.target_info(object).map_or(0.0, |info| info.quantum)
+    }
+
+    /// `CPhysicsObj::GetTargetInfo`: a copy of `object`'s target record, when it has one.
+    pub fn target_info(&self, object: u64) -> Option<&TargetInfo> {
+        self.managers.get(&object)?.target_info()
+    }
+
+    /// `CPhysicsObj::AddVoyeur`: `voyeur` starts watching `object` (its manager is made on first
+    /// use); a new voyeur is told the object's position at once.
+    pub fn add_voyeur(
+        &mut self,
+        object: u64,
+        voyeur: u64,
+        radius: f32,
+        quantum: f64,
+        now: f64,
+        owners: TargetOwners<'_>,
+    ) -> Vec<TargetNotice> {
+        let Some(body) = owners(object) else {
+            return Vec::new();
+        };
+        let effects = self
+            .managers
+            .entry(object)
+            .or_default()
+            .add_voyeur(&body, voyeur, radius, quantum);
+        self.apply(object, effects, now, owners)
+    }
+
+    /// `CPhysicsObj::RemoveVoyeur`: true when `voyeur` was watching `object`.
+    pub fn remove_voyeur(&mut self, object: u64, voyeur: u64) -> bool {
+        self.managers
+            .get_mut(&object)
+            .is_some_and(|manager| manager.remove_voyeur(voyeur))
+    }
+
+    /// `CPhysicsObj::ReceiveTargetUpdate`: `object`'s target sent `info` (ignored when `object`
+    /// has no manager).
+    pub fn receive_target_update(
+        &mut self,
+        object: u64,
+        info: &TargetInfo,
+        now: f64,
+        owners: TargetOwners<'_>,
+    ) -> Vec<TargetNotice> {
+        let Some(body) = owners(object) else {
+            return Vec::new();
+        };
+        let Some(manager) = self.managers.get_mut(&object) else {
+            return Vec::new();
+        };
+        let effects = manager.receive_update(&body, info, now);
+        self.apply(object, effects, now, owners)
+    }
+
     /// `CPhysicsObj::SetTarget`.
     #[allow(clippy::too_many_arguments)]
     pub fn set_target(

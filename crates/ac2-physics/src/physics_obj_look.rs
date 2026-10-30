@@ -54,7 +54,8 @@ impl PhysicsObj {
         Some(self.look.target)
     }
 
-    /// The id of the object the body is looking at, if any.
+    /// `CPhysicsObj::GetLookAtIID`: the id of the object the body is looking at, if any (`None`
+    /// is `INVALID_IID`).
     pub(crate) fn look_target(&self) -> Option<u64> {
         (self.look.target != 0).then_some(self.look.target)
     }

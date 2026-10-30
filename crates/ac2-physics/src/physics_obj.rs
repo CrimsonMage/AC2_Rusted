@@ -125,7 +125,8 @@ pub(crate) struct PhysicsObj {
     pub motion: MotionInterp,
     /// `PHYSICSOBJREP`'s mode and slider trackers.
     pub(crate) anim: AnimRep,
-    /// `CPhysicsObj::m_pLookAtManager`.
+    /// `CPhysicsObj::m_pLookAtManager`, always present (`CPhysicsObj::InitLookAtManager` makes it
+    /// on first use).
     pub(crate) look: LookAtManager,
     /// `m_bIsLookAtEnabled` (on from the constructor): the player looks at what it selects
     /// (`SetLookAtSelection`, the camera's `0x4000006A` preference).
