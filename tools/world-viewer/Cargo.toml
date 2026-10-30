@@ -29,6 +29,8 @@ ac2-render = { path = "../../crates/ac2-render" }
 ac2-gpu = { path = "../../crates/ac2-gpu" }
 ac2-net = { path = "../../crates/ac2-net" }
 ac2-script = { path = "../../crates/ac2-script" }
+# `--ace-weenies`: AC1 creatures from the AC1 DATs (the `ac1-monsters` test branch).
+ac1-assets = { path = "../../crates/ac1-assets" }
 # The HUD's session: the client logged on to the double in process, never over a socket.
 legions-server-double = { path = "../legions-server-double" }
 # The world map under test (M): the quest guide's map widget over the landscape.

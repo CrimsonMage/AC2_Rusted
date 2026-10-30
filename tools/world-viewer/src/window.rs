@@ -42,6 +42,8 @@ pub struct Setup {
     pub fly_first: bool,
     pub fly: FlyCamera,
     pub time_of_day: f64,
+    /// The AC1 creatures of `--ace-weenies`.
+    pub ac1: Option<crate::ac1::Ac1Showcase>,
 }
 
 pub fn run(setup: Setup) {
@@ -87,6 +89,7 @@ struct State {
     /// The HUD's input through the retail key maps (`hud_input.rs`); `None` without an action
     /// map in the DATs.
     hud_input: Option<HudInput>,
+    ac1: Option<crate::ac1::Ac1Showcase>,
 }
 
 impl ApplicationHandler for App {
@@ -127,13 +130,16 @@ impl ApplicationHandler for App {
         };
         surface.configure(&gpu.device, &config);
         let depth = depth_view(&gpu.device, &config);
-        let view = ClientView::new(
+        let mut view = ClientView::new(
             Arc::clone(&setup.world),
             &gpu,
             format,
             setup.radius,
             (config.width, config.height),
         );
+        if let Some(showcase) = &setup.ac1 {
+            view.set_foreign_models(showcase.models());
+        }
         let mut walk = Walk::new(&setup.world, setup.store.clone(), 0.0);
         let mode = if setup.fly_first || setup.models.is_empty() {
             Mode::Fly
@@ -177,6 +183,7 @@ impl ApplicationHandler for App {
             map_open: false,
             session,
             hud_input,
+            ac1: setup.ac1,
         });
     }
 
@@ -460,6 +467,13 @@ impl State {
                 false
             }
         };
+        if let Some(showcase) = self.ac1.as_mut() {
+            let walk = &self.walk;
+            let creatures = showcase.objects(frame.player.as_ref(), time, |cell, origin| {
+                walk.ground_height(cell, origin)
+            });
+            frame.objects.extend(creatures);
+        }
         self.view.update(&self.gpu, &frame, LOAD_BUDGET);
         let Some(output) = acquire_frame(&self.surface, &self.gpu.device, &self.config) else {
             return quit;

@@ -253,6 +253,12 @@ impl ClientView {
         self.scene.set_options(options);
     }
 
+    /// Models from outside the AC2 DATs, asked first for every world object
+    /// (`WorldScene::set_foreign_models`; the AC1 creatures of `ac1-assets`).
+    pub fn set_foreign_models(&mut self, models: Arc<dyn ac2_render::scene::ForeignModels>) {
+        self.scene.set_foreign_models(models);
+    }
+
     /// What the options pages' applies changed that the window or the scene must take: the scene's
     /// options and the fullscreen state (the frame's owner applies them).
     pub fn take_options_effects(&mut self) -> Vec<ac2_ui::OptionsEffect> {

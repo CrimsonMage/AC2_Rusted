@@ -115,7 +115,8 @@ pub enum Loaded {
     /// A visual the frame asked for (sky objects).
     Model(DataId, Option<ObjectModel>, Images),
     Far(LoadedFar),
-    /// A new far layout took effect in the worker (`WorldScene::set_options`); no data.
+    /// A new far layout (`WorldScene::set_options`) or foreign model source
+    /// (`WorldScene::set_foreign_models`) took effect in the worker; no data.
     Layout,
     /// The rain's material (`LScapeRender::Init`), and its splash and ripple particle systems
     /// (`WorldRender`'s `m_pRainVaporParticleSystem`, `m_pWaterRipplesParticleSystem`).
@@ -169,7 +170,23 @@ pub struct LoadedObject {
     pub images: Images,
 }
 
+/// Models drawn from outside the AC2 DATs (the `ac1-monsters` branch's AC1 creatures): the
+/// provider owns a range of visual DIDs and answers for them before the AC2 DAT chain is read.
+pub trait ForeignModels: Send + Sync {
+    /// The model `visual` draws, its total scale and the images its layers sample; `None` when
+    /// the provider does not own `visual`.
+    fn object_model(&self, visual: DataId, settings: &RenderSettings) -> Option<ForeignModel>;
+}
+
+/// A foreign model's load.
 #[derive(Debug, Clone)]
+pub struct ForeignModel {
+    pub model: Option<ObjectModel>,
+    pub scale: ac2_math::Vec3,
+    pub images: Images,
+}
+
+#[derive(Clone)]
 pub(crate) enum Request {
     Block(BlockKey),
     Model(DataId),
@@ -189,6 +206,8 @@ pub(crate) enum Request {
     LightDecalMaterials,
     /// The shore's material by enum (`DBObj::GetByEnum(0x40000017, 0x40000002, ..)`).
     ShoreMaterial,
+    /// The source the following `Object` loads ask first.
+    Foreign(Arc<dyn ForeignModels>),
 }
 
 /// The loader thread and its queues.
@@ -213,6 +232,7 @@ struct Worker {
     images: HashSet<TextureKey>,
     /// Particle descriptions already read (`None` for one that draws nothing).
     particle_descs: HashMap<DataId, Option<Arc<Ac2ParticleSystemDesc>>>,
+    foreign: Option<Arc<dyn ForeignModels>>,
 }
 
 impl Worker {
@@ -512,6 +532,10 @@ impl Worker {
                 self.far = far;
                 Loaded::Layout
             }
+            Request::Foreign(models) => {
+                self.foreign = Some(models);
+                Loaded::Layout
+            }
             Request::Rain => Loaded::Rain(Box::new(self.rain())),
             Request::ObjectParticle(handle, did) => {
                 Loaded::ObjectParticle(Box::new(self.object_particle(handle, did)))
@@ -555,6 +579,27 @@ impl Worker {
                 Loaded::Model(material, model, images)
             }
             Request::Object(key, visual, local) => {
+                if let Some(foreign) = self
+                    .foreign
+                    .as_ref()
+                    .and_then(|models| models.object_model(visual, &self.settings))
+                {
+                    let images = foreign
+                        .images
+                        .into_iter()
+                        .filter(|(key, _)| self.images.insert(*key))
+                        .collect();
+                    let pick = foreign.model.as_ref().map(|model| {
+                        std::sync::Arc::new(crate::selection::PickMesh::from_model(model))
+                    });
+                    return Loaded::Object(LoadedObject {
+                        key,
+                        model: foreign.model,
+                        pick,
+                        scale: foreign.scale,
+                        images,
+                    });
+                }
                 let store = self.world.resource_store().clone();
                 let model = crate::object::load_object_model_with(
                     &store,
@@ -600,6 +645,7 @@ impl SceneLoader {
             drawable: HashSet::new(),
             images: HashSet::new(),
             particle_descs: HashMap::new(),
+            foreign: None,
         };
         let worker = std::thread::Builder::new()
             .name("ac2-scene-loader".into())

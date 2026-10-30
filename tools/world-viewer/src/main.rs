@@ -6,6 +6,7 @@
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
+//! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR]   (with or without --snapshot)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
@@ -38,6 +39,9 @@
 //! and the frame's to the bench line (timestamp queries; off by default because asking the device
 //! for them raises the NVIDIA driver's resident memory by about 130 MB, which would skew the peak
 //! RSS). The line always ends with the allocator's VRAM bytes (0 on Metal and GL).
+//! `--ace-weenies DIR` stands every ACE weenie patch file (`*.sql`) in DIR, built from the AC1
+//! DATs (`--ac1-dat-dir`, else `AC1_DAT_DIR`), in a ring around where the player first stands,
+//! each idling through its motion table's default cycle (`ac1.rs`).
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -51,6 +55,7 @@
 //! The HUD takes the window's input through the client's key maps (`hud_input.rs`): the toolbar's
 //! keys, Enter for the chat, typing in its fields and the wheel over a panel work as in the client.
 
+mod ac1;
 mod bench;
 mod crowd;
 mod fly;
@@ -123,6 +128,9 @@ struct Args {
     grass_copies: u32,
     /// The headless frame's size in pixels.
     size: (u32, u32),
+    /// ACE weenie patch files to stand in the world, and the AC1 DATs they are built from.
+    ace_weenies: Option<PathBuf>,
+    ac1_dat_dir: Option<PathBuf>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -156,6 +164,8 @@ fn parse_args() -> Result<Args, String> {
         flash: [0.0; 4],
         grass_copies: ac2_render::prefs::SceneOptions::default().frill.copies,
         size: (1280, 720),
+        ace_weenies: None,
+        ac1_dat_dir: std::env::var_os(ac1_assets::AC1_DAT_DIR_ENV).map(PathBuf::from),
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -242,6 +252,8 @@ fn parse_args() -> Result<Args, String> {
             "--height" => {
                 args.height = Some(value()?.parse().map_err(|e| format!("--height: {e}"))?);
             }
+            "--ace-weenies" => args.ace_weenies = Some(value()?.into()),
+            "--ac1-dat-dir" => args.ac1_dat_dir = Some(value()?.into()),
             "--crowd" => args.crowd = value()?.parse().map_err(|e| format!("--crowd: {e}"))?,
             "--model-detail" => {
                 args.degrade.model_detail = value()?
@@ -280,6 +292,9 @@ fn parse_args() -> Result<Args, String> {
     if args.crowd > 0 && args.snapshot.is_none() && args.bench == 0 {
         return Err("--crowd needs --snapshot or --bench".into());
     }
+    if args.ace_weenies.is_some() && args.ac1_dat_dir.is_none() {
+        return Err("--ace-weenies needs --ac1-dat-dir or AC1_DAT_DIR".into());
+    }
     Ok(args)
 }
 
@@ -301,8 +316,18 @@ fn main() {
         Ok(models) => (models, None),
         Err(error) => (Vec::new(), Some(error)),
     };
+    let ac1 = match (&args.ace_weenies, &args.ac1_dat_dir) {
+        (Some(weenies), Some(dats)) => match ac1::Ac1Showcase::load(dats, weenies) {
+            Ok(showcase) => Some(showcase),
+            Err(error) => {
+                eprintln!("world-viewer: {error}");
+                std::process::exit(2);
+            }
+        },
+        _ => None,
+    };
     if args.snapshot.is_some() || args.bench > 0 {
-        snapshot(world, store, &models, &args);
+        snapshot(world, store, &models, ac1, &args);
     } else {
         let (x, y) = args.at.unwrap_or_else(|| {
             let half = world.block_size() / 2.0;
@@ -325,6 +350,7 @@ fn main() {
             fly_first: args.fly,
             fly,
             time_of_day,
+            ac1,
         });
     }
 }
@@ -399,6 +425,7 @@ fn snapshot(
     world: Arc<Ac2WorldSource>,
     store: Arc<ResourceStore>,
     models: &[races::PlayerModel],
+    mut ac1: Option<ac1::Ac1Showcase>,
     args: &Args,
 ) {
     let (width, height) = args.size;
@@ -432,11 +459,16 @@ fn snapshot(
         },
         ..Default::default()
     });
+    if let Some(showcase) = &ac1 {
+        view.set_foreign_models(showcase.models());
+    }
     let model = models.get(args.model).filter(|_| !args.fly);
     let mut fly = match (args.fly, args.at) {
         (true, Some(at)) => ground_camera(&world, args.block, at),
         _ => start_camera(&world, args.block),
     };
+    // `ground_camera` stands 12 m over the ground; the AC1 ring stands on that ground.
+    let fly_ground = fly.position.z - 12.0;
     if let Some(height) = args.height {
         fly.position.z = height;
     }
@@ -482,6 +514,21 @@ fn snapshot(
             walk.ground_height(player.cell, origin)
         });
         println!("crowd: {} objects", frame.objects.len());
+    }
+    if let Some(showcase) = ac1.as_mut() {
+        if frame.player.is_none() {
+            // `--fly`: the ring stands 12 m ahead of the camera, at the ground under it.
+            let size = world.block_size();
+            let ahead = fly.position + fly.forward() * 12.0;
+            let (bx, by) = ((ahead.x / size).floor(), (ahead.y / size).floor());
+            let cell = ((bx as u32) << 24) | ((by as u32) << 16) | 1;
+            let origin = [ahead.x - bx * size, ahead.y - by * size, fly_ground];
+            showcase.set_anchor(cell, origin);
+        }
+        let creatures = showcase.objects(frame.player.as_ref(), 0.0, |cell, origin| {
+            walk.ground_height(cell, origin)
+        });
+        frame.objects.extend(creatures);
     }
     if let Some(camera) = frame.camera.as_mut() {
         camera.flash = args.flash;

@@ -43,6 +43,7 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-audio` | Audio (16) | sound records (`SoundInfo`, `MusicInfo`, `DBWave`) decoded on a loader thread, `SoundManager` (play requests, budget, channel volumes), the music queue (`DXMusicMessageThread`: primary and secondary segments over `MusicPerformance` and `StylePerformance`, events to an `EventSink`), the DLS software synthesizer (`synth`: voices from the band collections or the user's GM file, an `EventSink` that renders), the mixer and speaker output (cpal), the ambient driver, rain and thunder, the portal space's sounds and the screens' music (`SoundSpace`: the client answers the place questions over physics, so this crate names no physics or world type) | rebuilt from the decompile |
 | `ac2-guide` | Quest guide (no retail subsystem: the AC2Hero site, a modern addition) | the AC2Hero mirror baked in at build time (`AC2HERO_DIR`, nothing from it committed): pages, quest facts, reward items, images and their decoding, map coordinates (`Position::FromRealMapCoords` forms), steering to them, map markers, browsing (tabs, search, chat share tokens) | new |
 | `ac2-macro` | Player automation tools (no retail subsystem: a modern addition) | pure policy the client feeds and acts on: the Tracker (name patterns over the objects the client sees, Virindi Sense's `patterns.txt`; matches announced in chat, listed with distances, picked for the arrow); no files, drawing or network | new |
+| `ac1-assets` | AC1 creatures (no AC2 subsystem: the `ac1-monsters` test branch) | the Asheron's Call 1 DATs mounted through `ac2-dat` beside the AC2 ones; the AC1 records a creature draws (`CSetup`, `CGfxObj`, `CSurface`, textures, palettes, `ClothingTable`, `CMotionTable`, `CAnimation`); an ACE weenie's appearance; the result as an `ac2-render` `ObjectModel` with its images and idle cycle, served to the scene as foreign models (`ac2_render::scene::ForeignModels`) | new |
 | `ac2-client` | Client entry (09 `main`) | the program: window, input, login screen, world loop | new |
 
 ## Dependency order
@@ -68,6 +69,8 @@ script's native layout, `ac2_ui::window_locations`); script sits before ui in th
 render sits before ui in the order.
 `ac2-guide` depends only on `ac2-physics` (`LandDefs` cell addressing for its coordinates) and the
 `image` decoder (the site's pictures), and sits after it; `ac2-ui` takes the guide from it (the navigation map's guide layers, the quest guide window).
+`ac1-assets` depends on `ac2-render` (and the crates before it) and sits after it; only the world
+viewer takes it, through `ClientView::set_foreign_models`, so no client crate depends on it.
 `ac2-macro` depends only on `ac2-physics` (`LandDefs` offsets and map coordinates) and sits after it;
 `ac2-ui` (the Tracker window) and `ac2-client` (observations and effects) take it.
 

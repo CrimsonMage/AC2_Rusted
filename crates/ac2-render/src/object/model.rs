@@ -47,7 +47,7 @@ pub struct ObjectMaterial {
 }
 
 impl ObjectMaterial {
-    pub(crate) fn new(layers: Vec<Ac2MaterialLayer>) -> Self {
+    pub fn new(layers: Vec<Ac2MaterialLayer>) -> Self {
         let animated = layers.iter().any(layer_animated);
         let programs = layers
             .iter()

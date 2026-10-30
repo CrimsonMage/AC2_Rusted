@@ -30,8 +30,8 @@ use ac2_world::Ac2WorldSource;
 
 pub use interiors::{load_block_interiors, BlockInteriors, CellCorona};
 pub use loader::{
-    BlockKey, CloudShadow, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject,
-    LoadedObjectParticle, ParticleSource, Placement,
+    BlockKey, CloudShadow, ForeignModel, ForeignModels, Images, Loaded, LoadedBlock, LoadedFar,
+    LoadedObject, LoadedObjectParticle, ParticleSource, Placement,
 };
 pub use lod::PlacedDetail;
 pub use particles::{ParticleAnchor, ParticleBatch};
@@ -551,6 +551,12 @@ impl WorldScene {
         if self.requested_objects.insert(key) {
             self.request(Request::Object(key, visual, local));
         }
+    }
+
+    /// Asks `models` first for every world object's model requested after this
+    /// (`request_object`); the AC2 DAT chain answers the visuals it does not own.
+    pub fn set_foreign_models(&mut self, models: Arc<dyn ForeignModels>) {
+        self.request(Request::Foreign(models));
     }
 
     /// The posing rig and total scale of a loaded world object's model.

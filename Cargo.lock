@@ -19,6 +19,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "366ffbaa4442f4684d91e2cd7c5ea7c4ed8add41959a31447066e279e432b618"
 
 [[package]]
+name = "ac1-assets"
+version = "0.1.0"
+dependencies = [
+ "ac2-anim",
+ "ac2-assets",
+ "ac2-core",
+ "ac2-dat",
+ "ac2-math",
+ "ac2-physics",
+ "ac2-render",
+]
+
+[[package]]
 name = "ac2-anim"
 version = "0.1.0"
 dependencies = [
@@ -4472,6 +4485,7 @@ dependencies = [
 name = "world-viewer"
 version = "0.1.0"
 dependencies = [
+ "ac1-assets",
  "ac2-assets",
  "ac2-client",
  "ac2-core",
