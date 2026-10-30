@@ -281,6 +281,9 @@ mod modern_strip;
 mod modern_toolbar;
 #[cfg(test)]
 mod modern_toolbar_tests;
+mod modern_vitals;
+#[cfg(test)]
+mod modern_vitals_tests;
 mod text_scroll;
 mod token;
 mod toolbar;

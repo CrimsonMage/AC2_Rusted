@@ -53,6 +53,16 @@ pub const SLIDER_BORDER: i32 = 3;
 pub const ENTRY_BORDER: i32 = 4;
 pub const KNOB: i32 = 14;
 
+/// The vitals panel (`modern_vitals`): its glass (corners `VITALS_BORDER`), a bar's well
+/// (corners `WELL_BORDER`) and the layout switch, at rest and lit.
+pub const VITALS_GLASS: u32 = 0x7E01_00A0;
+pub const BAR_WELL: u32 = 0x7E01_00A1;
+pub const LAYOUT_SWITCH: u32 = 0x7E01_00A2;
+pub const LAYOUT_SWITCH_LIT: u32 = 0x7E01_00A3;
+pub const VITALS_BORDER: i32 = 12;
+pub const WELL_BORDER: i32 = 2;
+pub const SWITCH: i32 = 13;
+
 /// The item ring's buttons (`modern_item_ring`): one per action, each at rest, lit (under the
 /// pointer) and dimmed (the action does not apply), `RING_ART` square.
 pub const RING_ACTIONS: usize = 6;
@@ -298,6 +308,64 @@ fn entry_box() -> UiPixels {
     c.finish()
 }
 
+/// The vitals panel's glass: teal fading downwards (`#00201ecc` to `#00201e66`) in a faint bronze
+/// line, its lower right corner rounder.
+fn vitals_glass() -> UiPixels {
+    let (w, h) = (32usize, 32usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 4.0);
+    let corner = round_rect(0.0, 0.0, w as f32, h as f32, 12.0);
+    let sdf = |x: f32, y: f32| {
+        if x > 16.0 && y > 16.0 {
+            corner(x, y)
+        } else {
+            shape(x, y)
+        }
+    };
+    c.paint(sdf, |_, y, d| {
+        (
+            mix(rgb(0x00201E, 0.8), rgb(0x00201E, 0.4), y / h as f32),
+            inside(d),
+        )
+    });
+    c.paint(sdf, |_, _, d| (rgb(0x8B846C, 0.33), band(d, -1.0, 0.0)));
+    c.finish()
+}
+
+/// A bar's well: near-black glass in a fine line (`#6f6957`) and a black rim.
+fn bar_well() -> UiPixels {
+    let (w, h) = (8usize, 8usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 0.0);
+    c.paint(&shape, |_, _, d| (rgb(0x000000, 0.73), inside(d)));
+    c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, -2.0, -1.0)));
+    c.paint(&shape, |_, _, d| (rgb(0x000000, 1.0), band(d, -1.0, 0.0)));
+    c.finish()
+}
+
+/// The vitals layout switch: a dark square in a bronze line with two gold arrows (`&#8646;`).
+fn layout_switch(lit: bool) -> UiPixels {
+    let side = SWITCH as usize;
+    let mut c = Canvas::new(side, side);
+    let shape = round_rect(0.0, 0.0, SWITCH as f32, SWITCH as f32, 3.0);
+    c.paint(&shape, |_, _, d| (rgb(0x000000, 0.67), inside(d)));
+    let line = if lit {
+        rgb(0xD9C27A, 1.0)
+    } else {
+        rgb(0x8B846C, 1.0)
+    };
+    c.paint(&shape, |_, _, d| (line, band(d, -1.0, 0.0)));
+    const ARROWS: [Stroke; 2] = [
+        Stroke::Line(&[(4.5, 5.0), (8.5, 5.0), (7.0, 3.5)]),
+        Stroke::Line(&[(8.5, 8.0), (4.5, 8.0), (6.0, 9.5)]),
+    ];
+    c.paint(
+        |x, y| stroke_distance(&ARROWS, x, y) - 0.6,
+        |_, _, d| (rgb(0xD9C27A, 1.0), inside(d)),
+    );
+    c.finish()
+}
+
 /// The ring icons' strokes in the design's 24-unit box (its SVG paths as polylines and circles).
 enum Stroke {
     Line(&'static [(f32, f32)]),
@@ -462,6 +530,10 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>, item_slot: Option<&UiPix
     if let Some(slot) = item_slot {
         images.insert(ITEM_WELL, item_well(slot));
     }
+    images.insert(VITALS_GLASS, vitals_glass());
+    images.insert(BAR_WELL, bar_well());
+    images.insert(LAYOUT_SWITCH, layout_switch(false));
+    images.insert(LAYOUT_SWITCH_LIT, layout_switch(true));
     images.insert(SLIDER_TRACK, slider_bar(false));
     images.insert(SLIDER_FILL, slider_bar(true));
     images.insert(SLIDER_KNOB, slider_knob());

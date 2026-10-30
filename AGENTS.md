@@ -197,6 +197,14 @@ game rules and server-visible behaviour exactly retail.
   The slider is the client's: dragging it writes the amount into `AmountEntry` as the toggle does
   (`SetAmount`) and typing moves it, so OK still reads the entry (`wcstoul`, base 0) and answers
   with `StackUIDone`; retail had only the entry.
+  The vitals are the design's panel (`ac2_ui::modern_vitals`): `StatusbarField` on teal glass,
+  retail's stone frame (`0x41003A7D`..`0x41003A80`, the end cap `0x41006018`) gone. The health,
+  vigor and focus bars sit in dark wells side by side over the experience bar (the default) or
+  stacked over it, the effects under them in as many rows as they take, and the indicators (net,
+  PK, vitae) in a column at their right, packed so a hidden one leaves no gap; retail kept them in
+  a block left of the bars. A switch at the panel's corner, shown while the pointer is over the
+  panel, changes the layout (not yet saved). The fields are retail's, moved up to the panel (the
+  frame's own fields would clip them), so what they show and their presses stay retail's.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

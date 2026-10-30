@@ -53,6 +53,7 @@ pub fn tick_pass<P: HudSource>(
         toolbar,
         backpack,
         paper_doll,
+        vitals,
         secure_trade,
         stack,
         money,
@@ -83,6 +84,10 @@ pub fn tick_pass<P: HudSource>(
         if let Some(pack) = backpack.as_ref() {
             bar.drawer_tick(tree, pack, paper_doll.as_ref(), player);
         }
+    }
+    // The modern vitals' layout switch follows the pointer.
+    if let Some(bar) = vitals.as_ref() {
+        bar.modern_tick(tree);
     }
     // `gmSecureTradeUI`'s global loop: an ended trade closes; a stack its list dropped asks.
     if let Some(panel) = secure_trade.as_mut() {

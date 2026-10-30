@@ -354,7 +354,10 @@ pub fn build_styled_hud(
     let quests = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| QuestsUi::create(&tree, toolbar));
-    let vitals = VitalsUi::create(&mut tree);
+    let mut vitals = VitalsUi::create(&mut tree);
+    if style == HudStyle::Modern {
+        vitals.set_modern(&mut tree);
+    }
     let effects = layouts[&LAYOUT_STATUSBAR]
         .as_ref()
         .map(|statusbar| EffectsUi::create(&tree, statusbar));

@@ -66,9 +66,29 @@ pub struct VitalsUi {
     experience: Option<VitalDisplay>,
     focus: Option<VitalDisplay>,
     hero: bool,
+    /// The modern style's panel (`modern_vitals`); `None` in the classic style.
+    modern: Option<crate::modern_vitals::ModernVitals>,
 }
 
 impl VitalsUi {
+    /// The modern style's panel laid over the status bar (`modern_vitals`).
+    pub fn set_modern(&mut self, tree: &mut UiTree) {
+        self.modern = crate::modern_vitals::ModernVitals::adopt(tree);
+    }
+
+    /// The modern style's panel, if this is the modern style.
+    #[cfg(test)]
+    pub(crate) fn modern(&self) -> Option<&crate::modern_vitals::ModernVitals> {
+        self.modern.as_ref()
+    }
+
+    /// The modern panel's switch follows the pointer (every frame; nothing in classic).
+    pub fn modern_tick(&self, tree: &mut UiTree) {
+        if let Some(modern) = &self.modern {
+            modern.tick(tree);
+        }
+    }
+
     /// `gmVitalsUI::gmVitalsUI`: each field (`IUIManager` lookup) and its displays; the PK
     /// displays' text hidden.
     pub fn create(tree: &mut UiTree) -> Self {
@@ -109,6 +129,7 @@ impl VitalsUi {
             vigor_field,
             focus_field,
             hero: false,
+            modern: None,
         }
     }
 
@@ -198,6 +219,13 @@ impl VitalsUi {
     /// `gmVitalsUI::ListenToMessage`: a left click on a field shows or hides its numbers (focus
     /// only for a hero).
     pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage, strings: &dyn FellowStrings) {
+        if self
+            .modern
+            .as_ref()
+            .is_some_and(|m| m.message(tree, message))
+        {
+            return;
+        }
         if message.message != MSG_MOUSE_PRESS_TOP || message.data != LEFT_BUTTON {
             return;
         }
