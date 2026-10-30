@@ -201,6 +201,11 @@ pub const ITEM_WELL: u32 = 0x7E01_0064;
 pub const SEARCH_PILL: u32 = 0x7E01_0065;
 /// The veil over an item slot the search leaves out.
 pub const SLOT_VEIL: u32 = 0x7E01_0066;
+/// The drawer's filter chips, off and on.
+pub const CHIP: u32 = 0x7E01_0067;
+pub const CHIP_ON: u32 = 0x7E01_0068;
+/// The chips' art keeps corners this size when stretched.
+pub const CHIP_BORDER: i32 = 8;
 /// The search pill's art keeps corners this size when stretched.
 pub const SEARCH_PILL_BORDER: i32 = 10;
 /// The DAT item slot the item well is made of.
@@ -514,6 +519,20 @@ fn search_pill() -> UiPixels {
     c.finish()
 }
 
+/// A filter chip: a dark pill in a fine bronze line, or (on) filled bronze.
+fn chip(on: bool) -> UiPixels {
+    let (w, h) = (24usize, 16usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 8.0);
+    if on {
+        c.paint(&shape, |_, _, d| (rgb(0x6B5C2E, 1.0), inside(d)));
+    } else {
+        c.paint(&shape, |_, _, d| (rgb(0x00110F, 0.63), inside(d)));
+        c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, 0.0, 1.0)));
+    }
+    c.finish()
+}
+
 /// The veil over a slot the search leaves out: the drawer's glass at 82%, so the slot shows at
 /// about the design's 18%.
 fn slot_veil() -> UiPixels {
@@ -626,6 +645,8 @@ pub fn bake(images: &mut HashMap<u32, UiPixels>, icons: &HashMap<u32, UiPixels>)
         (MONEY_ROW, money_row()),
         (SEARCH_PILL, search_pill()),
         (SLOT_VEIL, slot_veil()),
+        (CHIP, chip(false)),
+        (CHIP_ON, chip(true)),
         (DOLL_FRAME, doll_frame()),
         (HEADER_BUTTON, header_button()),
     ] {

@@ -1,8 +1,11 @@
 //! The modern inventory drawer's own parts beside retail's (`modern_inventory.rs`; AGENTS.md: the
 //! HUD's two styles): each pack tab's count (`used/size`), the search field at the tabs' right, and
-//! the footer naming the page shown with its count. They read the backpack and change nothing in
-//! it: the search veils the shown page's slots whose item's name does not hold the typed text
-//! (case-insensitively), leaving every slot, its order and its drops as they are.
+//! the filter chips under the tabs, and the footer naming the page shown with its count. They read
+//! the backpack and change nothing in it: the search veils the shown page's slots whose item's
+//! name does not hold the typed text (case-insensitively), and a chip other than All veils the
+//! slots whose item does not equip where the chip says (by the item's preferred location, the
+//! `*_InvLoc` bits: retail has no item category), leaving every slot, its order and its drops as
+//! they are.
 
 use std::cell::Cell;
 use std::sync::Arc;
@@ -19,6 +22,29 @@ use crate::window_parts::{entry_field, place_entry};
 
 /// The pages' names in the footer, in the backpack's order.
 const PAGE_NAMES: [&str; 4] = ["Main Pack", "Side Pack 1", "Side Pack 2", "Side Pack 3"];
+/// The filter chips: label, and the preferred locations (`*_InvLoc` bits) an item of the chip
+/// equips at; All takes everything, Other the items that equip nowhere.
+const FILTERS: [(&str, u32); 5] = [
+    ("All", u32::MAX),
+    ("Arms", 0x40 | 0x80),
+    ("Armor", 0x1 | 0x2 | 0x4 | 0x8 | 0x10 | 0x20),
+    ("Jewelry", 0x100 | 0x200 | 0x400),
+    ("Other", 0),
+];
+/// The chips' height, their gap, and the room either side of a chip's label.
+const CHIP_HEIGHT: i32 = 16;
+const CHIP_GAP: i32 = 4;
+const CHIP_PAD: i32 = 7;
+
+/// Whether an item preferring `location` passes the chip `filter` (an index into [`FILTERS`]).
+pub(crate) fn passes(filter: usize, location: u32) -> bool {
+    match FILTERS.get(filter) {
+        Some((_, u32::MAX)) | None => true,
+        Some((_, 0)) => location == 0,
+        Some((_, bits)) => location & bits != 0,
+    }
+}
+
 /// A slot's veil, a child of the slot's background.
 const VEIL: &str = "ModernSlotVeil";
 
@@ -31,6 +57,10 @@ pub(crate) struct DrawerBar {
     search: Option<(usize, Option<usize>)>,
     /// The footer's label.
     foot: Option<usize>,
+    /// The filter chips and their labels, in [`FILTERS`]' order.
+    chips: Vec<(Option<usize>, Option<usize>)>,
+    /// The chip on (an index into [`FILTERS`]).
+    filter: Cell<usize>,
     /// The template the veils are copied from.
     template: Option<usize>,
     /// What the labels and veils were last set for.
@@ -126,9 +156,41 @@ impl DrawerBar {
             "ModernDrawerFoot",
             Justification::Left,
         );
+        let chips: Vec<(Option<usize>, Option<usize>)> = FILTERS
+            .iter()
+            .map(|(name, _)| {
+                let chip = make_part(
+                    tree,
+                    parent,
+                    template,
+                    &format!("ModernFilterChip{name}"),
+                    art::CHIP,
+                    Some(art::CHIP_BORDER),
+                    0,
+                );
+                // The chip takes presses; its label does not.
+                if let Some(chip) = chip {
+                    tree.set_bool(chip, MOUSE_INVISIBLE, false);
+                }
+                let label = chip.and_then(|chip| {
+                    count_label(
+                        tree,
+                        layouts,
+                        chip,
+                        &format!("ModernFilterLabel{name}"),
+                        Justification::Center,
+                    )
+                });
+                if let Some(label) = label {
+                    tree.set_text(label, name);
+                }
+                (chip, label)
+            })
+            .collect();
         // Each part (and its text) keeps where it is put when the drawer is laid out again.
         let mut parts: Vec<usize> = counts.iter().flatten().copied().collect();
         parts.extend(foot);
+        parts.extend(chips.iter().flat_map(|(c, l)| [*c, *l]).flatten());
         if let Some((field, pill)) = search {
             parts.push(field);
             parts.extend(pill);
@@ -143,6 +205,8 @@ impl DrawerBar {
             counts,
             search,
             foot,
+            chips,
+            filter: Cell::new(0),
             template,
             shown_for: Cell::new(None),
         }
@@ -150,7 +214,31 @@ impl DrawerBar {
 
     /// The counts over the tabs' lower edges (`tabs`, in the pack area's coordinates), the search
     /// field `search`, the footer `foot`.
-    pub(crate) fn place(&self, tree: &mut UiTree, tabs: &[UiBox], search: UiBox, foot: UiBox) {
+    pub(crate) fn place(
+        &self,
+        tree: &mut UiTree,
+        tabs: &[UiBox],
+        search: UiBox,
+        chips: (i32, i32),
+        foot: UiBox,
+    ) {
+        // The chips in a row from `chips` (x, y), each as wide as its label.
+        let mut x = chips.0;
+        for (chip, label) in &self.chips {
+            let (Some(chip), Some(label)) = (chip, label) else {
+                continue;
+            };
+            let name = tree.el(*label).text().unwrap_or_default();
+            let width = tree.text_line_width(*label, &name).unwrap_or(24) + 2 * CHIP_PAD;
+            let at = UiBox::new(x, chips.1, x + width - 1, chips.1 + CHIP_HEIGHT - 1);
+            if tree.el(*chip).rect != at {
+                tree.resize_to(*chip, width, CHIP_HEIGHT);
+                tree.move_to(*chip, x, chips.1);
+                tree.resize_to(*label, width, CHIP_HEIGHT);
+                tree.move_to(*label, 0, 0);
+            }
+            x += width + CHIP_GAP;
+        }
         for (count, tab) in self.counts.iter().zip(tabs) {
             place_label(
                 tree,
@@ -210,7 +298,7 @@ impl DrawerBar {
         let key = {
             use std::hash::{Hash, Hasher};
             let mut h = std::collections::hash_map::DefaultHasher::new();
-            (&query, shown, &used).hash(&mut h);
+            (&query, shown, &used, self.filter.get()).hash(&mut h);
             for pack in &backpack.packs {
                 pack.max_size().hash(&mut h);
                 for d in &pack.items {
@@ -223,6 +311,16 @@ impl DrawerBar {
             return;
         }
         self.shown_for.set(Some(key));
+        for (i, (chip, _)) in self.chips.iter().enumerate() {
+            if let Some(chip) = chip {
+                let image = if i == self.filter.get() {
+                    art::CHIP_ON
+                } else {
+                    art::CHIP
+                };
+                tree.set_image(*chip, image, crate::compose::DRAW_OVER);
+            }
+        }
         for (i, pack) in backpack.packs.iter().enumerate() {
             let text = format!("{}/{}", used[i], pack.max_size());
             set_label(tree, self.counts.get(i).copied().flatten(), &text);
@@ -234,15 +332,26 @@ impl DrawerBar {
         }
         for (i, pack) in backpack.packs.iter().enumerate() {
             for d in &pack.items {
-                let veiled = i == shown
-                    && !query.is_empty()
-                    && d.item != 0
-                    && !source
+                let named = query.is_empty()
+                    || source
                         .item(d.item)
                         .is_some_and(|slot| slot.name.to_lowercase().contains(&query));
+                let kept = passes(self.filter.get(), source.preferred_location(d.item));
+                let veiled = i == shown && d.item != 0 && !(named && kept);
                 self.veil(tree, d.background, d.icon, veiled);
             }
         }
+    }
+
+    /// A press on a filter chip turns it on (the slots are veiled again at the next tick).
+    /// Whether the press was on a chip.
+    pub(crate) fn press(&self, element: usize) -> bool {
+        let Some(i) = self.chips.iter().position(|(c, _)| *c == Some(element)) else {
+            return false;
+        };
+        self.filter.set(i);
+        self.shown_for.set(None);
+        true
     }
 
     /// The veil over `slot` shown or hidden, made the first time it shows.

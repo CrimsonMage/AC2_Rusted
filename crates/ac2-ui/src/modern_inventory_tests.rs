@@ -143,6 +143,14 @@ impl crate::InventorySource for Pack {
     fn selection(&self) -> u64 {
         0
     }
+    fn preferred_location(&self, item: u64) -> u32 {
+        // The sword goes in the primary hand (`PrimaryHand_InvLoc`).
+        if item == SWORD {
+            0x40
+        } else {
+            0
+        }
+    }
 }
 
 /// The modern HUD with the player's backpack made over the drawer's restyled slots.
@@ -198,4 +206,40 @@ fn the_search_veils_the_slots_it_leaves_out() {
     tree.set_text(field, "");
     hud.toolbar.drawer_tick(tree, &pack, &Pack);
     assert!(!veiled(tree, POTIONS));
+}
+
+/// A press on the Arms chip veils the slots whose item does not equip in a hand; All shows them
+/// again.
+#[test]
+fn a_filter_chip_veils_the_items_that_do_not_equip_where_it_says() {
+    let Some((mut hud, pack)) = with_backpack() else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let veiled = |tree: &UiTree, item: u64| {
+        let slot = pack.packs[0].items.iter().find(|d| d.item == item).unwrap();
+        tree.child(slot.background, tokenize("ModernSlotVeil"))
+            .is_some_and(|v| tree.el(v).visible)
+    };
+    let press = |tree: &mut UiTree, toolbar: &crate::ToolbarUi, name: &str| {
+        let chip = named(tree, name).unwrap();
+        toolbar.message(
+            tree,
+            &crate::mouse::UiMessage {
+                element_id: tokenize(name),
+                element: Some(chip),
+                message: crate::token::MSG_MOUSE_PRESS_TOP,
+                data: 0,
+                item: None,
+            },
+        );
+    };
+    press(tree, &hud.toolbar, "ModernFilterChipArms");
+    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    assert!(veiled(tree, POTIONS) && !veiled(tree, SWORD));
+    let arms = named(tree, "ModernFilterChipArms").unwrap();
+    assert_eq!(tree.el(arms).image().unwrap().file, art::CHIP_ON);
+    press(tree, &hud.toolbar, "ModernFilterChipAll");
+    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    assert!(!veiled(tree, POTIONS) && !veiled(tree, SWORD));
 }

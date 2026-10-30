@@ -49,6 +49,8 @@ const COLUMNS: i32 = 7;
 /// The footer's height and the search field's size.
 const FOOT: i32 = 18;
 const SEARCH: (i32, i32) = (90, 20);
+/// The filter chips' row, with the gap under it.
+const CHIPS: i32 = 21;
 const SCROLL: i32 = 15;
 /// A header button's backing and the button on it.
 const HEADER_BUTTON: i32 = 20;
@@ -447,7 +449,9 @@ impl Drawer {
         let area_h = h - area_y - PAD;
         put(tree, self.pack_area, sized(0, area_y, (WIDTH, area_h)));
         let mut tab_x = PAD;
-        let grid_y = MAIN_TAB.1 + 4;
+        // The filter chips under the tabs, then the grid.
+        let chips_y = MAIN_TAB.1 + 3;
+        let grid_y = chips_y + CHIPS;
         // The footer under the grid: the page's name and count.
         let foot = sized(PAD, area_h - FOOT, (WIDTH - 2 * PAD, FOOT));
         let grid = sized(PAD, grid_y, (WIDTH - 2 * PAD, area_h - grid_y - FOOT - 2));
@@ -466,8 +470,13 @@ impl Drawer {
         if let Some(bar) = &self.bar {
             // The search field at the tabs' right, level with their lower edge.
             let search = sized(WIDTH - PAD - SEARCH.0, MAIN_TAB.1 - SEARCH.1 - 2, SEARCH);
-            bar.place(tree, &tabs, search, foot);
+            bar.place(tree, &tabs, search, (PAD, chips_y), foot);
         }
+    }
+
+    /// A press on one of the drawer's own parts; whether it took it.
+    pub(crate) fn press(&self, element: usize) -> bool {
+        self.bar.as_ref().is_some_and(|bar| bar.press(element))
     }
 
     /// The drawer's own parts set for the backpack as it is (every frame).

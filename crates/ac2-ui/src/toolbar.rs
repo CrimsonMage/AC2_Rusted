@@ -400,6 +400,14 @@ impl ToolbarUi {
             }
             return;
         }
+        // A press on the modern drawer's own parts (its filter chips).
+        if message.message == crate::token::MSG_MOUSE_PRESS_TOP {
+            if let (Some(drawer), Some(element)) = (&self.drawer, message.element) {
+                if drawer.press(element) {
+                    return;
+                }
+            }
+        }
         for c in &self.children {
             let release = if c.child == ToolbarChild::Quest {
                 MSG_MOUSE_RELEASE

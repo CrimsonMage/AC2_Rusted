@@ -174,8 +174,11 @@ game rules and server-visible behaviour exactly retail.
   layout so other containers keep retail's slot), the scroll bar at its right. The drawer adds
   (`ac2_ui::modern_drawer_bar`) each tab's count of items over slots in the slot numbers' small
   font, a search field at the tabs' right that veils the shown page's slots whose item's name
-  lacks the text (view only: the slots, their order and drops are unchanged), and a footer naming
-  the page shown with its count; retail showed none of these.
+  lacks the text, filter chips under the tabs (All, Arms, Armor, Jewelry, Other, by the item's
+  preferred equip location, the `*_InvLoc` bits, as retail has no item category; the user chose
+  these over the design's Use and Parts) that veil the slots the chip leaves out (both view only:
+  the slots, their order and drops are unchanged), and a footer naming the page shown with its
+  count; retail showed none of these.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its
