@@ -9906,7 +9906,7 @@ key	status	note
 005edb30	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005edbf0	x	ac2-ui text_attr.rs text_attribute: one_line sets the flag and marks the text dirty (relaid out and redrawn)
 005edc40	~	vertical share of the scrollable range paper - (y1 - y0 + 1) (text_scroll.rs / tree_scroll.rs); horizontal share not modelled
-005edcc0	_	needs port: UIElement_Text::GetPercentageH = m_viewX / (m_paperWidth - width) clamped to [0, 1], 0 when the paper is no wider than the element; horizontal text scroll bar is not modelled (text_scroll.rs)
+005edcc0	-	unreachable on the Legions DATs: GetPercentageH sets a text's horizontal bar, and no layout's text names a horizontal_scrollbar (scanned 2026-10-29)
 005edd40	x	ac2-ui text_edit.rs: UiTree::set_cursor clamps the position to 0..=len
 005edd80	x	ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
 005edf30	x	ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
@@ -10049,7 +10049,7 @@ key	status	note
 005f3e70	x	ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
 005f3f30	x	ac2-ui list_box.rs
 005f3fd0	x	ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
-005f4030	_	needs port: UIElement_ListBox::SetState rebuilds the item list from the children (ordered by id, reversed with bitfield bit 1), then UpdateLayout, KeepViewInBounds, UpdateControls
+005f4030	~	needs port: UIElement_ListBox::SetState rebuilds the item list from the new state's children (ordered by position along the list's axis), then UpdateLayout, KeepViewInBounds, UpdateControls. 6 Legions layout lists have more than one state; the tree does not yet swap a state's children on a state change
 005f4170	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f4270	~	ac2-ui list_scroll.rs lists_bound_to: scroll bars matched by name when their messages arrive, buttons by scrollbar.rs; missing: the horizontal/vertical flag (bit 0x800) and UpdateControls when the attribute is set, list up/down/left/right buttons are not wired
 005f4420	~	left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
@@ -10141,7 +10141,7 @@ key	status	note
 005f7b40	~	ac2-ui tree_view.rs: view via tree_end/flush only
 005f7b90	~	ac2-ui tree_view.rs: view via tree_end/flush only
 005f7c50	x	ac2-ui tree_scroll.rs tree_mouse_down: a left press or double click selects the item under the pointer (SetSelectedItem with the broadcast), a wheel turn goes to the vertical bar; TreeMsg_mouse_press is the element's own mouse_press broadcast
-005f7dd0	_	needs port: UIElement_Tree::SetState rebuilds the node list from the children (grid or static layout links), then UpdateLayout and UpdateControls
+005f7dd0	-	unreachable on the Legions DATs: no layout's tree has more than one state, so SetState's rebuild never runs after creation (scanned 2026-10-29)
 005f7f30	-	element creation and teardown: UiTree::create_element and Drop
 005f8000	-	element creation and teardown: UiTree::create_element and Drop
 005f8030	-	element creation and teardown: UiTree::create_element and Drop

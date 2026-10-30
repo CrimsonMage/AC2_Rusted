@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1361 done, 313 partial, 37 to do, 536 skipped.
+2247 retail functions: 1361 done, 314 partial, 34 to do, 538 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -3051,7 +3051,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::DetermineMarginValues` · 005edb30 · legions 005ae720 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [x] `UIElement_Text::SetAtrb_OneLine` · 005edbf0 · legions 005ae7e0 — ac2-ui text_attr.rs text_attribute: one_line sets the flag and marks the text dirty (relaid out and redrawn)
 - [~] `UIElement_Text::GetPercentageV` · 005edc40 · legions 005ae830 — vertical share of the scrollable range paper - (y1 - y0 + 1) (text_scroll.rs / tree_scroll.rs); horizontal share not modelled
-- [ ] `UIElement_Text::GetPercentageH` · 005edcc0 · legions 005ae8b0 — needs port: UIElement_Text::GetPercentageH = m_viewX / (m_paperWidth - width) clamped to [0, 1], 0 when the paper is no wider than the element; horizontal text scroll bar is not modelled (text_scroll.rs)
+- [-] `UIElement_Text::GetPercentageH` · 005edcc0 · legions 005ae8b0 — unreachable on the Legions DATs: GetPercentageH sets a text's horizontal bar, and no layout's text names a horizontal_scrollbar (scanned 2026-10-29)
 - [x] `UIElement_Text::ClampPosition` · 005edd40 · legions 005ae930 — ac2-ui text_edit.rs: UiTree::set_cursor clamps the position to 0..=len
 - [x] `UIElement_Text::MoveUpDown` · 005edd80 · legions 005ae970 — ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
 - [x] `UIElement_Text::MoveBeginEndLine` · 005edf30 · legions 005aeb20 — ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
@@ -3246,7 +3246,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::Rollover` · 005f3e70 · legions 005b49a0 — ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
 - [x] `UIElement_ListBox::ViewChanged` · 005f3f30 · legions 005b4a60 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::HandleSelection` · 005f3fd0 · legions 005b4b00 — ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
-- [ ] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60 — needs port: UIElement_ListBox::SetState rebuilds the item list from the children (ordered by id, reversed with bitfield bit 1), then UpdateLayout, KeepViewInBounds, UpdateControls
+- [~] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60 — needs port: UIElement_ListBox::SetState rebuilds the item list from the new state's children (ordered by position along the list's axis), then UpdateLayout, KeepViewInBounds, UpdateControls. 6 Legions layout lists have more than one state; the tree does not yet swap a state's children on a state change
 - [~] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [~] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0 — ac2-ui list_scroll.rs lists_bound_to: scroll bars matched by name when their messages arrive, buttons by scrollbar.rs; missing: the horizontal/vertical flag (bit 0x800) and UpdateControls when the attribute is set, list up/down/left/right buttons are not wired
 - [~] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
@@ -3439,7 +3439,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Tree::SetAttribute_Bool` · 005f7b40 · legions 005b8670 — ac2-ui tree_view.rs: view via tree_end/flush only
 - [~] `UIElement_Tree::SetAttribute_Int` · 005f7b90 · legions 005b86c0 — ac2-ui tree_view.rs: view via tree_end/flush only
 - [x] `UIElement_Tree::MouseDown` · 005f7c50 · legions 005b8780 — ac2-ui tree_scroll.rs tree_mouse_down: a left press or double click selects the item under the pointer (SetSelectedItem with the broadcast), a wheel turn goes to the vertical bar; TreeMsg_mouse_press is the element's own mouse_press broadcast
-- [ ] `UIElement_Tree::SetState` · 005f7dd0 · legions 005b8900 — needs port: UIElement_Tree::SetState rebuilds the node list from the children (grid or static layout links), then UpdateLayout and UpdateControls
+- [-] `UIElement_Tree::SetState` · 005f7dd0 · legions 005b8900 — unreachable on the Legions DATs: no layout's tree has more than one state, so SetState's rebuild never runs after creation (scanned 2026-10-29)
 - [-] `UIElement_Tree::UIElement_Tree` · 005f7f30 · legions 005b8a60 — element creation and teardown: UiTree::create_element and Drop
 - [-] `UIElement_Tree::Create` · 005f8000 — element creation and teardown: UiTree::create_element and Drop
 - [-] `UIElement_Tree::Register` · 005f8030 · legions 005b8b60 — element creation and teardown: UiTree::create_element and Drop
