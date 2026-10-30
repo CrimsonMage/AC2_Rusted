@@ -9871,8 +9871,8 @@ key	status	note
 005ebb80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005ebc80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005ebcb0	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
-005ebdd0	_	needs port: UIElement::DrawStart broadcasts ElementMsg_draw_start when the notify_on_draw bool attribute is set
-005ebe10	_	needs port: UIElement::DrawDone broadcasts ElementMsg_draw_done when the notify_on_draw bool attribute is set
+005ebdd0	-	unreachable: no Legions layout sets notify_on_draw (scanned 2026-10-29), so ElementMsg_draw_start is never broadcast
+005ebe10	-	unreachable: no Legions layout sets notify_on_draw (scanned 2026-10-29), so ElementMsg_draw_done is never broadcast
 005ebe50	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ec020	-	element teardown: Drop of the arena slot (UiTree::delete)
 005ec240	x	UIElement::SetAttribute_ID done: element.rs set_attribute_id
@@ -10180,9 +10180,9 @@ key	status	note
 005f8b60	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f8b80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005f8c30	x	UIElement_Dragbar::MouseUp done: window_locations.rs dragbar_mouse_up
-005f8c90	_	needs port: UIElement_Dragbar::UpdateLayout (allow_updating) shows the bar unless disabled and hide_when_disabled both set, hides it when they are, only while it and its parent are visible
-005f8d60	_	needs port: UIElement_Dragbar::SetState runs UIElement::SetState then UpdateLayout (disabled + hide_when_disabled hide the bar)
-005f8d80	_	needs port: UIElement_Dragbar::SetAttribute_Bool reruns UpdateLayout when disabled or hide_when_disabled changes
+005f8c90	-	no Legions dragbar has hide_when_disabled (the 16 uses are scroll bars, scanned 2026-10-29), so UpdateLayout always shows the bar, which window_locations.rs's dragbars already are
+005f8d60	-	no Legions dragbar has hide_when_disabled (the 16 uses are scroll bars, scanned 2026-10-29), so UpdateLayout always shows the bar, which window_locations.rs's dragbars already are
+005f8d80	-	no Legions dragbar has hide_when_disabled (the 16 uses are scroll bars, scanned 2026-10-29), so UpdateLayout always shows the bar, which window_locations.rs's dragbars already are
 005f8dc0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f8e20	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005f8e50	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
@@ -10209,10 +10209,10 @@ key	status	note
 005f9a20	x	ac2-ui scrollbar.rs scrollbar_hot_click: a hot button named by up/down/left/right_button steps the bar (matched by name instead of a registered listener)
 005f9a80	x	ac2-ui scrollbar.rs
 005f9aa0	x	ac2-ui scrollbar.rs scrollbar_show: the bar's up/down/left/right buttons shown or hidden with it
-005f9ae0	_	needs port: UIElement_Scrollbar::HandleFillChild sets the fill child (by id) hidden when disabled and sizes/places it by x, y, dx, dy (fill children are not modelled, scrollbar.rs)
+005f9ae0	-	unreachable on the Legions DATs: no layout's scroll bar has left/right/top/bottom_fill children (the 33 *_fill elements all sit under another element kind, 0x9B97A65E; scanned 2026-10-29)
 005f9b30	~	ac2-ui scrollbar.rs scrollbar_update_layout: proportional widget size (x/y_widget_size of the track, min_widget_width/height), placement by the position, a disabled hide_when_disabled bar hidden with its buttons and any other bar shown again. Not: the left/right/top/bottom fill children (their geometry sits in registers the decompile lost)
-005fa050	_	needs port: UIElement_Scrollbar::StartAnimation begins the smooth_movement_duration move from the current position to goal_x/goal_y_position (smooth movement is not modelled, scrollbar.rs)
-005fa170	_	needs port: UIElement_Scrollbar::StopAnimation resets goal_x/goal_y_position to -1 and clears the animating bit (smooth movement is not modelled)
+005fa050	-	unreachable: no Legions layout gives a scroll bar a smooth_movement_duration (bars set smooth_movement only, so StartAnimation returns at once) and no client code sets goal_x/y_position (scanned 2026-10-29)
+005fa170	-	unreachable: StartAnimation never starts on the Legions DATs (see 005fa050)
 005fa1b0	x	ac2-ui scrollbar.rs
 005fa1d0	x	ac2-ui scrollbar.rs
 005fa200	x	ac2-ui scrollbar.rs
