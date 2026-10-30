@@ -4,8 +4,9 @@
 //! (`0x41008D29`) behind 32-pixel slots that sat edge to edge. The toolbar layout's two
 //! descriptions are rewritten before the bar is made ([`restyle`]), keeping every element, state,
 //! message and attribute `gmShortcutUI` reads: the bar loses its grid and is ten slots of 35
-//! pixels wide and one row of 35 tall (`row_height` 35, no `border_size`, so
-//! `gmShortcutUI::RefreshShortcutHeight` makes it whole rows); the slot (`ShortcutTemplate`) is 35
+//! pixels wide and one row of 35 tall under a 4-pixel band where the top edge's drag reaches the
+//! resize grip (`row_height` 35, `border_size` 4, so `gmShortcutUI::RefreshShortcutHeight` makes
+//! it whole rows); the slot (`ShortcutTemplate`) is 35
 //! pixels square and draws its well (`modern_art`) in its top-left 32, its parts unchanged there.
 //! The strip itself (its fade, the attack buttons and the set chip beside the rows) is the
 //! toolbar's (`modern_toolbar.rs`).
@@ -17,6 +18,11 @@ use crate::modern_art::{SLOT, SLOT_PITCH, SLOT_WELL};
 use crate::token::{tokenize, STATELESS};
 
 const SLOTS_PER_ROW: i32 = 10;
+/// The band over the rows where a press reaches the resize grip (retail's bar kept 12 pixels
+/// over its slots for it; `border_size`, so the rows still snap whole).
+const GRIP_BAND: i32 = 4;
+/// The list's holder in `ShortcutField` (unnamed).
+const LIST_HOLDER: u32 = 0xEA2A_0B6D;
 
 fn rect(x0: i32, y0: i32, x1: i32, y1: i32) -> Rect {
     Rect {
@@ -69,7 +75,7 @@ fn bar(desc: &ElementDesc) -> ElementDesc {
             let y1 = i32::from(d.rect.y1);
             d.rect = rect(
                 512 - width / 2,
-                y1 + 1 - SLOT_PITCH,
+                y1 + 1 - SLOT_PITCH - GRIP_BAND,
                 512 - width / 2 + width - 1,
                 y1,
             );
@@ -79,15 +85,23 @@ fn bar(desc: &ElementDesc) -> ElementDesc {
                     .media
                     .retain(|m| !matches!(m, MediaDesc::Image { .. }));
             }
-            set_attribute(d, "border_size", AttributeValue::Int(0));
+            set_attribute(d, "border_size", AttributeValue::Int(GRIP_BAND));
             set_attribute(d, "row_height", AttributeValue::Int(SLOT_PITCH));
-            set_attribute(d, "min_height", AttributeValue::Int(SLOT_PITCH));
-            set_attribute(d, "max_height", AttributeValue::Int(5 * SLOT_PITCH));
+            set_attribute(d, "min_height", AttributeValue::Int(GRIP_BAND + SLOT_PITCH));
+            set_attribute(
+                d,
+                "max_height",
+                AttributeValue::Int(GRIP_BAND + 5 * SLOT_PITCH),
+            );
         } else if d.edges == [1, 1, 1, 2] {
-            // The resize line's cursor region: the whole bar.
-            d.rect = rect(0, 0, width - 1, SLOT_PITCH - 1);
+            // The resize grip (`UIElement_Resizebar`, behind the list): the bar's first row and
+            // the band over it, where only the grip takes a press.
+            d.rect = rect(0, 0, width - 1, GRIP_BAND + SLOT_PITCH - 1);
+        } else if d.id == LIST_HOLDER {
+            // The list's holder: the slots' area, under the band.
+            d.rect = rect(0, GRIP_BAND, width - 1, GRIP_BAND + SLOT_PITCH - 1);
         } else {
-            // The list's holder and the list: the slots' area.
+            // The list: its holder's area.
             d.rect = rect(0, 0, width - 1, SLOT_PITCH - 1);
         }
     };

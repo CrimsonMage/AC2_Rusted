@@ -70,6 +70,18 @@ impl Rig {
         Self::new_in(None)
     }
 
+    /// [`Self::new_in`] with the classic (retail) HUD, for the behaviour only the classic style
+    /// keeps (the server's window locations, the radar and drawer as saved windows).
+    #[allow(dead_code)]
+    pub fn classic_in(positions: Option<std::path::PathBuf>) -> Option<Self> {
+        let mut rig = Self::new_in(positions)?;
+        rig.view
+            .set_hud_style(&rig.gpu, COLOR_FORMAT, ac2_ui::HudStyle::Classic);
+        // The HUD is built on a worker.
+        rig.wait("the classic HUD", |r| r.view.hud_tree().is_some());
+        Some(rig)
+    }
+
     /// As [`Rig::new`], with the player's window position files in `positions` (a fresh login
     /// reads the files there; `None` is the player's AC2 directory).
     pub fn new_in(positions: Option<PathBuf>) -> Option<Self> {
@@ -244,7 +256,15 @@ impl Rig {
     /// A new view of the same world: the HUD is built again, as after a relog, and its windows
     /// take the player's saved places at the first frame in the world.
     pub fn rebuild_hud(&mut self) {
-        self.view = ClientView::new(Arc::clone(&self.world), &self.gpu, COLOR_FORMAT, 1, SIZE);
+        let style = self.view.hud_style();
+        self.view = ClientView::with_hud_style(
+            Arc::clone(&self.world),
+            &self.gpu,
+            COLOR_FORMAT,
+            1,
+            SIZE,
+            style,
+        );
         self.wait("the rebuilt HUD", |r| r.view.shortcut_slots() > 0);
     }
 

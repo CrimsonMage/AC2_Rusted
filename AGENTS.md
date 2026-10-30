@@ -157,7 +157,8 @@ game rules and server-visible behaviour exactly retail.
   buttons side by side in round wells (retail ghosts the start button while the player attacks,
   drawn lit; and the stop button while the player does not, drawn dim), the set chip (arrows over
   and under the set's number, shown always where retail's `UpdateSetNumber` showed it only with
-  numbers on), and the shortcut bar restyled as rows of 32-pixel glass wells 3 pixels apart, an
+  numbers on), and the shortcut bar restyled as rows of 32-pixel glass wells 3 pixels apart under a 4-pixel band where the top edge's drag
+  reaches retail's resize grip (`border_size` 4, so the rows still snap whole), an
   empty slot a faint line until the pointer is over the bar or something is dragged
   (`ac2_ui::modern_strip`). The dock in the bottom-right corner is a teal orb with a pip per panel
   (gold while it shows); the panel buttons fan out of it in round wells on a bevelled backing

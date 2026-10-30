@@ -101,7 +101,7 @@ fn alt_drag(rig: &mut Rig, root: usize, scale: f32, by: (i32, i32)) {
 
 #[test]
 fn an_alt_drag_keeps_a_window_where_it_was_left_and_still_uploads_its_locations() {
-    let Some(mut rig) = Rig::new() else {
+    let Some(mut rig) = Rig::classic_in(None) else {
         return;
     };
     let dir = test_dir("keep");
@@ -152,7 +152,7 @@ fn an_alt_drag_keeps_a_window_where_it_was_left_and_still_uploads_its_locations(
 
 #[test]
 fn an_alt_drag_moves_a_window_by_ui_pixels_at_a_scaled_window() {
-    let Some(mut rig) = Rig::new() else {
+    let Some(mut rig) = Rig::classic_in(None) else {
         return;
     };
     // A 1280 x 960 window lays the UI out at 1024 x 768, scaled by 1.25.
@@ -176,7 +176,7 @@ fn an_alt_drag_moves_a_window_by_ui_pixels_at_a_scaled_window() {
 
 #[test]
 fn an_alt_drag_moves_the_radar_and_its_place_is_kept() {
-    let Some(mut rig) = Rig::new() else {
+    let Some(mut rig) = Rig::classic_in(None) else {
         return;
     };
     let dir = test_dir("radar");
@@ -214,7 +214,7 @@ fn a_fresh_login_puts_a_moved_window_back_where_it_was_left() {
     let dir = test_dir("login");
     // The first session moves the radar and ends; its place is in the player's file.
     let left = {
-        let Some(mut rig) = Rig::new_in(Some(dir.clone())) else {
+        let Some(mut rig) = Rig::classic_in(Some(dir.clone())) else {
             return;
         };
         rig.wait("the HUD", |r| r.view.shortcut_slots() > 0);
@@ -228,7 +228,7 @@ fn a_fresh_login_puts_a_moved_window_back_where_it_was_left() {
         rig.view.hud_tree().unwrap().screen_box(root)
     };
     // A fresh login (a new client over the same character's file) opens the radar there.
-    let Some(mut rig) = Rig::new_in(Some(dir.clone())) else {
+    let Some(mut rig) = Rig::classic_in(Some(dir.clone())) else {
         let _ = std::fs::remove_dir_all(&dir);
         return;
     };
@@ -255,7 +255,7 @@ fn doll_viewport(rig: &Rig) -> ac2_ui::SceneViewport {
 
 #[test]
 fn an_alt_drag_of_the_inventory_carries_the_paper_doll_viewport_by_the_same_offset() {
-    let Some(mut rig) = Rig::new() else {
+    let Some(mut rig) = Rig::classic_in(None) else {
         return;
     };
     let dir = test_dir("doll");
