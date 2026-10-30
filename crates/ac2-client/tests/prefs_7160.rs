@@ -230,12 +230,47 @@ fn the_tooltip_preferences_register_from_the_dat_names() {
     };
     let prefs = ClientPrefs::load(temp_file("tooltip.ini"), store).expect("no file is read");
     let bank = prefs.bank();
+    // The section also holds the client's own HUD style key, after the manager's two.
     assert_eq!(
         bank.list(ac2_ui::tooltip_prefs::TOOLTIP_SECTION),
         vec![
             ac2_ui::tooltip_prefs::TOOLTIP_DELAY,
-            ac2_ui::tooltip_prefs::TOOLTIP_ENABLE
+            ac2_ui::tooltip_prefs::TOOLTIP_ENABLE,
+            ac2_ui::hud_style::CLASSIC_HUD,
         ]
     );
     assert_eq!(ac2_ui::tooltip_prefs::values(bank), (0.25, true));
+}
+
+/// The HUD's style (`ClassicHud`, a client-only key the DAT does not name): registered classic by
+/// default, written under its own name and read back.
+#[test]
+fn the_hud_style_saves_under_its_client_name_and_reads_back() {
+    let Some(store) = store() else {
+        return;
+    };
+    let path = temp_file("hud_style.ini");
+    let mut prefs = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    assert_eq!(
+        ac2_ui::hud_style::hud_style(prefs.bank()),
+        ac2_ui::HudStyle::Classic
+    );
+    prefs
+        .bank_mut()
+        .find_mut(ac2_ui::hud_style::CLASSIC_HUD)
+        .expect("the key is registered")
+        .value = Value::Bool(false);
+    prefs
+        .save()
+        .join()
+        .expect("the save thread")
+        .expect("saved");
+    let text = std::fs::read_to_string(&path).expect("the file");
+    assert!(text.contains("ClassicHud"), "{text}");
+    let back = ClientPrefs::load(path.clone(), store).expect("reload");
+    assert_eq!(
+        ac2_ui::hud_style::hud_style(back.bank()),
+        ac2_ui::HudStyle::Modern
+    );
+    let _ = std::fs::remove_dir_all(path.parent().expect("a directory"));
 }

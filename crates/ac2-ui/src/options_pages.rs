@@ -43,6 +43,9 @@ pub enum OptionsEffect {
     /// A display key was applied: the window and surface take the display section's values
     /// (read them from the bank, `ac2_client`'s `WindowPresentation::from_bank`).
     Display,
+    /// The HUD's style was applied: the client rebuilds the HUD in the bank's style
+    /// ([`crate::hud_style::hud_style`]).
+    HudStyle,
 }
 
 /// The client's side of the options page: the preferences the page reads and writes, and the live
@@ -251,6 +254,9 @@ pub fn live_effects(
     }
     if keys.iter().any(|k| DISPLAY_KEYS.contains(k)) {
         effects.push(OptionsEffect::Display);
+    }
+    if keys.contains(&crate::hud_style::CLASSIC_HUD) {
+        effects.push(OptionsEffect::HudStyle);
     }
     effects
 }

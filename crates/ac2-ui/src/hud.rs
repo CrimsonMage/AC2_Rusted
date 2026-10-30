@@ -38,6 +38,7 @@ use crate::examination::ExaminationUi;
 use crate::external_container::ExternalContainerUi;
 use crate::fellowship::FellowshipUi;
 use crate::friends_panel::FriendsPanel;
+use crate::hud_style::HudStyle;
 use crate::indicators::IndicatorsUi;
 use crate::ingredient::IngredientUi;
 use crate::layout::{load_layout, LayoutDesc};
@@ -99,6 +100,8 @@ pub fn load_layout_by_enum(
 #[derive(Debug, Clone)]
 pub struct GameplayHud {
     pub tree: UiTree,
+    /// The style the HUD was built in.
+    pub style: HudStyle,
     /// The UI string table's DID (`UI_TABLE`), which the option pages' questions come from.
     pub ui_table: Option<u32>,
     /// The DID of the preferences' label table (enum `0x40000008`), for the options page's rows.
@@ -200,6 +203,17 @@ pub fn build_gameplay_hud(
     store: &Arc<ResourceStore>,
     width: i32,
     height: i32,
+) -> ResourceResult<GameplayHud> {
+    build_styled_hud(store, width, height, HudStyle::Classic)
+}
+
+/// [`build_gameplay_hud`] in `style`: the classic style is the retail HUD; the modern style
+/// restyles the same frameworks' layouts and adds the client's own parts.
+pub fn build_styled_hud(
+    store: &Arc<ResourceStore>,
+    width: i32,
+    height: i32,
+    style: HudStyle,
 ) -> ResourceResult<GameplayHud> {
     let mut tree = UiTree::new(width, height);
     let text_data = Arc::new(StoreTextData::new(Arc::clone(store)));
@@ -417,6 +431,7 @@ pub fn build_gameplay_hud(
     }
     text_data.freeze();
     Ok(GameplayHud {
+        style,
         tree,
         ui_table: ui_table.map(|table| table.raw()),
         pref_table: pref_table.map(|table| table.raw()),

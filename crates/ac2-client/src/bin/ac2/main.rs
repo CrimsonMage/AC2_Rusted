@@ -32,8 +32,10 @@ mod cmdline;
 mod cursor;
 mod instance;
 mod pregame;
+mod window_setup;
 
 use cmdline::{parse_args, Args};
+use window_setup::{borderless, depth_view, present_mode, show_world_names, speakers};
 
 use std::io;
 use std::path::PathBuf;
@@ -43,7 +45,7 @@ use std::time::{Duration, Instant};
 use ac2_client::pregame_view::PregameView;
 use ac2_client::view::ClientView;
 use ac2_client::{frame_input, pick_targets, Client, Command, DatWorld, WindowPresentation};
-use ac2_gpu::{render_to, screenshot, Gpu, DEPTH_FORMAT};
+use ac2_gpu::{render_to, screenshot, Gpu};
 use ac2_net::Credential;
 use ac2_ui::{wheel_event_delta, Controls, InputEvent, SelectionUi, WheelAccumulator};
 use ac2_weenie::{CharacterChoice, GameplayNotice, OnlineConfig, OnlineSession, SessionEvent};
@@ -54,7 +56,7 @@ use winit::event::{
 };
 use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::keyboard::PhysicalKey;
-use winit::window::{CursorGrabMode, Fullscreen, Window, WindowId};
+use winit::window::{CursorGrabMode, Window, WindowId};
 
 /// Frame-thread time spent taking finished loads (`DBCache::UseTime`'s pump).
 const LOAD_BUDGET: Duration = Duration::from_millis(4);
@@ -157,22 +159,6 @@ struct App {
     server: (String, u16),
 }
 
-/// Borderless fullscreen on the window's current monitor (`Windowed = !FullScreen`; retail's
-/// exclusive display change has no portable form, see `window_presentation`).
-fn borderless() -> Fullscreen {
-    Fullscreen::Borderless(None)
-}
-
-/// The surface's present mode for vertical sync: FIFO (`PresentationInterval` ONE), else immediate
-/// presentation, which falls back to mailbox and FIFO where immediate is not supported.
-fn present_mode(vsync: bool) -> wgpu::PresentMode {
-    if vsync {
-        wgpu::PresentMode::Fifo
-    } else {
-        wgpu::PresentMode::AutoNoVsync
-    }
-}
-
 impl State {
     /// Takes the display section's presentation as a verified change set it: the window's
     /// fullscreen state, the present mode and the frame latency, then the surface is configured.
@@ -252,62 +238,6 @@ impl State {
             }
         }
     }
-}
-
-/// `gmClient::RecvNotice_WorldName`: the window title carries the world's name, a modern stand-in
-/// for the HUD's display. The HUD scripts read the name through the efun
-/// `gTurbineGunUtils::CallEFun_GetWorldName` (bound in `ac2_script`).
-fn world_title(info: &ac2_net::protocol::StringInfo) -> Option<String> {
-    info.literal
-        .as_deref()
-        .filter(|name| !name.is_empty())
-        .map(|name| format!("Asheron's Call 2 - {name}"))
-}
-
-fn show_world_name(window: &Window, info: &ac2_net::protocol::StringInfo) {
-    match world_title(info) {
-        Some(title) => window.set_title(&title),
-        None => eprintln!("ac2: world name is not a literal; the title keeps its default"),
-    }
-}
-
-/// The world names among a frame's session events (they arrive before character selection too).
-pub(crate) fn show_world_names(window: &Window, events: &[SessionEvent]) {
-    for event in events {
-        if let SessionEvent::WorldName(info) = event {
-            show_world_name(window, info);
-        }
-    }
-}
-
-/// The speakers, or silence when there is no output device.
-fn speakers() -> Box<dyn ac2_audio::SoundSink> {
-    match ac2_audio::SpeakerSink::open() {
-        Ok(sink) => Box::new(sink),
-        Err(error) => {
-            eprintln!("no sound: {error}");
-            Box::new(ac2_audio::NullSink)
-        }
-    }
-}
-
-fn depth_view(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration) -> wgpu::TextureView {
-    device
-        .create_texture(&wgpu::TextureDescriptor {
-            label: Some("ac2 depth"),
-            size: wgpu::Extent3d {
-                width: config.width,
-                height: config.height,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: DEPTH_FORMAT,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            view_formats: &[],
-        })
-        .create_view(&Default::default())
 }
 
 impl App {
@@ -480,6 +410,12 @@ impl App {
                     // The display section's values, read as they are now (a verified change).
                     if let Some(prefs) = self.client.prefs() {
                         state.apply_presentation(WindowPresentation::from_bank(prefs.bank()));
+                    }
+                }
+                ac2_client::OptionsEffect::HudStyle => {
+                    if let Some(prefs) = self.client.prefs() {
+                        let style = ac2_ui::hud_style::hud_style(prefs.bank());
+                        view.set_hud_style(&state.gpu, state.format, style);
                     }
                 }
             }
@@ -981,21 +917,5 @@ fn main() {
     if let Err(message) = result {
         eprintln!("ac2: {message}");
         std::process::exit(1);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::world_title;
-    use ac2_net::protocol::StringInfo;
-
-    #[test]
-    fn the_title_carries_a_literal_world_name() {
-        assert_eq!(
-            world_title(&StringInfo::literal("Darktide")),
-            Some("Asheron's Call 2 - Darktide".to_owned())
-        );
-        assert_eq!(world_title(&StringInfo::literal("")), None);
-        assert_eq!(world_title(&StringInfo::default()), None);
     }
 }

@@ -37,7 +37,9 @@ impl HudView {
         gpu: &Gpu,
         format: wgpu::TextureFormat,
         size: (u32, u32),
+        style: ac2_ui::HudStyle,
     ) -> Self {
+        let store_for_rebuild = Arc::clone(&store);
         let chat_text = ac2_ui::chat_text::ChatText::new((*store).clone());
         let images = ac2_ui::UiImageLoader::new(Arc::clone(&store));
         let (send_strings, pending_strings) = mpsc::channel();
@@ -56,7 +58,7 @@ impl HudView {
             .name("ac2 hud".into())
             .spawn(move || {
                 let built =
-                    ac2_ui::build_gameplay_hud(&store, width, height).and_then(|mut hud| {
+                    ac2_ui::build_styled_hud(&store, width, height, style).and_then(|mut hud| {
                         // The text elements copy, cut and paste through the OS clipboard.
                         hud.tree.set_text_clipboard(crate::clipboard::shared());
                         // `CRegionDesc::GetGameMap`: the map image the navigation panel shows.
@@ -103,6 +105,8 @@ impl HudView {
         Self {
             pending: Some(receive),
             hud: None,
+            style,
+            store: store_for_rebuild,
             panels: {
                 let mut panels = ac2_ui::Hud::default();
                 panels.pending_strings = Some(pending_strings);
@@ -126,12 +130,24 @@ impl HudView {
         }
     }
 
+    /// A new HUD of the same window in `style`, built from the same store (the HUD's state comes
+    /// back from the player, as after a relog).
+    pub(crate) fn rebuilt(
+        &self,
+        gpu: &Gpu,
+        format: wgpu::TextureFormat,
+        style: ac2_ui::HudStyle,
+    ) -> Self {
+        Self::new(Arc::clone(&self.store), gpu, format, self.size, style)
+    }
+
     /// Takes a finished build, then recomposes if anything changed.
     pub(super) fn arrived(&mut self, built: Built) {
         match built {
             Ok((
                 GameplayHud {
                     mut tree,
+                    style: _,
                     reticle,
                     names,
                     damage,

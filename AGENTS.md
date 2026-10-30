@@ -65,7 +65,8 @@ game rules and server-visible behaviour exactly retail.
   in f32 at AC2's world coordinates the absolute view made the sky jitter as the eye moved. The screen brightness (`ScreenBrightness`) scales the world's display levels by
   `1 + 2 * brightness` after the tone map, as retail's gamma ramp did
   (`RenderDeviceD3D::SetGamma`), but the UI keeps its authored levels (retail's ramp brightened
-  the whole screen). Do not add a retail/modern switch.
+  the whole screen). Do not add a retail/modern switch to the shading (the HUD's two styles, below,
+  are the only such switch).
 - Exception: bodies and objects cast sun shadows from depth maps. Retail's `DynamicObjectShadows`
   drew a dark disc decal under each moving object (1, `WorldRender::CreateDiscShadows`) or stencil
   shadow volumes of the moving objects along `SceneTool::m_vShadowDirection` (2, and 3
@@ -125,6 +126,17 @@ game rules and server-visible behaviour exactly retail.
   world's overlays (targeting reticle, name plates, damage text), the heading ring (it follows the
   radar), the doll's 3D viewport (docked to the inventory), the consignment's portrait (docked to
   its panel, kept at its `SyncPortrait` place each loop), full-display backdrops and tooltips.
+- Exception: the HUD has two styles, modern and classic. Retail drew only its DAT layouts' HUD.
+  Here the classic style is that HUD, unchanged; the modern style (the mockup "variant D" the
+  user chose) builds the same frameworks over the same elements, restyling their layout
+  descriptions before they are made (each restyle keeps every element id and state, so every
+  framework's behaviour stays retail) and adding the client's own parts beside them, which call
+  only the frameworks' existing entry points and send nothing new to the server. The choice is
+  the client-only `ClassicHud` preference (`ac2_ui::hud_style`, key `0x7E000001` in the
+  `Misc` section, listed on the options page by its key name); applying it rebuilds the HUD
+  (`ClientView::set_hud_style`), whose panels come back from the player as after a relog. The
+  world viewer takes `--hud-style modern|classic` and switches with F7. The default stays classic
+  until the modern style is complete. Each modern change is listed here as it lands.
 - Exception: the radar shows the player's map coordinates under the compass by default.
   Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
   profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it

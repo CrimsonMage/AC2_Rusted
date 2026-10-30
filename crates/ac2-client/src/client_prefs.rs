@@ -89,7 +89,9 @@ impl NameTable for DatNames {
     }
 
     fn key_name(&self, id: u32) -> Option<String> {
+        // The client-only keys (the HUD's style) have no name in the DAT's mapper.
         self.name(KEY_MAP, id)
+            .or_else(|| ac2_ui::hud_style::client_key_name(id).map(str::to_owned))
     }
 
     fn enum_name(&self, map: u32, label: u32) -> Option<String> {
@@ -118,6 +120,7 @@ impl ClientPrefs {
         ac2_render::prefs::register_device(bank, names);
         ac2_smartbox::prefs::register(bank, names);
         ac2_ui::tooltip_prefs::register(bank, names);
+        ac2_ui::hud_style::register(bank, names);
         Ok(Self { file })
     }
 

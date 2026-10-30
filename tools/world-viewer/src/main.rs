@@ -10,7 +10,10 @@
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
+//! world-viewer ... [--hud-style modern|classic]
 //! ```
+//! `--hud-style` builds the HUD in that style (default classic, the retail DAT HUD); in the window
+//! F7 switches between the two and rebuilds the HUD.
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
 //! `--look` turns the `--fly` snapshot camera to YAW degrees clockwise from north and PITCH
 //! degrees above the horizon (the sky: `--look 0,60`). `--height Z` puts the `--fly` camera at
@@ -94,6 +97,8 @@ struct Args {
     walk_seconds: f32,
     speed: u32,
     warm_up: u32,
+    /// The HUD's style (`--hud-style`).
+    hud_style: ac2_ui::HudStyle,
     /// The start position within the block (default: its centre).
     at: Option<(f32, f32)>,
     /// Server seconds to show (default: the day's brightest daylight); other days bring their
@@ -141,6 +146,7 @@ fn parse_args() -> Result<Args, String> {
         walk_seconds: 4.0,
         speed: 1,
         warm_up: 3,
+        hud_style: ac2_ui::HudStyle::Classic,
         at: None,
         time: None,
         crowd: 0,
@@ -265,6 +271,11 @@ fn parse_args() -> Result<Args, String> {
                     .map_err(|e| format!("--light-coronas: {e}"))?;
                 args.light_coronas = on != 0;
             }
+            "--hud-style" => {
+                let word = value()?;
+                args.hud_style = ac2_ui::HudStyle::parse(&word)
+                    .ok_or(format!("--hud-style: modern or classic, not {word}"))?;
+            }
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
             }
@@ -325,6 +336,7 @@ fn main() {
             fly_first: args.fly,
             fly,
             time_of_day,
+            hud_style: args.hud_style,
         });
     }
 }
@@ -411,12 +423,13 @@ fn snapshot(
     .expect("GPU adapter");
     // As the client: DXT textures stay BC blocks when the GPU samples them.
     ac2_render::set_gpu_block_compression(gpu.block_compression() && !args.rgba_textures);
-    let mut view = ClientView::new(
+    let mut view = ClientView::with_hud_style(
         Arc::clone(&world),
         &gpu,
         COLOR_FORMAT,
         args.radius,
         (width, height),
+        args.hud_style,
     );
     view.set_scene_options(ac2_render::prefs::SceneOptions {
         degrade: args.degrade,

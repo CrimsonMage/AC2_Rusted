@@ -42,6 +42,8 @@ pub struct Setup {
     pub fly_first: bool,
     pub fly: FlyCamera,
     pub time_of_day: f64,
+    /// The HUD's style at the start (`--hud-style`; F7 switches it).
+    pub hud_style: ac2_ui::HudStyle,
 }
 
 pub fn run(setup: Setup) {
@@ -127,12 +129,13 @@ impl ApplicationHandler for App {
         };
         surface.configure(&gpu.device, &config);
         let depth = depth_view(&gpu.device, &config);
-        let view = ClientView::new(
+        let view = ClientView::with_hud_style(
             Arc::clone(&setup.world),
             &gpu,
             format,
             setup.radius,
             (config.width, config.height),
+            setup.hud_style,
         );
         let mut walk = Walk::new(&setup.world, setup.store.clone(), 0.0);
         let mode = if setup.fly_first || setup.models.is_empty() {
@@ -301,6 +304,13 @@ impl State {
             KeyCode::KeyM => self.map_open = !self.map_open,
             KeyCode::KeyG => self.view.toggle_guide(),
             KeyCode::KeyT => self.view.toggle_tracker(),
+            // The classic switch: the HUD rebuilds in the other style.
+            KeyCode::F7 => {
+                let style = self.view.hud_style().toggled();
+                self.view
+                    .set_hud_style(&self.gpu, self.config.format, style);
+                eprintln!("world-viewer: HUD style {style:?}");
+            }
             KeyCode::Tab => {
                 let mode = match self.panel.mode {
                     Mode::Walk => Mode::Fly,

@@ -93,12 +93,19 @@ impl App {
         }
         if self.client.frame().in_world {
             // `UseNewMode(Gameplay)`: the world and its HUD replace the pregame screens.
-            let mut view = ClientView::new(
+            // The HUD in the saved style (the classic switch, `ClassicHud`).
+            let style = self
+                .client
+                .prefs()
+                .map(|prefs| ac2_ui::hud_style::hud_style(prefs.bank()))
+                .unwrap_or_default();
+            let mut view = ClientView::with_hud_style(
                 Arc::clone(&self.world),
                 &state.gpu,
                 state.format,
                 self.radius,
                 (state.config.width, state.config.height),
+                style,
             );
             view.set_scene_options(self.scene_options);
             view.set_stream_pipelines(true);

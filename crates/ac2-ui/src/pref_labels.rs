@@ -97,6 +97,13 @@ const PREF_LABELS: &[(u32, u32, &str)] = &[
     (0x4000_0008, 0x4000_002C, "ID_Camera_Zoom_Speed"),
     (0x4000_0008, 0x4000_0051, "ID_Camera_Auto_Distance"),
     (0x4000_0008, 0x4000_005A, "ID_Camera_Align_To_Slope"),
+    // The HUD's style, a client-only key: the label is not in the table, so the row shows the
+    // key's name (`ClassicHud`).
+    (
+        crate::hud_style::HUD_STYLE_SECTION,
+        crate::hud_style::CLASSIC_HUD,
+        "ID_Misc_ClassicHud",
+    ),
 ];
 
 #[cfg(test)]

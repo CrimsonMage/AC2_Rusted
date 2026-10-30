@@ -126,7 +126,7 @@ camera. Block `7567` (the village) is full of braziers and good for checking par
 |---|---|---|
 | Move | W/S walk, Q/E strafe, A/D turn, Space jump | WASD, Space/C up and down, Shift fast |
 | Camera | hold the right button to look, wheel zooms, V first person, Home resets | hold the left button to look |
-| Other | F1 hides the panel, `[` and `]` step the time of day | |
+| Other | F1 hides the panel, `[` and `]` step the time of day, F7 switches the HUD between modern and classic (`--hud-style`) | |
 
 The race and sex table (`race<TAB>sex<TAB>phys_obj`, hex) is written by `race-table` to
 `$AC2_RACE_TABLE`, else `$XDG_CACHE_HOME/ac2-world-viewer/race_table.tsv` (default

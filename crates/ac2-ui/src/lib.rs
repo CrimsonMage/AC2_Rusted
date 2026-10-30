@@ -265,10 +265,12 @@ mod text_clipboard;
 mod text_data;
 mod text_edit;
 pub use text_edit::TextPress;
+pub mod hud_style;
 mod text_scroll;
 mod token;
 mod toolbar;
 mod tooltip;
+pub use hud_style::HudStyle;
 pub mod tooltip_prefs;
 mod transition;
 mod tree_scroll;
@@ -354,8 +356,8 @@ pub use game_dialogs::{
     PopupQuestion, ERROR_TEXT_TYPE, LOGOUT_ACTION,
 };
 pub use hud::{
-    build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
-    LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
+    build_gameplay_hud, build_styled_hud, load_layout_by_enum, load_ui_images, GameplayHud,
+    GAMEPLAY_ROOTS, LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
 };
 pub use icon_desc::IconLayer;
 pub use indicators::IndicatorsUi;

@@ -25,6 +25,10 @@ mod compose;
 
 pub(crate) struct HudView {
     pending: Option<Receiver<Built>>,
+    /// The style the HUD is built in.
+    pub(crate) style: ac2_ui::HudStyle,
+    /// The store the HUD was built from, for a rebuild in another style.
+    store: std::sync::Arc<ac2_db::ResourceStore>,
     pub(crate) hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
     /// The HUD's panel state: `gm3DTextUI`'s reticle, name plates and damage texts, and the clock.
     pub(crate) panels: ac2_ui::Hud,

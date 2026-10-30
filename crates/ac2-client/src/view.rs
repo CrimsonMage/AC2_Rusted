@@ -223,10 +223,29 @@ impl ClientView {
         radius: i32,
         size: (u32, u32),
     ) -> Self {
+        Self::with_hud_style(
+            world,
+            gpu,
+            format,
+            radius,
+            size,
+            ac2_ui::HudStyle::default(),
+        )
+    }
+
+    /// [`Self::new`] with the HUD built in `style`.
+    pub fn with_hud_style(
+        world: Arc<Ac2WorldSource>,
+        gpu: &Gpu,
+        format: wgpu::TextureFormat,
+        radius: i32,
+        size: (u32, u32),
+        style: ac2_ui::HudStyle,
+    ) -> Self {
         let store = Arc::clone(world.resource_store());
         Self {
             block_size: world.block_size(),
-            hud: HudView::new(Arc::clone(&store), gpu, format, size),
+            hud: HudView::new(Arc::clone(&store), gpu, format, size, style),
             deselect: false,
             doll: crate::paper_doll_scene::PaperDollScene::new(
                 Arc::clone(&store),
@@ -251,6 +270,27 @@ impl ClientView {
             .set_landscape_shadows(options.static_shadows, options.cloud_shadows);
         self.brightness = options.brightness;
         self.scene.set_options(options);
+    }
+
+    /// The style the HUD is built in.
+    pub fn hud_style(&self) -> ac2_ui::HudStyle {
+        self.hud.style
+    }
+
+    /// Rebuilds the HUD in `style` when it differs from the current one (the classic switch).
+    /// The panels' state comes back from the player and its notices, as after a relog; the
+    /// window positions are reapplied at the build. Whether it rebuilt.
+    pub fn set_hud_style(
+        &mut self,
+        gpu: &Gpu,
+        format: wgpu::TextureFormat,
+        style: ac2_ui::HudStyle,
+    ) -> bool {
+        if self.hud.style == style {
+            return false;
+        }
+        self.hud = self.hud.rebuilt(gpu, format, style);
+        true
     }
 
     /// What the options pages' applies changed that the window or the scene must take: the scene's
