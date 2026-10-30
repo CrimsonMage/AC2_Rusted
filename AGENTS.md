@@ -288,6 +288,10 @@ game rules and server-visible behaviour exactly retail.
   centred, a bronze close button, the list four slots wide (retail three) with the thin scroll
   bar, Loot All and Transmute All as pills holding their art and their names, and a note under
   them. The elements are retail's, so opening, slots, drops and the buttons stay retail's.
+  The window opens above its container, its foot 28 pixels over the container's top (retail's
+  `PositionWindow` centred it on the container), and a dashed gold leader runs from its foot to
+  the container's top, ending in a dot, every frame while both show (`ac2_ui::modern_loot_leader`,
+  from the frame's projected boxes); retail drew none.
   While the targeting pointer is on (`RecvNotice_SetTargetingPointer`), a gold banner at the
   display's top centre says to pick a target (`ac2_ui::modern_banner`, the design's variant B);
   retail showed only the pointer's cursor. It takes no pointer; the targeting stays retail's.

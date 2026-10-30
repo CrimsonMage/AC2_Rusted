@@ -51,6 +51,8 @@ pub struct ExternalContainerUi {
     position_for: Option<u64>,
     /// The modern style's window (`modern_loot`).
     modern: bool,
+    /// The modern window's leader to its container (`modern_loot_leader`).
+    leader: Option<crate::modern_loot_leader::Leader>,
 }
 
 impl ExternalContainerUi {
@@ -70,6 +72,7 @@ impl ExternalContainerUi {
             display: None,
             position_for: None,
             modern: false,
+            leader: None,
         }
     }
 
@@ -79,6 +82,7 @@ impl ExternalContainerUi {
             let slots = Arc::clone(&self.slots);
             crate::modern_loot::adopt(tree, field, &[&slots]);
             self.modern = true;
+            self.leader = crate::modern_loot_leader::Leader::make(tree, field);
         }
     }
 
@@ -115,6 +119,9 @@ impl ExternalContainerUi {
         let contexts = self.display.take().map(|mut d| d.cleanup(tree));
         self.position_for = None;
         self.show(tree, false);
+        if let Some(leader) = &self.leader {
+            leader.hide(tree);
+        }
         contexts.unwrap_or_default()
     }
 
@@ -205,6 +212,45 @@ impl ExternalContainerUi {
         let (w, h) = tree.display;
         let at = clip.map(|c| crate::reticle::clip_to_pixel(c, w, h));
         self.position_window(tree, at);
+    }
+
+    /// Whether this is the modern style's window.
+    pub fn is_modern(&self) -> bool {
+        self.modern
+    }
+
+    /// The modern window's place when it opens: centred over `at` (the container's top in window
+    /// pixels) with its foot 28 pixels above it, kept on the display (the design's; retail's
+    /// `PositionWindow` centred the window on the container); retail's place without `at`.
+    pub fn position_window_above(&mut self, tree: &mut UiTree, at: Option<(i32, i32)>) {
+        let (Some((x, y)), Some(field)) = (at, self.field) else {
+            self.position_window(tree, None);
+            return;
+        };
+        self.position_for = None;
+        let rect = tree.el(field).rect;
+        let (dw, dh) = tree.display;
+        let left = (x - rect.width() / 2).clamp(0, (dw - rect.width()).max(0));
+        let top = (y - 28 - rect.height()).clamp(0, (dh - rect.height()).max(0));
+        tree.set_object_position(field, left, top);
+    }
+
+    /// The container the modern window's leader points at, while the window shows.
+    pub fn leader_target(&self, tree: &UiTree) -> Option<u64> {
+        self.leader.as_ref()?;
+        self.shown(tree)
+            .then(|| self.display.as_ref().map(|d| d.container))
+            .flatten()
+    }
+
+    /// The leader from the window's foot to `to` (the container's top in window pixels; hidden
+    /// without). Whether the surfaces must be drawn again.
+    pub fn update_leader(&self, tree: &mut UiTree, to: Option<(i32, i32)>) -> bool {
+        let (Some(leader), Some(field)) = (&self.leader, self.field) else {
+            return false;
+        };
+        let b = tree.screen_box(field);
+        leader.update(tree, ((b.x0 + b.x1) / 2, b.y1), to)
     }
 
     /// `gmExternalContainerUI::ListenToMessage` (its buttons) and the display's slots and drops.

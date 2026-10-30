@@ -526,3 +526,31 @@ fn the_loot_window_takes_the_designs_size_and_grid() {
     let at = tree.screen_box(root);
     assert_eq!((at.width(), at.height()), (138, 165));
 }
+
+/// The modern loot window opens above its container (its foot 28 pixels over the container's
+/// top), and its leader runs from the window's foot to the container, turned onto it.
+#[test]
+fn the_loot_window_opens_above_its_container_with_a_leader() {
+    let Some(mut modern) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut modern.tree;
+    let panel = modern.external_container.as_mut().unwrap();
+    assert!(panel.is_modern());
+    let root = named(tree, "ExternalContainerField").unwrap();
+    panel.position_window_above(tree, Some((500, 600)));
+    let at = tree.screen_box(root);
+    assert_eq!((at.x0, at.y0), (500 - 107, 600 - 28 - 262));
+    tree.set_visible(root, true);
+    // Straight down from the window's foot to the container's top.
+    let foot = ((at.x0 + at.x1) / 2, at.y1);
+    assert!(panel.update_leader(tree, Some((foot.0, foot.1 + 28))));
+    let line = named(tree, "ModernLootLeader").unwrap();
+    let dot = named(tree, "ModernLootLeaderDot").unwrap();
+    assert!(tree.el(line).visible && tree.el(dot).visible);
+    assert_eq!(tree.el(line).rect.width(), 28);
+    assert_eq!(tree.el(line).rotation, -90);
+    // Off the screen: hidden.
+    assert!(panel.update_leader(tree, None));
+    assert!(!tree.el(line).visible && !tree.el(dot).visible);
+}

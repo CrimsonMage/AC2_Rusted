@@ -292,6 +292,7 @@ pub mod modern_layout_edit;
 #[cfg(test)]
 mod modern_layout_edit_tests;
 mod modern_loot;
+mod modern_loot_leader;
 mod modern_pets;
 mod modern_radar;
 mod modern_stack;

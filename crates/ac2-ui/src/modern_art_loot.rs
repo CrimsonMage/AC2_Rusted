@@ -19,6 +19,10 @@ pub const LOOT_PILL_BORDER: i32 = 12;
 pub const TARGET_BANNER: u32 = 0x7E01_00E5;
 pub const TARGET_BANNER_BORDER: i32 = 10;
 pub const LOOT_GLASS_BORDER: i32 = 9;
+/// The leader from the loot window to its container: a dash (3 on, 3 off, gold at 70%,
+/// `rgba(240,215,130,.7)`), tiled along the line, and the dot at the container (`#f0d982`).
+pub const LOOT_LEADER_DASH: u32 = 0x7E01_013F;
+pub const LOOT_LEADER_DOT: u32 = 0x7E01_0140;
 
 /// The glass inside the frame: deep teal (`rgba(0,30,27,.9)`) lit from its top (a radial
 /// highlight, `rgba(20,80,74,.35)`), its lower corners round.
@@ -109,6 +113,23 @@ fn banner() -> UiPixels {
     c.finish()
 }
 
+fn leader_dash() -> UiPixels {
+    let mut c = Canvas::new(6, 2);
+    c.paint(
+        |x, _| if x < 3.0 { -1.0 } else { 1.0 },
+        |_, _, d| (rgb(0xF0D782, 0.7), inside(d)),
+    );
+    c.finish()
+}
+
+fn leader_dot() -> UiPixels {
+    let mut c = Canvas::new(7, 7);
+    c.paint(crate::modern_art::circle(3.5, 3.5, 3.0), |_, _, d| {
+        (rgb(0xF0D982, 1.0), inside(d))
+    });
+    c.finish()
+}
+
 /// The loot window's images made into `images`.
 pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
     for (id, image) in [
@@ -118,6 +139,8 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (LOOT_CLOSE, close(false)),
         (LOOT_CLOSE_LIT, close(true)),
         (TARGET_BANNER, banner()),
+        (LOOT_LEADER_DASH, leader_dash()),
+        (LOOT_LEADER_DOT, leader_dot()),
     ] {
         images.insert(id, image);
     }

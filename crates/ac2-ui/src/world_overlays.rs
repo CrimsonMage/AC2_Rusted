@@ -129,16 +129,34 @@ impl Hud {
         container: Option<u64>,
         boxes: &[OverlayBox],
     ) {
-        let Some(id) = container else {
+        let Some(panel) = self.external_container.as_mut() else {
             return;
         };
-        let clip = boxes.iter().find(|b| b.id == id).and_then(|b| {
-            let centre = [0, 1, 2].map(|i| (b.min[i] + b.max[i]) * 0.5);
-            b.projector.project_front(centre)
-        });
-        if let Some(panel) = self.external_container.as_mut() {
-            panel.position_window_clip(tree, clip);
+        let (w, h) = tree.display;
+        // A container's box centre and the middle of its top, in clip space.
+        let point = |id: u64, top: bool| {
+            boxes.iter().find(|b| b.id == id).and_then(|b| {
+                let mut at = [0, 1, 2].map(|i| (b.min[i] + b.max[i]) * 0.5);
+                if top {
+                    at[2] = b.max[2];
+                }
+                b.projector.project_front(at)
+            })
+        };
+        if let Some(id) = container {
+            if panel.is_modern() {
+                // The modern window opens above the container (its leader drawn to it).
+                let top = point(id, true).map(|c| crate::reticle::clip_to_pixel(c, w, h));
+                panel.position_window_above(tree, top);
+            } else {
+                panel.position_window_clip(tree, point(id, false));
+            }
             *dirty = true;
+        }
+        // The modern window's leader follows the container every frame.
+        if let Some(id) = panel.leader_target(tree) {
+            let top = point(id, true).map(|c| crate::reticle::clip_to_pixel(c, w, h));
+            *dirty |= panel.update_leader(tree, top);
         }
     }
 }
