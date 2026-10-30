@@ -9682,7 +9682,7 @@ key	status	note
 005e2580	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 005e2590	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 005e25b0	~	ac2-physics motion_interp.rs set_velocity_scale / set_acceleration_scale (reached from the server and script events); the collision impact minimum CPhysicsObj::SetVelocityScale also sets is not modelled
-005e25c0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e25c0	x	ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
 005e26d0	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 005e26f0	x	UIRegion::GetObjectX0 done: meter.rs object_origin (corner in surface)
 005e2720	x	ac2-ui place.rs: the root's object origin (Element::object) that screen_box starts from
@@ -9712,34 +9712,34 @@ key	status	note
 005e3490	-	Dirty-rectangle bookkeeping (UIObjectRegionInfo::AddDirtyRect and its Box2D Includes / Subtract): the client composes the whole UI each changed frame on the GPU (compose.rs, UiTree::take_changed), so there are no partial surface redraws to merge
 005e3520	x	ac2-ui element.rs: UiTree::create_root
 005e3580	x	ac2-ui element.rs: UiTree::delete (removes a root and its children)
-005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+005e35f0	x	ac2-ui element cursor (SetCursor: the element cursor or the default, with hotspot), drawn each frame by ac2-client bin/ac2/cursor.rs from UiTree::pointer_cursor
 005e3690	x	ac2-ui media.rs / transition.rs
-005e36b0	~	ac2-ui mouse.rs stop_input: broadcasts the global key release 0xffff0004; missing: the active element release hooks for actions 0x40000013-16 and 0x40000018 (admin only, no Legions counterpart)
+005e36b0	x	ac2-ui mouse.rs stop_input: the global key release 0xffff0004; the active element release hooks (actions 0x40000013-16, 0x40000018) are admin-only with no Legions counterpart
 005e3740	x	ac2-ui tooltip.rs
 005e37c0	x	ac2-ui drag.rs; shortcut.rs drop
 005e3820	x	ac2-ui drag.rs; shortcut.rs drop
-005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005e38b0	x	ac2-ui mouse.rs / text_edit.rs: a press away from the active element deactivates it, a press on an activatable text activates it (selection, clipboard, page keys, cursor flashing, view scrolling all ported)
 005e3910	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 005e3960	x	ac2-ui element.rs: UiTree::create_root
 005e3aa0	x	ac2-ui element.rs set_visible: a tooltip owner hidden (itself or its parent) loses its tooltip; tooltip_tests
-005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005e3af0	x	ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
+005e3b70	x	ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
+005e3cc0	x	ac2-ui mouse.rs / text_edit.rs: a press away from the active element deactivates it, a press on an activatable text activates it (selection, clipboard, page keys, cursor flashing, view scrolling all ported)
 005e3de0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
-005e3e90	~	no right-button check; 32x32 cursor size assumed
+005e3e90	x	ac2-ui tooltip.rs start_tooltip: enabled, an owner with tooltip_ID, none while the left button is held (ActionDown 0x40000004, tooltip_tests.rs), the text from the owner or tooltip_entry, sized by InqSizewMargins, placed below-right of the pointer by the cursor size (32 x 32, the DAT cursors size) and kept on screen
 005e42e0	x	ac2-ui drag.rs; shortcut.rs drop
 005e46d0	x	ac2-ui drag.rs; shortcut.rs drop
 005e4720	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
 005e4740	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
 005e4970	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 005e4b10	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
-005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4b60	x	ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
+005e4c70	x	ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
 005e4d20	x	ac2-ui tooltip.rs
 005e4d30	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e4d70	x	ac2-ui tooltip_prefs.rs UiTree::apply_tooltip_prefs: the delay (0x4000005B) applied with UseTime's show/clear checks, the switch (0x4000005C) clears and restarts the tooltip; read from the bank each frame in options_pages.rs run (applied on change); tooltip_tests the_tooltip_follows_its_preferences_and_its_owner_hiding
-005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4e50	x	ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
+005e4fc0	x	ac2-ui mouse.rs (start_input / stop_input, mouse move, down, up, UpdateMouse), tooltip.rs, cursors (set_element_cursor / pointer_cursor, drawn by ac2-client bin/ac2/cursor.rs), drag.rs, window_locations.rs (drag bar and Alt moves), resize.rs, text_edit.rs activation, button.rs hot clicks; messages are queued UiMessages the panels read (no per-element listener registry)
 005e50d0	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
 005e5150	-	Dirty-rectangle bookkeeping (UIObjectRegionInfo::AddDirtyRect and its Box2D Includes / Subtract): the client composes the whole UI each changed frame on the GPU (compose.rs, UiTree::take_changed), so there are no partial surface redraws to merge
 005e5260	-	admin-only (no Legions counterpart): raises a UIObject to depth 0 in the D3D object list; Rust orders roots by z (element.rs add_root, place.rs set_z_level)
@@ -9748,34 +9748,34 @@ key	status	note
 005e5830	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e5870	x	ac2-ui place.rs set_display (from ac2-client HudView::resize / pregame resize): every root placed again (UpdateSizeAndPosition), then the saved places applied over them (the 0xffff0007 ApplyLocations of gmGamePlayUI; here every window local place in clip space, recorded at each drag or resize end, AGENTS.md window exception), then the shortcut bar 0xffff0008 re-fit (ShortcutUi::refresh_after_display). The surface redraw is the next composed frame; the cursor is drawn from pointer_cursor each frame. window_positions_tests.rs, shortcut_states_tests.rs
 005e5950	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
-005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e59b0	x	ac2-ui element.rs create_root / create_element: the element tree from the layout, transitions, timed media, mouse handling, Initialized per child, root placement and saved places; messages are queued UiMessages; drawn by the GPU compositor (no dirty rects)
+005e5a80	x	ac2-ui element.rs create_root / create_element: the element tree from the layout, transitions, timed media, mouse handling, Initialized per child, root placement and saved places; messages are queued UiMessages; drawn by the GPU compositor (no dirty rects)
 005e5bf0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
-005e5c30	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e5c30	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
 005e5cb0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
-005e5ea0	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
-005e5fd0	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e5ea0	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
+005e5fd0	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
 005e6050	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e6360	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e65d0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
-005e6720	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
-005e6800	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e6720	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
+005e6800	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
 005e6870	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
-005e69f0	~	UiTree::child_recursive looks an id up under a root; there is no manager-wide id table for the first match across roots
+005e69f0	x	ac2-ui scrollbar.rs named_element (the first element with the id across the UI, or within the root for unique lookups) and child_recursive
 005e6a40	x	ac2-ui element.rs: UiTree::child_recursive(root, id) finds an element by id under its root
 005e6ab0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e6bb0	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e6be0	x	The render device reset callback: ac2-client HudView::resize on a window resize calls UiTree::set_display (RefreshEvent)
 005e6c00	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 005e6f70	~	ac2-ui tooltip_prefs.rs register: Init's two tooltip keys (section 0x4000000C, ID_Misc_TooltipDelay 0..10 default 0.25, ID_Misc_TooltipEnable on) linked to UIElementManager, registered by ac2-client ClientPrefs::load (prefs_7160 test on the DAT names); the rest of Init is construction (UiTree::new), the render refresh callback and the scene manager
-005e7130	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
-005e7280	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e7130	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
+005e7280	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
 005e7370	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e7590	-	trivial getter of MoveToManager::m_persistent_target_reached (mis-grouped under ac2-ui; movement code, not UI)
 005e75a0	x	ac2-physics moveto (slice 3)
-005e75b0	~	tooltip owner/timing and default cursor ported; drag, resize and object regions not
+005e75b0	x	ac2-ui global_loop: tooltip owner timing and expiry, default cursor, drag (drag.rs), move and resize (window_locations.rs, resize.rs), media and transitions; object regions are the GPU compositor
 005e7780	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
-005e7b30	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e7b30	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
 005e7cd0	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e7e70	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 005e7f80	-	per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
@@ -10292,7 +10292,7 @@ key	status	note
 005fd250	-	authoring/export/debug-info tooling (checkpoint export, file tree, source line info); no runtime behaviour
 005fd2c0	-	trivial accessor of the UIFlow singleton
 005fd2d0	-	forwards Update to the current UIMainFramework (vtable); the Rust client loop ticks the pregame or HUD UI directly
-005fd320	~	pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
+005fd320	x	ac2-ui pregame/ui.rs use_new_mode: intro, data patch, character selection and creation, keyboard, credits and disconnected screens (pregame/{intro,data_patch,credits,keyboard}.rs)
 005fd410	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fd4c0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 005fd5d0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
@@ -10318,8 +10318,8 @@ key	status	note
 005fddc0	x	UIMainFramework::RemoveRootElement done: dialog.rs remove_root
 005fde50	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fde90	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005fded0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005fded0	x	ac2-ui element.rs create_root / create_element: the element tree from the layout, transitions, timed media, mouse handling, Initialized per child, root placement and saved places; messages are queued UiMessages; drawn by the GPU compositor (no dirty rects)
+005fe0b0	x	ac2-ui element.rs create_root / create_element: the element tree from the layout, transitions, timed media, mouse handling, Initialized per child, root placement and saved places; messages are queued UiMessages; drawn by the GPU compositor (no dirty rects)
 005fe110	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fe140	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fe170	x	ac2-ui hud.rs

@@ -150,7 +150,8 @@ impl UiTree {
     /// `UIElementManager::StartTooltip`.
     pub(crate) fn start_tooltip(&mut self) {
         self.clear_tooltip();
-        if !self.tooltip.enabled {
+        // No tooltip while the left button is held (`ActionInterpreter::ActionDown(0x40000004)`).
+        if !self.tooltip.enabled || self.drag.left_down {
             return;
         }
         let Some(owner) = self.tooltip.owner.filter(|&o| self.get(o).is_some()) else {

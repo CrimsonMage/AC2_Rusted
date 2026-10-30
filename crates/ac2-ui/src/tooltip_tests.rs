@@ -119,3 +119,20 @@ fn the_tooltip_keys_register_in_their_section() {
     );
     assert_eq!(values(&bank), (0.25, true));
 }
+
+/// `UIElementManager::StartTooltip`: no tooltip opens while the left button is held.
+#[test]
+fn no_tooltip_opens_while_the_left_button_is_held() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap().tree;
+    let (_, x, y) = hover_target(&tree).expect("an element with a tooltip");
+    tree.global_loop(1.0);
+    tree.start_input(UI_POINTER_X, x as f32);
+    tree.start_input(UI_POINTER_Y, y as f32);
+    tree.start_input(crate::window_locations::UI_LEFT_BUTTON, 1.0);
+    tree.global_loop(1.5);
+    assert!(tree.tooltip_element().is_none(), "the button is held");
+}
