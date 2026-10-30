@@ -205,7 +205,7 @@ pub(crate) fn keep(tree: &mut UiTree, element: usize) {
 
 /// The pack pages' scroll bar art (`0x410002A5`..`0x410002B8`, `0x41007FDC`, `0x41007FDD`) and
 /// the thin bar's that stands for it (`modern_art`).
-const SCROLL_ART: [(u32, u32); 11] = [
+pub(crate) const SCROLL_ART: [(u32, u32); 11] = [
     (0x4100_02A8, art::SCROLL_TRACK),
     (0x4100_02A5, art::THUMB_TOP),
     (0x4100_02A6, art::THUMB_MID),

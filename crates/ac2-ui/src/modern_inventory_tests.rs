@@ -493,3 +493,36 @@ impl crate::ui_string::UiStrings for NoStrings {
         String::new()
     }
 }
+
+/// The modern loot window: the design's size, the list four slots wide, both buttons and the
+/// close inside it; the classic panel keeps retail's size.
+#[test]
+fn the_loot_window_takes_the_designs_size_and_grid() {
+    let (Some(modern), Some(classic)) = (hud(HudStyle::Modern), hud(HudStyle::Classic)) else {
+        return;
+    };
+    let tree = &modern.tree;
+    let root = named(tree, "ExternalContainerField").unwrap();
+    let at = tree.screen_box(root);
+    assert_eq!((at.width(), at.height()), (214, 262));
+    let list = tree.child_recursive(root, 0x397F_2C39).unwrap();
+    assert_eq!(
+        tree.el(list).attribute(tokenize("max_columns")),
+        Some(&crate::layout::AttributeValue::Int(4))
+    );
+    for name in [
+        "LootAllButton",
+        "TransmuteAllButton",
+        "ExternalContainerCloseButton",
+    ] {
+        let b = tree.screen_box(named(tree, name).unwrap());
+        assert!(
+            b.x0 >= at.x0 && b.x1 <= at.x1 && b.y1 <= at.y1,
+            "{name} {b:?}"
+        );
+    }
+    let tree = &classic.tree;
+    let root = named(tree, "ExternalContainerField").unwrap();
+    let at = tree.screen_box(root);
+    assert_eq!((at.width(), at.height()), (138, 165));
+}

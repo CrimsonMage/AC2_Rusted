@@ -273,6 +273,7 @@ mod modern_all_view;
 pub mod modern_art;
 mod modern_art_chat;
 mod modern_art_drawer;
+mod modern_art_loot;
 mod modern_art_radar;
 mod modern_chat;
 mod modern_chat_settings;
@@ -288,6 +289,7 @@ mod modern_item_ring;
 pub mod modern_layout_edit;
 #[cfg(test)]
 mod modern_layout_edit_tests;
+mod modern_loot;
 mod modern_radar;
 mod modern_stack;
 mod modern_strip;

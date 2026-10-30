@@ -49,6 +49,8 @@ pub struct ExternalContainerUi {
     display: Option<ContainerDisplay>,
     /// The object `PositionWindow` waits to be placed over.
     position_for: Option<u64>,
+    /// The modern style's window (`modern_loot`).
+    modern: bool,
 }
 
 impl ExternalContainerUi {
@@ -67,6 +69,16 @@ impl ExternalContainerUi {
             label,
             display: None,
             position_for: None,
+            modern: false,
+        }
+    }
+
+    /// The modern style's window (`modern_loot`), laid over the panel.
+    pub fn set_modern(&mut self, tree: &mut UiTree) {
+        if let Some(field) = self.field {
+            let slots = Arc::clone(&self.slots);
+            crate::modern_loot::adopt(tree, field, &[&slots]);
+            self.modern = true;
         }
     }
 

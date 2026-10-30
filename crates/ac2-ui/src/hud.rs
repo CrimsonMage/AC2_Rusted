@@ -397,7 +397,11 @@ pub fn build_styled_hud(
     });
     let external_container = match (&layouts[&LAYOUT_GAMEPLAY], &layouts[&LAYOUT_TOOLBAR]) {
         (Some(gameplay), Some(toolbar)) => {
-            Some(ExternalContainerUi::create(&mut tree, gameplay, toolbar))
+            let mut panel = ExternalContainerUi::create(&mut tree, gameplay, toolbar);
+            if style == HudStyle::Modern {
+                panel.set_modern(&mut tree);
+            }
+            Some(panel)
         }
         _ => None,
     };

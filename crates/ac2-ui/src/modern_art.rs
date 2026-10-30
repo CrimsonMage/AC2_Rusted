@@ -10,6 +10,7 @@ use std::sync::Arc;
 use crate::compose::UiPixels;
 pub use crate::modern_art_chat::*;
 pub use crate::modern_art_drawer::*;
+pub use crate::modern_art_loot::*;
 pub use crate::modern_art_radar::*;
 
 /// A colour, straight alpha, each channel 0..1.
@@ -526,6 +527,7 @@ pub fn bake(images: &mut HashMap<u32, UiPixels>, icons: &HashMap<u32, UiPixels>)
     crate::modern_art_drawer::bake(images, item_slot.as_ref());
     crate::modern_art_radar::bake(images);
     crate::modern_art_chat::bake(images);
+    crate::modern_art_loot::bake(images);
     // The slots' DAT frame gives way to the wells' own line; pressed, a gold ring.
     images.insert(SLOT_FRAME, slot(SLOT_CLEAR));
     images.insert(SLOT_FRAME_PRESSED, slot(SLOT_PRESSED));

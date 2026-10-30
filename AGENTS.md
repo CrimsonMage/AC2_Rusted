@@ -266,6 +266,12 @@ game rules and server-visible behaviour exactly retail.
   locks the whole HUD (`hud_locked`: no window or part moves or resizes; turning the mode on
   releases it), resets the offsets and the chat windows' choices, or closes the mode. The offsets
   and the lock are kept in the HUD layout (`offset.<part>`, `hud.locked`).
+  The loot window is the design's (its variant A, `ac2_ui::modern_loot`): `ExternalContainerField`
+  at 214 by 262 with retail's frame (`0x41000D41`) drawn in nine pieces of their own sizes
+  (`compose::NINE_SLICE_EDGES`; retail drew the frame at its 138 by 165) over teal glass, the title
+  centred, a bronze close button, the list four slots wide (retail three) with the thin scroll
+  bar, Loot All and Transmute All as pills holding their art and their names, and a note under
+  them. The elements are retail's, so opening, slots, drops and the buttons stay retail's.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

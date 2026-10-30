@@ -26,6 +26,14 @@ pub struct UiPixels {
 
 /// An element's image drawn in nine pieces with corners this many pixels square (`draw_nine`).
 pub const NINE_SLICE: u32 = crate::token::tokenize("nine_slice");
+/// [`NINE_SLICE`] with a border of its own on each side: left, top, right and bottom packed a
+/// byte each (left lowest), for a frame whose sides differ (the modern loot window's).
+pub const NINE_SLICE_EDGES: u32 = crate::token::tokenize("nine_slice_edges");
+
+/// The four borders packed for [`NINE_SLICE_EDGES`].
+pub const fn nine_edges(left: u8, top: u8, right: u8, bottom: u8) -> i32 {
+    (left as i32) | (top as i32) << 8 | (right as i32) << 16 | (bottom as i32) << 24
+}
 
 /// One root's surface and where it sits on the screen.
 #[derive(Debug, Clone, PartialEq)]
@@ -209,12 +217,25 @@ impl UiSurface {
         dirty: UiBox,
     ) {
         let (iw, ih) = (image.width as i32, image.height as i32);
-        let b = border
-            .min(iw / 2)
-            .min(ih / 2)
-            .min(me.width() / 2)
-            .min(me.height() / 2)
-            .max(0);
+        // Each side's border (all `border`, or the packed `NINE_SLICE_EDGES` when negative-free
+        // edges were given), kept within half the image and the box.
+        let sides = if border >= 0 {
+            [border; 4]
+        } else {
+            let e = !border;
+            [
+                e & 0xFF,
+                (e >> 8) & 0xFF,
+                (e >> 16) & 0xFF,
+                (e >> 24) & 0xFF,
+            ]
+        };
+        let fit = |b: i32, image: i32, me: i32| b.min(image / 2).min(me / 2).max(0);
+        let (bl, br) = (fit(sides[0], iw, me.width()), fit(sides[2], iw, me.width()));
+        let (bt, bb) = (
+            fit(sides[1], ih, me.height()),
+            fit(sides[3], ih, me.height()),
+        );
         if iw <= 0 || ih <= 0 || me.width() <= 0 || me.height() <= 0 {
             return;
         }
@@ -226,10 +247,10 @@ impl UiSurface {
             _ => BlitOp::Copy,
         };
         // Source and destination cuts along each axis: [start, border, far border, end).
-        let sx = [0, b, iw - b, iw];
-        let sy = [0, b, ih - b, ih];
-        let dx = [me.x0, me.x0 + b, me.x1 + 1 - b, me.x1 + 1];
-        let dy = [me.y0, me.y0 + b, me.y1 + 1 - b, me.y1 + 1];
+        let sx = [0, bl, iw - br, iw];
+        let sy = [0, bt, ih - bb, ih];
+        let dx = [me.x0, me.x0 + bl, me.x1 + 1 - br, me.x1 + 1];
+        let dy = [me.y0, me.y0 + bt, me.y1 + 1 - bb, me.y1 + 1];
         for col in 0..3 {
             for row in 0..3 {
                 let (s0x, s1x, s0y, s1y) = (sx[col], sx[col + 1], sy[row], sy[row + 1]);
@@ -361,9 +382,18 @@ impl UiTree {
                     surface.draw_graphic(&icon, mode, scale, smooth, el.alpha_value, me, clip);
                 }
             } else if let Some(image) = images.get(&mode.file) {
-                match el.attributes.get(&NINE_SLICE) {
-                    Some(crate::layout::AttributeValue::Int(border)) => {
-                        surface.draw_nine(image, mode, *border, smooth, el.alpha_value, me, clip)
+                // Per-side borders travel as the packed edges' complement (negative).
+                let edges = match el.attributes.get(&NINE_SLICE_EDGES) {
+                    Some(crate::layout::AttributeValue::Int(e)) => Some(!*e),
+                    _ => None,
+                };
+                let nine = edges.or(match el.attributes.get(&NINE_SLICE) {
+                    Some(crate::layout::AttributeValue::Int(border)) => Some(*border),
+                    _ => None,
+                });
+                match nine {
+                    Some(border) => {
+                        surface.draw_nine(image, mode, border, smooth, el.alpha_value, me, clip)
                     }
                     _ => surface.draw_graphic(image, mode, scale, smooth, el.alpha_value, me, clip),
                 }
