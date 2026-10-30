@@ -3,7 +3,10 @@
 //! one hangs from the player's holding location 1, as the server's `RecvEvt_Parent` hangs a wielded
 //! item (`CPhysicsObj::set_parent`, placed by `CPhysicsObj::UpdateChild`), with the AC1 Setup's
 //! placement frame (`SetPlacementFrame`; `RightHandCombat` 1 by default, `--ac1-weapon-placement`).
-//! PageUp and PageDown step through the weapons, back to the session's own AC2 sword.
+//! With the HUD's session (the window, or `--hud-panel`), the weapons are also items in the
+//! player's pack: equipping one in the inventory's primary hand makes the session's server wield
+//! it, and the hand draws its AC1 model (`place_wielded`). PageUp and PageDown put a weapon in
+//! the hand directly, past "none", where the hand shows what the session wields.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -12,9 +15,14 @@ use ac1_assets::Ac1Creature;
 use ac2_client::{Holder, ObjectFrame, PlayerFrame, WorldData};
 use ac2_physics::{find_holding_point, HoldPoint};
 use ac2_weenie::Appearance;
+use legions_server_double::{ItemSpawn, ICON_SWORD, PLAYER, PRIMARY_HAND};
 
 /// The weapon's object id.
 const WEAPON_ID: u64 = 0x5000;
+/// The first AC1 weapon item's id in the session's inventory.
+const FIRST_ITEM: u64 = 0x8000_0000_0000_0300;
+/// `CWeapon`'s package.
+const WEAPON_PACKAGE: u32 = 0x1AAB;
 /// `RIGHT_HAND_HOLD`: the holding location a wielded weapon hangs from (AC1 and AC2 alike).
 pub const RIGHT_HAND: u32 = 1;
 /// AC1 `Placement.RightHandCombat`.
@@ -75,9 +83,63 @@ impl Ac1Weapons {
         })
     }
 
+    /// The weapons as inventory items for the HUD's session: each drawn by its AC1 model when
+    /// wielded, equipped in the primary hand, with the AC2 sword's icon.
+    pub fn items(&self) -> Vec<ItemSpawn> {
+        self.weapons
+            .iter()
+            .enumerate()
+            .map(|(index, weapon)| ItemSpawn {
+                id: Self::item_id(index),
+                package: WEAPON_PACKAGE,
+                name: Box::leak(weapon.weenie.name.clone().into_boxed_str()),
+                plural: None,
+                icon: ICON_SWORD,
+                quantity: None,
+                value: 50,
+                container: PLAYER,
+                durability: Some((50, 50)),
+                stackable: false,
+                max_stack: None,
+                capacity: None,
+                locations: Some((PRIMARY_HAND, PRIMARY_HAND)),
+                entity: None,
+                visual: Some(weapon.visual.raw()),
+            })
+            .collect()
+    }
+
+    /// The inventory item of weapon `index` (`items`).
+    pub fn item_id(index: usize) -> u64 {
+        FIRST_ITEM + index as u64
+    }
+
+    /// An AC1 weapon the session wields hangs in its AC1 placement frame, turned from AC1's hand
+    /// axes into AC2's (the server's `RecvEvt_Parent` names the AC2 placement 0).
+    pub fn place_wielded(&self, frame: &mut ac2_client::ClientFrame) {
+        let first = self.weapons.first().map(|w| w.visual.raw());
+        let last = self.weapons.last().map(|w| w.visual.raw());
+        let (Some(first), Some(last)) = (first, last) else {
+            return;
+        };
+        for object in &mut frame.objects {
+            if !object.visual.is_some_and(|v| (first..=last).contains(&v)) {
+                continue;
+            }
+            if let Some(holder) = object.holder.as_mut() {
+                holder.orientation = Some(self.placement);
+                holder.offset = ac2_math::Frame::new(
+                    ac2_math::Vec3::ZERO,
+                    ac1_assets::creature::AC1_HAND_TO_AC2,
+                );
+            }
+        }
+    }
+
     /// Puts the chosen weapon in `frame`'s player's right hand, in place of what the session
     /// hangs there.
     pub fn hold(&mut self, frame: &mut ac2_client::ClientFrame) {
+        self.place_wielded(frame);
         let Some(weapon) = self.held(frame.player.as_ref()) else {
             return;
         };

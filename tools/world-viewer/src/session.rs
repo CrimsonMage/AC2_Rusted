@@ -113,6 +113,16 @@ impl Session {
     /// One frame of the session `seconds` after the last: the client's frame with the HUD's
     /// commands, then the HUD's frameworks over `frame` (the viewer's) with the session's parts
     /// filled in. Returns whether the player confirmed the quit question.
+    /// Sends `command` with the next frame, as the HUD would (`--equip`).
+    pub fn command(&mut self, command: Command) {
+        self.commands.push(command);
+    }
+
+    /// Gives the player `items` in its main pack (`State::give_items`): the AC1 weapons.
+    pub fn give_items(&mut self, items: &[legions_server_double::ItemSpawn]) {
+        self.server.borrow_mut().give_items(items);
+    }
+
     pub fn frame(&mut self, view: &mut ClientView, frame: &mut ClientFrame, seconds: f64) -> bool {
         for request in view.take_chat_requests() {
             if let ac2_ui::ChatRequest::Line(line) = request {

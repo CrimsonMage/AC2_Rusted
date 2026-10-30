@@ -237,6 +237,22 @@ impl State {
         self.give_money(STARTER_MONEY);
     }
 
+    /// Gives the player `items` in its main pack, after the login (each object and its
+    /// qualities, then the pack's listing); the world viewer's AC1 weapons.
+    pub fn give_items(&mut self, items: &[ItemSpawn]) {
+        let player = self.player();
+        for item in items {
+            self.send_item(item);
+            self.script_world
+                .contents
+                .entry(player)
+                .or_default()
+                .1
+                .push(item.id);
+        }
+        self.send_contents(player);
+    }
+
     /// An item's object and its stackable, stack, capacity and equip-location qualities.
     fn send_item(&mut self, item: &ItemSpawn) {
         self.send_event(&item_object_bytes(item));

@@ -48,6 +48,9 @@
 //! `--ac1-weapons DIR` puts the ACE weapons of DIR, built from the AC1 DATs, in the player's
 //! right hand (`ac1_held.rs`): weapon N first (default 0), in the AC1 placement frame P (default
 //! 1, `RightHandCombat`); PageUp and PageDown step through them, past the session's AC2 sword.
+//! `--hud-panel NAME` logs the snapshot's HUD on to the session (as the window's) and opens that
+//! toolbar panel (`inventory`, `skill`, `quest`, ...); `--equip N` then equips AC1 weapon N in
+//! the primary hand as the paper doll does (the session's server wields it).
 //! `--orbit SECONDS` turns the snapshot's player camera about the player that long after the walk
 //! (the camera's rotate-left action), to see the player from the side.
 //! The player walks the world with collision (`ac2-physics`) under the player camera
@@ -149,6 +152,10 @@ struct Args {
     ac1_weapon_placement: Option<u32>,
     /// `--orbit SECONDS`: the player camera turns about the player that long after the walk.
     orbit: f32,
+    /// `--hud-panel NAME`: the snapshot logs on to the HUD's session and opens that toolbar panel.
+    hud_panel: Option<ac2_ui::ToolbarChild>,
+    /// `--equip N`: with `--hud-panel`, the session equips AC1 weapon N in the primary hand.
+    equip: Option<usize>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -190,6 +197,8 @@ fn parse_args() -> Result<Args, String> {
         ac1_weapon: 0,
         ac1_weapon_placement: None,
         orbit: 0.0,
+        hud_panel: None,
+        equip: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -279,6 +288,16 @@ fn parse_args() -> Result<Args, String> {
             "--ace-weenies" => args.ace_weenies = Some(value()?.into()),
             "--ac1-dat-dir" => args.ac1_dat_dir = Some(value()?.into()),
             "--ac1-lineup" => args.ac1_lineup = true,
+            "--hud-panel" => {
+                let name = value()?;
+                args.hud_panel = Some(
+                    ac2_ui::ToolbarChild::ALL
+                        .into_iter()
+                        .find(|child| format!("{child:?}").eq_ignore_ascii_case(&name))
+                        .ok_or(format!("--hud-panel: no toolbar panel {name}"))?,
+                );
+            }
+            "--equip" => args.equip = Some(value()?.parse().map_err(|e| format!("--equip: {e}"))?),
             "--orbit" => args.orbit = value()?.parse().map_err(|e| format!("--orbit: {e}"))?,
             "--ac1-weapons" => args.ac1_weapons = Some(value()?.into()),
             "--ac1-weapon" => {
@@ -569,6 +588,12 @@ fn snapshot(
         }
     }
     let mut frame = frame::client_frame(mode, &walk, &fly, model.map(|m| m.visual), time_of_day);
+    if let Some(panel) = args.hud_panel {
+        let weapons = ac1.as_mut().map(|showcase| &mut showcase.weapons);
+        hud_session(
+            &mut view, &gpu, &store, &world, args, &mut frame, panel, weapons,
+        );
+    }
     if args.crowd > 0 {
         let Some(player) = frame.player.as_ref() else {
             eprintln!("world-viewer: --crowd needs the player (drop --fly)");
@@ -668,6 +693,70 @@ fn snapshot(
         .and_then(|mut writer| writer.write_image_data(&rgba))
         .expect("snapshot PNG writes");
     println!("wrote {}", path.display());
+}
+
+/// `--hud-panel`: logs `view`'s HUD on to the session as the window does, waits for the HUD to
+/// build, opens `panel` and merges the session's parts into `frame` (its player id, what the
+/// player holds, the inventory).
+fn hud_session(
+    view: &mut ClientView,
+    gpu: &Gpu,
+    store: &Arc<ResourceStore>,
+    world: &Arc<Ac2WorldSource>,
+    args: &Args,
+    frame: &mut ac2_client::ClientFrame,
+    panel: ac2_ui::ToolbarChild,
+    weapons: Option<&mut ac1_held::Ac1Weapons>,
+) {
+    let (x, y) = args.at.unwrap_or_else(|| {
+        let half = world.block_size() / 2.0;
+        (half, half)
+    });
+    let landing = walk::Landing {
+        block: args.block,
+        x,
+        y,
+    };
+    let mut session = match session::Session::start(store, world, landing) {
+        Ok(session) => session,
+        Err(error) => {
+            eprintln!("world-viewer: no HUD session: {error}");
+            return;
+        }
+    };
+    // The AC1 weapons go in the pack; the hand shows what the inventory wields.
+    let equip = match weapons {
+        Some(weapons) => {
+            session.give_items(&weapons.items());
+            weapons.current = None;
+            args.equip.filter(|i| *i < weapons.weapons.len())
+        }
+        None => None,
+    };
+    let step = |view: &mut ClientView, session: &mut session::Session| {
+        let mut merged = frame.clone();
+        session.frame(view, &mut merged, 1.0 / 64.0);
+        view.update(gpu, &merged, std::time::Duration::from_millis(4));
+        merged
+    };
+    let started = std::time::Instant::now();
+    while view.shortcut_slots() == 0 && started.elapsed() < std::time::Duration::from_secs(60) {
+        step(view, &mut session);
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
+    view.show_panel(panel, true);
+    if let Some(index) = equip {
+        // As the paper doll's primary hand does (`gmCWInterface::EquipItem`).
+        session.command(ac2_client::Command::EquipItem {
+            item: ac1_held::Ac1Weapons::item_id(index),
+            location: legions_server_double::PRIMARY_HAND,
+        });
+    }
+    let mut merged = frame.clone();
+    for _ in 0..32 {
+        merged = step(view, &mut session);
+    }
+    *frame = merged;
 }
 
 /// Holds the camera's `ROTATE_LEFT` action for `seconds` of simulated 60 Hz time, turning the

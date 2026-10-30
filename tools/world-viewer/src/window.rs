@@ -94,7 +94,7 @@ struct State {
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        let Some(setup) = self.setup.take() else {
+        let Some(mut setup) = self.setup.take() else {
             return;
         };
         let window = Arc::new(
@@ -151,7 +151,14 @@ impl ApplicationHandler for App {
             walk.teleport(setup.landing);
         }
         let session = match Session::start(&setup.store, &setup.world, setup.landing) {
-            Ok(session) => Some(session),
+            Ok(mut session) => {
+                // The AC1 weapons go in the pack; the hand shows what the inventory wields.
+                if let Some(showcase) = setup.ac1.as_mut() {
+                    session.give_items(&showcase.weapons.items());
+                    showcase.weapons.current = None;
+                }
+                Some(session)
+            }
             Err(error) => {
                 eprintln!("world-viewer: no HUD session: {error}");
                 None

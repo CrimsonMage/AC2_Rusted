@@ -31,6 +31,9 @@ pub struct ScriptWorld {
     pub contents: std::collections::BTreeMap<u64, (Vec<u64>, Vec<u64>)>,
     /// The player's equipment by location (`WM_Inventory` 0x5F).
     pub equipped: Vec<(u32, u64)>,
+    /// Each item's position stamp (`CPhysicsObj::update_times`' position slot) after its last
+    /// parent or contain; an item not here is at its created stamp.
+    pub position_stamps: HashMap<u64, u16>,
     /// Containers' slots, for the segment each listing carries (12, `gmEntity` 0xC's
     /// default, for one not here).
     pub capacities: std::collections::BTreeMap<u64, u32>,
@@ -158,19 +161,53 @@ impl State {
                 };
                 self.send_script(&done);
             }
+            // A server wields what the player equips in a hand: the item hangs from the hand's
+            // holding location (`RecvEvt_Parent`), and what was there goes back into the pack
+            // (`RecvEvt_Contain`).
             ScriptRequest::EquipItem(desc) => {
                 self.inventory_move(desc.item(), 0, -1);
                 let world = &mut self.script_world;
+                let displaced: Vec<u64> = world
+                    .equipped
+                    .iter()
+                    .filter(|(l, i)| *l == desc.location() && *i != desc.item())
+                    .map(|(_, i)| *i)
+                    .collect();
                 world
                     .equipped
                     .retain(|(l, i)| *l != desc.location() && *i != desc.item());
                 world.equipped.push((desc.location(), desc.item()));
+                let player = self.player();
+                let any_displaced = !displaced.is_empty();
+                for item in displaced {
+                    self.contain(item);
+                    self.script_world
+                        .contents
+                        .entry(player)
+                        .or_default()
+                        .1
+                        .push(item);
+                }
+                if any_displaced {
+                    self.send_contents(player);
+                }
+                if let Some(hold) = hand_hold(desc.location()) {
+                    self.wield(desc.item(), player, hold, 0);
+                }
                 self.send_script(&ScriptMessage::EquipItemDone(desc.clone()));
             }
             ScriptRequest::UnequipItem(desc) => {
+                let was_held = self
+                    .script_world
+                    .equipped
+                    .iter()
+                    .any(|(l, i)| *i == desc.item() && hand_hold(*l).is_some());
                 self.script_world
                     .equipped
                     .retain(|(_, i)| *i != desc.item());
+                if was_held {
+                    self.contain(desc.item());
+                }
                 self.inventory_move(desc.item(), desc.container(), desc.slot());
                 self.send_script(&ScriptMessage::UnequipItemDone(desc.clone()));
             }
@@ -464,5 +501,17 @@ fn name(text: &str) -> StringInfo {
     StringInfo {
         literal: Some(text.into()),
         ..StringInfo::default()
+    }
+}
+
+/// The holding location an equip location's item hangs from: the primary hand's the right hand,
+/// the secondary hand's the left; `None` for a location that is not drawn in a hand.
+fn hand_hold(location: u32) -> Option<u32> {
+    if location & crate::PRIMARY_HAND != 0 {
+        Some(crate::RIGHT_HAND_HOLD)
+    } else if location & crate::SECONDARY_HAND != 0 {
+        Some(crate::LEFT_HAND_HOLD)
+    } else {
+        None
     }
 }

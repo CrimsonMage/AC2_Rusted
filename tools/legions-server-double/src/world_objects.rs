@@ -115,12 +115,35 @@ impl State {
     /// location `location`, placed with placement frame `orientation` (a wielded item). The
     /// parent's position stamp is newer than the item's, so the client takes the parent.
     pub fn wield(&mut self, item: u64, holder: u64, location: u32, orientation: u32) {
+        let stamp = self.next_position_stamp(item);
         let mut b = object_event_bytes(Opcode::PARENT, item, 1, &[]);
         b.extend(holder.to_le_bytes());
         b.extend(1u16.to_le_bytes());
-        b.extend(2u16.to_le_bytes());
+        b.extend(stamp.to_le_bytes());
         words(&mut b, &[location, orientation]);
         self.send_event(&b);
+    }
+
+    /// `CPhysicsObj::RecvEvt_Contain`: `item` leaves the world (or its holder's hand) into the
+    /// player's inventory, on a position stamp newer than its last.
+    pub fn contain(&mut self, item: u64) {
+        let stamp = self.next_position_stamp(item);
+        let mut contain = Opcode::CONTAIN.to_le_bytes().to_vec();
+        contain.extend(item.to_le_bytes());
+        contain.extend(1u16.to_le_bytes());
+        contain.extend(stamp.to_le_bytes());
+        self.send_event(&contain);
+    }
+
+    /// `item`'s next position stamp: each parent and contain moves it one on from the last.
+    fn next_position_stamp(&mut self, item: u64) -> u16 {
+        let stamp = self
+            .script_world
+            .position_stamps
+            .entry(item)
+            .or_insert(CREATED_STAMP);
+        *stamp += 1;
+        *stamp
     }
 
     /// The door's `Open` bool quality (`gmboolstats.emp` 702) on the door.
@@ -173,13 +196,8 @@ impl State {
     pub(crate) fn answer_pickup(&mut self, desc: &UsageDesc) {
         let item = desc.item;
         let player = self.player();
-        // `CPhysicsObj::RecvEvt_Contain`: the child's id, its instance and a position stamp one
-        // newer than the one it was created with.
-        let mut contain = Opcode::CONTAIN.to_le_bytes().to_vec();
-        contain.extend(item.to_le_bytes());
-        contain.extend(1u16.to_le_bytes());
-        contain.extend((CREATED_STAMP + 1).to_le_bytes());
-        self.send_event(&contain);
+        // `CPhysicsObj::RecvEvt_Contain`: the child's id, its instance and a newer position stamp.
+        self.contain(item);
         let world = &mut self.script_world;
         for (_, items) in world.contents.values_mut() {
             items.retain(|i| *i != item);
