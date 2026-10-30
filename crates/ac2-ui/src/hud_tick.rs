@@ -91,6 +91,21 @@ pub fn tick_pass<P: HudSource>(
     // The modern chat windows follow their sizes and states.
     if let Some(chat) = chat.as_mut() {
         chat.modern_tick(tree, player);
+        // A window's popover set its filter or devoted type: the chat options page takes the
+        // options and applies them (`gmChatOptionsUI::Apply`, what its Apply button sends).
+        let changes = chat.take_option_changes();
+        // Applied only when the page holds every option (an Apply over a page not yet set up
+        // would send its defaults).
+        if let (false, Some(page)) = (changes.is_empty(), chat_options.as_mut()) {
+            let mut taken = true;
+            for (title, name, value) in changes {
+                taken &= page.set_value(tree, title, name, value);
+            }
+            if taken {
+                page.apply(tree);
+                out.extend(page.take_requests().into_iter().map(HudRequest::ChatOption));
+            }
+        }
         // A window's settings popover asked for the chat options: the option panel shows on its
         // chat page (`ChatTab`), as its tab's press opens it.
         if chat.take_open_options() {

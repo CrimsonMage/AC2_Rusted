@@ -370,3 +370,67 @@ fn a_tell_shows_as_a_toast_under_the_vitals() {
         e.write_header().unwrap().write_image_data(&s.rgba).unwrap();
     }
 }
+
+/// The popover's filter chips and devoted chip set the chat options page's options for the
+/// window, and the page's Apply sends them as its own Apply does (`gmChatOptionsUI::Apply`).
+#[test]
+fn the_popovers_filter_and_devoted_type_go_through_the_chat_options_apply() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let mut page = hud.chat_options.take().expect("ChatPage");
+    let tree = &mut hud.tree;
+    let chat = hud.chat.as_mut().unwrap();
+    let mut settings = crate::chat::ChatSettings::default();
+    settings.filters.insert(1, 0x10 | 0x20 | 0x80);
+    settings.window_text_types.insert(1, 0x2_0000);
+    page.refresh(tree, &settings);
+    chat.reload_chat_settings(tree, &settings);
+    chat.modern_tick(tree, &Names);
+    let root = chat.roots()[0];
+    let modifiers = crate::chat::Modifiers::default();
+    let button = part(tree, root, "OptionsButton");
+    chat.message(tree, &release(tree, button), modifiers);
+    let popover = root_named(tree, "ModernChatSettings");
+    // The tell chip is lit (window 1 shows tells); a press hides tells.
+    let tell = part(tree, popover, "ModernChatShows20");
+    assert_eq!(
+        tree.el(tell).image().map(|i| i.file),
+        Some(crate::modern_art::CHIP_ON)
+    );
+    chat.message(tree, &press(tree, tell), modifiers);
+    assert_eq!(
+        tree.el(tell).image().map(|i| i.file),
+        Some(crate::modern_art::CHIP)
+    );
+    let devoted = part(tree, popover, "ModernChatDevoted");
+    chat.message(tree, &press(tree, devoted), modifiers);
+    let changes = chat.take_option_changes();
+    assert_eq!(
+        changes,
+        vec![
+            ("ID_Option_ChatTellMessages", "ID_Option_Chat1", 0.0),
+            // Allegiance's next window choice is the faction channel (row 11).
+            ("ID_Option_DevotedChatWindows", "ID_Option_Chat1", 11.0),
+        ]
+    );
+    for (title, name, value) in changes {
+        assert!(page.set_value(tree, title, name, value));
+    }
+    page.apply(tree);
+    let requests = page.take_requests();
+    use crate::{ChatOptionRequest, ChatOptionSetting};
+    assert!(
+        requests.contains(&ChatOptionRequest::Set(ChatOptionSetting::WindowFilter {
+            window: 1,
+            filter: 0x10 | 0x80,
+        }))
+    );
+    assert!(
+        requests.contains(&ChatOptionRequest::Set(ChatOptionSetting::WindowTextType {
+            window: 1,
+            text_type: 0x40_0000,
+        }))
+    );
+    assert_eq!(requests.last(), Some(&ChatOptionRequest::Upload));
+}

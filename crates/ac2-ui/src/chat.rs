@@ -158,6 +158,11 @@ pub struct ChatUi {
     open_options: bool,
     /// The modern windows' choices changed since the layout was last written.
     looks_changed: bool,
+    /// The player's chat settings as last reloaded (and as the popover last changed them).
+    settings: ChatSettings,
+    /// The chat options page's options the modern popover set (its expander's title, the
+    /// option's name, the value), for the page to apply.
+    option_changes: Vec<(&'static str, &'static str, f64)>,
 }
 
 impl ChatUi {
@@ -184,6 +189,8 @@ impl ChatUi {
             names: Vec::new(),
             open_options: false,
             looks_changed: false,
+            settings: ChatSettings::default(),
+            option_changes: Vec::new(),
         };
         if !chat.windows.is_empty() {
             chat.windows[0].show(tree, true);
@@ -451,6 +458,10 @@ impl ChatUi {
                     }
                 }
                 ChatEvent::OpenOptions => self.open_options = true,
+                ChatEvent::Filter { window, text_type } => {
+                    self.toggle_filter(tree, window, text_type)
+                }
+                ChatEvent::Devoted(window) => self.next_devoted(tree, window),
                 ChatEvent::Activate { show, hide, at } => self.activate(tree, show, hide, at),
                 ChatEvent::ScrollToEnd(i) => {
                     if let Some(w) = self.windows.get_mut(i) {
@@ -696,6 +707,71 @@ impl ChatUi {
         for window in &mut self.windows {
             window.reload_chat_settings(tree, settings, &self.strings);
         }
+        self.settings = settings.clone();
+        self.refresh_types(tree);
+    }
+
+    /// The modern popover's filter and devoted chips follow the settings.
+    fn refresh_types(&self, tree: &mut UiTree) {
+        if let Some(modern) = &self.modern {
+            for i in 0..self.windows.len() {
+                let n = i as u32 + 1;
+                modern.set_types(
+                    tree,
+                    i,
+                    self.settings.filter(n),
+                    self.settings.window_text_type(n),
+                );
+            }
+        }
+    }
+
+    /// The chat options page's options the modern popover set since the last call: the page
+    /// takes each and applies (`gmChatOptionsUI::Apply`).
+    pub fn take_option_changes(&mut self) -> Vec<(&'static str, &'static str, f64)> {
+        std::mem::take(&mut self.option_changes)
+    }
+
+    /// Window `i` shows or hides `text_type` (the page's filter flag for it).
+    fn toggle_filter(&mut self, tree: &mut UiTree, i: usize, text_type: u32) {
+        use crate::chat_options_table::{ROWS, WINDOW_NAMES};
+        let n = i as u32 + 1;
+        let (Some(row), Some(&name)) = (
+            ROWS.iter().find(|r| r.text_type == text_type),
+            WINDOW_NAMES.get(i),
+        ) else {
+            return;
+        };
+        let filter = self.settings.filter(n) ^ text_type;
+        self.settings.filters.insert(n, filter);
+        self.option_changes
+            .push((row.name, name, f64::from(u8::from(filter & text_type != 0))));
+        self.refresh_types(tree);
+    }
+
+    /// Window `i` sends the next type a window can send (the page's devoted choice).
+    fn next_devoted(&mut self, tree: &mut UiTree, i: usize) {
+        use crate::chat_options_table::{ROWS, WINDOW_NAMES, WINDOW_SECTION};
+        let n = i as u32 + 1;
+        let Some(&name) = WINDOW_NAMES.get(i) else {
+            return;
+        };
+        let choices: Vec<usize> = (0..ROWS.len()).filter(|&r| ROWS[r].window_choice).collect();
+        let now = self.settings.window_text_type(n);
+        let at = choices
+            .iter()
+            .position(|&r| ROWS[r].text_type == now)
+            .map_or(0, |p| (p + 1) % choices.len());
+        let row = choices[at];
+        self.settings
+            .window_text_types
+            .insert(n, ROWS[row].text_type);
+        let section = ROWS
+            .iter()
+            .find(|r| r.text_type == WINDOW_SECTION)
+            .map_or("ID_Option_DevotedChatWindows", |r| r.name);
+        self.option_changes.push((section, name, (row + 1) as f64));
+        self.refresh_types(tree);
     }
 
     /// The spew box (tests).

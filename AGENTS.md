@@ -249,7 +249,10 @@ game rules and server-visible behaviour exactly retail.
   (`chrono`'s clock, `HH:MM` in the design's grey), old lines faded while the window is not in use
   (pointer away, entry idle; lines older than 12 seconds are not drawn), the most lines the log
   keeps (all, as retail, or 100 to 1000; the oldest leave), a lock (a locked window neither moves,
-  by its bar or Alt + drag, nor resizes: `UiTree::set_locked`), Hide window (`ChatWindow::Show(0)`,
+  by its bar or Alt + drag, nor resizes: `UiTree::set_locked`), the window's retail chat options
+  (the text types it shows, its filter, and the type its entry line sends, its devoted type: a
+  press sets the option on the chat options page and runs the page's Apply, so the server gets
+  what the page's Apply sends), Hide window (`ChatWindow::Show(0)`,
   as its key does) and the chat options page. The choices, and the vitals' layout, are kept per
   character on this machine in `HudLayout-<character>.txt` beside the window positions
   (`ac2_ui::hud_layout`). Retail had none of these choices.

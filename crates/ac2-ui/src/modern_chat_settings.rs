@@ -4,7 +4,10 @@
 //! font size step over the chat options' per-type sizes (small, medium, large), whether its glass
 //! and the log's backing show and the backing's tint, a local time before each new line, old lines
 //! faded while the window is not in use, the most lines the log keeps, and whether its place is
-//! locked (no move, no resize). The popover also hides the window (`ChatWindow::Show(0)`, as its window key does)
+//! locked (no move, no resize). It also holds the window's retail choices from the chat options
+//! page: the text types it shows (its filter) and the type its entry line sends (its devoted type,
+//! `ID_Option_DevotedChatWindows`); a press sets that option on the page and runs the page's
+//! Apply, so what goes to the server is the page's. The popover also hides the window (`ChatWindow::Show(0)`, as its window key does)
 //! and opens the chat options page. The choices are kept with the HUD's layout settings
 //! (`hud_layout`, `chat.<n>.*`).
 
@@ -97,6 +100,10 @@ pub(crate) enum SettingsAction {
     Tear,
     /// The options panel's chat page.
     OpenOptions,
+    /// The window's filter: show or hide this text type (the chat options page's flag).
+    Filter(u32),
+    /// The window's devoted type: the next type a window can send.
+    Devoted,
 }
 
 /// A chip: its art and its label.
@@ -123,10 +130,37 @@ pub(crate) struct Popover {
     tear: Chip,
     hide: Chip,
     options: Chip,
+    /// The filter's chips (one per text type the page filters) and the devoted type's.
+    types: Vec<(u32, Chip)>,
+    devoted: Chip,
+    /// The filter block's heading.
+    shows: Option<usize>,
+    /// The filter block's height (its chips wrap), laid out by `arrange`.
+    types_height: std::cell::Cell<i32>,
 }
 
-/// The popover's width and height, its padding and row pitch.
-const SIZE: (i32, i32) = (276, 278);
+/// The text types a window's filter takes (the page's rows with filter flags), with short names.
+pub(crate) fn filter_types() -> Vec<(u32, &'static str)> {
+    crate::chat_options_table::ROWS
+        .iter()
+        .filter(|r| {
+            !r.hidden
+                && r.text_type != crate::chat_options_table::WINDOW_SECTION
+                && r.text_type != crate::chat_options_table::ENTRY_TEXT_TYPE
+        })
+        .map(|r| (r.text_type, short_name(r.name)))
+        .collect()
+}
+
+/// A text type's row name shortened (`ID_Option_ChatGeneralChannelMessages`: `General`).
+pub(crate) fn short_name(name: &'static str) -> &'static str {
+    let name = name.strip_prefix("ID_Option_Chat").unwrap_or(name);
+    let name = name.strip_suffix("Messages").unwrap_or(name);
+    name.strip_suffix("Channel").unwrap_or(name)
+}
+
+/// The popover's width and its height without the filter block, its padding and row pitch.
+const SIZE: (i32, i32) = (276, 252);
 const PAD: i32 = 10;
 const ROW: i32 = 22;
 
@@ -245,7 +279,7 @@ impl Popover {
             ),
             (
                 label(tree, "ModernChatSettingsLayout", "LAYOUT", gold),
-                (PAD, PAD + 5 * ROW + 8, w),
+                (PAD, PAD + 7 * ROW + 6, w),
             ),
         ];
         let template = Some(template);
@@ -265,6 +299,15 @@ impl Popover {
         let tear = make(tree, "ModernChatTear", "Dock into tabs");
         let hide = make(tree, "ModernChatHide", "Hide window");
         let options = make(tree, "ModernChatOptions", "Chat options...");
+        let types = filter_types()
+            .into_iter()
+            .map(|(text_type, name)| {
+                let id = format!("ModernChatShows{text_type:x}");
+                (text_type, make(tree, &id, name))
+            })
+            .collect();
+        let devoted = make(tree, "ModernChatDevoted", "Sends: Say");
+        let shows = label(tree, "ModernChatSettingsShows", "SHOWS", gold);
         let name = gameplay.and_then(|g| {
             entry_field(
                 tree,
@@ -275,6 +318,12 @@ impl Popover {
                 (PAD + 50, PAD + ROW - 2, w - 50, 20),
             )
         });
+        if let Some((field, pill)) = name {
+            keep(tree, field);
+            if let Some(pill) = pill {
+                keep(tree, pill);
+            }
+        }
         if let Some((_, Some(pill))) = name {
             tree.set_image(pill, art::SEARCH_PILL, crate::compose::DRAW_OVER);
             tree.set_int(pill, crate::compose::NINE_SLICE, art::SEARCH_PILL_BORDER);
@@ -295,6 +344,10 @@ impl Popover {
             tear,
             hide,
             options,
+            types,
+            devoted,
+            shows,
+            types_height: std::cell::Cell::new(0),
         };
         popover.arrange(tree);
         Some(popover)
@@ -302,12 +355,48 @@ impl Popover {
 
     fn arrange(&self, tree: &mut UiTree) {
         let w = SIZE.0 - 2 * PAD;
+        // The filter block under the name: its chips wrapped in the popover's width, then the
+        // devoted type; everything after it moves down by its height.
+        let top = PAD + 3 * ROW + 2;
+        let (mut x, mut y) = (PAD, top);
+        for &(_, chip) in &self.types {
+            let width = chip
+                .label
+                .and_then(|l| {
+                    let text = tree.el(l).text().unwrap_or_default();
+                    tree.text_line_width(l, &text)
+                })
+                .unwrap_or(24)
+                + 14;
+            if x + width > PAD + w {
+                x = PAD;
+                y += 20;
+            }
+            x = place_chip(tree, chip, (x, y)) + 4;
+        }
+        y += 22;
+        place_chip(tree, self.devoted, (PAD, y));
+        let extra = y + 22 - (PAD + 2 * ROW + 4);
+        self.types_height.set(extra);
+        // The popover's height first: a resize lays its children out again.
+        let height = SIZE.1 + extra;
+        if tree.el(self.root).rect.height() != height {
+            tree.resize_to(self.root, SIZE.0, height);
+        }
+        let at = |row: i32, gap: i32| PAD + row * ROW + gap + extra;
         place_label(
             tree,
             self.title,
             UiBox::new(PAD, PAD - 2, PAD + w, PAD + 13),
         );
-        for &(label, (x, y, lw)) in &self.labels {
+        place_label(
+            tree,
+            self.shows,
+            UiBox::new(PAD, PAD + 2 * ROW + 6, PAD + w, PAD + 2 * ROW + 19),
+        );
+        for (i, &(label, (x, y, lw))) in self.labels.iter().enumerate() {
+            // The name stays; the sections after the filter block move down.
+            let y = if i == 0 { y } else { y + extra };
             place_label(tree, label, UiBox::new(x, y + 2, x + lw, y + 15));
         }
         if let Some((field, pill)) = self.name {
@@ -317,17 +406,34 @@ impl Popover {
         }
         let mut x = PAD + 72;
         for chip in self.sizes {
-            x = place_chip(tree, chip, (x, PAD + 3 * ROW + 4)) + 4;
+            x = place_chip(tree, chip, (x, at(3, 4))) + 4;
         }
-        let x = place_chip(tree, self.background, (PAD, PAD + 4 * ROW + 4)) + 6;
-        place_chip(tree, self.tint, (x, PAD + 4 * ROW + 4));
-        let x = place_chip(tree, self.timestamps, (PAD, PAD + 5 * ROW + 4)) + 6;
-        place_chip(tree, self.fade, (x, PAD + 5 * ROW + 4));
-        place_chip(tree, self.lines, (PAD, PAD + 6 * ROW + 4));
-        let x = place_chip(tree, self.lock, (PAD, PAD + 8 * ROW + 8)) + 6;
-        place_chip(tree, self.tear, (x, PAD + 8 * ROW + 8));
-        let x = place_chip(tree, self.hide, (PAD, PAD + 9 * ROW + 8)) + 6;
-        place_chip(tree, self.options, (x, PAD + 9 * ROW + 8));
+        let x = place_chip(tree, self.background, (PAD, at(4, 4))) + 6;
+        place_chip(tree, self.tint, (x, at(4, 4)));
+        let x = place_chip(tree, self.timestamps, (PAD, at(5, 4))) + 6;
+        place_chip(tree, self.fade, (x, at(5, 4)));
+        place_chip(tree, self.lines, (PAD, at(6, 4)));
+        let x = place_chip(tree, self.lock, (PAD, at(8, 8))) + 6;
+        place_chip(tree, self.tear, (x, at(8, 8)));
+        let x = place_chip(tree, self.hide, (PAD, at(9, 8))) + 6;
+        place_chip(tree, self.options, (x, at(9, 8)));
+    }
+
+    /// The filter's chips lit for the types the window shows (`filter`, the profile's bits) and
+    /// the devoted chip naming the type it sends.
+    pub(crate) fn set_types(&self, tree: &mut UiTree, filter: u32, sends: u32) {
+        for &(text_type, chip) in &self.types {
+            light(tree, chip, filter & text_type != 0);
+        }
+        if let Some(label) = self.devoted.label {
+            let name = crate::chat_options_table::ROWS
+                .iter()
+                .find(|r| r.text_type == sends)
+                .map_or("Say", |r| short_name(r.name));
+            tree.set_text(label, &format!("Sends: {name}"));
+        }
+        light(tree, self.devoted, true);
+        self.arrange(tree);
     }
 
     /// Whether the popover shows.
@@ -363,7 +469,7 @@ impl Popover {
         }
         self.set(tree, look);
         let x = (button.x1 + 1 - SIZE.0).max(0);
-        let above = button.y0 - 4 - SIZE.1;
+        let above = button.y0 - 4 - (SIZE.1 + self.types_height.get());
         let y = if above >= 0 { above } else { header + 4 };
         tree.set_object_position(self.root, x, y);
         tree.move_to(self.root, x, y);
@@ -437,6 +543,10 @@ impl Popover {
             SettingsAction::Hide
         } else if hit(self.options) {
             SettingsAction::OpenOptions
+        } else if let Some(&(text_type, _)) = self.types.iter().find(|(_, c)| hit(*c)) {
+            return Some(SettingsAction::Filter(text_type));
+        } else if hit(self.devoted) {
+            return Some(SettingsAction::Devoted);
         } else {
             return None;
         };

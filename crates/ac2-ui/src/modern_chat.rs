@@ -182,6 +182,8 @@ pub(crate) struct WindowParts {
 #[derive(Debug, Clone)]
 pub struct ModernChat {
     pub(crate) windows: Vec<WindowParts>,
+    /// Each window's filter and devoted type (the chat options'), for the popover.
+    types: std::cell::RefCell<Vec<(u32, u32)>>,
     /// The window whose slider is being dragged.
     dragging: Cell<Option<usize>>,
     /// Each window's choices (`modern_chat_settings`).
@@ -231,6 +233,10 @@ pub enum ChatEvent {
     PopOut { window: usize, at: UiBox },
     /// Open the options panel's chat page.
     OpenOptions,
+    /// Window `i` shows or hides this text type (its filter on the chat options page).
+    Filter { window: usize, text_type: u32 },
+    /// Window `i` sends the next type a window can send (its devoted type).
+    Devoted(usize),
 }
 
 fn place(tree: &mut UiTree, element: Option<usize>, (x, y, w, h): (i32, i32, i32, i32)) {
@@ -417,6 +423,7 @@ impl ModernChat {
         Self {
             looks: std::cell::RefCell::new(vec![ChatLook::default(); n]),
             windows,
+            types: std::cell::RefCell::new(Vec::new()),
             dragging: Cell::new(None),
             popover,
             open_for: Cell::new(None),
@@ -797,6 +804,11 @@ impl ModernChat {
                             drop(looks);
                             self.tear(tree, i)
                         }
+                        SettingsAction::Filter(text_type) => Some(ChatEvent::Filter {
+                            window: i,
+                            text_type,
+                        }),
+                        SettingsAction::Devoted => Some(ChatEvent::Devoted(i)),
                     };
                 }
             }
@@ -861,7 +873,23 @@ impl ModernChat {
         let look = self.looks.borrow().get(i).cloned().unwrap_or_default();
         let docked = self.group.borrow().contains(&i);
         popover.show(tree, i + 1, &look, docked, at, header);
+        let (filter, sends) = self.types.borrow().get(i).copied().unwrap_or((0, 0x10));
+        popover.set_types(tree, filter, sends);
         self.open_for.set(Some(i));
+    }
+
+    /// Window `i`'s filter and devoted type as the chat options have them (the popover's chips).
+    pub(crate) fn set_types(&self, tree: &mut UiTree, i: usize, filter: u32, sends: u32) {
+        let mut types = self.types.borrow_mut();
+        if types.len() <= i {
+            types.resize(i + 1, (0, 0x10));
+        }
+        types[i] = (filter, sends);
+        if let (Some(popover), Some(open)) = (&self.popover, self.open_for.get()) {
+            if open == i && popover.shown(tree) {
+                popover.set_types(tree, filter, sends);
+            }
+        }
     }
 }
 
