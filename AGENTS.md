@@ -156,8 +156,11 @@ game rules and server-visible behaviour exactly retail.
   (`ac2_ui::modern_strip`). The dock in the bottom-right corner is a teal orb with a pip per panel
   (gold while it shows); the panel buttons fan out of it in round wells on a bevelled backing
   while the pointer is over the dock, or always once the orb is pressed; the dismount and
-  consignments buttons stand beside it on their own backings while shown. A chat window that
-  would cover the strip is moved up to sit just over it. Window places are kept per style
+  consignments buttons stand beside it on their own backings while shown. No band is reserved
+  for the strip: a window may be put over it (the design's reserved band, which kept windows off
+  the strip, is not ported, at the user's request, as it limits customisation; retail's
+  `PrecludeHeight`, which keeps only the targeting reticle and name plates clear of the toolbar,
+  stays). Window places are kept per style
   (`WindowPositions-<character>-modern.txt` beside the classic file), and the modern style
   neither uploads its windows' places to the server nor applies the server's saved locations
   (their boxes are the classic layout's), so `gmCWInterface::SetUISaveLocations` runs only in the

@@ -446,14 +446,6 @@ impl Dock {
         }
     }
 
-    /// The chat windows kept clear of the strip ([`lift_chat`]); run every frame, as the chat's
-    /// windows are placed after the toolbar and moved by the player.
-    pub(crate) fn keep_chat_clear(&self, tree: &mut UiTree) {
-        let field = tree.screen_box(self.field);
-        let fade = self.plan(tree).fade.offset(field.x0, field.y0);
-        lift_chat(tree, fade);
-    }
-
     /// The pointer's place on the field.
     fn pointer(&self, tree: &UiTree) -> (i32, i32) {
         let field = tree.screen_box(self.field);
@@ -487,33 +479,6 @@ impl Dock {
         self.open.get()
     }
 }
-
-/// The chat windows that would cover the strip (`strip`, on the screen) moved up to sit just over
-/// it, as the design keeps the chat above the strip; the others stay where they are.
-fn lift_chat(tree: &mut UiTree, strip: UiBox) {
-    for n in 1..=4 {
-        let Some(window) = tree
-            .roots()
-            .iter()
-            .copied()
-            .find(|&r| tree.el(r).id() == tokenize(&format!("ChatWindow{n}")))
-        else {
-            continue;
-        };
-        if !tree.el(window).visible {
-            continue;
-        }
-        let at = tree.screen_box(window);
-        let covers =
-            at.x0 <= strip.x1 && at.x1 >= strip.x0 && at.y1 >= strip.y0 && at.y0 <= strip.y1;
-        if covers {
-            tree.move_to(window, at.x0, strip.y0 - CHAT_GAP - at.height());
-        }
-    }
-}
-
-/// The space the chat keeps over the strip.
-const CHAT_GAP: i32 = 4;
 
 /// `element`'s state images drawn with [`DRAW_OVER`] (its description rewritten, so every state
 /// the button takes draws so), and its image now.

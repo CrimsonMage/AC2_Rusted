@@ -209,7 +209,6 @@ impl ToolbarUi {
             bar,
             [visible(self.consignments), visible(self.dismount)],
         );
-        dock.keep_chat_clear(tree);
         if self.laid_out.get() != Some(now) {
             dock.arrange(tree, shown);
             // The layout may move the shortcut bar: what it was laid out for is taken after.
