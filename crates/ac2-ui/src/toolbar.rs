@@ -231,11 +231,23 @@ impl ToolbarUi {
         &self,
         tree: &mut UiTree,
         backpack: &crate::BackpackUi,
+        doll: Option<&crate::PaperDollUi>,
         source: &dyn crate::item_display::InventorySource,
     ) {
         if let Some(drawer) = &self.drawer {
-            drawer.tick(tree, backpack, source);
+            drawer.tick(tree, backpack, doll, source);
         }
+    }
+
+    /// A press on the modern drawer's item ring: the action and the item (`modern_item_ring`).
+    pub(crate) fn drawer_ring_press(
+        &self,
+        message: &UiMessage,
+    ) -> Option<(crate::modern_item_ring::RingAction, u64)> {
+        if message.message != crate::token::MSG_MOUSE_PRESS_TOP {
+            return None;
+        }
+        self.drawer.as_ref()?.ring_press(message.element?)
     }
 
     /// The modern inventory drawer, laid out with the toolbar.

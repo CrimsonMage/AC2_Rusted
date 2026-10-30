@@ -139,13 +139,42 @@ impl MoneyBagUi {
         let dragged = dragged_item(tree, copy)?;
         // The copy's `Equipped` flag (a paper doll slot's item) is the worn state as the UI
         // knows it.
-        if !is_item_copy(tree, copy)
-            || !s.has_item(dragged.item)
-            || s.is_on_inventory(dragged.item)
-            || dragged.equipped
-        {
+        if !is_item_copy(tree, copy) || dragged.equipped {
             return None;
         }
+        self.melt(
+            tree,
+            s,
+            strings,
+            dialogs,
+            (dragged.item, dragged.from, dragged.old_index),
+            shift,
+        )
+    }
+
+    /// `HandleMoneyBagDrop` after the drop's checks: `item` in slot `old_index` of container
+    /// `from` melted, as dropping it on the bag does (also the modern drawer's Melt,
+    /// `modern_item_ring`). Only an item the player has (`DoIHaveItem`) that is not worn
+    /// (`IsOnInventory`).
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn melt(
+        &mut self,
+        tree: &mut UiTree,
+        s: &dyn InventorySource,
+        strings: &dyn UiStrings,
+        dialogs: &mut DialogFactory,
+        (item, from, old_index): (u64, u64, i32),
+        shift: bool,
+    ) -> Option<ItemRequest> {
+        if !s.has_item(item) || s.is_on_inventory(item) {
+            return None;
+        }
+        let dragged = crate::item_display::DraggedItem {
+            item,
+            from,
+            old_index,
+            equipped: false,
+        };
         let slot = s.item(dragged.item)?;
         let old_index = dragged.old_index;
         if s.melts_to_money(dragged.item) {

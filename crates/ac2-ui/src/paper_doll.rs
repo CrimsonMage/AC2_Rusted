@@ -475,6 +475,14 @@ impl PaperDollUi {
         }
     }
 
+    /// The slot element showing the worn `item`, if it is worn.
+    pub(crate) fn worn_slot(&self, item: u64) -> Option<usize> {
+        self.items
+            .iter()
+            .find(|(_, d)| d.item == item)
+            .map(|(_, d)| d.background)
+    }
+
     /// The modern style's doll frame: the viewport fills it (inset 2 pixels) wherever the drawer
     /// puts it.
     pub fn dock_to(&mut self, frame: usize) {

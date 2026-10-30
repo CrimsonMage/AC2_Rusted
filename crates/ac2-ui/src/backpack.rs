@@ -182,6 +182,55 @@ impl BackpackUi {
         self.finish_item_drop(slot.quantity)
     }
 
+    /// The page, container and slot (its icon's `Token_OldIndex`) holding `item`, if a page does.
+    pub(crate) fn locate(&self, tree: &UiTree, item: u64) -> Option<(usize, u64, i32)> {
+        self.packs.iter().enumerate().find_map(|(i, page)| {
+            let display = page.items.iter().find(|d| d.item == item)?;
+            let slot = match tree.el(display.icon).attribute(tokenize("Token_OldIndex")) {
+                Some(crate::layout::AttributeValue::Int(slot)) => *slot,
+                _ => return None,
+            };
+            Some((i, page.container, slot))
+        })
+    }
+
+    /// The modern drawer's Split (`modern_item_ring`): part of the stack `item` moved to the end
+    /// of its own page, by the tab drop's own flow (`tab_drop`): the stack dialog asks how many
+    /// (at most all but one), then `stack_ui_done` moves them (`FinishItemDrop`). `None` when the
+    /// item is no stack or its page is full.
+    pub(crate) fn split_off(
+        &mut self,
+        tree: &mut UiTree,
+        s: &dyn InventorySource,
+        item: u64,
+    ) -> Option<ItemRequest> {
+        let (pack, container, old_slot) = self.locate(tree, item)?;
+        let end = self.packs.get(pack)?.end_slot()?;
+        let slot = s.item(item)?;
+        if !slot.stackable || slot.quantity < 2 {
+            return None;
+        }
+        self.pending = PageDrop {
+            item,
+            container,
+            old_slot,
+            new_slot: end as i32,
+        };
+        self.stack_context = tree.request_stack_context();
+        Some(ItemRequest::Split {
+            context: self.stack_context,
+            item,
+            target: container,
+            amount: slot.quantity - 1,
+        })
+    }
+
+    /// The first slot with room for an item coming off the doll: the end of the first page that
+    /// has room.
+    pub(crate) fn first_free_slot(&self) -> Option<u32> {
+        self.packs.iter().find_map(|p| p.end_slot())
+    }
+
     /// `gmBackpackUI::FinishItemDrop`: the move inside the page's container, unless it stays in
     /// its slot; the drop is forgotten.
     fn finish_item_drop(&mut self, quantity: u32) -> Option<ItemRequest> {

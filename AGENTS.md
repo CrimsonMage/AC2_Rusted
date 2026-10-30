@@ -184,6 +184,13 @@ game rules and server-visible behaviour exactly retail.
   shows the four pages at once, each under a heading with its slot numbers, in one view the
   wheel scrolls: the pages are retail's containers moved under that view and shown whole, so
   their slots, drops and messages stay retail's; a pack tab (`gmBackpackUI::ShowPack`) leaves it.
+  The selected item's slot fans out a ring of round buttons (`ac2_ui::modern_item_ring`), each a
+  shortcut to a gesture the item already takes and sending what that gesture sends: Use
+  (`UseSelection`, the double-click), Examine (the right press), Split (the backpack's tab-drop
+  stack question and move, onto the end of the item's own page, at most all but one), Melt
+  (`gmMoneyBagUI::HandleMoneyBagDrop`'s stack question and confirmation), and Equip (`EquipItem`
+  at the preferred location) or, for a worn item, Unequip (`UnEquipItem` into the first page with
+  room); an action that does not apply is dimmed. Retail had no such ring.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

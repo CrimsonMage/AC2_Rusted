@@ -169,6 +169,8 @@ pub(crate) struct Drawer {
     pub(crate) doll: Option<usize>,
     /// The drawer's own parts: tab counts, search, footer (`modern_drawer_bar`).
     bar: Option<crate::modern_drawer_bar::DrawerBar>,
+    /// The item ring (`modern_item_ring`).
+    ring: Option<crate::modern_item_ring::ItemRing>,
     /// The All view (`modern_all_view`).
     all: Option<crate::modern_all_view::AllView>,
     /// The pages' slot counts, as the backpack last had them.
@@ -339,6 +341,7 @@ impl Drawer {
             doll: None,
             bar: None,
             all: None,
+            ring: None,
             sizes: std::cell::Cell::new([0; 4]),
             laid_out: std::cell::Cell::new(None),
         };
@@ -428,6 +431,9 @@ impl Drawer {
             PART_Z,
         );
         drawer.doll = part(tree, "ModernDrawerDoll", art::DOLL_FRAME, None, PART_Z);
+        drawer.ring = Some(crate::modern_item_ring::ItemRing::make(
+            tree, field, template,
+        ));
         if let Some(area) = drawer.pack_area {
             drawer.all = Some(crate::modern_all_view::AllView::make(
                 tree,
@@ -622,6 +628,7 @@ impl Drawer {
         &self,
         tree: &mut UiTree,
         backpack: &crate::BackpackUi,
+        doll: Option<&crate::PaperDollUi>,
         source: &dyn crate::item_display::InventorySource,
     ) {
         let mut sizes = [0; 4];
@@ -640,6 +647,80 @@ impl Drawer {
         if let Some(bar) = &self.bar {
             bar.tick(tree, backpack, source, all_on && !left);
         }
+        if let Some(ring) = &self.ring {
+            let target = self.ring_target(tree, backpack, doll, source);
+            ring.show(tree, target);
+        }
+    }
+
+    /// Where the item ring opens: the selected item's slot in a page shown (the grid's box its
+    /// bounds), or its worn slot (the drawer's), while the drawer shows and nothing is dragged.
+    fn ring_target(
+        &self,
+        tree: &UiTree,
+        backpack: &crate::BackpackUi,
+        doll: Option<&crate::PaperDollUi>,
+        source: &dyn crate::item_display::InventorySource,
+    ) -> Option<crate::modern_item_ring::RingTarget> {
+        let item = source.selection();
+        if item == 0 || tree.dragged().is_some() || !shown(tree, self.field) {
+            return None;
+        }
+        let stack = source.item(item)?;
+        let mut target = crate::modern_item_ring::RingTarget {
+            item,
+            slot: UiBox::default(),
+            bounds: UiBox::default(),
+            towards: -90.0,
+            worn: false,
+            split: stack.stackable && 1 < stack.quantity,
+            melt: true,
+            equip: source.preferred_location(item) != 0,
+        };
+        if let Some(slot) = doll.and_then(|d| d.worn_slot(item)) {
+            // A worn item: sideways, towards the doll.
+            let at = tree.screen_box(slot);
+            let frame = self.doll.map(|f| tree.screen_box(f))?;
+            target.slot = at;
+            target.bounds = tree.screen_box(self.field);
+            target.towards = if at.x1 < frame.x0 { 0.0 } else { 180.0 };
+            target.worn = true;
+            return Some(target);
+        }
+        let display = backpack
+            .packs
+            .iter()
+            .filter(|p| p.list.is_some_and(|l| shown(tree, l)))
+            .find_map(|p| Some((p.list?, p.items.iter().find(|d| d.item == item)?)))?;
+        let (list, display) = display;
+        let at = tree.screen_box(display.background);
+        // The grid's box: the All view's, else the page list's.
+        let bounds = match self.all.as_ref().filter(|a| a.is_on()) {
+            Some(_) => tree.screen_box(tree.el(tree.el(list).parent_index()?).parent_index()?),
+            None => tree.screen_box(list),
+        };
+        if at.y0 < bounds.y0 || at.y1 > bounds.y1 {
+            return None;
+        }
+        let half = crate::modern_art::RING_ART / 2;
+        let up = (at.y0 + at.y1) / 2 - bounds.y0;
+        let down = bounds.y1 - (at.y0 + at.y1) / 2;
+        target.towards = if up >= 40 + half || up >= down {
+            -90.0
+        } else {
+            90.0
+        };
+        target.slot = at;
+        target.bounds = bounds;
+        Some(target)
+    }
+
+    /// A press on one of the item ring's buttons: its action and the item.
+    pub(crate) fn ring_press(
+        &self,
+        element: usize,
+    ) -> Option<(crate::modern_item_ring::RingAction, u64)> {
+        self.ring.as_ref()?.press(element)
     }
 
     /// A page's list filling its box but for the scroll bar at its right: the bar's arrows at its
@@ -674,6 +755,21 @@ impl Drawer {
             }
         }
     }
+}
+
+/// Whether `element` and every element over it show.
+fn shown(tree: &UiTree, element: usize) -> bool {
+    let mut at = Some(element);
+    while let Some(e) = at {
+        let Some(el) = tree.get(e) else {
+            return false;
+        };
+        if !el.visible {
+            return false;
+        }
+        at = el.parent_index();
+    }
+    true
 }
 
 /// The modern drawer's doll frame, which the paper doll's viewport fills; `None` in the classic

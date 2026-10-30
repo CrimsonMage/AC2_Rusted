@@ -159,7 +159,7 @@ fn with_backpack() -> Option<(GameplayHud, crate::BackpackUi)> {
     let layout = hud.inventory_layout.clone().unwrap();
     let pack = crate::BackpackUi::create(&mut hud.tree, &layout, &Pack, 0x2000_0000_0000_0001);
     hud.toolbar.follow(&mut hud.tree);
-    hud.toolbar.drawer_tick(&mut hud.tree, &pack, &Pack);
+    hud.toolbar.drawer_tick(&mut hud.tree, &pack, None, &Pack);
     Some((hud, pack))
 }
 
@@ -193,7 +193,7 @@ fn the_search_veils_the_slots_it_leaves_out() {
     let tree = &mut hud.tree;
     let field = named(tree, "ModernDrawerSearch").unwrap();
     tree.set_text(field, "SWORD");
-    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    hud.toolbar.drawer_tick(tree, &pack, None, &Pack);
     let veiled = |tree: &UiTree, item: u64| {
         let slot = pack.packs[0].items.iter().find(|d| d.item == item).unwrap();
         tree.child(slot.background, tokenize("ModernSlotVeil"))
@@ -204,7 +204,7 @@ fn the_search_veils_the_slots_it_leaves_out() {
     let slots: Vec<u64> = pack.packs[0].items.iter().map(|d| d.item).collect();
     assert_eq!(slots, [POTIONS, SWORD]);
     tree.set_text(field, "");
-    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    hud.toolbar.drawer_tick(tree, &pack, None, &Pack);
     assert!(!veiled(tree, POTIONS));
 }
 
@@ -235,12 +235,12 @@ fn a_filter_chip_veils_the_items_that_do_not_equip_where_it_says() {
         );
     };
     press(tree, &hud.toolbar, "ModernFilterChipArms");
-    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    hud.toolbar.drawer_tick(tree, &pack, None, &Pack);
     assert!(veiled(tree, POTIONS) && !veiled(tree, SWORD));
     let arms = named(tree, "ModernFilterChipArms").unwrap();
     assert_eq!(tree.el(arms).image().unwrap().file, art::CHIP_ON);
     press(tree, &hud.toolbar, "ModernFilterChipAll");
-    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    hud.toolbar.drawer_tick(tree, &pack, None, &Pack);
     assert!(!veiled(tree, POTIONS) && !veiled(tree, SWORD));
 }
 
@@ -267,7 +267,7 @@ fn the_all_tab_shows_every_page_until_a_pack_tab_is_pressed() {
     };
     let tree = &mut hud.tree;
     press(tree, &hud.toolbar, "ModernAllTab");
-    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    hud.toolbar.drawer_tick(tree, &pack, None, &Pack);
     let view = named(tree, "ModernAllView").unwrap();
     let pages: Vec<usize> = [
         "PackMainContainer",
@@ -311,11 +311,97 @@ fn the_all_tab_shows_every_page_until_a_pack_tab_is_pressed() {
     }
     // A pack tab (`ShowPack`) leaves the view.
     pack.show_pack(tree, 1);
-    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    hud.toolbar.drawer_tick(tree, &pack, None, &Pack);
     assert!(!tree.el(view).visible);
     let area = tree.el(pages[0]).parent_index();
     assert!(pages
         .iter()
         .all(|&p| tree.el(p).parent_index() == area && area != Some(view)));
     assert!(tree.el(pages[1]).visible && !tree.el(pages[0]).visible);
+}
+
+/// [`Pack`] with `0` its selection.
+struct Selected(u64);
+
+impl crate::InventorySource for Selected {
+    fn item(&self, item: u64) -> Option<crate::ItemSlot> {
+        Pack.item(item)
+    }
+    fn contents_info(&self, container: u64, segment: u32) -> (Vec<u64>, u32, u32) {
+        Pack.contents_info(container, segment)
+    }
+    fn max_container_size(&self, container: u64) -> u32 {
+        Pack.max_container_size(container)
+    }
+    fn selection(&self) -> u64 {
+        self.0
+    }
+    fn preferred_location(&self, item: u64) -> u32 {
+        Pack.preferred_location(item)
+    }
+}
+
+/// The selected item's ring fans out of its slot inside the grid; Use answers its press, a
+/// Split that does not apply (one item, no stack) is dimmed and takes none, and Equip applies to
+/// the sword only.
+#[test]
+fn the_item_ring_opens_on_the_selected_slot_with_its_actions() {
+    let Some((mut hud, pack)) = with_backpack() else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    for name in ["RightSidePanel", "InventoryField"] {
+        let e = named(tree, name).unwrap();
+        tree.set_visible(e, true);
+    }
+    hud.toolbar.drawer_tick(tree, &pack, None, &Selected(SWORD));
+    let buttons: Vec<usize> = (0..5)
+        .map(|i| named(tree, &format!("ModernItemRing{i}")).unwrap())
+        .collect();
+    let list = tree
+        .child_recursive(
+            named(tree, "PackMainContainer").unwrap(),
+            tokenize("ContainerListBox"),
+        )
+        .unwrap();
+    let grid = tree.screen_box(list);
+    for &b in &buttons {
+        let at = tree.screen_box(b);
+        assert!(tree.el(b).visible);
+        assert!(
+            at.x0 >= grid.x0 && at.x1 <= grid.x1 && at.y0 >= grid.y0 && at.y1 <= grid.y1,
+            "{at:?} in {grid:?}"
+        );
+    }
+    let press = |tree: &UiTree, i: usize| {
+        hud.toolbar.drawer_ring_press(&crate::mouse::UiMessage {
+            element_id: tree.el(buttons[i]).id(),
+            element: Some(buttons[i]),
+            message: crate::token::MSG_MOUSE_PRESS_TOP,
+            data: 0,
+            item: None,
+        })
+    };
+    use crate::modern_item_ring::RingAction;
+    assert_eq!(press(tree, 0), Some((RingAction::Use, SWORD)));
+    assert_eq!(press(tree, 2), None, "no stack to split");
+    assert_eq!(press(tree, 4), Some((RingAction::Equip, SWORD)));
+    if let Ok(out) = std::env::var("ZZ_OUT") {
+        let dataset = ac2_dat::test_support::env_dataset().unwrap();
+        let store = Arc::new(ResourceStore::new(dataset));
+        let mut images = crate::load_ui_images(&store, tree).unwrap();
+        let icons = crate::load_images(&store, &art::SOURCE_ICONS).unwrap();
+        art::bake(&mut images, &icons);
+        let panel = named(tree, "RightSidePanel").unwrap();
+        let _ = tree.compose(&images);
+        let s = tree.compose_root(panel, &images);
+        let f = std::fs::File::create(out).unwrap();
+        let mut e = png::Encoder::new(std::io::BufWriter::new(f), s.width, s.height);
+        e.set_color(png::ColorType::Rgba);
+        e.set_depth(png::BitDepth::Eight);
+        e.write_header().unwrap().write_image_data(&s.rgba).unwrap();
+    }
+    // Nothing selected: the ring hides.
+    hud.toolbar.drawer_tick(tree, &pack, None, &Pack);
+    assert!(buttons.iter().all(|&b| !tree.el(b).visible));
 }

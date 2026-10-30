@@ -52,6 +52,7 @@ pub fn tick_pass<P: HudSource>(
         dialogs,
         toolbar,
         backpack,
+        paper_doll,
         secure_trade,
         stack,
         money,
@@ -80,7 +81,7 @@ pub fn tick_pass<P: HudSource>(
         bar.follow(tree);
         // The modern drawer's counts, footer and search veils follow the backpack.
         if let Some(pack) = backpack.as_ref() {
-            bar.drawer_tick(tree, pack, player);
+            bar.drawer_tick(tree, pack, paper_doll.as_ref(), player);
         }
     }
     // `gmSecureTradeUI`'s global loop: an ended trade closes; a stack its list dropped asks.

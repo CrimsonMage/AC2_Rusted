@@ -8,11 +8,12 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::compose::UiPixels;
+pub use crate::modern_art_drawer::*;
 
 /// A colour, straight alpha, each channel 0..1.
-type Rgba = [f32; 4];
+pub(crate) type Rgba = [f32; 4];
 
-fn rgb(hex: u32, alpha: f32) -> Rgba {
+pub(crate) fn rgb(hex: u32, alpha: f32) -> Rgba {
     [
         ((hex >> 16) & 0xFF) as f32 / 255.0,
         ((hex >> 8) & 0xFF) as f32 / 255.0,
@@ -21,7 +22,7 @@ fn rgb(hex: u32, alpha: f32) -> Rgba {
     ]
 }
 
-fn mix(a: Rgba, b: Rgba, t: f32) -> Rgba {
+pub(crate) fn mix(a: Rgba, b: Rgba, t: f32) -> Rgba {
     let t = t.clamp(0.0, 1.0);
     [0, 1, 2, 3].map(|c| a[c] + (b[c] - a[c]) * t)
 }
@@ -43,7 +44,7 @@ impl Canvas {
     }
 
     /// `color` over the pixel at `(x, y)`, by `cover` (0..1).
-    fn over(&mut self, x: usize, y: usize, color: Rgba, cover: f32) {
+    pub(crate) fn over(&mut self, x: usize, y: usize, color: Rgba, cover: f32) {
         let a = color[3] * cover.clamp(0.0, 1.0);
         if a <= 0.0 {
             return;
@@ -58,7 +59,7 @@ impl Canvas {
 
     /// Paints every pixel by `shade(x, y, distance)`: `distance` is the shape's signed distance at
     /// the pixel's centre (negative inside), and `shade` gives the colour and its cover there.
-    fn paint(
+    pub(crate) fn paint(
         &mut self,
         sdf: impl Fn(f32, f32) -> f32,
         shade: impl Fn(f32, f32, f32) -> (Rgba, f32),
@@ -114,7 +115,7 @@ impl Canvas {
 }
 
 /// The image's colour at `(x, y)` in its pixels, bilinear and premultiplied in the mix.
-fn bilinear(image: &UiPixels, x: f32, y: f32) -> Rgba {
+pub(crate) fn bilinear(image: &UiPixels, x: f32, y: f32) -> Rgba {
     let (w, h) = (image.width as i32, image.height as i32);
     let (x0, y0) = (x.floor() as i32, y.floor() as i32);
     let (tx, ty) = (x - x0 as f32, y - y0 as f32);
@@ -140,17 +141,17 @@ fn bilinear(image: &UiPixels, x: f32, y: f32) -> Rgba {
 }
 
 /// The cover of a shape's edge at signed distance `d` (a pixel-wide ramp).
-fn inside(d: f32) -> f32 {
+pub(crate) fn inside(d: f32) -> f32 {
     (0.5 - d).clamp(0.0, 1.0)
 }
 
 /// The cover of the band `from..to` pixels in from a shape's edge (an inset ring).
-fn band(d: f32, from: f32, to: f32) -> f32 {
+pub(crate) fn band(d: f32, from: f32, to: f32) -> f32 {
     (inside(d + from) - inside(d + to)).max(0.0)
 }
 
 /// A soft glow `blur` pixels out from a shape's edge (zero inside).
-fn glow(d: f32, blur: f32) -> f32 {
+pub(crate) fn glow(d: f32, blur: f32) -> f32 {
     if d <= 0.0 {
         0.0
     } else {
@@ -158,11 +159,11 @@ fn glow(d: f32, blur: f32) -> f32 {
     }
 }
 
-fn circle(cx: f32, cy: f32, r: f32) -> impl Fn(f32, f32) -> f32 {
+pub(crate) fn circle(cx: f32, cy: f32, r: f32) -> impl Fn(f32, f32) -> f32 {
     move |x, y| ((x - cx).powi(2) + (y - cy).powi(2)).sqrt() - r
 }
 
-fn round_rect(x0: f32, y0: f32, x1: f32, y1: f32, r: f32) -> impl Fn(f32, f32) -> f32 {
+pub(crate) fn round_rect(x0: f32, y0: f32, x1: f32, y1: f32, r: f32) -> impl Fn(f32, f32) -> f32 {
     move |x, y| {
         let (cx, cy) = ((x0 + x1) / 2.0, (y0 + y1) / 2.0);
         let (hx, hy) = ((x1 - x0) / 2.0 - r, (y1 - y0) / 2.0 - r);
@@ -190,40 +191,6 @@ pub const ARROW_DOWN: u32 = 0x7E01_0041;
 pub const BADGE: u32 = 0x7E01_0042;
 /// The strip's fade (`fade(height)`, made for the strip's height when it is laid out).
 pub const STRIP_FADE: u32 = 0x7E01_0050;
-/// The drawers' parts: the header, the gold row, the doll's frame, a header button's backing and
-/// an item slot's well (the DAT slot at 36 pixels and the 4-pixel gap after it).
-pub const DRAWER_HEADER: u32 = 0x7E01_0060;
-pub const MONEY_ROW: u32 = 0x7E01_0061;
-pub const DOLL_FRAME: u32 = 0x7E01_0062;
-pub const HEADER_BUTTON: u32 = 0x7E01_0063;
-pub const ITEM_WELL: u32 = 0x7E01_0064;
-/// The drawer's search field: a dark pill in a fine bronze line.
-pub const SEARCH_PILL: u32 = 0x7E01_0065;
-/// The veil over an item slot the search leaves out.
-pub const SLOT_VEIL: u32 = 0x7E01_0066;
-/// The drawer's thin scroll bar: the track, the thumb's top, middle and bottom, and the arrows
-/// (up, up lit, down, down lit), all `SCROLL_WIDTH` wide.
-pub const SCROLL_TRACK: u32 = 0x7E01_0070;
-pub const THUMB_TOP: u32 = 0x7E01_0071;
-pub const THUMB_MID: u32 = 0x7E01_0072;
-pub const THUMB_BOTTOM: u32 = 0x7E01_0073;
-pub const SCROLL_UP: u32 = 0x7E01_0074;
-pub const SCROLL_UP_LIT: u32 = 0x7E01_0075;
-pub const SCROLL_DOWN: u32 = 0x7E01_0076;
-pub const SCROLL_DOWN_LIT: u32 = 0x7E01_0077;
-pub const SCROLL_WIDTH: i32 = 10;
-/// The drawer's All tab, off and on, its corners, and the rule under a section's heading.
-pub const ALL_TAB: u32 = 0x7E01_0078;
-pub const ALL_TAB_ON: u32 = 0x7E01_0079;
-pub const ALL_TAB_BORDER: i32 = 6;
-pub const SECTION_RULE: u32 = 0x7E01_007A;
-/// The drawer's filter chips, off and on.
-pub const CHIP: u32 = 0x7E01_0067;
-pub const CHIP_ON: u32 = 0x7E01_0068;
-/// The chips' art keeps corners this size when stretched.
-pub const CHIP_BORDER: i32 = 8;
-/// The search pill's art keeps corners this size when stretched.
-pub const SEARCH_PILL_BORDER: i32 = 10;
 /// The DAT item slot the item well is made of.
 pub const ITEM_SLOT: u32 = 0x4100_02BC;
 /// An item slot's pitch (36 and the gap).
@@ -492,199 +459,6 @@ fn badge() -> UiPixels {
     c.finish()
 }
 
-/// A drawer's header: a dark bronze fall with a light line along its top and a black one under it
-/// (nine pieces).
-fn drawer_header() -> UiPixels {
-    let (w, h) = (32usize, 30usize);
-    let mut c = Canvas::new(w, h);
-    c.paint(
-        |_, _| -1.0,
-        |_, y, _| {
-            let t = (y / (0.7 * h as f32)).min(1.0);
-            (mix(rgb(0x3B382D, 1.0), rgb(0x16150F, 1.0), t), 1.0)
-        },
-    );
-    c.paint(
-        |_, y| if y < 1.0 { -1.0 } else { 1.0 },
-        |_, _, d| (rgb(0xCFC8AC, 1.0), inside(d)),
-    );
-    c.paint(
-        |_, y| if y > h as f32 - 1.0 { -1.0 } else { 1.0 },
-        |_, _, d| (rgb(0x000000, 1.0), inside(d)),
-    );
-    c.finish()
-}
-
-/// The gold row's backing: dark glass in a fine bronze line, corners 5 round (nine pieces).
-fn money_row() -> UiPixels {
-    let (w, h) = (32usize, 32usize);
-    let mut c = Canvas::new(w, h);
-    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 5.0);
-    c.paint(&shape, |_, _, d| (rgb(0x00110F, 0.63), inside(d)));
-    c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, 0.0, 1.0)));
-    c.finish()
-}
-
-/// The search field's pill: dark glass, a fine bronze line, ends fully round.
-fn search_pill() -> UiPixels {
-    let (w, h) = (40usize, 20usize);
-    let mut c = Canvas::new(w, h);
-    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 10.0);
-    c.paint(&shape, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
-    c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, 0.0, 1.0)));
-    c.finish()
-}
-
-/// The scroll bar's track: the well's dark glass, tiled.
-fn scroll_track() -> UiPixels {
-    let w = SCROLL_WIDTH as usize;
-    let mut c = Canvas::new(w, 4);
-    let shape = round_rect(0.0, -4.0, w as f32, 12.0, 0.0);
-    c.paint(&shape, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
-    c.finish()
-}
-
-/// A piece of the thumb (`part`: 0 top cap, 1 middle, 2 bottom cap): bronze shaded left to
-/// right (`#a8a28a` to `#4d493c`), its ends round.
-fn thumb(part: u8) -> UiPixels {
-    let w = SCROLL_WIDTH as usize;
-    let h = if part == 1 { 4 } else { 7 };
-    let mut c = Canvas::new(w, h);
-    let r = w as f32 / 2.0 - 1.0;
-    let shape = match part {
-        0 => round_rect(1.0, 0.0, w as f32 - 1.0, h as f32 + 2.0 * r, r),
-        2 => round_rect(1.0, -2.0 * r, w as f32 - 1.0, h as f32, r),
-        _ => round_rect(1.0, -4.0, w as f32 - 1.0, h as f32 + 4.0, 0.0),
-    };
-    c.paint(&shape, |x, _, d| {
-        let t = (x / w as f32).clamp(0.0, 1.0);
-        (mix(rgb(0xA8A28A, 1.0), rgb(0x4D493C, 1.0), t), inside(d))
-    });
-    c.finish()
-}
-
-/// A scroll arrow on the track's glass: a small chevron, bronze, or gold when `lit`.
-fn scroll_arrow(up: bool, lit: bool) -> UiPixels {
-    let w = SCROLL_WIDTH as usize;
-    let mut c = Canvas::new(w, w);
-    let back = round_rect(0.0, 0.0, w as f32, w as f32, 0.0);
-    c.paint(&back, |_, _, d| (rgb(0x00110F, 1.0), inside(d)));
-    let color = if lit {
-        rgb(0xD9C27A, 1.0)
-    } else {
-        rgb(0x8B846C, 1.0)
-    };
-    let (cx, cy) = (w as f32 / 2.0, w as f32 / 2.0);
-    c.paint(&back, |x, y, _| {
-        // A chevron 6 wide and 3 tall, 1.4 pixels thick.
-        let dy = if up { cy + 1.5 - y } else { y - (cy - 1.5) };
-        let edge = (dy - (3.0 - (x - cx).abs())).abs();
-        let within = (x - cx).abs() <= 3.2 && (-0.5..=3.5).contains(&dy);
-        (
-            color,
-            if within {
-                (1.0 - (edge - 0.7).max(0.0)).clamp(0.0, 1.0)
-            } else {
-                0.0
-            },
-        )
-    });
-    c.finish()
-}
-
-/// The All tab: bronze shaded top to bottom in a fine line, its top corners round; brighter on.
-fn all_tab(on: bool) -> UiPixels {
-    let (w, h) = (16usize, 26usize);
-    let mut c = Canvas::new(w, h);
-    let shape = round_rect(0.0, 0.0, w as f32, h as f32 + 6.0, 5.0);
-    let (top, bottom) = if on {
-        (rgb(0x6B5C2E, 1.0), rgb(0x2C2511, 1.0))
-    } else {
-        (rgb(0x3B382D, 1.0), rgb(0x16150F, 1.0))
-    };
-    c.paint(&shape, |_, y, d| {
-        (mix(top, bottom, y / h as f32), inside(d))
-    });
-    c.paint(&shape, |_, _, d| (rgb(0x8B846C, 1.0), band(d, 0.0, 1.0)));
-    c.finish()
-}
-
-/// The rule under a section's heading: the design's bronze at a quarter (`#8b846c44`).
-fn section_rule() -> UiPixels {
-    let mut c = Canvas::new(4, 1);
-    let shape = round_rect(-1.0, -1.0, 5.0, 2.0, 0.0);
-    c.paint(&shape, |_, _, d| (rgb(0x8B846C, 0.27), inside(d)));
-    c.finish()
-}
-
-/// A filter chip: a dark pill in a fine bronze line, or (on) filled bronze.
-fn chip(on: bool) -> UiPixels {
-    let (w, h) = (24usize, 16usize);
-    let mut c = Canvas::new(w, h);
-    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 8.0);
-    if on {
-        c.paint(&shape, |_, _, d| (rgb(0x6B5C2E, 1.0), inside(d)));
-    } else {
-        c.paint(&shape, |_, _, d| (rgb(0x00110F, 0.63), inside(d)));
-        c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, 0.0, 1.0)));
-    }
-    c.finish()
-}
-
-/// The veil over a slot the search leaves out: the drawer's glass at 82%, so the slot shows at
-/// about the design's 18%.
-fn slot_veil() -> UiPixels {
-    let side = ITEM_PITCH as usize;
-    let mut c = Canvas::new(side, side);
-    let shape = round_rect(0.0, 0.0, side as f32, side as f32, 3.0);
-    c.paint(&shape, |_, _, d| (rgb(0x001F1D, 0.82), inside(d)));
-    c.finish()
-}
-
-/// The paper doll's frame: a teal glow behind the figure in a fine bronze line, corners 8 round.
-fn doll_frame() -> UiPixels {
-    let (w, h) = (132usize, 196usize);
-    let mut c = Canvas::new(w, h);
-    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 8.0);
-    let (cx, cy) = (w as f32 / 2.0, 0.6 * h as f32);
-    c.paint(&shape, |x, y, d| {
-        let t =
-            (((x - cx) / (w as f32 / 2.0)).powi(2) + ((y - cy) / (h as f32 / 2.0)).powi(2)).sqrt();
-        let color = if t < 0.62 {
-            mix(rgb(0x0F4D45, 1.0), rgb(0x032622, 1.0), t / 0.62)
-        } else {
-            mix(rgb(0x032622, 1.0), rgb(0x011513, 1.0), (t - 0.62) / 0.38)
-        };
-        (color, inside(d))
-    });
-    c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, 0.0, 1.0)));
-    c.finish()
-}
-
-/// A header button's backing: a dark bronze square in a light line and a black rim, corners 3.
-fn header_button() -> UiPixels {
-    let n = 20usize;
-    let mut c = Canvas::new(n, n);
-    let shape = round_rect(1.0, 1.0, n as f32 - 1.0, n as f32 - 1.0, 3.0);
-    c.paint(&shape, |_, _, d| (rgb(0x000000, 1.0), band(d, -1.0, 0.0)));
-    c.paint(&shape, |_, y, d| {
-        (
-            mix(rgb(0x58544A, 1.0), rgb(0x242219, 1.0), y / n as f32),
-            inside(d),
-        )
-    });
-    c.paint(&shape, |_, _, d| (rgb(0xB8B19B, 1.0), band(d, 0.0, 1.0)));
-    c.finish()
-}
-
-/// An item slot's well: the DAT slot at its 36 pixels in the corner of the pitch square.
-fn item_well(slot: &UiPixels) -> UiPixels {
-    let n = ITEM_PITCH as usize;
-    let mut c = Canvas::new(n, n);
-    c.image(slot, (0.0, 0.0, 36.0, 36.0), 1.0);
-    c.finish()
-}
-
 /// The fan's separator: a fine line 26 pixels tall.
 fn separator() -> UiPixels {
     let mut c = Canvas::new(1, 26);
@@ -739,35 +513,15 @@ pub fn bake(images: &mut HashMap<u32, UiPixels>, icons: &HashMap<u32, UiPixels>)
         (ARROW_DOWN, arrow(false)),
         (BADGE, badge()),
         (STRIP_FADE, fade(48)),
-        (DRAWER_HEADER, drawer_header()),
-        (MONEY_ROW, money_row()),
-        (SEARCH_PILL, search_pill()),
-        (SLOT_VEIL, slot_veil()),
-        (CHIP, chip(false)),
-        (ALL_TAB, all_tab(false)),
-        (ALL_TAB_ON, all_tab(true)),
-        (SECTION_RULE, section_rule()),
-        (SCROLL_TRACK, scroll_track()),
-        (THUMB_TOP, thumb(0)),
-        (THUMB_MID, thumb(1)),
-        (THUMB_BOTTOM, thumb(2)),
-        (SCROLL_UP, scroll_arrow(true, false)),
-        (SCROLL_UP_LIT, scroll_arrow(true, true)),
-        (SCROLL_DOWN, scroll_arrow(false, false)),
-        (SCROLL_DOWN_LIT, scroll_arrow(false, true)),
-        (CHIP_ON, chip(true)),
-        (DOLL_FRAME, doll_frame()),
-        (HEADER_BUTTON, header_button()),
     ] {
         images.insert(id, image);
     }
-    if let Some(slot) = icons
+    // The drawers' parts (`modern_art_drawer`), the item well from the DAT slot.
+    let item_slot = icons
         .get(&ITEM_SLOT)
         .or_else(|| images.get(&ITEM_SLOT))
-        .cloned()
-    {
-        images.insert(ITEM_WELL, item_well(&slot));
-    }
+        .cloned();
+    crate::modern_art_drawer::bake(images, item_slot.as_ref());
     // The slots' DAT frame gives way to the wells' own line; pressed, a gold ring.
     images.insert(SLOT_FRAME, slot(SLOT_CLEAR));
     images.insert(SLOT_FRAME_PRESSED, slot(SLOT_PRESSED));

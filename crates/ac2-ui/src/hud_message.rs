@@ -256,6 +256,52 @@ pub fn message_pass<P: HudSource>(
                 push_item(request, tree, &mut hud.stack, player, &mut out);
             }
         }
+        // The modern drawer's item ring: each button sends what its gesture sends.
+        if let Some((action, item)) = hud
+            .toolbar
+            .as_ref()
+            .and_then(|t| t.drawer_ring_press(message))
+        {
+            use crate::modern_item_ring::RingAction;
+            let request = match action {
+                RingAction::Use => Some(ItemRequest::Use(item)),
+                RingAction::Examine => Some(ItemRequest::Examine(item)),
+                RingAction::Equip => Some(ItemRequest::Equip {
+                    item,
+                    location: player.preferred_location(item),
+                }),
+                RingAction::Unequip => {
+                    hud.backpack
+                        .as_ref()
+                        .and_then(|p| p.first_free_slot())
+                        .map(|slot| ItemRequest::Unequip {
+                            item,
+                            target_slot: slot as i32,
+                        })
+                }
+                RingAction::Split => hud
+                    .backpack
+                    .as_mut()
+                    .and_then(|p| p.split_off(tree, player, item)),
+                RingAction::Melt => {
+                    let at = hud.backpack.as_ref().and_then(|p| p.locate(tree, item));
+                    match (at, hud.money.as_mut(), hud.dialogs.as_mut()) {
+                        (Some((_, from, slot)), Some(bag), Some(dialogs)) => bag.melt(
+                            tree,
+                            player,
+                            player,
+                            dialogs,
+                            (item, from, slot),
+                            hud.shift_held,
+                        ),
+                        _ => None,
+                    }
+                }
+            };
+            if let Some(request) = request {
+                push_item(request, tree, &mut hud.stack, player, &mut out);
+            }
+        }
         if let Some(panel) = hud.external_container.as_mut() {
             let (request, close) = panel.message(tree, player, message);
             if let Some(dialog) = hud.stack.as_mut() {
