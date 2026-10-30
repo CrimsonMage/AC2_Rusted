@@ -194,8 +194,9 @@ pub enum SessionEvent {
     /// connection went away, closed by the server or silent for 140 s.
     /// [`SessionEvent::Disconnected`] follows.
     ServerDied,
-    /// The session ended.
-    Disconnected(String),
+    /// The session ended, for this reason (`gmDataPatchUI::OnConnectFailed` words a connection
+    /// that failed before the logon by it).
+    Disconnected(NetError),
     /// A world heartbeat's link averages (`gmNetStatusUI::OnHeartbeat` via
     /// `ClientNet::NotifyPluginsOfHeartbeat`), once per two seconds.
     LinkHeartbeat(Box<ac2_net::LinkAverages>),
@@ -430,7 +431,7 @@ impl OnlineSession {
             for event in self.poll() {
                 match event {
                     SessionEvent::EnteredWorld(entry) if entered.is_none() => entered = Some(entry),
-                    SessionEvent::Disconnected(reason) => return Err(reason),
+                    SessionEvent::Disconnected(reason) => return Err(reason.to_string()),
                     SessionEvent::Rejected(reason) if self.closed => return Err(reason),
                     other => seen.push(other),
                 }
@@ -466,7 +467,7 @@ impl OnlineSession {
                 if error == NetError::ServerDied {
                     out.push(SessionEvent::ServerDied);
                 }
-                out.push(SessionEvent::Disconnected(error.to_string()));
+                out.push(SessionEvent::Disconnected(error));
             }
             NetEvent::Blob(blob) if blob.queue == QUEUE_EVENTS => {
                 let cur_time = self.cur_time();

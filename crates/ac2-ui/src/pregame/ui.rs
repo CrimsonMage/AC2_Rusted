@@ -98,6 +98,11 @@ pub struct PregameUi {
     left_down: bool,
     /// The key maps the controls screen edits and the input manager holds.
     keymaps: ActiveKeyMaps,
+    /// The server the session logs on to (`Turbine::Client`'s host and port), for
+    /// `OnConnectFailed`'s text.
+    server: (String, u16),
+    /// `OnNetStatusChange(Net_LoginConnected)` came: a later loss is the server dying.
+    logon_connected: bool,
 }
 
 impl std::fmt::Debug for PregameUi {
@@ -160,6 +165,8 @@ impl PregameUi {
             system: Box::new(NoCharGen),
             left_down: false,
             keymaps: ActiveKeyMaps::new(keymaps),
+            server: (String::new(), 0),
+            logon_connected: false,
         }
     }
 
@@ -271,6 +278,7 @@ impl PregameUi {
 
     /// `gmDataPatchUI::OnNetStatusChange(Net_LoginConnected)`: the session connected.
     pub fn connected(&mut self) {
+        self.logon_connected = true;
         let (mut ctx, current) = ctx!(self);
         if let Framework::DataPatch(ui) = current {
             ui.connected(&mut ctx);
@@ -285,6 +293,28 @@ impl PregameUi {
     /// `gmUIFlow::RecvNotice_ServerDied`.
     pub fn server_died(&mut self) {
         self.flow.server_died(&self.assets.strings);
+    }
+
+    /// The server the session logs on to, as `OnConnectFailed`'s text names it.
+    pub fn set_server(&mut self, host: &str, port: u16) {
+        self.server = (host.to_owned(), port);
+    }
+
+    /// The session ended with `error`. Before the logon connected, the connection failed:
+    /// `gmDataPatchUI::OnConnectFailed` queues the disconnected screen with the reason
+    /// (`connect_failed.rs`); a reason with no text on disk changes nothing. Once connected, the
+    /// server died (`RecvNotice_ServerDied`).
+    pub fn connect_failed(&mut self, error: &ac2_net::NetError) {
+        if self.logon_connected {
+            self.server_died();
+            return;
+        }
+        let (host, port) = &self.server;
+        if let Some(text) =
+            super::connect_failed::connect_failed_text(&self.assets.strings, error, host, *port)
+        {
+            self.flow.queue_mode(super::flow::MODE_DISCONNECTED, text);
+        }
     }
 
     /// `RecvNotice_CharGenVerification` for the frameworks that wait on it.

@@ -108,6 +108,13 @@ impl UiFlow {
 
     /// `UIFlow::QueueUIMode`: the mode the next UI loop switches to, and the message the new
     /// framework shows; a later call replaces it.
+    /// The queued mode and its text (`QueueUIMode`'s), not yet taken.
+    pub fn queued(&self) -> Option<(u32, &str)> {
+        self.next
+            .as_ref()
+            .map(|(mode, text)| (*mode, text.as_str()))
+    }
+
     pub fn queue_mode(&mut self, mode: u32, text: impl Into<String>) {
         self.next = Some((mode, text.into()));
     }

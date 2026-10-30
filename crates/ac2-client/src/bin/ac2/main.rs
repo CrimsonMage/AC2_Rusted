@@ -72,6 +72,7 @@ fn new_pregame_view(
     world: &Arc<ac2_world::Ac2WorldSource>,
     chargen: &ChargenSource,
     capture: Option<&std::path::Path>,
+    server: &(String, u16),
     gpu: &Gpu,
     format: wgpu::TextureFormat,
     size: (u32, u32),
@@ -86,6 +87,7 @@ fn new_pregame_view(
     view.set_capture(ac2_client::CharGenCapture::new(
         capture.map(std::path::Path::to_path_buf),
     ));
+    view.set_server(&server.0, server.1);
     view
 }
 
@@ -147,6 +149,9 @@ struct App {
     chargen_file: Option<std::path::PathBuf>,
     /// `width` / `height` (`Client+0x60` / `Client+100`): the initial window size, when given.
     window_size: Option<winit::dpi::PhysicalSize<u32>>,
+    /// The server's host (as given, `--host`, else its address) and port
+    /// (`Turbine::Client`'s host and port strings, which a failed connection's text names).
+    server: (String, u16),
 }
 
 /// Borderless fullscreen on the window's current monitor (`Windowed = !FullScreen`; retail's
@@ -336,6 +341,7 @@ impl App {
             &self.world,
             &self.chargen,
             self.chargen_file.as_deref(),
+            &self.server,
             &state.gpu,
             state.format,
             (state.config.width, state.config.height),
@@ -644,6 +650,7 @@ impl ApplicationHandler for App {
                 &self.world,
                 &self.chargen,
                 self.chargen_file.as_deref(),
+                &self.server,
                 &gpu,
                 format,
                 (config.width, config.height),
@@ -868,8 +875,15 @@ fn run(args: Args) -> Result<(), String> {
     let controls = Controls::load_with(&store, Some(&keymap_files))
         .map_err(|e| e.to_string())?
         .ok_or("the DATs hold no action map")?;
+    let server_address = args.server_address()?;
+    let server = (
+        args.host
+            .clone()
+            .unwrap_or_else(|| server_address.ip().to_string()),
+        server_address.port(),
+    );
     let mut session = OnlineSession::connect(OnlineConfig {
-        server: args.server_address()?,
+        server: server_address,
         account: args.account,
         credential: Credential::from_ticket(&args.ticket),
         version: args.version,
@@ -947,6 +961,7 @@ fn run(args: Args) -> Result<(), String> {
         window_size: (args.width.is_some() || args.height.is_some()).then(|| {
             winit::dpi::PhysicalSize::new(args.width.unwrap_or(1024), args.height.unwrap_or(768))
         }),
+        server,
     };
     event_loop.run_app(&mut app).map_err(|e| e.to_string())
 }

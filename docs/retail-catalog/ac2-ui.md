@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1331 done, 305 partial, 116 to do, 495 skipped.
+2247 retail functions: 1332 done, 304 partial, 116 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1865,7 +1865,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmCreditsUI::Create` · 004134b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [-] `gmCreditsUI::Register` · 004134d0 · legions 00413350 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (5/19)
+## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (6/19)
 
 ### gmDataPatchUI
 - [x] `gmDataPatchUI::ListenToMessage` · 00411260 · legions 00411240 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -1881,7 +1881,7 @@ Legend and workflow: [README](README.md).
 
 ### gmDataPatchUI
 - [x] `gmDataPatchUI::SetErrorMsg` · 004115f0 · legions 004115d0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [~] `gmDataPatchUI::OnConnectFailed` · 00411630 · legions 00411610 — the error text selection by NetError (ID_DataPatch_ConnectFailed variants, GUN world name, crypto error) is not ported: ac2-ui pregame/data_patch.rs only sets ID_DataPatch_ConnectingGUN / Connected; login failures are shown by the login screen instead
+- [x] `gmDataPatchUI::OnConnectFailed` · 00411630 · legions 00411610 — ac2-ui pregame/connect_failed.rs connect_failed_text: ID_DataPatch_ConnectFailed with the reason (BadServerAddress -> ID_NetErr_ResolveHostname(host), Generic -> ID_NetErr_Error(host, port), CantCrypto -> its text with error 0, else the NetError's own, a missing one only for LogonServerMigrated -> ServerClosedConnection); PregameUi::connect_failed before the logon connected (SessionEvent::Disconnected(NetError)); the session's own errors map to ClientTimedOutServer / ServerClosedConnection / CantCrypto / Generic (pregame tests)
 - [x] `gmDataPatchUI::Connect` · 00411890 · legions 00411870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 
 ### (free functions)

@@ -39,7 +39,7 @@ pub fn pregame_event(ui: &mut PregameUi, event: &SessionEvent) {
             identity,
             result,
         } => ui.char_gen_verification(*response, Some(identity), *result),
-        SessionEvent::Disconnected(_) => ui.server_died(),
+        SessionEvent::Disconnected(error) => ui.connect_failed(error),
         _ => {}
     }
 }

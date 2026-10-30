@@ -809,3 +809,47 @@ pub(super) fn a_long_character_name_ends_in_the_ellipsis() {
     assert!(texts[0].ends_with("..."), "{texts:?}");
     assert_eq!(texts[1], "Beta");
 }
+
+/// `gmDataPatchUI::OnConnectFailed`: a connection that fails before the logon queues the
+/// disconnected screen with `ID_DataPatch_ConnectFailed` worded by the reason (a socket or
+/// protocol failure names the host and the port, `ID_NetErr_Error`); once the logon connected, a
+/// loss is the server dying (`ID_NetErr_ConnectionLost`).
+#[test]
+pub(super) fn a_failed_connection_says_why_and_names_the_server() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.set_server("example.org", 9021);
+    ui.connect_failed(&ac2_net::NetError::Io("refused".into()));
+    let (mode, generic) = ui
+        .flow()
+        .queued()
+        .map(|(m, t)| (m, t.to_owned()))
+        .expect("queued");
+    assert_eq!(mode, MODE_DISCONNECTED);
+    // The port is an `AddVariable_Int`: grouped, as retail formats it.
+    assert!(
+        generic.contains("example.org") && generic.contains("9,021"),
+        "{generic}"
+    );
+
+    let mut ui = real_ui().unwrap();
+    ui.set_server("example.org", 9021);
+    ui.connect_failed(&ac2_net::NetError::Timeout);
+    let timeout = ui
+        .flow()
+        .queued()
+        .map(|(_, t)| t.to_owned())
+        .expect("queued");
+    assert!(!timeout.is_empty() && timeout != generic, "{timeout}");
+
+    let mut ui = real_ui().unwrap();
+    ui.connected();
+    ui.connect_failed(&ac2_net::NetError::ServerDied);
+    let lost = ui
+        .flow()
+        .queued()
+        .map(|(_, t)| t.to_owned())
+        .expect("queued");
+    assert!(!lost.contains("example.org") && !lost.is_empty(), "{lost}");
+}

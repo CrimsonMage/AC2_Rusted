@@ -13,6 +13,7 @@ mod avatar_selection;
 mod character_selection;
 mod chargen;
 mod confirmation;
+mod connect_failed;
 mod credits;
 mod data_patch;
 mod disconnected;

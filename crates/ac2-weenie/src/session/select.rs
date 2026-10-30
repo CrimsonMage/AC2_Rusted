@@ -48,7 +48,7 @@ impl OnlineSession {
             for event in self.poll() {
                 match event {
                     SessionEvent::Characters(set) if found.is_none() => found = Some(set),
-                    SessionEvent::Disconnected(reason) => return Err(reason),
+                    SessionEvent::Disconnected(reason) => return Err(reason.to_string()),
                     other => seen.push(other),
                 }
             }

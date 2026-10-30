@@ -7,9 +7,8 @@
 //! The client's session connects on its own, so a set that arrived during the intro is taken
 //! when the screen is made. Not modelled: the data patch itself (`OnDDDEvent`'s patch progress
 //! in `PatchProgress` / `PatchText`, the link rate in `RateText`; the DATs never patch here),
-//! the admin start or create character of `Update` (the client's `--character` enters without
-//! the screens) and a failed connection's text (`OnConnectFailed`; the session reports it as a
-//! lost server).
+//! and the admin start or create character of `Update` (the client's `--character` enters
+//! without the screens). A failed connection's text (`OnConnectFailed`) is `connect_failed.rs`.
 
 use ac2_net::protocol::CharacterIdentity;
 

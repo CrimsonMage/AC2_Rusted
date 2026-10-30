@@ -48,6 +48,8 @@ pub struct PregameView {
     dirty: bool,
     /// `CharGenData`: the creation capture (`--chargen`).
     capture: CharGenCapture,
+    /// The server's host and port, for a failed connection's text (`PregameUi::set_server`).
+    server: (String, u16),
     /// The character set a session that ended kept: the UI starts at character selection with it.
     resume: Option<CharacterSet>,
 }
@@ -86,6 +88,16 @@ impl PregameView {
             dirty: false,
             capture: CharGenCapture::default(),
             resume: None,
+            server: (String::new(), 0),
+        }
+    }
+
+    /// The server the session logs on to, as a failed connection's text names it
+    /// (`gmDataPatchUI::OnConnectFailed`'s host and port).
+    pub fn set_server(&mut self, host: &str, port: u16) {
+        self.server = (host.to_owned(), port);
+        if let Some(ui) = &mut self.ui {
+            ui.set_server(host, port);
         }
     }
 
@@ -254,6 +266,7 @@ impl PregameView {
                     if let Some(system) = self.system.take() {
                         ui.set_char_gen_system(system);
                     }
+                    ui.set_server(&self.server.0, self.server.1);
                     for early in self.early.drain(..) {
                         match early {
                             Ok(event) => pregame_event(&mut ui, &event),

@@ -293,7 +293,7 @@ key	status	note
 00411550	_	needs port (check): gmClient::SetStartChar behaviour; implemented area ac2-client but uncited
 004115a0	_	needs port (check): gmClient::SetCreateChar behaviour; implemented area ac2-client but uncited
 004115f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-00411630	~	the error text selection by NetError (ID_DataPatch_ConnectFailed variants, GUN world name, crypto error) is not ported: ac2-ui pregame/data_patch.rs only sets ID_DataPatch_ConnectingGUN / Connected; login failures are shown by the login screen instead
+00411630	x	ac2-ui pregame/connect_failed.rs connect_failed_text: ID_DataPatch_ConnectFailed with the reason (BadServerAddress -> ID_NetErr_ResolveHostname(host), Generic -> ID_NetErr_Error(host, port), CantCrypto -> its text with error 0, else the NetError's own, a missing one only for LogonServerMigrated -> ServerClosedConnection); PregameUi::connect_failed before the logon connected (SessionEvent::Disconnected(NetError)); the session's own errors map to ClientTimedOutServer / ServerClosedConnection / CantCrypto / Generic (pregame tests)
 00411890	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00411950	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 004119e0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own

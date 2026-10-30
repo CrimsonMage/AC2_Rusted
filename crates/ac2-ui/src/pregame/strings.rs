@@ -9,6 +9,8 @@ use crate::token::tokenize;
 
 /// `StringInfo::SetTableEnum(0x41000018)`: the UI strings.
 pub const UI_STRING_TABLE: u32 = 0x4100_0018;
+/// The connection errors' table (`NetError`'s `m_tableID`, enum `0x40000005`).
+pub const NET_ERROR_TABLE: u32 = 0x4000_0005;
 /// `StringState`'s DID (enum 0x40000001 of group 0x40000004).
 const STRING_STATE: u32 = 0x5800_0000;
 
@@ -18,11 +20,37 @@ pub struct UiStrings {
     tables: PreloadedStringTables,
     /// The table's DID (`FileArray::GetDIDFromEnum(0x41000018, STRING_TABLE_GROUP)`).
     table: u32,
+    /// The connection errors' table DID ([`NET_ERROR_TABLE`]'s), 0 when the DATs have none.
+    net_table: u32,
 }
 
 impl UiStrings {
     pub fn new(tables: PreloadedStringTables, table: u32) -> Self {
-        Self { tables, table }
+        Self {
+            tables,
+            table,
+            net_table: 0,
+        }
+    }
+
+    fn with_net_table(mut self, net_table: u32) -> Self {
+        self.net_table = net_table;
+        self
+    }
+
+    /// The UI table's DID.
+    pub fn table(&self) -> u32 {
+        self.table
+    }
+
+    /// The connection errors' table DID.
+    pub fn net_table(&self) -> u32 {
+        self.net_table
+    }
+
+    /// `StringInfo::IsOnDisk`: whether the string `info` names is in its table.
+    pub fn is_on_disk(&self, info: &RenderInfo) -> bool {
+        ac2_db::inq_string(&self.tables, info, false).is_ok()
     }
 
     /// Reads the UI string table, the private tables it names and the string state. Reads
@@ -56,6 +84,10 @@ impl UiStrings {
         Ok(Self::new(
             PreloadedStringTables::load(store, &dids, STRING_STATE),
             table,
+        )
+        .with_net_table(
+            ac2_assets::ac2_enum_did(store, STRING_TABLE_GROUP, NET_ERROR_TABLE)?
+                .map_or(0, |did| did.raw()),
         ))
     }
 
