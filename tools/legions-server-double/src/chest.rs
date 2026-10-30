@@ -7,7 +7,7 @@
 
 use ac2_net::protocol::{InstanceIdWithStamp, QualityUpdate, QualityValue};
 
-use crate::items::{item_object_bytes, ItemSpawn, CONTAINER_PACKAGE};
+use crate::items::{item_object_bytes, ItemSpawn, CONTAINER_PACKAGE, ICON_POTION, ICON_QUEST};
 use crate::objects::{weenie_object_bytes, ObjectSpawn};
 use crate::State;
 
@@ -45,12 +45,12 @@ impl State {
         self.send_event(&weenie_object_bytes(&chest, CONTAINER_PACKAGE));
         let items = [
             ItemSpawn {
-                icon: 0x0600_1004,
+                icon: ICON_POTION,
                 value: 40,
                 ..ItemSpawn::new(CHEST_GEM, ITEM_PACKAGE, "Gem", CHEST)
             },
             ItemSpawn {
-                icon: 0x0600_1005,
+                icon: ICON_QUEST,
                 value: 15,
                 ..ItemSpawn::new(CHEST_SCROLL, ITEM_PACKAGE, "Scroll", CHEST)
             },

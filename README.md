@@ -125,6 +125,22 @@ target/release/world-viewer --dat-dir "$AC2_DAT_DIR" --block 7567 --at 60,80 \
     --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--fly]
 ```
 
+HUD snapshots (modern style; the HUD is logged on to the in-process server double):
+`--hud-panel NAME` opens a toolbar panel (Inventory, Skill, Quest, Social, Examination,
+Navigation, Option) and `--hud-window NAME` a window that normally appears only during play
+(confirm, message, wait, resurrect, loot, stack, trade, shop, catalog, consignment, new-sale,
+ingredient, craft, book, help, guide, tracker, pets, fellowship, fellow-mini, chat-settings,
+edit-layout, targeting; both repeatable). Each is raised as the game raises it (the notices the
+server would send, the double's chest and craft registry, a real drag or press on the UI), with
+made-up sample content. The help window needs `AC2_CONTENT_DIR` (or a `Content` folder beside the
+DATs). One PNG per panel and window:
+
+```bash
+XDG_CONFIG_HOME=$(mktemp -d) target/debug/world-viewer --dat-dir "$AC2_DAT_DIR" --block CB4D \
+    --hud-window loot --size 1365x768 --snapshot loot.png
+tools/world-viewer/snapshot_all.sh OUT_DIR [target/debug/world-viewer]   # PANELS=/WINDOWS= pick a subset
+```
+
 `--block` is the landblock `xxyy` in hex, `--at` the start position within it (0–160),
 `--model` an index into the race table, `--fly` starts (or with `--snapshot` draws) the free
 camera. Block `7567` (the village) is full of braziers and good for checking particles.

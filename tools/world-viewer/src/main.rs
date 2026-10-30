@@ -11,8 +11,17 @@
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! world-viewer ... [--hud-style modern|classic]
-//! world-viewer ... --snapshot out.png --hud [--hud-panel NAME ...] [--hud-pointer X,Y]
+//! world-viewer ... --snapshot out.png --hud [--hud-panel NAME ...] [--hud-window NAME ...] [--hud-pointer X,Y]
+//! tools/world-viewer/snapshot_all.sh OUT_DIR   (one PNG per toolbar panel and per window)
 //! ```
+//! `--hud-window NAME` (repeatable, implies `--hud`; see `windows.rs`) opens a window that
+//! normally appears only during play, with sample content: confirm, message, wait, resurrect,
+//! loot, stack, trade, shop, catalog, consignment, new-sale, ingredient, craft, book, help,
+//! guide, tracker, pets, fellowship, fellow-mini, chat-settings, edit-layout, targeting. Each is
+//! raised as the game raises it (the notice the server would send, fed to the HUD's frameworks;
+//! the double's chest and craft registry; a drag or a press on the real UI). A snapshot's HUD
+//! is the modern style unless `--hud-style classic` says otherwise. Help pages need
+//! `AC2_CONTENT_DIR` or a `Content` folder beside the DATs.
 //! `--hud-style` builds the HUD in that style (default modern; classic is the retail DAT HUD); in the window
 //! F7 switches between the two and rebuilds the HUD. `--hud` logs the snapshot's HUD on to the
 //! in-process server double (the window's session) so its vitals, shortcuts and inventory are
@@ -70,6 +79,7 @@ mod races;
 mod session;
 mod walk;
 mod window;
+mod windows;
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -108,6 +118,8 @@ struct Args {
     hud: bool,
     /// The toolbar panels the snapshot opens (`--hud-panel`).
     hud_panels: Vec<ac2_ui::ToolbarChild>,
+    /// The windows the snapshot opens (`--hud-window`).
+    hud_windows: Vec<windows::HudWindow>,
     /// The pointer over the snapshot's HUD (`--hud-pointer`, window pixels).
     hud_pointer: Option<(f32, f32)>,
     /// The start position within the block (default: its centre).
@@ -142,6 +154,7 @@ struct Args {
 }
 
 fn parse_args() -> Result<Args, String> {
+    let mut style_given = false;
     let mut args = Args {
         dat_dir: std::env::var_os("AC2_DAT_DIR")
             .map(PathBuf::from)
@@ -160,6 +173,7 @@ fn parse_args() -> Result<Args, String> {
         hud_style: ac2_ui::HudStyle::Modern,
         hud: false,
         hud_panels: Vec::new(),
+        hud_windows: Vec::new(),
         hud_pointer: None,
         at: None,
         time: None,
@@ -287,6 +301,7 @@ fn parse_args() -> Result<Args, String> {
             }
             "--hud-style" => {
                 let word = value()?;
+                style_given = true;
                 args.hud_style = ac2_ui::HudStyle::parse(&word)
                     .ok_or(format!("--hud-style: modern or classic, not {word}"))?;
             }
@@ -296,6 +311,18 @@ fn parse_args() -> Result<Args, String> {
                 let child = ac2_ui::ToolbarChild::from_name(&name)
                     .ok_or(format!("--hud-panel: no panel named {name}"))?;
                 args.hud_panels.push(child);
+                args.hud = true;
+            }
+            "--hud-window" => {
+                let name = value()?;
+                let window = windows::HudWindow::parse(&name).ok_or_else(|| {
+                    let names: Vec<&str> = windows::ALL.iter().map(|(n, _)| *n).collect();
+                    format!(
+                        "--hud-window: no window named {name} ({})",
+                        names.join(", ")
+                    )
+                })?;
+                args.hud_windows.push(window);
                 args.hud = true;
             }
             "--hud-pointer" => {
@@ -314,6 +341,10 @@ fn parse_args() -> Result<Args, String> {
             }
             other => return Err(format!("unknown argument {other}")),
         }
+    }
+    // The snapshot's HUD is the client's default style, modern; classic is `--hud-style classic`.
+    if args.hud && !style_given {
+        args.hud_style = ac2_ui::HudStyle::Modern;
     }
     if args.dat_dir.as_os_str().is_empty() {
         return Err("set AC2_DAT_DIR or pass --dat-dir".into());
@@ -336,6 +367,12 @@ fn main() {
             std::process::exit(2);
         }
     };
+    // The help window's pages: the Content folder beside the DATs, else `AC2_CONTENT_DIR`.
+    ac2_client::set_content_dir(ac2_client::resolve_content_dir(
+        None,
+        &args.dat_dir,
+        std::env::var_os(ac2_client::CONTENT_DIR_ENV).as_deref(),
+    ));
     let dataset = DatDataset::open(DatOpenOptions::new(&args.dat_dir)).expect("AC2 DATs mount");
     let store = Arc::new(ResourceStore::new(dataset));
     let world = Ac2WorldSource::open(Arc::clone(&store))
@@ -615,15 +652,23 @@ fn hud_session(
             return;
         }
     };
-    let mut run = |view: &mut ClientView, frames: usize| {
-        for _ in 0..frames {
-            session.frame(view, frame, STEP);
-            view.update(gpu, frame, std::time::Duration::from_millis(4));
-        }
-    };
-    run(view, 90);
+    for _ in 0..90 {
+        session.frame(view, frame, STEP);
+        view.update(gpu, frame, std::time::Duration::from_millis(4));
+    }
     for &child in &args.hud_panels {
         view.show_panel(child, true);
+    }
+    for &window in &args.hud_windows {
+        let mut driver = windows::Driver {
+            session: &mut session,
+            view,
+            gpu,
+            frame,
+        };
+        if !driver.open(window) {
+            eprintln!("world-viewer: --hud-window: {window:?} did not come up");
+        }
     }
     if let Some((x, y)) = args.hud_pointer {
         let pointer = [
@@ -632,7 +677,10 @@ fn hud_session(
         ];
         view.ui_input(&pointer, ac2_ui::Modifiers::default());
     }
-    run(view, 30);
+    for _ in 0..30 {
+        session.frame(view, frame, STEP);
+        view.update(gpu, frame, std::time::Duration::from_millis(4));
+    }
 }
 
 /// The viewer's control panel over the snapshot, as the window draws it.

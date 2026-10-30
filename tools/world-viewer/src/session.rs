@@ -110,6 +110,34 @@ impl Session {
         })
     }
 
+    /// The server double's state, to give the session what a window needs (a chest, a registry).
+    pub fn server(&self) -> &Rc<RefCell<State>> {
+        &self.server
+    }
+
+    /// The player's id in the session.
+    pub fn player(&self) -> Option<u64> {
+        self.client.frame().player.map(|p| p.id)
+    }
+
+    /// A gameplay command for the next frame, as the HUD's own UI would ask.
+    pub fn command(&mut self, command: Command) {
+        self.commands.push(command);
+    }
+
+    /// Drops the commands waiting for the next frame (a window shown for a snapshot whose
+    /// answer should not reach the double, such as the log off behind the please-wait dialog).
+    pub fn forget_commands(&mut self) {
+        self.commands.clear();
+    }
+
+    /// One frame with `events` as the session's notices for the HUD's frameworks (no client
+    /// frame): what the double's server would send, for windows the double cannot raise.
+    pub fn notify(&mut self, view: &mut ClientView, frame: &ClientFrame, events: &[SessionEvent]) {
+        let asked = view.frameworks(&mut self.client, frame, events, &[]);
+        self.commands.extend(asked);
+    }
+
     /// One frame of the session `seconds` after the last: the client's frame with the HUD's
     /// commands, then the HUD's frameworks over `frame` (the viewer's) with the session's parts
     /// filled in. Returns whether the player confirmed the quit question.

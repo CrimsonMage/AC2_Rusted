@@ -14,7 +14,8 @@ workspace = true
 # client logged on to the Legions server double in process. It links the client's libraries,
 # never opens a socket and takes no server flag.
 [dependencies]
-ac2-client = { path = "../../crates/ac2-client" }
+# `test-support`: the probe lookups (`view::probe`) that find an element to press, as the HUD tests do.
+ac2-client = { path = "../../crates/ac2-client", features = ["test-support"] }
 ac2-core = { path = "../../crates/ac2-core" }
 ac2-math = { path = "../../crates/ac2-math" }
 ac2-dat = { path = "../../crates/ac2-dat" }
