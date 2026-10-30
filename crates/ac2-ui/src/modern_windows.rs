@@ -23,6 +23,7 @@ use std::sync::Arc;
 use crate::compose::{nine_edges, DRAW_OVER, NINE_SLICE, NINE_SLICE_EDGES};
 use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc};
 use crate::modern_art as art;
+use crate::text_title::MODERN_TITLE;
 use crate::token::{tokenize, REFERENCE, REFERENT, STATELESS};
 
 /// A retail image, the design's part for it and that part's nine-slice border (the attribute
@@ -241,7 +242,7 @@ const HEADED: [u32; 7] = [
     art::WIN_BOOK_DARK,
 ];
 /// The design's gold (`#d9c27a`), the titles' colour.
-const TITLE_GOLD: [f32; 3] = [217.0 / 255.0, 194.0 / 255.0, 122.0 / 255.0];
+pub(crate) const TITLE_GOLD: [f32; 3] = [217.0 / 255.0, 194.0 / 255.0, 122.0 / 255.0];
 
 /// A frame's title: a text in its header (its top `WIN_HEADER_HEIGHT` rows), or a reference
 /// there (retail's titles refer to a shared text; a colour on a reference to anything else is
@@ -265,6 +266,12 @@ fn gilded(d: &ElementDesc) -> ElementDesc {
                 value: AttributeValue::Float(value),
             });
         }
+        // Small caps, spaced and fitted to the box (`text_title.rs`).
+        state.attributes.retain(|a| a.id != MODERN_TITLE);
+        state.attributes.push(AttributeDesc {
+            id: MODERN_TITLE,
+            value: AttributeValue::Bool(true),
+        });
     }
     d
 }
@@ -422,8 +429,8 @@ mod tests {
                 assert!(own || !FILLERS.contains(&file), "{file:08X}");
             }
             assert!(swapped.contains(&0x4100_0970));
-            let mut gold = 0;
-            fn count(d: &ElementDesc, gold: &mut usize) {
+            let (mut gold, mut marked) = (0, 0);
+            fn count(d: &ElementDesc, gold: &mut usize, marked: &mut usize) {
                 for state in &d.states {
                     *gold += state
                         .attributes
@@ -431,15 +438,22 @@ mod tests {
                         .filter(|a| a.id == tokenize("font_color_red"))
                         .filter(|a| a.value == AttributeValue::Float(TITLE_GOLD[0]))
                         .count();
+                    // Every gilded title is also marked for small caps.
+                    *marked += state
+                        .attributes
+                        .iter()
+                        .filter(|a| a.id == MODERN_TITLE && a.value == AttributeValue::Bool(true))
+                        .count();
                     for child in &state.children {
-                        count(child, gold);
+                        count(child, gold, marked);
                     }
                 }
             }
             for element in &modern.elements {
-                count(element, &mut gold);
+                count(element, &mut gold, &mut marked);
             }
             assert!(gold > 0, "a title in gold");
+            assert_eq!(gold, marked, "each gold title in small caps");
         }
     }
 }

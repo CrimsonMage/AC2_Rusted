@@ -49,6 +49,9 @@ impl StoreTextData {
     /// default fonts lack can still switch to them.
     pub fn freeze(&self) {
         let _ = self.fallback_fonts();
+        for did in crate::text_title::TITLE_FONTS {
+            let _ = self.font(did);
+        }
         self.frozen.store(true, Ordering::Release);
     }
 

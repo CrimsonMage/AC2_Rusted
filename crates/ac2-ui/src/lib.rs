@@ -580,6 +580,7 @@ mod text_bar_tests;
 mod text_clip_tests;
 #[cfg(test)]
 mod text_tests;
+mod text_title;
 #[cfg(test)]
 mod toolbar_tests;
 #[cfg(test)]

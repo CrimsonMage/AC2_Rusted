@@ -79,6 +79,7 @@ impl UiTree {
             if let Some(text) = self.el_mut(index).text.as_mut() {
                 text.add_text(&string);
             }
+            self.style_title(index);
         }
     }
 
@@ -107,6 +108,7 @@ impl UiTree {
             self.changed = true;
             self.text_update_scrollbar(index);
         }
+        self.style_title(index);
     }
 
     /// `UIElement_Text::InqSizewMargins`: the size `text` would take in the element's font,
@@ -159,6 +161,7 @@ impl UiTree {
             text.clear();
             text.add_text(&units);
         }
+        self.style_title(index);
     }
 
     /// The `UIElement_Text` overrides of the attribute setters, after the base setter stored
@@ -178,6 +181,11 @@ impl UiTree {
             self.readd_text(index);
         }
         if !changed {
+            return;
+        }
+        // A title marked after its text was set is restyled now.
+        if id == crate::text_title::MODERN_TITLE {
+            self.style_title(index);
             return;
         }
         let (width, height) = {
@@ -270,6 +278,7 @@ impl UiTree {
             text.insert_at_cursor(units);
             self.changed = true;
         }
+        self.style_title(index);
     }
 
     /// `UIElement_Text::RecalculateGlyphList` at the element's size: the laid-out text's height

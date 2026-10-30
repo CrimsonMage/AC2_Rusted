@@ -314,7 +314,13 @@ game rules and server-visible behaviour exactly retail.
   ring; the blue scroll bar, the thin one. Retail tiled its header bar
   (`0x410002CD`, `0x410011FC`) down the room under a side panel's window; that room is left
   empty. A window's title (the text, or retail's reference to its shared title text, in the
-  header) is drawn in the design's gold (`#d9c27a`; retail's cream). The inventory drawer, the
+  header) is drawn in the design's gold (`#d9c27a`; retail's cream).
+  Titles are also set in small caps with wide letter spacing (`ac2_ui::text_title`; the client's
+  own `modern_title` text attribute, set on the title by `modern_windows` and on the inventory
+  drawer's): each word's first letter capital, the rest lower case in the DATs' small-caps family
+  (`0x4200000A`, `0x42000009`, `0x4200000B`, `0x4200001A`, 20 to 13 pixels), 0.14 em between
+  glyphs, the largest size that fits the title's box and an ellipsis if even the smallest does
+  not; retail set the title in the layout's decorative lowercase face ("sKiLLs") at one size. The inventory drawer, the
   loot window and the stack dialog keep their own design.
   The dialogs (`ConfirmationField`, `MessageField`, `WaitField`, `ResurrectField`, made by
   `DialogFactory`) get the design's header (`ac2_ui::modern_dialog`): a dark stone band across

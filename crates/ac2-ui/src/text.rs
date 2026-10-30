@@ -142,6 +142,9 @@ pub(crate) struct TextState {
     pub cursor_moved: f64,
     pub flash_flip: f64,
     pub cursor_visible: bool,
+    /// Extra advance after each glyph (a modern title's letter spacing, `text_title.rs`; each
+    /// glyph's `width` already holds it, but the last's).
+    pub tracking: i32,
     /// The cursor position the flash last saw: every Rust edit path that moves the cursor
     /// (typing, deleting, pasting) counts as a move, as each goes through `SetCursorPosition`
     /// in retail.
@@ -175,6 +178,7 @@ impl TextState {
             cursor_moved: -1.0,
             flash_flip: 0.0,
             cursor_visible: true,
+            tracking: 0,
             flash_cursor: 0,
         }
     }
@@ -546,6 +550,9 @@ impl UiSurface {
                 }
             }
             x += self.draw_character(window, x, y, font, glyph.ch, glyph.color, true);
+            if index + 1 < text.glyphs.len() {
+                x += text.tracking;
+            }
         }
         // `PostBlit`'s cursor: one pixel wide and a font high in the font colour, while the
         // editable element is active and the cursor is in its shown half of the flash.

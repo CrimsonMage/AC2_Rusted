@@ -347,6 +347,17 @@ impl Drawer {
             sizes: std::cell::Cell::new([0; 4]),
             laid_out: std::cell::Cell::new(None),
         };
+        // The drawer's title is set like the other windows' (`text_title.rs`).
+        if let Some(title) = drawer.title {
+            for (channel, value) in ["red", "green", "blue"]
+                .into_iter()
+                .zip(crate::modern_windows::TITLE_GOLD)
+            {
+                tree.set_float(title, tokenize(&format!("font_color_{channel}")), value);
+            }
+            tree.set_bool(title, crate::token::TEXT_CENTER_VERTICALLY, true);
+            tree.set_bool(title, crate::text_title::MODERN_TITLE, true);
+        }
         // Every element the drawer places keeps where it is put; the frames lose their stone art.
         let mut placed: Vec<usize> = [
             Some(field),
@@ -493,6 +504,9 @@ impl Drawer {
             sized(0, 0, (WIDTH, equipment_y + DOLL.1)),
         );
         put(tree, self.title, sized(0, 0, (WIDTH, HEADER)));
+        if let Some(title) = self.title {
+            tree.style_title(title);
+        }
         // Help at the header's left, close at its right, the title between.
         let close_x = WIDTH - PAD - HEADER_BUTTON;
         let help_x = PAD;
