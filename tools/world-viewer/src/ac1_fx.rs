@@ -28,8 +28,8 @@ type Script = Arc<[(CreateParticle, ParticleEmitterInfo)]>;
 /// The scripts of the AC1 visuals and the emitters running on the drawn objects.
 #[derive(Default)]
 pub struct Ac1Fx {
-    /// Each AC1 visual's default script.
-    scripts: HashMap<u32, Script>,
+    /// Each AC1 visual's default script and the scale its particles draw at.
+    scripts: HashMap<u32, (Script, f32)>,
     /// Each particle GfxObj's model visual.
     visuals: HashMap<u32, u32>,
     /// Each drawn object's emitters, by object id.
@@ -38,9 +38,17 @@ pub struct Ac1Fx {
 }
 
 impl Ac1Fx {
-    /// Reads `script` for objects drawn under `visual`, and gives each particle GfxObj it uses a
-    /// model in `models`. A script that does not decode is reported and left out.
-    pub fn add(&mut self, dats: &Ac1Dats, models: &mut Ac1Models, visual: u32, script: u32) {
+    /// Reads `script` for objects drawn under `visual`, its particles drawn at `particle_scale`
+    /// (a held weapon's held scale), and gives each particle GfxObj it uses a model in `models`.
+    /// A script that does not decode is reported and left out.
+    pub fn add(
+        &mut self,
+        dats: &Ac1Dats,
+        models: &mut Ac1Models,
+        visual: u32,
+        script: u32,
+        particle_scale: f32,
+    ) {
         if script == 0 {
             return;
         }
@@ -83,7 +91,8 @@ impl Ac1Fx {
             entries.push((start, info));
         }
         if !entries.is_empty() {
-            self.scripts.insert(visual, Arc::from(entries));
+            self.scripts
+                .insert(visual, (Arc::from(entries), particle_scale));
         }
     }
 
@@ -96,15 +105,18 @@ impl Ac1Fx {
         let eye = frame
             .camera
             .map(|camera| view.world_point(camera.cell, camera.origin));
-        let sources: Vec<(u64, Script)> = frame
+        let sources: Vec<(u64, Script, f32)> = frame
             .objects
             .iter()
-            .filter_map(|o| Some((o.id, Arc::clone(self.scripts.get(&o.visual?)?))))
+            .filter_map(|o| {
+                let (script, scale) = self.scripts.get(&o.visual?)?;
+                Some((o.id, Arc::clone(script), *scale))
+            })
             .collect();
         self.running
-            .retain(|id, _| sources.iter().any(|(source, _)| source == id));
+            .retain(|id, _| sources.iter().any(|(source, _, _)| source == id));
         let mut particles = Vec::new();
-        for (id, script) in sources {
+        for (id, script, particle_scale) in sources {
             let Some(placement) = view.object_placement(id) else {
                 continue;
             };
@@ -134,7 +146,10 @@ impl Ac1Fx {
                         * bone.map_or(Quat::IDENTITY, |b| b.rotation),
                 };
                 emitter.update(now, part);
-                particles.extend(emitter.draws(now, part));
+                particles.extend(emitter.draws(now, part).map(|mut draw| {
+                    draw.scale *= particle_scale;
+                    draw
+                }));
             }
         }
         for (index, particle) in particles.into_iter().enumerate() {

@@ -7,7 +7,7 @@
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR] [--ac1-heartbeat SECONDS] [--ac1-lineup]
-//! world-viewer ... --ac1-weapons DIR [--ac1-weapon N] [--ac1-weapon-placement P] [--orbit SECONDS]
+//! world-viewer ... --ac1-weapons DIR [--ac1-weapon N] [--ac1-weapon-placement P] [--ac1-weapon-scale S] [--orbit SECONDS]
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
@@ -47,7 +47,8 @@
 //! `--ac1-lineup` stands them in a row 6 m north of the player (or a `--fly` camera) facing it.
 //! `--ac1-weapons DIR` puts the ACE weapons of DIR, built from the AC1 DATs, in the player's
 //! right hand (`ac1_held.rs`): weapon N first (default 0), in the AC1 placement frame P (default
-//! 1, `RightHandCombat`); PageUp and PageDown step through them, past the session's AC2 sword.
+//! 1, `RightHandCombat`), at its weenie's scale times S (default 0.75, `ac1_held::HELD_SCALE`);
+//! PageUp and PageDown step through them, past the session's AC2 sword.
 //! `--hud-panel NAME` logs the snapshot's HUD on to the session (as the window's) and opens that
 //! toolbar panel (`inventory`, `skill`, `quest`, ...); `--equip N` then equips AC1 weapon N in
 //! the primary hand as the paper doll does (the session's server wields it).
@@ -151,6 +152,8 @@ struct Args {
     ac1_weapons: Option<PathBuf>,
     ac1_weapon: usize,
     ac1_weapon_placement: Option<u32>,
+    /// `--ac1-weapon-scale S`: the held weapons' scale over their weenies' (default 0.75).
+    ac1_weapon_scale: Option<f32>,
     /// `--orbit SECONDS`: the player camera turns about the player that long after the walk.
     orbit: f32,
     /// `--hud-panel NAME`: the snapshot logs on to the HUD's session and opens that toolbar panel.
@@ -197,6 +200,7 @@ fn parse_args() -> Result<Args, String> {
         ac1_weapons: None,
         ac1_weapon: 0,
         ac1_weapon_placement: None,
+        ac1_weapon_scale: None,
         orbit: 0.0,
         hud_panel: None,
         equip: None,
@@ -304,6 +308,13 @@ fn parse_args() -> Result<Args, String> {
             "--ac1-weapon" => {
                 args.ac1_weapon = value()?.parse().map_err(|e| format!("--ac1-weapon: {e}"))?;
             }
+            "--ac1-weapon-scale" => {
+                args.ac1_weapon_scale = Some(
+                    value()?
+                        .parse()
+                        .map_err(|e| format!("--ac1-weapon-scale: {e}"))?,
+                );
+            }
             "--ac1-weapon-placement" => {
                 args.ac1_weapon_placement = Some(
                     value()?
@@ -386,6 +397,7 @@ fn main() {
             dats,
             args.ace_weenies.as_deref(),
             args.ac1_weapons.as_deref(),
+            args.ac1_weapon_scale,
             Arc::clone(&store),
         ) {
             Ok(mut showcase) => {
@@ -397,6 +409,9 @@ fn main() {
                     .map(|_| args.ac1_weapon.min(weapons.weapons.len() - 1));
                 if let Some(placement) = args.ac1_weapon_placement {
                     weapons.placement = placement;
+                }
+                if let Some(scale) = args.ac1_weapon_scale {
+                    weapons.scale = scale;
                 }
                 Some(showcase)
             }

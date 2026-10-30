@@ -315,9 +315,11 @@ fn rigid_model(
 /// What turns an AC1 object placed for an AC1 hand (its Setup's hand placement frame) into the
 /// axes an AC2 hand holds by: an AC2 weapon's blade runs along its +y with the guard across x,
 /// an AC1 weapon's (after `RightHandCombat`) along +z with the guard across y. The AC1 axes
-/// x, y, z become the AC2 z, x, y: a turn of -120 degrees about (1, 1, 1). A held AC1 object
-/// takes it as its offset in the holding location (`CHILDINFO::m_offset`).
-pub const AC1_HAND_TO_AC2: Quat = Quat::from_xyzw(-0.5, -0.5, -0.5, 0.5);
+/// x, y, z become the AC2 -z, -x, +y: the blade along +y, and the head of an axe or hammer and
+/// the edge of a curved blade on the side the player chose by eye (AC2's symmetric sword cannot
+/// tell the two turns about the blade apart). A held AC1 object takes it as its offset in the
+/// holding location (`CHILDINFO::m_offset`).
+pub const AC1_HAND_TO_AC2: Quat = Quat::from_xyzw(-0.5, 0.5, 0.5, 0.5);
 
 /// A frame as the bone transform the renderer poses a part with.
 fn transform(frame: Frame) -> Ac2Transform {
@@ -692,6 +694,15 @@ mod tests {
         let vertices = [vertex(0.0, 0.0), vertex(1.0, 0.0), vertex(0.0, 1.0)];
         assert_eq!(oriented(&vertices, [0, 1, 2]), [0, 1, 2]);
         assert_eq!(oriented(&vertices, [0, 2, 1]), [0, 1, 2]);
+    }
+
+    #[test]
+    fn the_hand_turn_lays_the_ac1_blade_along_the_ac2_blade() {
+        let q = AC1_HAND_TO_AC2;
+        let near = |a: Vec3, b: Vec3| (a - b).length() < 1e-6;
+        assert!(near(q * Vec3::Z, Vec3::Y));
+        assert!(near(q * Vec3::Y, -Vec3::X));
+        assert!(near(q * Vec3::X, -Vec3::Z));
     }
 
     #[test]

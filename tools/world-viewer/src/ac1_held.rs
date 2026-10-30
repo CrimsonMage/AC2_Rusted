@@ -68,6 +68,10 @@ impl ac2_ui::ForeignUiImages for Ac1Icons {
 }
 /// `RIGHT_HAND_HOLD`: the holding location a wielded weapon hangs from (AC1 and AC2 alike).
 pub const RIGHT_HAND: u32 = 1;
+/// The held weapons' default scale over their weenies': AC1 weapons are made for a 1.82 m AC1
+/// body and run long beside AC2's (the AC1 Long Sword is 1.05 m at its weenie scale, the AC2
+/// starter sword 0.77 m); this brings the Long Sword to the AC2 sword's length.
+pub const HELD_SCALE: f32 = 0.75;
 /// AC1 `Placement.RightHandCombat`.
 const RIGHT_HAND_COMBAT: u32 = 1;
 
@@ -80,6 +84,8 @@ pub struct Ac1Weapons {
     pub current: Option<usize>,
     /// `--ac1-weapon-placement`: the AC1 placement frame the weapon takes in the hand.
     pub placement: u32,
+    /// `--ac1-weapon-scale`: the held weapons' scale over their weenies' (`HELD_SCALE`).
+    pub scale: f32,
     world: Option<ac2_client::DatWorld>,
     /// The right-hand holding point of each player visual seen.
     points: HashMap<u32, Option<HoldPoint>>,
@@ -106,6 +112,7 @@ impl Ac1Weapons {
             current: (!weapons.is_empty()).then_some(0),
             weapons,
             placement: RIGHT_HAND_COMBAT,
+            scale: HELD_SCALE,
             world,
             points: HashMap::new(),
         }
@@ -177,7 +184,8 @@ impl Ac1Weapons {
     }
 
     /// An AC1 weapon the session wields hangs in its AC1 placement frame, turned from AC1's hand
-    /// axes into AC2's (the server's `RecvEvt_Parent` names the AC2 placement 0).
+    /// axes into AC2's (the server's `RecvEvt_Parent` names the AC2 placement 0), at its weenie's
+    /// `DefaultScale` (the scale ACE sends) times the held scale.
     pub fn place_wielded(&self, frame: &mut ac2_client::ClientFrame) {
         let first = self.weapons.first().map(|w| w.visual.raw());
         let last = self.weapons.last().map(|w| w.visual.raw());
@@ -185,9 +193,11 @@ impl Ac1Weapons {
             return;
         };
         for object in &mut frame.objects {
-            if !object.visual.is_some_and(|v| (first..=last).contains(&v)) {
+            let Some(visual) = object.visual.filter(|v| (first..=last).contains(v)) else {
                 continue;
-            }
+            };
+            let weapon = &self.weapons[(visual - first) as usize];
+            object.body_scale = [weapon.weenie.scale * self.scale; 3];
             if let Some(holder) = object.holder.as_mut() {
                 holder.orientation = Some(self.placement);
                 holder.offset = ac2_math::Frame::new(
@@ -255,7 +265,7 @@ impl Ac1Weapons {
             appearance: Arc::new(Appearance::default()),
             pose: Vec::new(),
             anim_scale: [1.0; 4],
-            body_scale: [weapon.weenie.scale; 3],
+            body_scale: [weapon.weenie.scale * self.scale; 3],
             adaptive_degrade: false,
         })
     }

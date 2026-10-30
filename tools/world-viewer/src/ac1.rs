@@ -90,6 +90,7 @@ impl Ac1Showcase {
         dat_dir: &Path,
         weenies: Option<&Path>,
         weapons: Option<&Path>,
+        held_scale: Option<f32>,
         store: Arc<ac2_db::ResourceStore>,
     ) -> Result<Self, String> {
         let dats = Ac1Dats::open(dat_dir).map_err(|e| format!("AC1 DATs: {e:?}"))?;
@@ -106,8 +107,24 @@ impl Ac1Showcase {
         let icons = Arc::new(crate::ac1_held::Ac1Icons::load(&dats, &weapons));
         ac2_ui::set_foreign_ui_images(Arc::clone(&icons) as Arc<dyn ac2_ui::ForeignUiImages>);
         let mut fx = crate::ac1_fx::Ac1Fx::default();
-        for built in creatures.iter().chain(&weapons) {
-            fx.add(&dats, &mut models, built.visual.raw(), built.script);
+        for creature in &creatures {
+            fx.add(
+                &dats,
+                &mut models,
+                creature.visual.raw(),
+                creature.script,
+                1.0,
+            );
+        }
+        for weapon in &weapons {
+            let scale = held_scale.unwrap_or(crate::ac1_held::HELD_SCALE);
+            fx.add(
+                &dats,
+                &mut models,
+                weapon.visual.raw(),
+                weapon.script,
+                scale,
+            );
         }
         for (kind, list) in [("creatures", &creatures), ("weapons", &weapons)] {
             if !list.is_empty() {
