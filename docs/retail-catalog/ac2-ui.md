@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1370 done, 305 partial, 34 to do, 538 skipped.
+2247 retail functions: 1371 done, 301 partial, 34 to do, 541 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -3357,15 +3357,15 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_PanelPage::StartUseActive` · 005f8910 · legions 005b9440 — ac2-ui panel.rs
 - [-] `UIElement_PanelPage::Register` · 005f8980 · legions 005b94b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/uielement_resizebar.cpp.c` (2/8)
+## `portal/client/src/uielement/types/uielement_resizebar.cpp.c` (3/8)
 
 ### UIElement_Resizebar
 - [x] `UIElement_Resizebar::MouseDown` · 005f8050 · legions 005b8b80 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 - [x] `UIElement_Resizebar::MouseUp` · 005f81d0 · legions 005b8d00 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
-- [~] `UIElement_Resizebar::UpdateLayout` · 005f8230 · legions 005b8d60 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
-- [~] `UIElement_Resizebar::SetState` · 005f8300 · legions 005b8e30 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
-- [~] `UIElement_Resizebar::SetAttribute_Bool` · 005f8320 · legions 005b8e50 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
-- [~] `UIElement_Resizebar::UIElement_Resizebar` · 005f8360 · legions 005b8e90 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+- [-] `UIElement_Resizebar::UpdateLayout` · 005f8230 · legions 005b8d60 — UpdateLayout hides the grip only when disabled and hide_when_disabled; no Legions resize grip has hide_when_disabled (its 16 uses are scroll bars, scanned 2026-10-29), so the grip always shows, which resize.rs grips already do (the press reads disabled, resizebar_mouse_down)
+- [-] `UIElement_Resizebar::SetState` · 005f8300 · legions 005b8e30 — UpdateLayout hides the grip only when disabled and hide_when_disabled; no Legions resize grip has hide_when_disabled (its 16 uses are scroll bars, scanned 2026-10-29), so the grip always shows, which resize.rs grips already do (the press reads disabled, resizebar_mouse_down)
+- [-] `UIElement_Resizebar::SetAttribute_Bool` · 005f8320 · legions 005b8e50 — UpdateLayout hides the grip only when disabled and hide_when_disabled; no Legions resize grip has hide_when_disabled (its 16 uses are scroll bars, scanned 2026-10-29), so the grip always shows, which resize.rs grips already do (the press reads disabled, resizebar_mouse_down)
+- [x] `UIElement_Resizebar::UIElement_Resizebar` · 005f8360 · legions 005b8e90 — ac2-ui resize.rs: a grip is an element of kind resizebar (create_element), not pressed; allow_updating only gates UpdateLayout, which never hides a Legions grip (no hide_when_disabled, scanned 2026-10-29)
 - [~] `UIElement_Resizebar::Create` · 005f83c0 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
 - [~] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
 
