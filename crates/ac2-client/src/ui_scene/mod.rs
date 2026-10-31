@@ -75,6 +75,11 @@ impl UiScenes {
         self.renderers.set_object_shadows(level);
     }
 
+    /// `TrilinearFiltering` and `AnisotropicFiltering` for the scenes' textures.
+    pub fn set_texture_filtering(&mut self, trilinear: bool, anisotropic: bool) {
+        self.renderers.set_texture_filtering(trilinear, anisotropic);
+    }
+
     /// `UIScene::StartSelection` / `FinishSelection` at screen `point` in the viewport of root
     /// `root` (any viewport under the point when `None`): the nearest figure under it.
     pub fn pick(&self, point: (i32, i32), root: Option<usize>) -> Option<ScenePick> {

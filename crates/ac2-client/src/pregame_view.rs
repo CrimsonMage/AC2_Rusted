@@ -130,6 +130,13 @@ impl PregameView {
         }
     }
 
+    /// `TrilinearFiltering` and `AnisotropicFiltering` for the scenes' textures, as the world's.
+    pub fn set_texture_filtering(&mut self, trilinear: bool, anisotropic: bool) {
+        if let Some(scenes) = &mut self.scenes {
+            scenes.set_texture_filtering(trilinear, anisotropic);
+        }
+    }
+
     /// The `CharacterGenSystem` character generation asks (`PregameUi::set_char_gen_system`).
     pub fn set_char_gen_system(&mut self, system: Box<dyn CharGenSystem>) {
         match &mut self.ui {

@@ -46,6 +46,11 @@ impl PregameScenes {
         self.scenes.set_object_shadows(level);
     }
 
+    /// `TrilinearFiltering` and `AnisotropicFiltering` for the scenes' textures.
+    pub fn set_texture_filtering(&mut self, trilinear: bool, anisotropic: bool) {
+        self.scenes.set_texture_filtering(trilinear, anisotropic);
+    }
+
     /// The scenes underneath.
     pub fn scenes(&self) -> &UiScenes {
         &self.scenes

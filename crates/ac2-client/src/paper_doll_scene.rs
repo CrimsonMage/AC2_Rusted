@@ -35,6 +35,11 @@ impl PaperDollScene {
         self.scenes.set_object_shadows(level);
     }
 
+    /// `TrilinearFiltering` and `AnisotropicFiltering` for the doll's textures.
+    pub(crate) fn set_texture_filtering(&mut self, trilinear: bool, anisotropic: bool) {
+        self.scenes.set_texture_filtering(trilinear, anisotropic);
+    }
+
     pub(crate) fn scenes(&self) -> &UiScenes {
         &self.scenes
     }

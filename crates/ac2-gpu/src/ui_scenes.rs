@@ -14,6 +14,8 @@ pub struct UiSceneRenderers {
     renderers: HashMap<usize, SceneRenderer>,
     /// `DynamicObjectShadows`, which sizes the scenes' sun shadows.
     object_shadows: ObjectShadows,
+    /// `TrilinearFiltering` and `AnisotropicFiltering`, as the world's renderer takes them.
+    filtering: Option<(bool, bool)>,
 }
 
 impl Default for UiSceneRenderers {
@@ -21,6 +23,7 @@ impl Default for UiSceneRenderers {
         Self {
             renderers: HashMap::new(),
             object_shadows: ac2_render::prefs::SceneOptions::default().object_shadows,
+            filtering: None,
         }
     }
 }
@@ -40,12 +43,25 @@ impl UiSceneRenderers {
         }
     }
 
+    /// The scenes' texture filtering (`TrilinearFiltering`, `AnisotropicFiltering`): the same
+    /// samplers as the world's (`RenderDeviceD3D::SetStageFilterMode` served every scene).
+    pub fn set_texture_filtering(&mut self, trilinear: bool, anisotropic: bool) {
+        self.filtering = Some((trilinear, anisotropic));
+        for renderer in self.renderers.values_mut() {
+            renderer.set_texture_filtering(trilinear, anisotropic);
+        }
+    }
+
     fn renderer(&mut self, gpu: &Gpu, root: usize) -> &mut SceneRenderer {
         let level = self.object_shadows;
+        let filtering = self.filtering;
         self.renderers.entry(root).or_insert_with(|| {
             let mut renderer = SceneRenderer::new(gpu);
             renderer.set_viewport_scene();
             renderer.set_object_shadows(level);
+            if let Some((trilinear, anisotropic)) = filtering {
+                renderer.set_texture_filtering(trilinear, anisotropic);
+            }
             renderer
         })
     }

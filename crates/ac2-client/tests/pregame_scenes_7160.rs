@@ -69,6 +69,8 @@ impl Rig {
         let mut view = PregameView::new(Arc::clone(&store), &gpu, ac2_gpu::COLOR_FORMAT, SIZE)
             .with_scenes(world);
         view.set_intro(true);
+        // As the client sets it at quality 4 and 5 (`TrilinearFiltering`, `AnisotropicFiltering`).
+        view.set_texture_filtering(true, true);
         if chargen {
             let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
                 .unwrap()
