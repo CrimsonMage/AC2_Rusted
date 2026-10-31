@@ -507,6 +507,8 @@ pub struct ScenePresenter {
     camera: std::cell::Cell<Option<AoCamera>>,
     /// The eye adaptation is held: the exposure does not move ([`Self::hold_adaptation`]).
     held: std::cell::Cell<bool>,
+    /// The ambient occlusion tier (`SceneOptions::ao_quality`).
+    ao_quality: std::cell::Cell<u8>,
     taa_pipelines: TaaPipelines,
     /// The world's temporal anti-aliasing (`Antialiasing`), off until [`Self::set_temporal_aa`].
     taa: std::cell::RefCell<Temporal>,
@@ -522,6 +524,7 @@ impl ScenePresenter {
             post: std::cell::RefCell::new(None),
             camera: std::cell::Cell::new(None),
             held: std::cell::Cell::new(false),
+            ao_quality: std::cell::Cell::new(ac2_render::prefs::AO_HIGH),
             taa_pipelines: TaaPipelines::new(gpu),
             taa: std::cell::RefCell::new(Temporal::new()),
         }
@@ -531,6 +534,11 @@ impl ScenePresenter {
     /// with no jitter, no resolve and no sharpening; turning it on starts a new history.
     pub fn set_temporal_aa(&self, on: bool) {
         self.taa.borrow_mut().set_enabled(on);
+    }
+
+    /// `SceneOptions::ao_quality`: the ambient occlusion tier, 0 off, 1 low, 2 high.
+    pub fn set_ao_quality(&self, quality: u8) {
+        self.ao_quality.set(quality);
     }
 
     /// Starts the world's frame seen by `camera` and returns the clip-space jitter its draws
@@ -592,13 +600,16 @@ impl ScenePresenter {
         world: bool,
     ) {
         let camera = if world { self.camera.get() } else { None };
+        // The occlusion accumulates with the camera motion the resolve is about to consume.
+        let motion = self.taa.borrow().reprojection().filter(|_| world);
         if world {
             self.taa
                 .borrow_mut()
                 .resolve(gpu, &self.taa_pipelines, encoder, hdr);
         }
         if let Some(chain) = self.chain(gpu, hdr).as_ref() {
-            chain.record_occlusion(gpu, &self.ao_pipelines, encoder, camera);
+            let quality = self.ao_quality.get();
+            chain.record_occlusion(gpu, &self.ao_pipelines, encoder, camera, quality, motion);
         }
     }
 

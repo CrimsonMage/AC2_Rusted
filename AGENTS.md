@@ -54,7 +54,11 @@ game rules and server-visible behaviour exactly retail.
   It covers lighting (GGX for lit objects), sky, clouds, weather and the tone map.
   Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one Khronos PBR Neutral tone map
   (`ac2_gpu::ToneMap`) reaches the window, and the UI draws after it. Before it, the world alone
-  takes a post chain (`ac2_gpu` `post.rs`, `ao.rs`): ambient occlusion from depth, a dual-filter
+  takes a post chain (`ac2_gpu` `post.rs`, `ao.rs`): ambient occlusion from depth (GTAO, Jimenez et al. 2016, at half size with a depth-aware blur,
+  temporally accumulated under the TAA's camera reprojection; a client deviation, retail had no
+  ambient occlusion; the tier follows the overall graphics quality: level 1 off, 2-3 two slices of
+  four steps, 4-5 three slices of six, `SceneOptions::ao_quality`; it multiplies the tone map's
+  direct light too, as a forward pass without a prepass cannot apply it to ambient alone), a dual-filter
   bloom, eye adaptation (half the metered difference from a daylight key, up to one stop darker
   and never brighter, so night stays dark) and a light vignette. UI viewport scenes skip the
   chain and composite over their panel where they drew. The sky's atmosphere and cloud deck

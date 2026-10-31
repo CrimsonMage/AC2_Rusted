@@ -117,6 +117,9 @@ fn top_levels(store: &ResourceStore) -> Option<(u32, u32)> {
 /// names. The file's methods are reached through `Deref`.
 pub struct ClientPrefs {
     file: PrefsFile<DatNames>,
+    /// The overall graphics quality level last applied (`set_overall_graphics_quality`): the
+    /// ambient occlusion tier follows it.
+    quality_level: Option<u32>,
 }
 
 impl ClientPrefs {
@@ -132,7 +135,10 @@ impl ClientPrefs {
         ac2_smartbox::fx_prefs::register(bank, names, top_levels(&store));
         ac2_ui::tooltip_prefs::register(bank, names);
         ac2_ui::hud_style::register(bank, names);
-        Ok(Self { file })
+        Ok(Self {
+            file,
+            quality_level: None,
+        })
     }
 
     /// `Preferences::InqBool(0x40000004, 0x40000073)`: the saved graphics quality.
@@ -161,12 +167,21 @@ impl ClientPrefs {
     /// `Render::SetOverallGraphicsQuality(level)`: the preset's values go into the bank. `false`
     /// for a level without a preset.
     pub fn set_overall_graphics_quality(&mut self, level: u32) -> bool {
-        ac2_render::prefs::apply_quality(self.file.bank_mut(), level)
+        let applied = ac2_render::prefs::apply_quality(self.file.bank_mut(), level);
+        if applied {
+            self.quality_level = Some(level);
+        }
+        applied
     }
 
-    /// The scene's graphics options as the bank holds them now (`ac2_render::prefs::scene_options`).
+    /// The scene's graphics options as the bank holds them now (`ac2_render::prefs::scene_options`),
+    /// with the ambient occlusion tier of the applied quality level.
     pub fn scene_options(&self) -> SceneOptions {
-        ac2_render::prefs::scene_options(self.file.bank())
+        let mut options = ac2_render::prefs::scene_options(self.file.bank());
+        if let Some(level) = self.quality_level {
+            options.ao_quality = ac2_render::prefs::ao_quality_for_level(level);
+        }
+        options
     }
 
     /// The file the preferences are read from and written to.

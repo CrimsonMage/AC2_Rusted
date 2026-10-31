@@ -379,3 +379,14 @@ fn the_scene_options_read_the_filtering_with_registered_defaults() {
     let options = scene_options(&bank);
     assert!(options.trilinear && !options.anisotropic);
 }
+
+#[test]
+fn the_ambient_occlusion_tier_follows_the_quality_level() {
+    use crate::prefs::{ao_quality_for_level, SceneOptions, AO_HIGH, AO_LOW, AO_OFF};
+    let tiers: Vec<u8> = (1..=5).map(ao_quality_for_level).collect();
+    assert_eq!(tiers, [AO_OFF, AO_LOW, AO_LOW, AO_HIGH, AO_HIGH]);
+    // No preset (0, 6): the high default.
+    assert_eq!(ao_quality_for_level(0), AO_HIGH);
+    assert_eq!(ao_quality_for_level(6), AO_HIGH);
+    assert_eq!(SceneOptions::default().ao_quality, AO_HIGH);
+}

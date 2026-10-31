@@ -487,6 +487,9 @@ pub struct SceneOptions {
     /// sharpening of the world (`ac2_gpu` `taa.rs`). Retail used it for D3D multisampling
     /// (`RenderDeviceD3D::SetMultiSampleAntialias`).
     pub antialiasing: bool,
+    /// The ambient occlusion tier (a client deviation, see [`ao_quality_for_level`]): 0 off, 1
+    /// low, 2 high. Not a retail preference; the client sets it from the overall graphics quality.
+    pub ao_quality: u8,
 }
 
 impl Default for SceneOptions {
@@ -515,7 +518,26 @@ impl Default for SceneOptions {
             trilinear: true,
             anisotropic: false,
             antialiasing: true,
+            ao_quality: AO_HIGH,
         }
+    }
+}
+
+/// `SceneOptions::ao_quality`: no ambient occlusion.
+pub const AO_OFF: u8 = 0;
+/// 2 slices of 4 steps per side.
+pub const AO_LOW: u8 = 1;
+/// 3 slices of 6 steps per side.
+pub const AO_HIGH: u8 = 2;
+
+/// The ambient occlusion tier for an overall graphics quality level (a client deviation: retail
+/// drew none). Level 1 turns it off, 2 and 3 are low, 4 and 5 high; a level without a preset
+/// keeps the high default.
+pub fn ao_quality_for_level(level: u32) -> u8 {
+    match level {
+        1 => AO_OFF,
+        2 | 3 => AO_LOW,
+        _ => AO_HIGH,
     }
 }
 
@@ -605,6 +627,7 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
         trilinear: flag(bank, TRILINEAR_FILTERING, defaults.trilinear),
         anisotropic: flag(bank, ANISOTROPIC_FILTERING, defaults.anisotropic),
         antialiasing: flag(bank, ANTIALIASING, defaults.antialiasing),
+        ao_quality: defaults.ao_quality,
     }
 }
 

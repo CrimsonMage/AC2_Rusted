@@ -104,6 +104,23 @@ pub(crate) fn is_cut(previous: &TaaFrame, current: &TaaFrame) -> bool {
     current.eye_distance(previous) > CUT_METRES || (current.fov_y - previous.fov_y).abs() > 1e-4
 }
 
+/// The camera motion of the frame being drawn, for passes that reproject a history of their own
+/// (the ambient occlusion, `ao.rs`): the same matrices the resolve uses.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct Reprojection {
+    /// The current frame's unjittered eye-relative inverse view-projection.
+    pub(crate) inv_view_proj: Mat4,
+    /// The previous frame's unjittered eye-relative view-projection.
+    pub(crate) prev_view_proj: Mat4,
+    /// The previous eye minus the current one, in metres.
+    pub(crate) eye_delta: [f32; 3],
+    /// The frame counter that picked the jitter (a per-frame noise seed).
+    pub(crate) frame: u32,
+    /// Whether the previous frame continues this one: false after a reset (cut, resize, toggle,
+    /// portal space), when a history must not be read.
+    pub(crate) has_history: bool,
+}
+
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 struct Params {
@@ -319,6 +336,21 @@ impl Temporal {
         self.frame = self.frame.wrapping_add(1);
         self.pending = Some(TaaFrame::new(camera, aspect));
         jitter_ndc(pixels, self.size)
+    }
+
+    /// The camera motion of the frame begun by [`Self::begin_frame`], until [`Self::resolve`]
+    /// takes it. `None` while the anti-aliasing is off or the portal space shows.
+    pub(crate) fn reprojection(&self) -> Option<Reprojection> {
+        let current = self.pending?;
+        let previous = self.previous.filter(|p| !is_cut(p, &current));
+        Some(Reprojection {
+            inv_view_proj: current.view_projection.inverse(),
+            prev_view_proj: previous.map_or(current.view_projection, |p| p.view_projection),
+            eye_delta: previous.map_or([0.0; 3], |p| p.eye_delta(&current)),
+            frame: self.frame.wrapping_sub(1),
+            has_history: previous.is_some()
+                && self.targets.as_ref().is_some_and(|t| t.size == self.size),
+        })
     }
 
     /// Records the resolve of the world drawn in `hdr` into the history and copies the result

@@ -47,6 +47,8 @@
 //! `CameraFxManager`'s sum: `--flash 0,0,0,1` is a full fade to black).
 //! `--aa on|off` sets `Antialiasing` (temporal anti-aliasing and sharpening; default on): a
 //! snapshot with it on draws every warm-up frame so the history converges on the still camera.
+//! `--ao off|low|high` sets the ambient occlusion tier (`SceneOptions::ao_quality`; default
+//! high): GTAO from the depth, temporally accumulated while `--aa` is on.
 //! `--pan N` (with `--fly`) then draws N more frames with the camera turning and advancing a
 //! little each, to check the anti-aliasing for ghosting.
 //! `--walk-pan N` then draws N more frames with the player walking on and turning under the
@@ -167,6 +169,8 @@ struct Args {
     size: (u32, u32),
     /// The headless scene's `Antialiasing` (temporal anti-aliasing and sharpening).
     antialiasing: bool,
+    /// The headless scene's ambient occlusion tier (`SceneOptions::ao_quality`).
+    ao_quality: u8,
     /// Frames of a moving `--fly` camera after the warm-up (`--pan`), 0: a still camera.
     pan: u32,
     /// Frames the player walks on and turns after the warm-up (`--walk-pan`), 0: standing still.
@@ -215,6 +219,7 @@ fn parse_args() -> Result<Args, String> {
         grass_copies: ac2_render::prefs::SceneOptions::default().frill.copies,
         size: (1280, 720),
         antialiasing: ac2_render::prefs::SceneOptions::default().antialiasing,
+        ao_quality: ac2_render::prefs::SceneOptions::default().ao_quality,
         pan: 0,
         walk_pan: 0,
         aa_reference: None,
@@ -383,6 +388,14 @@ fn parse_args() -> Result<Args, String> {
                     other => return Err(format!("--aa: on or off, not {other}")),
                 };
             }
+            "--ao" => {
+                args.ao_quality = match value()?.as_str() {
+                    "off" => ac2_render::prefs::AO_OFF,
+                    "low" => ac2_render::prefs::AO_LOW,
+                    "high" => ac2_render::prefs::AO_HIGH,
+                    other => return Err(format!("--ao: off, low or high, not {other}")),
+                };
+            }
             "--pan" => args.pan = value()?.parse().map_err(|e| format!("--pan: {e}"))?,
             "--aa-ref" => args.aa_reference = Some(value()?.into()),
             "--walk-pan" => {
@@ -416,6 +429,7 @@ fn scene_options(args: &Args, antialiasing: bool) -> ac2_render::prefs::SceneOpt
         object_shadows: args.object_shadows,
         light_coronas: args.light_coronas,
         antialiasing,
+        ao_quality: args.ao_quality,
         static_shadows: args.static_shadows,
         trilinear: args.trilinear,
         anisotropic: args.anisotropic,

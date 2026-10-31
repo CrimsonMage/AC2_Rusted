@@ -297,6 +297,7 @@ impl ClientView {
             .set_texture_filtering(options.trilinear, options.anisotropic);
         self.brightness = options.brightness;
         self.presenter.set_temporal_aa(options.antialiasing);
+        self.presenter.set_ao_quality(options.ao_quality);
         self.hover_transparency = options.avatar_hover_transparency;
         self.scene.set_options(options);
     }

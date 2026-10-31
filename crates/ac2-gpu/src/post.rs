@@ -12,6 +12,7 @@ use std::time::Instant;
 use bytemuck::{Pod, Zeroable};
 
 use crate::ao::{AoCamera, AoPipelines, AoTargets};
+use crate::taa::Reprojection;
 use crate::{Gpu, HdrTarget, HDR_FORMAT};
 
 /// Bloom levels below the half-size first one, at most; fewer when the output is small.
@@ -317,7 +318,7 @@ impl PostChain {
                 &bloom,
                 &pipes.sampler,
                 &exposure[written],
-                &ao.blurred,
+                &ao.output,
                 world_look,
             )
         });
@@ -351,8 +352,11 @@ impl PostChain {
         ao_pipes: &AoPipelines,
         encoder: &mut wgpu::CommandEncoder,
         camera: Option<AoCamera>,
+        quality: u8,
+        motion: Option<Reprojection>,
     ) {
-        self.ao.record(gpu, ao_pipes, encoder, camera);
+        self.ao
+            .record(gpu, ao_pipes, encoder, camera, quality, motion);
     }
 
     /// Records the frame's bloom and adaptation after the scene drew into the scene target. A
