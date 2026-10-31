@@ -78,6 +78,14 @@ pub enum GameplayNotice {
         skill_credits: u32,
         hero_skill_credits: u32,
     },
+    /// 7230 only, notice 0x4A3 (`CM_Character`, efun 0x00850021; the name is the client's): the
+    /// same totals as `UpdateSkillPanel`, after which the skill tree refreshes every node fully
+    /// (`RefreshSkillNode`, 7230 0x004495F0) where `UpdateSkillPanel` takes the fast refresh.
+    RefreshSkillPanel {
+        available_xp: u64,
+        skill_credits: u32,
+        hero_skill_credits: u32,
+    },
     /// `CM_Shortcut::SendNotice_ReloadShortcuts`.
     ReloadShortcuts,
     /// `CM_Character::SendNotice_ReloadOptions`: the options profile (shortcuts included) was

@@ -167,6 +167,11 @@ pub fn notice_pass<P: HudSource>(
                     skills.update_skill_panel(tree, player);
                 }
             }
+            GameplayNotice::RefreshSkillPanel { .. } => {
+                if let Some(skills) = hud.skills.as_mut() {
+                    skills.refresh_skill_panel(tree, player);
+                }
+            }
             GameplayNotice::UpdateSkill(skill) => {
                 if let Some(skills) = hud.skills.as_mut() {
                     skills.update_skill(tree, player, *skill);

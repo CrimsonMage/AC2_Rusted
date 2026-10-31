@@ -142,7 +142,8 @@ const NOTICES: [(u32, &str, &str); 104] = [
     ),
     // 7230 only, notice 0x4A3 (7230 0x006A6120): `gmSkillTreeUI` keeps the available experience
     // and the two credit counts as `RecvNotice_UpdateSkillPanel` does (7230 0x00449C30 against
-    // 0x00449BA0), refreshing each node with a fuller routine (0x004495F0). The name is the
+    // 0x00449BA0), then runs `RefreshSkillNode` (0x004495F0; Legions 0x00448870) on each node
+    // where `UpdateSkillPanel` runs `FastRefreshSkillNode` (0x00449950). The name is the
     // client's; the 7230 build has no symbols.
     (
         0x0085_0021,

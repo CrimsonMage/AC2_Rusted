@@ -238,6 +238,16 @@ impl SkillTreeUi {
         }
     }
 
+    /// 7230 notice 0x4A3 (7230 `gmSkillTreeUI` 0x00449C30): the new totals, then every node's
+    /// full refresh (`RefreshSkillNode`, 7230 0x004495F0).
+    pub fn refresh_skill_panel(&mut self, tree: &mut UiTree, source: &dyn SkillSource) {
+        self.available = source.available();
+        let nodes: Vec<SkillNode> = self.nodes.values().cloned().collect();
+        for node in &nodes {
+            self.refresh_skill_node(tree, source, node);
+        }
+    }
+
     /// `RecvNotice_UpdateSkill`: the nodes that depend on `skill` refresh.
     pub fn update_skill(&mut self, tree: &mut UiTree, source: &dyn SkillSource, skill: u32) {
         let Some(node) = self.nodes.get(&skill) else {

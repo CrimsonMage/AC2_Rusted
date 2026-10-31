@@ -122,6 +122,9 @@ fn a_panel_lays_out_its_nodes_and_shows_the_selected_skill() {
     ui.update_skill_panel(&mut tree, &Stub);
     ui.examination_request_changed(&mut tree, &Stub, EXAMINE_PANEL, PANEL);
     assert_eq!(ui.current(), (PANEL, 0));
+    // 7230's notice 0x4A3 runs the full `RefreshSkillNode` over every node; the laid-out nodes
+    // checked below are what it leaves.
+    ui.refresh_skill_panel(&mut tree, &Stub);
     let base = tree.tree_item(skill_tree, 0, 0).expect("base node");
     let child = tree.tree_item(skill_tree, 0, 1).expect("child node");
     // A vertical tree: the child sits above its parent.
