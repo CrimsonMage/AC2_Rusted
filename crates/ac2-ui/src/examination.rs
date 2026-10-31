@@ -20,6 +20,13 @@
 //! word as its filter (`+0xB8`), sends it with `StartExamination`, and the tabs' presses and the
 //! selection keys change it.
 //!
+//! 7230 adds the "Classic Examination" option (gameplay profile bit 0x20000): its layout's
+//! `ExaminationInternal` has a `classic` state (the whole profile in `ExaminationListBox`, filter
+//! 0x3FF, the tabs covered) and a `tabbed` one (`ExaminationListBoxTabbed` under the tabs). The
+//! 7230 panel starts classic and switches as the options reload ([`ExaminationUi::reload_options`]);
+//! a layout whose `ExaminationInternal` does not start `classic` (the DVD's) keeps the Legions
+//! tabbed panel.
+//!
 //! Not modelled yet: an image's own size before it loads (the template's size is used), and text
 //! that arrives later (`download_done`).
 
@@ -87,7 +94,15 @@ pub struct ExaminationUi {
     timers: Vec<QuestTimeDisplay>,
     calls: Vec<ExaminationCall>,
     tabs: ExaminationTabs,
+    /// 7230: `ExaminationInternal`, whose state is `classic` or `tabbed` (none for the DVD's
+    /// layout, whose element has neither).
+    internal: Option<usize>,
+    /// 7230 `+0xD0`: the panel is classic (1 at construction).
+    classic: bool,
 }
+
+/// 7230: the classic panel's filter (every section).
+const CLASSIC_FILTER: u32 = 0x3FF;
 
 /// `TimeDisplay::Init`'s thresholds for a countdown row: months (1), days (1), minutes (60).
 const COUNTDOWN_THRESHOLDS: (i64, i64, i64) = (1, 1, 60);
@@ -107,6 +122,11 @@ impl ExaminationUi {
             .iter()
             .find_map(|&r| tree.child_recursive(r, id("ExaminationField")));
         let tabs = ExaminationTabs::new(tree, field);
+        // 7230's `ExaminationInternal` starts `classic` (the DVD's has the element with no such
+        // state, and keeps the Legions panel).
+        let internal = field
+            .and_then(|f| tree.child_recursive(f, id("ExaminationInternal")))
+            .filter(|&e| tree.get(e).is_some_and(|e| e.state() == id("classic")));
         let mut ui = Self {
             layout: Arc::clone(layout),
             field,
@@ -121,12 +141,61 @@ impl ExaminationUi {
             timers: Vec::new(),
             calls: Vec::new(),
             tabs,
+            internal,
+            classic: internal.is_some(),
         };
+        if ui.classic {
+            // 7230 0x00432380: the classic filter and list, the tabs in the General tab's
+            // state (0x00432467), then `Update`.
+            ui.tabs.set_filter(CLASSIC_FILTER);
+            ui.tabs.set_states(tree, DEFAULT_FILTER, DEFAULT_FILTER);
+            ui.update(tree, 0, CLASSIC_FILTER);
+            return ui;
+        }
         // Legions 0x00431C40: the tabs start in the construction filter's state.
         let filter = ui.tabs.filter();
         ui.tabs.set_states(tree, filter, filter);
         ui.update(tree, 0, filter);
         ui
+    }
+
+    /// 7230 `gmExaminationUI` 0x00432160 (its options reload): when `GetClassicExamination`
+    /// changed, the rows go (0x00430ED0), `ExaminationInternal` takes the `classic` or `tabbed`
+    /// state, the filter becomes the classic 0x3FF or the General tab's 0x203 (0x00431B70, its
+    /// Ctrl toggle aside), the rows' list is that state's (`ExaminationListBox` or
+    /// `ExaminationListBoxTabbed`), the tabs are found again and set to the filter, and the
+    /// player is asked to start the examination with it (`gmCWInterface::StartExamination`).
+    /// Nothing happens on the DVD's layout.
+    pub fn reload_options(&mut self, tree: &mut UiTree, classic: bool) {
+        let Some(internal) = self.internal else {
+            return;
+        };
+        if classic == self.classic {
+            return;
+        }
+        self.classic = classic;
+        self.start_rows(tree);
+        tree.set_state(internal, id(if classic { "classic" } else { "tabbed" }));
+        let filter = if classic {
+            CLASSIC_FILTER
+        } else {
+            DEFAULT_FILTER
+        };
+        self.tabs.choose(filter);
+        let list = if classic {
+            "ExaminationListBox"
+        } else {
+            "ExaminationListBoxTabbed"
+        };
+        self.list = self.field.and_then(|f| tree.child_recursive(f, id(list)));
+        self.tabs.refind(tree, self.field);
+        self.tabs.set_states(tree, filter, filter);
+        self.calls.push(ExaminationCall::Start(filter));
+    }
+
+    /// 7230: whether the panel is the classic one (`+0xD0`).
+    pub fn classic(&self) -> bool {
+        self.classic
     }
 
     pub fn take_calls(&mut self) -> Vec<ExaminationCall> {

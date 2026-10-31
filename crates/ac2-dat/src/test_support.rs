@@ -19,13 +19,6 @@ pub fn env_dataset() -> Option<Arc<DatDataset>> {
         .clone()
 }
 
-/// The mounted DATs only when they are the Legions DVD's release, for tests built on its records
-/// (the `*_7160` scenarios); `None` otherwise, which callers treat as "skip".
-pub fn env_legions_dataset() -> Option<Arc<DatDataset>> {
-    let dataset = env_dataset()?;
-    (ac2_core::data_release() == ac2_core::DataRelease::Legions).then_some(dataset)
-}
-
 /// A count pinned per release: the Legions DVD's or the 7230 set's (the mounted DATs' release).
 pub fn pinned<T>(legions: T, release_7230: T) -> T {
     match ac2_core::data_release() {

@@ -468,6 +468,14 @@ impl Hud {
                 *dirty = true;
             }
         }
+        // 7230 `gmExaminationUI` 0x00432160: the classic or tabbed panel as the options say.
+        if let (true, Some(exam)) = (reload_radar, self.examination.as_mut()) {
+            if let Some(settings) = host.options_settings() {
+                let classic = settings.bits & crate::character_options::PROFILE_CLASSIC_EXAMINATION;
+                exam.reload_options(tree, classic != 0);
+                *dirty = true;
+            }
+        }
         // `gm3DTextUI::RecvNotice_ReloadOptions`: the names as the options say.
         let show_names = reload_radar.then(|| host.show_object_names());
         self.player_race = input.player.and_then(|id| host.player_race(id));

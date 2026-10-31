@@ -119,6 +119,18 @@ impl ExaminationTabs {
         tree.get(tab.element).map(|e| e.state()) == Some(DISABLED)
     }
 
+    /// 7230 0x00431B70 without Ctrl: `mask` becomes the filter and the current tab follows.
+    pub fn choose(&mut self, mask: u32) {
+        self.apply(mask, false);
+    }
+
+    /// 7230 `SetupTabs` (0x00431CC0) run again after the panel's state changed: the tab
+    /// elements found anew under the field, the filter and the current tab kept.
+    pub fn refind(&mut self, tree: &UiTree, field: Option<usize>) {
+        let found = Self::new(tree, field);
+        self.tabs = found.tabs;
+    }
+
     /// A press on `element_id` (Legions 0x00431990): when it is a tab that is not disabled,
     /// the filter it chooses.
     pub fn press(&mut self, tree: &UiTree, element_id: u32, ctrl: bool) -> Option<u32> {

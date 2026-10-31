@@ -159,6 +159,9 @@ pub const IFUN_SET_BYPASS_GOLD_MELTING: u32 = 0x00B4_00D6;
 pub const IFUN_SET_LATENCY_INDICATOR_GRAPH: u32 = 0x00B4_010A;
 pub const IFUN_SET_SHOW_FELLOWS_ON_MAP: u32 = 0x00B4_0140;
 pub const IFUN_SET_SHOW_PET_UI: u32 = 0x00B4_014B;
+/// 7230: `gmCWInterface::SetClassicExamination` (the options page's row; its getter is
+/// 0x00B4014D, beside `SetShowPetUI` / `GetShowPetUI` 0x14B / 0x14A).
+pub const IFUN_SET_CLASSIC_EXAMINATION: u32 = 0x00B4_014C;
 pub const IFUN_SET_RADAR_MASK: u32 = 0x00B4_007F;
 pub const IFUN_SET_DAMAGE_TEXT_RANGE_OTHER: u32 = 0x00B4_0079;
 pub const IFUN_SET_SHORTCUT_HEIGHT: u32 = 0x00B4_0142;

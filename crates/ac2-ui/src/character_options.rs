@@ -34,6 +34,8 @@ pub const PROFILE_LATENCY_INDICATOR_GRAPH: u32 = 0x4000;
 pub const PROFILE_HIDE_FELLOWS_ON_MAP: u32 = 0x8000;
 /// Set means hidden (`GetShowPetUI` inverts it).
 pub const PROFILE_HIDE_PET_UI: u32 = 0x10000;
+/// 7230: the classic examination panel (`GetClassicExamination` reads it as it is).
+pub const PROFILE_CLASSIC_EXAMINATION: u32 = 0x20000;
 
 /// The profile values the page shows (`gmCWInterface::GetRadarMask`, `GetShortcutHeight`,
 /// `GetDamageTextRangeOther`, and the bit field).
@@ -62,6 +64,8 @@ pub enum Setter {
     LatencyIndicatorGraph,
     ShowFellowsOnMap,
     ShowPetUi,
+    /// 7230: `SetClassicExamination`.
+    ClassicExamination,
     ShowRadarCoords,
     RadarMask,
     DamageTextRangeOther,
@@ -116,6 +120,8 @@ pub struct OptionDesc {
     pub setter: Setter,
     /// `SetDefault` in `gmCharacterUI::Setup`.
     pub default: f64,
+    /// Only the 7230 release's page has it (its string and its call are 7230's).
+    pub release_7230: bool,
 }
 
 /// One expander of the page (`OptionExpander`): its title and its options, in `Setup`'s order.
@@ -132,6 +138,15 @@ const fn flag(name: &'static str, target: Target, setter: Setter, default: f64) 
         target,
         setter,
         default,
+        release_7230: false,
+    }
+}
+
+/// A 7230-only checkbox.
+const fn flag_7230(name: &'static str, target: Target, setter: Setter, default: f64) -> OptionDesc {
+    OptionDesc {
+        release_7230: true,
+        ..flag(name, target, setter, default)
     }
 }
 
@@ -174,6 +189,7 @@ pub const SETUP: [TreeDesc; 4] = [
                 target: Target::DamageRange,
                 setter: Setter::DamageTextRangeOther,
                 default: 1.0,
+                release_7230: false,
             },
         ],
     },
@@ -292,12 +308,20 @@ pub const SETUP: [TreeDesc; 4] = [
                 Setter::ShowPetUi,
                 1.0,
             ),
+            // 7230's `Setup` (0x00447D85): after the pet panel, default off (`SetDefault(0)`).
+            flag_7230(
+                "ID_Option_ClassicExamination",
+                Target::Bit(PROFILE_CLASSIC_EXAMINATION),
+                Setter::ClassicExamination,
+                0.0,
+            ),
             OptionDesc {
                 name: "ID_Option_ShortcutHeight",
                 kind: Kind::Choice { count: 5 },
                 target: Target::ShortcutHeight,
                 setter: Setter::ShortcutHeight,
                 default: 1.0,
+                release_7230: false,
             },
         ],
     },
@@ -483,7 +507,15 @@ mod tests {
             ]
         );
         let counts: Vec<usize> = SETUP.iter().map(|t| t.options.len()).collect();
-        assert_eq!(counts, [5, 7, 3, 8]);
+        assert_eq!(counts, [5, 7, 3, 9]);
+        // 7230's page adds the classic examination after the pet panel.
+        let only_7230: Vec<&str> = SETUP
+            .iter()
+            .flat_map(|t| t.options.iter())
+            .filter(|o| o.release_7230)
+            .map(|o| o.name)
+            .collect();
+        assert_eq!(only_7230, ["ID_Option_ClassicExamination"]);
     }
 
     #[test]

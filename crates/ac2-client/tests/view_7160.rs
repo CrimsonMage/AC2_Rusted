@@ -398,11 +398,14 @@ fn the_client_walks_with_w_and_draws_its_character() {
         let notices = client.take_script_notices();
         let commands = view.frameworks(&mut client, &frame, &[], &notices);
         // Only the hidden allegiance page's request for nobody's profile
-        // (`gmAllegianceUI::UpdateShowState`).
+        // (`gmAllegianceUI::UpdateShowState`), and on 7230 the examination panel's switch to its
+        // tabbed form with the classic option off, which asks for the examination again with
+        // the General tab's word (7230 `gmExaminationUI` 0x00432160).
         assert!(
             commands.iter().all(|c| matches!(
                 c,
                 ac2_client::Command::Social(ac2_weenie::SocialRequest::QueryAllegianceProfile(0))
+                    | ac2_client::Command::StartExamination(0x203)
             )),
             "{commands:?}"
         );

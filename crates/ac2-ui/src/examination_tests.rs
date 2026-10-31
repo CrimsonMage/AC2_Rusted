@@ -159,6 +159,9 @@ fn the_tabs_follow_the_filter_and_the_profile() {
     let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
     let panel = hud.examination.as_mut().expect("the examination panel");
     let tree = &mut hud.tree;
+    // 7230's panel is tabbed with the classic option off (nothing on the DVD's layout).
+    panel.reload_options(tree, false);
+    panel.take_calls();
     let (active, inactive, disabled) = (
         tokenize("active"),
         tokenize("inactive"),
@@ -187,6 +190,9 @@ fn a_tab_press_sets_the_filter_and_restarts_the_examination() {
     let toolbar = &mut hud.toolbar;
     let panel = hud.examination.as_mut().expect("the examination panel");
     let tree = &mut hud.tree;
+    // 7230's panel is tabbed with the classic option off (nothing on the DVD's layout).
+    panel.reload_options(tree, false);
+    panel.take_calls();
 
     // Hidden: a press is ignored.
     let details = press(tree, "DetailsTab");
@@ -304,4 +310,50 @@ fn an_icon_node_shows_every_layer_of_its_icon_description() {
     let element = tree.get(icon).unwrap();
     assert_eq!(element.icon_layers.as_deref(), Some(&layers[..]));
     assert_eq!(element.image().map(|i| i.file), Some(0x4100_6F03));
+}
+
+/// 7230's "Classic Examination" option (7230 `gmExaminationUI` 0x00432160): the 7230 layout's
+/// panel starts classic (every section in `ExaminationListBox`); the option off switches
+/// `ExaminationInternal` to its tabbed state, the rows to `ExaminationListBoxTabbed` and the
+/// filter to the General tab's, and asks for the examination again; on again, back.
+#[test]
+fn the_classic_option_switches_the_panel_between_its_lists() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    if ac2_core::data_release() != ac2_core::DataRelease::Release7230 {
+        return;
+    }
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let panel = hud.examination.as_mut().expect("the examination panel");
+    let tree = &mut hud.tree;
+    let named = |tree: &UiTree, list: Option<usize>| list.and_then(|l| tree.get(l)).map(|e| e.id());
+    assert!(panel.classic());
+    assert_eq!(panel.filter(), 0x3FF);
+    assert_eq!(
+        named(tree, panel.list()),
+        Some(crate::token::tokenize("ExaminationListBox"))
+    );
+    panel.take_calls();
+
+    panel.reload_options(tree, false);
+    assert!(!panel.classic());
+    assert_eq!(panel.filter(), 0x203);
+    assert_eq!(
+        named(tree, panel.list()),
+        Some(crate::token::tokenize("ExaminationListBoxTabbed"))
+    );
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x203)]);
+    // The same option again changes nothing.
+    panel.reload_options(tree, false);
+    assert!(panel.take_calls().is_empty());
+
+    panel.reload_options(tree, true);
+    assert_eq!(panel.filter(), 0x3FF);
+    assert_eq!(
+        named(tree, panel.list()),
+        Some(crate::token::tokenize("ExaminationListBox"))
+    );
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x3FF)]);
 }

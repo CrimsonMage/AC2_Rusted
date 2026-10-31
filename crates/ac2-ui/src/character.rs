@@ -212,7 +212,12 @@ impl CharacterUi {
             }));
             self.main.push(index);
             crate::option_expander::refit(tree, element, header, list);
-            for option in tree_desc.options {
+            let release_7230 = ac2_core::data_release() == ac2_core::DataRelease::Release7230;
+            for option in tree_desc
+                .options
+                .iter()
+                .filter(|o| release_7230 || !o.release_7230)
+            {
                 let entry = self.make_option(tree, toolbar, labels, option, index);
                 if let Some(entry) = entry {
                     let at = self.entries.len();

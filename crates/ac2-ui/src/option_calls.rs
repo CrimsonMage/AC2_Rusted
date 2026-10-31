@@ -28,6 +28,7 @@ pub fn option_call(setting: &OptionSetting) -> (u32, PackValue) {
         Setter::LatencyIndicatorGraph => IFUN_SET_LATENCY_INDICATOR_GRAPH,
         Setter::ShowFellowsOnMap => IFUN_SET_SHOW_FELLOWS_ON_MAP,
         Setter::ShowPetUi => IFUN_SET_SHOW_PET_UI,
+        Setter::ClassicExamination => IFUN_SET_CLASSIC_EXAMINATION,
         Setter::ShowRadarCoords => IFUN_SET_SHOW_RADAR_COORDS,
         Setter::RadarMask => IFUN_SET_RADAR_MASK,
         Setter::DamageTextRangeOther => IFUN_SET_DAMAGE_TEXT_RANGE_OTHER,

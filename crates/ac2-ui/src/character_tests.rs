@@ -189,7 +189,17 @@ fn the_page_lists_the_expanders_and_options_in_setup_order() {
         return;
     };
     let page = hud.character.take().expect("CharacterPage");
-    assert_eq!(page.order(), ORDER);
+    // 7230's page has the classic examination after the pet panel (7230 `Setup` 0x00447D85).
+    let mut order = ORDER.to_vec();
+    if ac2_core::data_release() == ac2_core::DataRelease::Release7230 {
+        let at = order
+            .iter()
+            .position(|n| *n == "ID_Option_ShowPetUI")
+            .unwrap()
+            + 1;
+        order.insert(at, "ID_Option_ClassicExamination");
+    }
+    assert_eq!(page.order(), order);
     // The top level: the four expanders, dismantled (their options not listed).
     assert_eq!(
         page.listed(&hud.tree),
@@ -203,7 +213,7 @@ fn the_page_lists_the_expanders_and_options_in_setup_order() {
     assert_eq!(page.rows(&hud.tree, "ID_Options_Combat"), Some(0));
     assert_eq!(page.is_open("ID_Options_Combat"), Some(false));
     // Each option is labelled and has its help as the tooltip (`OptionBase::Describe`).
-    for name in ORDER.iter().filter(|n| n.starts_with("ID_Option_")) {
+    for name in order.iter().filter(|n| n.starts_with("ID_Option_")) {
         let element = page.element(name).expect(name);
         let label = hud
             .tree
