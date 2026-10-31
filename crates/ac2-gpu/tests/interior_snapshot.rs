@@ -55,7 +55,13 @@ fn dungeon_cells_render_with_baked_light() {
             load_texture_image(&store, did).ok().flatten()
         }
     };
-    let block = CellId::new(0x005D_0001);
+    // `AC2_SNAPSHOT_BLOCK`: the dungeon block (hex), 005D by default.
+    let block = CellId::new(
+        std::env::var("AC2_SNAPSHOT_BLOCK")
+            .ok()
+            .and_then(|v| u32::from_str_radix(&v, 16).ok())
+            .map_or(0x005D_0001, |b| (b << 16) | 1),
+    );
     let interior = world
         .landblock_interior(block)
         .unwrap()
@@ -65,6 +71,11 @@ fn dungeon_cells_render_with_baked_light() {
     let lighting = CellLighting {
         light_info: lights.as_deref(),
         interior_ambient: ambient,
+        // `AC2_CELL_LIGHT_TIME`: the client time the cells bake their lights at.
+        time: std::env::var("AC2_CELL_LIGHT_TIME")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0.0),
     };
     // `AC2_HARDWARE_CLASS=1` draws the fixed-function layers lit by the baked diffuse.
     let settings = RenderSettings {

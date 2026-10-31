@@ -3,6 +3,8 @@
 //! for it, and the outdoor sun and ambient it is lit by.
 
 mod cell;
+#[cfg(test)]
+mod cell_light_tests;
 mod degrade;
 #[cfg(test)]
 mod fx_bone_tests;
@@ -21,7 +23,10 @@ mod texture_matrix;
 mod water;
 
 pub use ac2_assets::{drawn_groups, resolve_drawn_groups, total_visual_desc, DrawnGroup};
-pub use cell::{bake_cell_colors, load_cell_geometry, load_cell_model, CellLighting};
+pub use cell::{
+    bake_cell_colors, bake_static_colors, light_animated_lights, load_cell_geometry,
+    load_cell_model, CellLighting,
+};
 pub use degrade::{
     degrade_level, degrade_scale, mesh_degrade_factor, object_lod, part_array_lod, undegraded_lod,
     DegradeLists, DegradeOptions, DrawDetail, ObjectLod, PartDegrades, HIGH_DETAIL,

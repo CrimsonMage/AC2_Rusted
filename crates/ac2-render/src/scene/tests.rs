@@ -221,8 +221,9 @@ fn a_dungeon_camera_sees_the_cells_its_portals_open_on() {
     let store = Arc::new(ResourceStore::new(dataset));
     let world = Ac2WorldSource::open(Arc::clone(&store)).unwrap().unwrap();
     let block = ac2_core::CellId::new(0x02BB_0100);
-    let interiors = super::load_block_interiors(&world, &store, block, &RenderSettings::default())
-        .expect("the dungeon has cells");
+    let interiors =
+        super::load_block_interiors(&world, &store, block, &RenderSettings::default(), 0.0)
+            .expect("the dungeon has cells");
     let cull = &interiors.cull;
     assert!(cull.cells.len() > 10, "{} cells", cull.cells.len());
     assert_eq!(interiors.cells.len(), interiors.cell_ids.len());

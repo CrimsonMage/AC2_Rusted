@@ -3,7 +3,11 @@
 //! diffuse is baked once by `CEnvCell::flush_cells`: every vertex starts at the landblock's
 //! interior ambient (black for bump-mapped cells, 0.4 grey when the block has no light info), then
 //! `CEnvCell::LightIndices` adds each static light over the vertices it lists, quantising to a
-//! `D3DCOLOR` after every light.
+//! `D3DCOLOR` after every light. The lights whose range animates are left out of that bake
+//! (`LightSource::GetIsRangeAnimating`); `CEnvCell::UpdateDynamicLights` adds them over it once
+//! per cell, at the client time of its first light tick, and retail never repeats it (the tick
+//! passes no force, and the cell stays marked `m_bDynamicLightingComputed`), so the surfaces keep
+//! that one sample while the lights themselves breathe through the point lights each draw binds.
 
 use std::sync::Arc;
 
@@ -33,6 +37,9 @@ pub struct CellLighting<'a> {
     pub light_info: Option<&'a Ac2LightInfo>,
     /// `CLandBlockInfo::m_InteriorAmbientLight`.
     pub interior_ambient: [f32; 3],
+    /// The client time (`Timer::local_time`) the light waveforms are read at: when the cell's
+    /// first light tick runs.
+    pub time: f64,
 }
 
 /// The cell mesh's first degrade on the CPU (`CEnvCell::GetNearbyGeometry`'s source).
@@ -144,8 +151,21 @@ pub fn load_cell_model(
     }))
 }
 
-/// `CEnvCell::flush_cells`' diffuse bake as packed `D3DCOLOR`s.
+/// `CEnvCell::flush_cells`' diffuse bake followed by `CEnvCell::UpdateDynamicLights`' first run,
+/// as packed `D3DCOLOR`s: what the cell's vertices hold from its first light tick on.
 pub fn bake_cell_colors(mesh: &Ac2Mesh, cell: &Ac2EnvCell, lighting: CellLighting<'_>) -> Vec<u32> {
+    let mut colors = bake_static_colors(mesh, cell, lighting);
+    light_animated_lights(mesh, cell, lighting, &mut colors);
+    colors
+}
+
+/// `CEnvCell::flush_cells`' diffuse bake (`m_aStaticLightDiffuse`): the base colour, then every
+/// light of the cell whose range does not animate.
+pub fn bake_static_colors(
+    mesh: &Ac2Mesh,
+    cell: &Ac2EnvCell,
+    lighting: CellLighting<'_>,
+) -> Vec<u32> {
     let base = match lighting.light_info {
         None => NO_LIGHT_INFO_BASE,
         Some(_) if mesh.vertex_format & FORMAT_POINT_TO_LIGHT != 0 => [0.0, 0.0, 0.0, 1.0],
@@ -155,26 +175,63 @@ pub fn bake_cell_colors(mesh: &Ac2Mesh, cell: &Ac2EnvCell, lighting: CellLightin
         }
     };
     let mut colors = vec![pack(base); mesh.vertices.len()];
-    for light in lighting
-        .light_info
-        .iter()
-        .flat_map(|info| info.lights.iter())
-    {
-        if let Some(indices) = light.lit_indices(cell.cell_id) {
-            light_indices(mesh, cell, light, indices, &mut colors);
-        }
+    if let Some(info) = lighting.light_info {
+        for_cell_lights(info, cell, |key, light| {
+            if let Some(indices) = info.lit_indices(cell.cell_id, key) {
+                if !light.is_range_animating() {
+                    light_indices(mesh, cell, light, indices, lighting.time, &mut colors);
+                }
+            }
+        });
     }
     colors
 }
 
+/// The lights of `cell` in `CLightInfo::GetNumLights` / `GetLight` order, with their keys.
+fn for_cell_lights(
+    info: &ac2_world::Ac2LightInfo,
+    cell: &Ac2EnvCell,
+    mut visit: impl FnMut(u32, &Ac2StaticLight),
+) {
+    for n in 0..info.num_lights(cell.cell_id) {
+        if let Some((key, light)) = info.light(cell.cell_id, n) {
+            visit(key, light);
+        }
+    }
+}
+
+/// `CEnvCell::UpdateDynamicLights`' loop over the cell's lights: each one whose range animates
+/// adds its lit vertices on top of the static diffuse, at the waveforms' values at
+/// `lighting.time`. The cell's lights come in `CLightInfo::GetLight` order.
+pub fn light_animated_lights(
+    mesh: &Ac2Mesh,
+    cell: &Ac2EnvCell,
+    lighting: CellLighting<'_>,
+    colors: &mut [u32],
+) {
+    let Some(info) = lighting.light_info else {
+        return;
+    };
+    for_cell_lights(info, cell, |key, light| {
+        if !light.is_range_animating() {
+            return;
+        }
+        if let Some(indices) = info.lit_indices(cell.cell_id, key) {
+            light_indices(mesh, cell, light, indices, lighting.time, colors);
+        }
+    });
+}
+
 /// `CEnvCell::LightIndices`. Retail reads the vertex position and normal from the device vertex
 /// buffer, which holds them y-up (D3D axes), against the light's cell-local AC vector; the
-/// pairing of AC y with buffer z there is the same AC-space dot product used here.
+/// pairing of AC y with buffer z there is the same AC-space dot product used here. The light's
+/// attenuation reads its waveforms at `time`.
 fn light_indices(
     mesh: &Ac2Mesh,
     cell: &Ac2EnvCell,
     light: &Ac2StaticLight,
     indices: &[u16],
+    time: f64,
     colors: &mut [u32],
 ) {
     let local = cell.frame.global_to_local_point(light.origin);
@@ -188,11 +245,11 @@ fn light_indices(
             Ac2LightKind::Point => {
                 let d = local - p;
                 let distance = d.length().max(0.0002);
-                (d / distance, light.attenuation(distance))
+                (d / distance, light.attenuation_at(distance, time))
             }
             Ac2LightKind::Directional => (
                 cell.frame.global_to_local_vector(-light.direction),
-                light.intensity,
+                light.intensity_at(time),
             ),
             // `LightSource::GetDiffuse` of a sunlight-linked light is the sun's ambient, which is
             // black inside.

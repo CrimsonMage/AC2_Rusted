@@ -88,13 +88,16 @@ impl Ac2StaticLight {
         self.kind == Ac2LightKind::Point && self.range_wave.kind != ac2_math::waveform::kind::NONE
     }
 
-    /// `LightSource::CalculateAttenuation`: `intensity / (10 d^2 / range^2 + 1)` for point lights.
-    pub fn attenuation(&self, distance: f32) -> f32 {
+    /// `LightSource::CalculateAttenuation` at client time `time`: the diffuse-intensity waveform's
+    /// value over `1 / (10 d^2 / range^2 + 1)` with the range waveform's value (point lights).
+    pub fn attenuation_at(&self, distance: f32, time: f64) -> f32 {
+        let intensity = self.intensity_at(time);
         match self.kind {
-            Ac2LightKind::Directional => self.intensity,
+            Ac2LightKind::Directional => intensity,
             _ => {
-                let range = self.range.max(0.0002);
-                self.intensity / ((distance / (range * range)) * distance * 10.0 + 1.0)
+                let range = self.range_at(time);
+                let falloff = 1.0 / ((distance / (range * range)) * distance * 10.0 + 1.0);
+                intensity * falloff
             }
         }
     }

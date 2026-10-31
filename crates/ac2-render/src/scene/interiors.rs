@@ -128,12 +128,14 @@ fn cull_cell(
     }
 }
 
-/// Loads the outside-visible cells of `block`, or `None` when it shows none.
+/// Loads the outside-visible cells of `block`, or `None` when it shows none. `time` is the client
+/// time the cells' first light tick bakes their animated lights at.
 pub fn load_block_interiors(
     world: &Ac2WorldSource,
     store: &ResourceStore,
     block: CellId,
     settings: &RenderSettings,
+    time: f64,
 ) -> Option<BlockInteriors> {
     let interior = world.landblock_interior(block).ok().flatten()?;
     // Every env cell of the block loads (`CLandBlockInfo::m_cells`); which of them draw is the
@@ -144,6 +146,7 @@ pub fn load_block_interiors(
     let lighting = CellLighting {
         light_info: lights.as_deref(),
         interior_ambient: ambient,
+        time,
     };
     let block_origin = world.ac2_block_origin(block);
     let scene_lights: Vec<SceneLight> = lights

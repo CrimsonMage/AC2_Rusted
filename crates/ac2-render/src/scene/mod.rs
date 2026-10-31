@@ -392,7 +392,7 @@ impl WorldScene {
                     continue;
                 };
                 if !self.blocks.contains_key(&(x, y)) && self.pending_blocks.insert((x, y)) {
-                    self.request(Request::Block((x, y)));
+                    self.request(Request::Block((x, y), self.particles.now()));
                 }
             }
         }

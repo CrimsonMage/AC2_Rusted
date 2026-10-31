@@ -175,7 +175,8 @@ pub struct LoadedObject {
 
 #[derive(Debug, Clone)]
 pub(crate) enum Request {
-    Block(BlockKey),
+    /// A block, and the client time its cells' animated lights bake at.
+    Block(BlockKey, f64),
     Model(DataId),
     Far(BlockKey),
     /// The far layout the following `Far` loads use (queued, so loads already asked keep theirs).
@@ -310,7 +311,7 @@ impl Worker {
         }
     }
 
-    fn block(&mut self, key: BlockKey) -> LoadedBlock {
+    fn block(&mut self, key: BlockKey, time: f64) -> LoadedBlock {
         let world = Arc::clone(&self.world);
         let store = world.resource_store().clone();
         let id = block_id(key);
@@ -360,7 +361,7 @@ impl Worker {
             .filter_map(|source| self.particle(*source, &mut models))
             .collect();
         let lights = super::entity_lights::block_entity_lights(&world, id);
-        let mut interiors = load_block_interiors(&world, &store, id, &self.settings);
+        let mut interiors = load_block_interiors(&world, &store, id, &self.settings, time);
         if let Some(interiors) = interiors.as_mut() {
             for (visual, _, _) in &interiors.objects {
                 if self.models.insert(*visual) {
@@ -500,7 +501,7 @@ impl Worker {
 
     fn run(&mut self, request: Request) -> Loaded {
         match request {
-            Request::Block(key) => Loaded::Block(self.block(key)),
+            Request::Block(key, time) => Loaded::Block(self.block(key, time)),
             Request::Model(visual) => {
                 let model = self
                     .models
