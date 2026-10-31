@@ -28,7 +28,7 @@ run() { # file, extra args...
   shift
   local config
   config=$(mktemp -d)
-  XDG_CONFIG_HOME=$config "$viewer" --dat-dir "$AC2_DAT_DIR" --block "$block" "$@" \
+  XDG_CONFIG_HOME=$config "$viewer" --dat-dir "$AC2_DAT_DIR" --block "$block" --aa off "$@" \
     --size "$size" --snapshot "$out/$file" >/dev/null 2>"$out/${file%.png}.log" || echo "failed: $file (see ${file%.png}.log)" >&2
   rm -rf "$config"
 }

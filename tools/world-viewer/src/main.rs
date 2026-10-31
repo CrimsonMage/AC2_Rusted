@@ -45,6 +45,10 @@
 //! `--shore-effects` `LandscapeShoreEffects` (default 2: breaking water on the shores).
 //! `--flash` draws a camera effect's screen flash of that colour over the snapshot (0..1 each, as
 //! `CameraFxManager`'s sum: `--flash 0,0,0,1` is a full fade to black).
+//! `--aa on|off` sets `Antialiasing` (temporal anti-aliasing and sharpening; default on): a
+//! snapshot with it on draws every warm-up frame so the history converges on the still camera.
+//! `--pan N` (with `--fly`) then draws N more frames with the camera turning and advancing a
+//! little each, to check the anti-aliasing for ghosting.
 //! `--size` sets the headless frame's size (default 1280x720). `--grass-copies N` draws each near grass frill N times (1: retail's frills only; default 4,
 //! draw distance 2's).
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
@@ -158,6 +162,10 @@ struct Args {
     grass_copies: u32,
     /// The headless frame's size in pixels.
     size: (u32, u32),
+    /// The headless scene's `Antialiasing` (temporal anti-aliasing and sharpening).
+    antialiasing: bool,
+    /// Frames of a moving `--fly` camera after the warm-up (`--pan`), 0: a still camera.
+    pan: u32,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -199,6 +207,8 @@ fn parse_args() -> Result<Args, String> {
         flash: [0.0; 4],
         grass_copies: ac2_render::prefs::SceneOptions::default().frill.copies,
         size: (1280, 720),
+        antialiasing: ac2_render::prefs::SceneOptions::default().antialiasing,
+        pan: 0,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -357,6 +367,14 @@ fn parse_args() -> Result<Args, String> {
                 args.hud_pointer = Some((parse(x)?, parse(y)?));
                 args.hud = true;
             }
+            "--aa" => {
+                args.antialiasing = match value()?.as_str() {
+                    "on" => true,
+                    "off" => false,
+                    other => return Err(format!("--aa: on or off, not {other}")),
+                };
+            }
+            "--pan" => args.pan = value()?.parse().map_err(|e| format!("--pan: {e}"))?,
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
             }
@@ -365,6 +383,9 @@ fn parse_args() -> Result<Args, String> {
     }
     if args.dat_dir.as_os_str().is_empty() {
         return Err("set AC2_DAT_DIR or pass --dat-dir".into());
+    }
+    if args.pan > 0 && !args.fly {
+        return Err("--pan needs --fly".into());
     }
     if args.gpu_times && args.bench == 0 {
         return Err("--gpu-times needs --bench".into());
@@ -522,6 +543,7 @@ fn snapshot(
         degrade: args.degrade,
         object_shadows: args.object_shadows,
         light_coronas: args.light_coronas,
+        antialiasing: args.antialiasing,
         static_shadows: args.static_shadows,
         trilinear: args.trilinear,
         anisotropic: args.anisotropic,
@@ -598,8 +620,10 @@ fn snapshot(
         hud_session(&mut view, &gpu, &store, &world, &mut frame, args, (x, y));
         view.settle(&gpu, &frame, width as f32 / height as f32);
     }
+    let target = FrameTarget::new(&gpu.device, width, height);
     // The scene's particle systems run on the wall clock: let them emit before the frame is
-    // taken.
+    // taken. With `Antialiasing` each warm-up frame is drawn too, so the temporal history
+    // converges on the still camera.
     for step in 0..args.warm_up * 20 {
         view.prepare(
             &gpu,
@@ -607,10 +631,37 @@ fn snapshot(
             width as f32 / height as f32,
             f64::from(step) * 0.05,
         );
+        if args.antialiasing {
+            view.render(&gpu, &target.color_view, &target.depth_view, true);
+            let _ = gpu.device.poll(wgpu::PollType::wait_indefinitely());
+        }
         std::thread::sleep(std::time::Duration::from_millis(50));
     }
+    // `--pan`: the fly camera turns and advances a little every frame (a check on ghosting).
+    for step in 0..args.pan {
+        fly.yaw += 0.3_f32.to_radians();
+        fly.advance(
+            fly::FlyInput {
+                forward: 1.0,
+                ..Default::default()
+            },
+            0.002,
+        );
+        frame = frame::client_frame(mode, &walk, &fly, None, time_of_day);
+        if let Some(camera) = frame.camera.as_mut() {
+            camera.flash = args.flash;
+        }
+        view.update(&gpu, &frame, std::time::Duration::from_millis(4));
+        view.prepare(
+            &gpu,
+            &frame,
+            width as f32 / height as f32,
+            f64::from(step) / 60.0,
+        );
+        view.render(&gpu, &target.color_view, &target.depth_view, true);
+        let _ = gpu.device.poll(wgpu::PollType::wait_indefinitely());
+    }
     view.prepare(&gpu, &frame, width as f32 / height as f32, 0.0);
-    let target = FrameTarget::new(&gpu.device, width, height);
     if args.bench > 0 {
         let report = bench::run(
             &mut view,
