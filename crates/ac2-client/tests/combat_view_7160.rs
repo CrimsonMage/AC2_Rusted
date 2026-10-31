@@ -404,11 +404,6 @@ fn a_skill_story_plays_the_skills_effects_on_the_attacker() {
 /// (`sticks_upon_collide`), drawn on the way.
 #[test]
 fn a_bow_story_fires_an_arrow_into_the_drudge() {
-    // The DVD's story keeps the player the arrow's holder in flight; on 7230 the drudge holds it
-    // from its first flying frame (not traced yet), so this runs on the DVD's DATs.
-    if ac2_dat::test_support::env_legions_dataset().is_none() {
-        return;
-    }
     let Some((mut client, server, mut scene)) = setup() else {
         return;
     };
@@ -433,13 +428,17 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         let Some(&(arrow, holder, Some(at), flying)) = missiles.first() else {
             continue;
         };
-        // Once it sticks the body is out of the world, left where it detonated and drawn on the
-        // drudge's bone.
-        if flying && holder == Some(CREATURE_ONE) {
-            break;
-        }
         let o = at.frame.origin;
         let at = [o.x, o.y, o.z];
+        // Once it sticks the body is out of the world, left where it detonated and drawn on the
+        // drudge's bone. At about 35 m/s the arrow covers the 3 m to the drudge within one 0.1 s
+        // quantum, so the stick can come on the first frame it flies (the 7230 story's hook
+        // fires it at another point of the quantum than the DVD's); where it was left counts.
+        if flying && holder == Some(CREATURE_ONE) {
+            distances.push(flat(at, drudge));
+            heights.push(at[2] - drudge[2]);
+            break;
+        }
         // Made at the player; its body loads first, and the next physics quantum gives it its
         // missile manager, places it at the hand and fires it.
         if !flying {
