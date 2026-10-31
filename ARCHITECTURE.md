@@ -44,6 +44,7 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-guide` | Quest guide (no retail subsystem: the AC2Hero site, a modern addition) | the AC2Hero mirror baked in at build time (`AC2HERO_DIR`, nothing from it committed): pages, quest facts, reward items, images and their decoding, map coordinates (`Position::FromRealMapCoords` forms), steering to them, map markers, browsing (tabs, search, chat share tokens) | new |
 | `ac2-macro` | Player automation tools (no retail subsystem: a modern addition) | pure policy the client feeds and acts on: the Tracker (name patterns over the objects the client sees, Virindi Sense's `patterns.txt`; matches announced in chat, listed with distances, picked for the arrow); no files, drawing or network | new |
 | `ac2-client` | Client entry (09 `main`) | the program: window, input, login screen, world loop | new |
+| `ac2-launcher` | Launcher (retail's separate `ac2launcher.exe`; a modern addition) | the `ac2-launcher` program, in ThwargLauncher's way: servers as a name, a connect string and a type (`ServerItem` XML, the player's and a published list, `docs/server-list.md`), the command line built per type, each server's sign-in (an AC2e account service's tickets), and the start of `ac2` with its ticket in a file | new |
 
 ## Dependency order
 
@@ -66,6 +67,8 @@ script's native layout, `ac2_ui::window_locations`); script sits before ui in th
 `ac2-ui` also depends on `ac2-gameplay` (the quest journal's rules, `ac2_gameplay::quest`).
 `ac2-ui` also depends on `ac2-render` (the client options page's scene options, `ac2_ui::OptionsPages`);
 render sits before ui in the order.
+`ac2-launcher` stands beside `ac2-client` and depends only on `ac2-net` (the protocol and GUN port
+constants) and `ac2-prefs` (the configuration directory); it runs the `ac2` program, never links it.
 `ac2-guide` depends only on `ac2-physics` (`LandDefs` cell addressing for its coordinates) and the
 `image` decoder (the site's pictures), and sits after it; `ac2-ui` takes the guide from it (the navigation map's guide layers, the quest guide window).
 `ac2-macro` depends only on `ac2-physics` (`LandDefs` offsets and map coordinates) and sits after it;

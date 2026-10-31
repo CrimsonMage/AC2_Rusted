@@ -527,6 +527,16 @@ game rules and server-visible behaviour exactly retail.
   Windows the client makes may draw a frame in nine pieces
   (`ac2_ui::compose::NINE_SLICE`: corners kept, edges and middle stretched) where retail drew a
   frame image only at its own size, stretched or tiled.
+- Exception: the launcher (`crates/ac2-launcher`, a modern addition; retail's was the separate
+  `ac2launcher.exe`). It works as ThwargLauncher does: a server is a name, a connect string
+  (`host:port`) and a type (`emu`: `AC2E` or `Relaunch`), and the launcher builds the client's
+  command line for that type and starts it (`docs/server-list.md`); the player never writes one.
+  The player's servers (a local AC2e to start with; no community server is built in) and a
+  published list share ThwargLauncher's `ServerItem` XML. An AC2E server with a login server
+  (`LoginServerUrlKey`) signs in at its AC2e account service (`POST /api/login`: one ticket for
+  the game, one for its GUN service); the client takes the ticket from a file (`glsticket FILE`),
+  and the launcher waits for that. Passwords are never kept.
+  `scripts/ac2e-launcher-test.sh` runs that start against a local AC2e.
 - Exception: the quest guide (`ac2_guide`, a modern addition: the AC2Hero site baked in at build
   time from `AC2HERO_DIR`, nothing of it committed). The option panel's Assistance button
   (`gmOptionUI`, which opened the hidden `AssistanceTab` page for `gmAssistanceUI`'s calls) is

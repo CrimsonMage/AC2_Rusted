@@ -1,0 +1,24 @@
+[package]
+name = "ac2-launcher"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# The launcher (a modern addition beside the client, as retail's `ac2launcher.exe` was): the
+# player's favourite servers and a public server list, the sign-in each server wants, and the
+# start of the `ac2` program with the ticket handed over in a file (`glsticket FILE`).
+[dependencies]
+ac2-net = { path = "../ac2-net" }
+ac2-prefs = { path = "../ac2-prefs" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1"
+roxmltree = "0.20"
+ureq = { version = "2.12", default-features = false, features = ["tls", "json"] }
+eframe = { version = "0.37", default-features = false, features = ["default_fonts", "wgpu", "wayland", "x11", "clipboard", "links"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
