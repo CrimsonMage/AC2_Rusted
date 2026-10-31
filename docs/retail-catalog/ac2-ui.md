@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1654 done, 0 partial, 0 to do, 593 skipped.
+2247 retail functions: 1655 done, 0 partial, 0 to do, 592 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (43/53)
@@ -1093,7 +1093,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
 - [x] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50 — ac2-ui navigation_detail.rs button / map_press (scroll, lock, view switch, player marker) and overview_map.rs map_for_button (zoom buttons, now with Knorr); ac2-client hud_player_message.rs routes UiMessage; the help page is the generic help button; the 0xffff0005 case is run_switch / update
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (41/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (42/46)
 
 ### gmShortcutUI
 - [x] `gmShortcutUI::Show` · 00435cd0 · legions 00436520 — ac2-ui shortcut.rs show: the bar's field shows or hides; ac2-client show_toolbar calls it from the toolbar's Show
@@ -1110,7 +1110,7 @@ Legend and workflow: [README](README.md).
 
 ### gmShortcutUI
 - [x] `gmShortcutUI::RemoveShortcut` · 00435fc0 · legions 00436810 — ac2-ui shortcut.rs
-- [-] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060 — no sender on the DVD client: CM_Shortcut::SendNotice_RemoveRecipe's efun (0x008F0002, gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe) is not in the Legions efun table (ac2-script efun_names.txt has only 0x008F0001 ReloadShortcuts), so the handler never runs
+- [x] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060 — ac2-script notice 0x008F0003 -> GameplayNotice::RemoveRecipe -> ac2-ui shortcut.rs remove_recipe
 - [x] `gmShortcutUI::CheckRecipe` · 004360e0 · legions 00436930 — ac2-ui shortcut.rs
 - [x] `gmShortcutUI::CheckTimeLeftArray` · 00436120 · legions 00436970 — ac2-ui shortcut_states.rs time_left_position: the entry for (skill, slot)
 - [x] `gmShortcutUI::UpdateTimeLeft` · 00436180 · legions 004369d0 — ac2-ui shortcut_states.rs update_time_left: the meter fills by 1 - (end - now)/total clamped; the entry goes when full or its slot no longer holds the skill; ac2-client HudView::update runs it per frame

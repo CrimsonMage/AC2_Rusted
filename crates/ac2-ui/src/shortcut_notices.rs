@@ -20,6 +20,8 @@ pub enum ShortcutCheck {
     Item(u64, bool),
     /// `RecvNotice_CreateObject(object)`.
     Created(u64),
+    /// `RecvNotice_RemoveRecipe(didRecipe)`.
+    RemoveRecipe(u32),
 }
 
 /// The bar's checks, in the order the notices arrived.
@@ -36,6 +38,7 @@ pub fn apply_shortcut_checks(
             ShortcutCheck::Skill(skill) => bar.check_skill(tree, source, skill),
             ShortcutCheck::Item(item, pending) => bar.check_item(tree, source, item, pending),
             ShortcutCheck::Created(object) => bar.create_object(tree, source, object),
+            ShortcutCheck::RemoveRecipe(did) => bar.remove_recipe(tree, source, did),
         }
     }
 }
@@ -70,6 +73,7 @@ pub fn shortcut_checks_of(notice: &GameplayNotice) -> Vec<ShortcutCheck> {
         GameplayNotice::UpdateContainer { code, item, .. } => vec![items(*code, *item)],
         GameplayNotice::UpdateResetTime => vec![ShortcutCheck::Skills],
         GameplayNotice::CreateObject(object) => vec![ShortcutCheck::Created(*object)],
+        GameplayNotice::RemoveRecipe(did) => vec![ShortcutCheck::RemoveRecipe(*did)],
         _ => Vec::new(),
     }
 }

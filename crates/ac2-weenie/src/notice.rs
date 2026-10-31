@@ -167,6 +167,13 @@ pub enum GameplayNotice {
         context: u32,
         text: StringInfo,
     },
+    /// `CM_Shortcut::SendNotice_RemoveRecipe`: the recipe is gone, so every shortcut to it goes
+    /// (`gmShortcutUI::RecvNotice_RemoveRecipe`).
+    RemoveRecipe(u32),
+    /// Legions notice 0x49D (`CM_Inventory`, efun 0x008B0005, Legions 0x006A5870; not in the admin
+    /// build, the name is the client's): the object's container capacity changed; the backpack
+    /// resizes its last page (Legions `gmBackpackUI` 0x00441CE0).
+    MaxContainerSizeChanged(u64),
     /// 7230 only, notice 0x4A4 (`CM_Usage`, efun 0x00920003; the name is the client's): the
     /// script asks the player to confirm `text`; a yes calls the interface's 0x00B4014F with
     /// `first`, `second` and `context` (7230 `gmGamePlayUI` 0x00408190).

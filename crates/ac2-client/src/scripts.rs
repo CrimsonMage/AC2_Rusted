@@ -244,6 +244,7 @@ impl Client {
             let body = p.body.as_ref()?;
             Some(ac2_script::host::body_state::BodySnapshot {
                 cell: p.position().cell_id,
+                position: p.position(),
                 collision: body.physics.script_collision_state(),
                 properties: body.physics.cell_material(),
             })
@@ -262,6 +263,7 @@ impl Client {
                             *id,
                             ac2_script::host::body_state::BodySnapshot {
                                 cell: body.position().cell_id,
+                                position: body.position(),
                                 collision: body.script_collision_state(),
                                 properties: body.cell_material(),
                             },

@@ -34,6 +34,7 @@
 0003000a gAAMultiHash::CallEFun_get_end
 00040001 gAAMultiHashIter::CallEFun_next
 00040002 gAAMultiHashIter::CallEFun_key
+00040003 gAAMultiHashIter::CallEFun_data
 00040004 gAAMultiHashIter::CallEFun_equals
 00050001 gAArray::CallEFun_SetNElements
 00050002 gAArray::CallEFun_push
@@ -1245,6 +1246,7 @@
 00740008 gwccinternal::CallEFun_ToHex
 00740009 gwccinternal::CallEFun_ToLHex
 0074000a gwccinternal::CallEFun_ToIID
+0074000b gwccinternal::CallEFun_ToHex
 00750001 gWLogSystem::CallEFun_IsFileLogging
 00750002 gWLogSystem::CallEFun_IsPrintLogging
 00750003 gWLogSystem::CallEFun_AddFileLog
@@ -1313,6 +1315,7 @@
 007f003f gCWInterface::CallEFun_AddShellHelp
 007f0040 gCWInterface::CallEFun_IsThePlayer
 007f0042 gCWInterface::CallEFun_GetMyPosition
+007f004f gCWInterface::CallEFun_Sleep
 007f0052 gCWInterface::CallEFun_ProcessText
 007f0053 gCWInterface::CallEFun_DisplayHelpText
 007f005b gCWInterface::CallEFun_InqStringInfoValue
@@ -1360,6 +1363,7 @@
 0080002c gCWPhysicsObject::CallEFun_StopAllCameraFX
 00800036 gCWPhysicsObject::CallEFun_IsOutside
 00800037 gCWPhysicsObject::CallEFun_IsInWorld
+0080003b gCWPhysicsObject::CallEFun_CalculateDistance
 00800045 gCWPhysicsObject::CallEFun_DoFX
 00800047 gCWPhysicsObject::CallEFun_StopFX
 00800048 gCWPhysicsObject::CallEFun_DoTargettedFX
@@ -1568,6 +1572,7 @@
 008b0002 gCM_Inventory::CallEFun_SendNotice_UpdateContainer
 008b0003 gCM_Inventory::CallEFun_SendNotice_ContainerStateUpdate
 008b0004 gCM_Inventory::CallEFun_SendNotice_ItemUpdate
+008b0005 gCM_Inventory::CallEFun_SendNotice_MaxContainerSizeChanged
 008c0001 gCM_Money::CallEFun_SendNotice_GhostMoneyBag
 008c0002 gCM_Money::CallEFun_SendNotice_UpdateMoney
 008d0001 gCM_Physics::CallEFun_SendNotice_Do3DDamage
@@ -1575,6 +1580,7 @@
 008e0002 gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests
 008e0003 gCM_Quest::CallEFun_SendNotice_PlaySequence
 008f0001 gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts
+008f0003 gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe
 00900001 gCM_Trade::CallEFun_SendNotice_Trade_BeRegistered
 00900002 gCM_Trade::CallEFun_SendNotice_Trade_BeOpened
 00900003 gCM_Trade::CallEFun_SendNotice_Trade_BeClosed
@@ -1735,6 +1741,7 @@
 009c0001 ggmActInfo::CallEFun_Init
 009c0002 ggmActInfo::CallEFun_AddScene
 009c0003 ggmActInfo::CallEFun_GetActID
+009c0004 ggmActInfo::CallEFun_DumpW
 009d0001 ggmActInfoList::CallEFun_insert_sort
 009d0002 ggmActInfoList::CallEFun_pop_front
 009e0001 ggmCharGenResult::CallEFun_GetName

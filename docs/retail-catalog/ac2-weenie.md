@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 969 done, 156 partial, 123 to do, 656 skipped.
+1904 retail functions: 976 done, 156 partial, 118 to do, 654 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -153,11 +153,11 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Quest::SendNotice_UpdateStoryQuests` · 00725b40 — implemented: cited at crates/ac2-ui/src/story_quests.rs:6
 - [x] `CM_Quest::SendNotice_PlaySequence` · 00725bd0 — implemented: cited at crates/ac2-ui/src/story_quests.rs:34
 
-## `ac2/client/src/events/cm_shortcut.cpp.c` (1/2)
+## `ac2/client/src/events/cm_shortcut.cpp.c` (2/2)
 
 ### CM_Shortcut
 - [x] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — implemented: cited at crates/ac2-weenie/src/notice.rs:81
-- [-] `CM_Shortcut::SendNotice_RemoveRecipe` · 00726940 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [x] `CM_Shortcut::SendNotice_RemoveRecipe` · 00726940 — ac2-script notice 0x008F0003 -> GameplayNotice::RemoveRecipe -> ac2-ui shortcut.rs remove_recipe
 
 ## `ac2/client/src/events/cm_store.cpp.c` (9/12)
 
@@ -386,11 +386,11 @@ Legend and workflow: [README](README.md).
 - [x] `gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests` · 00468e00 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 - [~] `gCM_Quest::CallEFun_SendNotice_PlaySequence` · 00468e50 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 
-## `ac2/client/src/weenie/interp/glue/gcm_shortcut.cpp.c` (1/2)
+## `ac2/client/src/weenie/interp/glue/gcm_shortcut.cpp.c` (2/2)
 
 ### gCM_Shortcut
 - [x] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
-- [-] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60 — No Legions 7160 counterpart: glue/efun_names.txt has no efun for it; the Legions 0x00468D60 is a different function [vtable-checked: not a slot of any located Legions vtable]
+- [x] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60 — ac2-script notice 0x008F0003 -> GameplayNotice::RemoveRecipe -> ac2-ui shortcut.rs remove_recipe
 
 ## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (9/12)
 
@@ -2262,12 +2262,12 @@ Legend and workflow: [README](README.md).
 - [x] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700 — ac2-script glue::engine_misc get_my_package_id
 - [~] `gCWDistributor::CallEFun_GetProcessID` · 004bc770 — ac2-script glue::engine_misc: process id numbered in weenie creation order from 1; the singleton processes retail registers first are not modelled
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (13/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (15/32)
 
 ### gCWInterface
-- [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340 — needs port: resume continuation of latent sleep (the script waits and resumes here); no citation in crates/
+- [x] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340 — ac2-script host interface.rs sleep + latent.rs wake_sleepers (SleepAwakener trigger at Timer::cur_time + delay; Resume_Sleep closes the frame); ac2-client wakes them each frame
 - [x] `gCWInterface::CallEFun_DisplayHelpText` · 004bb200 — ac2-script host/interface.rs display_help_text (efun 0x007F0053) -> ScriptPort::display_help -> ChatState::display_help; unit-tested (efun queues the word, shell shows help / unrecognized-command lines)
-- [ ] `gCWInterface::CallEFun_Sleep` · 004bb260 — needs port: script efun sleep on the interface; no citation in crates/
+- [x] `gCWInterface::CallEFun_Sleep` · 004bb260 — ac2-script host interface.rs sleep + latent.rs wake_sleepers (SleepAwakener trigger at Timer::cur_time + delay; Resume_Sleep closes the frame); ac2-client wakes them each frame
 - [x] `gCWInterface::CallEFun_AddShellCmd` · 004bb370 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 - [x] `gCWInterface::CallEFun_AddShellCmdByStringID` · 004bb3f0 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 - [x] `gCWInterface::CallEFun_AddShellHelp` · 004bb480 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
@@ -2298,7 +2298,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400 — implemented: cited at crates/ac2-weenie/src/session.rs:82
 - [~] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (23/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (24/85)
 
 ### gCWPhysicsObject
 - [-] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
@@ -2312,7 +2312,7 @@ Legend and workflow: [README](README.md).
 - [-] `gCWPhysicsObject::CallEFun_ApplyAdditiveVisualDesc` · 004b8410 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [-] `gCWPhysicsObject::CallEFun_ApplySubtractiveVisualDesc` · 004b8490 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [-] `gCWPhysicsObject::CallEFun_ApplyVisualDescToPhysicsObj` · 004b8510 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
-- [ ] `gCWPhysicsObject::CallEFun_CalculateDistance` · 004b8580 — needs port: script efun calculate distance on the physics object; no citation in crates/
+- [x] `gCWPhysicsObject::CallEFun_CalculateDistance` · 004b8580 — ac2-script host body_state.rs: Position::distance from the body snapshot's position; -1 without a body
 - [-] `gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc` · 004b8600 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_DoBehavior` · 004b8680 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 - [x] `gCWPhysicsObject::CallEFun_DoBehaviorNonLatent` · 004b87a0 — ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
@@ -2576,7 +2576,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — implemented: cited at crates/ac2-script/src/host/mod.rs:2
 - [x] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590 — implemented: cited at crates/ac2-net/src/protocol/server_event.rs:59
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (22/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (23/52)
 
 ### CWInterface
 - [-] `CWInterface::CWInterface` · 0052e280 · legions 005125c0 — constructor of plain data: Rust struct init replaces it
@@ -2638,7 +2638,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — ac2-client scripts.rs Client::chat_line -> OnlineSession::process_text (alias expansion, CPlayerShell::ProcessText, command table) and ac2-script host/shell.rs for script commands; shell tests and chat_commands tests
 - [x] `CWInterface::HandleCmdArgs` · 0052ef20 · legions 00513130 — ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 - [ ] `CWInterface::ResumeCallback` · 0052f070 · legions 00513280 — needs port: interface resume callback; no citation in crates/
-- [ ] `CWInterface::Sleep` · 0052f100 — needs port: interface sleep; no citation in crates/
+- [x] `CWInterface::Sleep` · 0052f100 — ac2-script host interface.rs sleep + latent.rs wake_sleepers (SleepAwakener trigger at Timer::cur_time + delay; Resume_Sleep closes the frame); ac2-client wakes them each frame
 - [x] `CWInterface::DoCmdInterp` · 0052f1f0 — ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 - [ ] `CWInterface::DoHelpInterp` · 0052f300 — needs port: interface do help interp; no citation in crates/
 - [x] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0 — implemented: cited at crates/ac2-weenie/src/shell/mod.rs:160
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90 — destructor: Rust Drop replaces it
 - [-] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0 — notice-handler registry: Rust dispatches notices by enum, no handler list
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (20/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (21/91)
 
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80 — constructor of plain data: Rust struct init replaces it
@@ -2907,7 +2907,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWPhysicsObject::IsOutside` · 00530820 · legions 005147c0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 - [-] `CWPhysicsObject::IsInWorld` · 00530850 · legions 005147f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::LocalToGlobal` · 00530870 · legions 00514810 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
-- [ ] `CWPhysicsObject::CalculateDistance` · 00530890 · legions 00514830 — needs port: physics object calculate distance; no citation in crates/
+- [x] `CWPhysicsObject::CalculateDistance` · 00530890 · legions 00514830 — ac2-script host body_state.rs: Position::distance from the body snapshot's position; -1 without a body
 - [-] `CWPhysicsObject::GetVelocityScale` · 005308c0 · legions 00514860 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetVelocityScale` · 005308e0 · legions 00514880 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [-] `CWPhysicsObject::GetAccelerationScale` · 00530900 · legions 005148a0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method

@@ -476,6 +476,31 @@ impl ContainerDisplay {
         self.max_size
     }
 
+    /// Legions `ContainerDisplay` 0x0042E730 (no symbol; the client's name): a new slot count
+    /// re-inits the page (`Init` over the same container, first slot and segment): the list
+    /// takes that many slots and the segment's items again. Nothing changes when the count is
+    /// the same or the page has no list.
+    pub fn set_max_size(&mut self, tree: &mut UiTree, s: &dyn InventorySource, size: u32) {
+        let Some(list) = self.list else {
+            return;
+        };
+        if self.max_size == size {
+            return;
+        }
+        tree.list_multi_op_start(list);
+        tree.list_flush(list);
+        self.items.clear();
+        self.count = 0;
+        self.max_size = size;
+        for _ in 0..size {
+            if let Some(slot) = self.background(tree) {
+                tree.list_add_item(list, slot);
+            }
+        }
+        self.get_contents(tree, s);
+        tree.list_multi_op_complete(list);
+    }
+
     pub fn first_slot(&self) -> u32 {
         self.first_slot
     }

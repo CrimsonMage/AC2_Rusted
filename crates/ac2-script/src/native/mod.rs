@@ -23,6 +23,7 @@ pub use ac2_net::protocol::Position;
 pub use chargen::CharGenResult;
 pub use collision::{CollideProperty, CollisionParameters, CollisionProfile, ObjCollisionProfile};
 pub use containers::{RefKey, ScriptList};
+pub(crate) use data_bags::physics_position;
 pub use data_bags::{FxAndBehavior, LinkRequirements, MissileInfo, MissileTargeting};
 pub use hash_table::{
     bucket_size_index, HashNode, HashPos, NativeKeys, PlainKeys, ScriptHash, BUCKET_SIZES,

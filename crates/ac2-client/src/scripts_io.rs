@@ -26,6 +26,20 @@ impl Client {
         ac2_script::host::outcome::outcome(self, id, function, result, out);
     }
 
+    /// The scripts' sleeps whose time has come wake (`gCWInterface::Resume_Sleep`), once a frame
+    /// after the clock moves; what they produce goes out with the frame.
+    pub(crate) fn wake_script_sleepers(&mut self) {
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        let woken = scripts.host.wake_sleepers();
+        let mut out = Vec::new();
+        for (object, outcome) in woken {
+            self.script_outcome(object, Some(0x007F_004F), Ok(outcome), &mut out);
+        }
+        self.script_outbox.extend(out);
+    }
+
     /// `ggmCWInterface::Resume_PopupYesNoDialog`: the player's answer to a script's question
     /// resumes the context that asked it, and its output goes out with the frame.
     pub(crate) fn answer_popup(

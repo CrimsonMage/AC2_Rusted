@@ -79,6 +79,8 @@ pub(super) fn typed(
             context: int(args, 2)?,
             text: info(args, 3),
         },
+        "MaxContainerSizeChanged" => N::MaxContainerSizeChanged(object),
+        "RemoveRecipe" => N::RemoveRecipe(int(args, 0)?),
         "ReloadOptions" => N::ReloadOptions,
         "ReloadShortcuts" => N::ReloadShortcuts,
         "ContainerStateUpdate" => N::ContainerStateUpdate {

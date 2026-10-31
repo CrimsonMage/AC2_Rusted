@@ -148,8 +148,10 @@ fn the_name_table_covers_the_dispatchers() {
         efun_name(0x0074_0001),
         Some("gwccinternal::CallEFun__WCC_strcat_str")
     );
-    // Legions 7160's 2113, three Legions ingredient efuns the admin table lacks, six 7230 adds.
-    assert_eq!(efun_ids().count(), 2122);
+    // Legions 7160's 2113, ten Legions efuns the admin-derived table lacked (three ingredient
+    // calls, `data`, the `ToHex` alias, `Sleep`, `CalculateDistance`, `RemoveRecipe`, `DumpW` and
+    // the capacity notice), six 7230 adds.
+    assert_eq!(efun_ids().count(), 2129);
     assert_eq!(
         efun_name(0x0092_0003),
         Some("gCM_Usage::CallEFun_SendNotice_ConfirmUse")
@@ -689,4 +691,43 @@ fn reserved_ids_read_the_type_byte() {
     assert_eq!(check(&mut vm, 0x0063_0006, dynamic).0, 1);
     assert_eq!(check(&mut vm, 0x0063_0005, static_id).0, 1);
     assert_eq!(check(&mut vm, 0x0063_0005, player).0, 0);
+}
+
+/// `gmSceneInfo::Verify` (admin 0x0060A170): an empty scene reports its act, id and keyframes in
+/// retail's words; a complete one passes and leaves the text alone.
+#[test]
+fn a_scene_verify_reports_what_is_missing() {
+    let mut vm = vm();
+    let scene = vm.refs.create_native(
+        crate::native::ntype::GM_SCENE_INFO,
+        NativeObject::SceneInfo(Box::default()),
+    );
+    let error = vm.new_wstring(Vec::new());
+    let (_, rets) = call(&mut vm, 0x00A3_0003, 1, &[error], scene);
+    assert_eq!(rets[0].0, 0);
+    let Some(NativeObject::WString(text)) = vm.native(error) else {
+        panic!();
+    };
+    assert_eq!(
+        String::from_utf16_lossy(text),
+        "gmSceneInfo::Verify> ActID is invalid\ngmSceneInfo::Verify> ID is invalid\n\
+         gmSceneInfo::Verify> No Keyframes\n"
+    );
+
+    if let Some(NativeObject::SceneInfo(s)) = vm.native_mut(scene) {
+        s.act_id = 1;
+        s.id = 2;
+        s.keyframes.push(ac2_weenie::Keyframe {
+            scene_id: 2,
+            frame_num: 1,
+            duration: 3.0,
+            video: 0x0600_0001,
+            defined_tracks: ac2_weenie::TRACK_VIDEO,
+            ..Default::default()
+        });
+    }
+    let clean = vm.new_wstring(Vec::new());
+    let (_, rets) = call(&mut vm, 0x00A3_0003, 1, &[clean], scene);
+    assert_eq!(rets[0].0, 1);
+    assert!(matches!(vm.native(clean), Some(NativeObject::WString(t)) if t.is_empty()));
 }

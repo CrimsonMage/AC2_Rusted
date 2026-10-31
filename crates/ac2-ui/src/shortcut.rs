@@ -516,6 +516,17 @@ impl ShortcutUi {
         self.set_shortcut(tree, source, index, Shortcut::default(), true);
     }
 
+    /// `gmShortcutUI::RecvNotice_RemoveRecipe` (admin 0x00436060): every recipe shortcut
+    /// (`0x40000006`) to `did` is removed.
+    pub fn remove_recipe(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource, did: u32) {
+        for index in 0..self.shortcuts.len() {
+            let s = &self.shortcuts[index];
+            if s.kind == SHORTCUT_RECIPE && s.data_id == did {
+                self.remove_shortcut(tree, source, index);
+            }
+        }
+    }
+
     /// `gmShortcutUI::CheckShortcut`: a skill is checked by `CheckSkill`, an item by `CheckItem`,
     /// an obsolete entry is removed and a recipe goes when it has no DID (`CheckRecipe`).
     fn check_shortcut(

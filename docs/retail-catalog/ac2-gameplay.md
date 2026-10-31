@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 225 done, 30 partial, 29 to do, 215 skipped.
+499 retail functions: 227 done, 30 partial, 29 to do, 213 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -305,14 +305,14 @@ Legend and workflow: [README](README.md).
 - [-] `PList<gmSceneInfo>::operator=` · 0060ba80 · legions 005cc7d0 — assignment or comparison of plain data (operator=, ==, <)
 
 ### gmActInfo
-- [-] `gmActInfo::DumpScenesW` · 0060bac0 · legions 005cc810 — debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
+- [-] `gmActInfo::DumpScenesW` · 0060bac0 · legions 005cc810 — developer debug dump text; no admin tools
 - [x] `gmActInfo::Init` · 0060bc10 · legions 005cc960 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 - [x] `gmActInfo::GetOrderedSceneList` · 0060bcb0 · legions 005cca00 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
-- [-] `gmActInfo::DumpW` · 0060bce0 · legions 005cca30 — debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
+- [-] `gmActInfo::DumpW` · 0060bce0 · legions 005cca30 — developer debug dump text; no admin tools
 - [-] `gmActInfo::operator=` · 0060be40 · legions 005ccb90 — assignment or comparison of plain data (operator=, ==, <)
 - [-] `gmActInfo::gmActInfo` · 0060be90 · legions 005ccbe0 — constructor of plain data
 
-## `ac2/shared/src/quest/gmkeyframe.cpp.c` (10/23)
+## `ac2/shared/src/quest/gmkeyframe.cpp.c` (11/23)
 
 ### gmKeyframe
 - [ ] `gmKeyframe::GetSubDataIDs` · 0060a350 · legions 005cb060 — needs port: sub-object DID list for DBO prefetch (gmKeyframe::GetSubDataIDs)
@@ -335,8 +335,8 @@ Legend and workflow: [README](README.md).
 - [-] `gmKeyframe::ClearForHackers` · 0060a6a0 · legions 005cb3b0 — debug efun, deliberately unbound in ac2-script glue/story.rs (ClearForHackers)
 - [-] `gmKeyframe::gmKeyframe` · 0060a6d0 · legions 005cb3e0 — constructor of plain data
 - [-] `gmKeyframe::~gmKeyframe` · 0060a730 · legions 005cb440 — destructor of plain data
-- [-] `gmKeyframe::Dump` · 0060a7a0 · legions 005cb4b0 — admin dump/verify debug helper
-- [-] `gmKeyframe::Verify` · 0060a900 · legions 005cb610 — admin dump/verify debug helper
+- [-] `gmKeyframe::Dump` · 0060a7a0 · legions 005cb4b0 — developer debug dump text; no admin tools
+- [x] `gmKeyframe::Verify` · 0060a900 · legions 005cb610 — ac2-script glue story.rs verify (retail messages; no movie file name kept)
 - [x] `gmKeyframe::StreamPack` · 0060aa40 · legions 005cb750 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ## `ac2/shared/src/quest/gmquestinfo.cpp.c` (9/15)
@@ -382,7 +382,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmQuestInfoList::operator=` · 0060b8a0 · legions 005cc5f0 — assignment or comparison of plain data (operator=, ==, <)
 - [-] `gmQuestInfoList::gmQuestInfoList` · 0060b8c0 · legions 005cc610 — constructor of plain data
 
-## `ac2/shared/src/quest/gmsceneinfo.cpp.c` (5/18)
+## `ac2/shared/src/quest/gmsceneinfo.cpp.c` (6/18)
 
 ### gmSceneInfo
 - [x] `gmSceneInfo::SetIDByName` · 00609a50 — ac2-script/src/glue/story.rs set_id_by_name (gmSceneInfo::SetIDByName)
@@ -408,8 +408,8 @@ Legend and workflow: [README](README.md).
 - [-] `PList<gmKeyframe>::operator=` · 00609f10 · legions 005cac20 — assignment or comparison of plain data (operator=, ==, <)
 
 ### gmSceneInfo
-- [-] `gmSceneInfo::Dump` · 00609f50 · legions 005cac60 — admin dump/verify debug helper
-- [-] `gmSceneInfo::Verify` · 0060a170 · legions 005cae80 — admin dump/verify debug helper
+- [-] `gmSceneInfo::Dump` · 00609f50 · legions 005cac60 — developer debug dump text; no admin tools
+- [x] `gmSceneInfo::Verify` · 0060a170 · legions 005cae80 — ac2-script glue story.rs verify (retail messages; no movie file name kept)
 - [-] `gmSceneInfo::operator=` · 0060a230 · legions 005caf40 — assignment or comparison of plain data (operator=, ==, <)
 - [x] `gmSceneInfo::Set` · 0060a280 · legions 005caf90 — ac2-script/src/glue/story.rs Set and AddKeyframe (gmSceneInfo::Set, AddKeyframe)
 - [-] `gmSceneInfo::gmSceneInfo` · 0060a2d0 · legions 005cafe0 — constructor of plain data

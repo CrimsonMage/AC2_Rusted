@@ -117,7 +117,8 @@ impl MissileInfo {
     }
 }
 
-fn physics_position(p: &Position) -> ac2_physics::Position {
+/// A wire `Position` as the physics reads it.
+pub(crate) fn physics_position(p: &Position) -> ac2_physics::Position {
     let [w, x, y, z] = p.rotation;
     let [ox, oy, oz] = p.origin;
     ac2_physics::Position::new(

@@ -15,6 +15,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     // Legions binds 0x7F000A and 0x7F000B to one function (0x004B0680).
     efuns.register(0x007F_000B, get_internal_weenie_object);
     efuns.register(0x007F_0040, is_the_player);
+    efuns.register(super::latent::SLEEP, sleep);
     efuns.register(0x007F_0052, process_text);
     efuns.register(0x007F_0053, display_help_text);
     // `gCWBookKeeper::CallEFun_{Add,Remove}ObjectToBeDestroyed` (the weenie's book keeper, `this`):
@@ -348,6 +349,20 @@ pub(super) fn this_weenie(vm: &mut Vm, ctx: &mut Context) -> Result<u64, InterpS
         return Err(vm.bad_this(this));
     }
     Ok(vm.owners.get(&this).copied().unwrap_or(0))
+}
+
+/// `gCWInterface::CallEFun_Sleep(double delay)` -> `CWInterface::Sleep` (admin 0x004BB260,
+/// 0x0052F100): the context stops (`Interrupted`, `m_efun` 0x7F004F) and a `SleepAwakener`
+/// trigger is queued for `Timer::cur_time + delay`, which resumes it
+/// (`ScriptHost::wake_sleepers`).
+fn sleep(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let delay = f64::from_bits(word64(ctx, 3));
+    vm.sleepers.push((vm.cur_time + delay, id, ctx.cid));
+    InterpStatus::Interrupted
 }
 
 /// `CWInterface::IsThePlayer`: whether this weenie is `CObjectMaint::GetPlayerID`.

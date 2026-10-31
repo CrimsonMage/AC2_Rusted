@@ -38,6 +38,7 @@ fn is_outside_reads_the_cell() {
     let mut host = host_with_weenie();
     let snapshot = |cell| BodySnapshot {
         cell,
+        position: Default::default(),
         collision: ac2_physics::CollisionParameters::default(),
         properties: None,
     };
@@ -71,6 +72,7 @@ fn collision_state_and_non_latent_behavior() {
         0x55,
         Some(BodySnapshot {
             cell: 0xA9B4_0021,
+            position: Default::default(),
             collision: state,
             properties: None,
         }),
@@ -110,6 +112,7 @@ fn current_properties_copy_the_cell_material() {
     let mut host = host_with_weenie();
     let snapshot = |properties| BodySnapshot {
         cell: 0xA9B4_0021,
+        position: Default::default(),
         collision: ac2_physics::CollisionParameters::default(),
         properties,
     };

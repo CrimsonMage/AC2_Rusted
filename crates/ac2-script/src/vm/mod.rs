@@ -302,6 +302,9 @@ pub struct Vm {
     /// their context until the body reports the mode or behaviour done (`ModeDone` /
     /// `BehaviorDone` with the context). The client starts each on the body with its context.
     pub latent_physics: Vec<crate::host::LatentPhysics>,
+    /// `gCWInterface::CallEFun_Sleep`'s triggers (`g_ClientEventTriggers`' `SleepAwakener`s): the
+    /// `Timer::cur_time` each context wakes at, with its object and context id.
+    pub sleepers: Vec<(f64, u64, u32)>,
     /// Each weenie's `CWDistributor::m_initData` (`WInitData::m_pid`, `m_did`), by object id.
     pub init_data: std::collections::HashMap<u64, (u32, u32)>,
     /// `CObjectMaint::GetPlayerID` (0 before the player exists).
@@ -434,6 +437,7 @@ impl Vm {
             collision_minimums: Vec::new(),
             collision_sets: Vec::new(),
             latent_physics: Vec::new(),
+            sleepers: Vec::new(),
             init_data: Default::default(),
             player: 0,
             repositories: Default::default(),

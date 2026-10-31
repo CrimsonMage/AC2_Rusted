@@ -36,6 +36,8 @@ pub enum BodyState {
 #[derive(Debug, Clone, PartialEq)]
 pub struct BodySnapshot {
     pub cell: u32,
+    /// The body's position (`CPhysicsObj::get_position`), for `CalculateDistance`.
+    pub position: ac2_physics::Position,
     pub collision: ac2_physics::CollisionParameters,
     /// The cell material's property groups (`CPhysicsObj::InqCurrentProperties`), when the body
     /// has one.
@@ -70,6 +72,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     });
     efuns.register(0x0080_002B, toggle_place_marker_objects);
     efuns.register(0x0080_0036, is_outside);
+    efuns.register(0x0080_003B, calculate_distance);
     efuns.register(0x0080_000B, get_collision_state);
     efuns.register(0x0080_004A, inq_current_properties);
     efuns.register(0x0080_001C, do_behavior_non_latent);
@@ -122,6 +125,28 @@ fn is_outside(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         .get(&id)
         .is_some_and(|b| b.cell & CELLID_MASK < FIRST_ENVCELL_ID);
     Call::new(ctx).ret(2, u32::from(outside), tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_CalculateDistance(Position *)` -> `CWPhysicsObject::
+/// CalculateDistance` -> `CPhysicsObj::get_distance_to_position(pos, 0)`: `Position::distance`
+/// from the body's position (no cylinders), rounded to the `float` the efun stores; -1 without a
+/// body (admin 0x004B8580, 0x00530890, 0x004E0950).
+fn calculate_distance(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let target = Call::new(ctx).word(2);
+    let Some(NativeObject::Position(p)) = vm.native(target) else {
+        return vm.bad_this(target);
+    };
+    let to = crate::native::physics_position(p);
+    let distance = vm
+        .bodies
+        .get(&id)
+        .map_or(-1.0, |b| b.position.distance(&to) as f32);
+    Call::new(ctx).ret(3, distance.to_bits(), tag::FLOAT);
     InterpStatus::Success
 }
 

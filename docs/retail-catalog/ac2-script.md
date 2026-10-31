@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1693 done, 32 partial, 332 to do, 411 skipped.
+2468 retail functions: 1694 done, 32 partial, 332 to do, 410 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -240,7 +240,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmActInfo::CallEFun_Init` · 00474530 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 - [x] `ggmActInfo::CallEFun_AddScene` · 004745c0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 - [x] `ggmActInfo::CallEFun_GetActID` · 00474640 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
-- [-] `ggmActInfo::CallEFun_DumpW` · 004746b0 — debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
+- [-] `ggmActInfo::CallEFun_DumpW` · 004746b0 — developer debug dump text; no admin tools
 
 ## `ac2/shared/src/interp/glue/ggmactinfolist.cpp.c` (2/2)
 
@@ -334,7 +334,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmRaceSexInfo::CallEFun_Verify` · 00472560 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
-## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (18/20)
+## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (19/20)
 
 ### ggmSceneInfo
 - [x] `ggmSceneInfo::CallEFun_Clear` · 00471950 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -353,10 +353,10 @@ Legend and workflow: [README](README.md).
 - [x] `ggmSceneInfo::CallEFun_GetSceneNum` · 00471e80 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmSceneInfo::CallEFun_IsHidden` · 00471ef0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmSceneInfo::CallEFun_IsPlayable` · 00471f60 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [-] `ggmSceneInfo::CallEFun_Dump` · 00471fd0 — WSL debug dump
+- [-] `ggmSceneInfo::CallEFun_Dump` · 00471fd0 — developer debug dump text; no admin tools
 - [x] `ggmSceneInfo::CallEFun_GetName` · 00472090 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmSceneInfo::CallEFun_GetSubDataIDs` · 00472140 — ac2-script glue::sub_data_ids
-- [-] `ggmSceneInfo::CallEFun_Verify` · 004721c0 · legions 00470280 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+- [x] `ggmSceneInfo::CallEFun_Verify` · 004721c0 · legions 00470280 — ac2-script glue story.rs verify (retail messages; no movie file name kept)
 
 ## `ac2/shared/src/interp/glue/ggmsceneinfolist.cpp.c` (4/4)
 
@@ -1026,7 +1026,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gaamultihashiter.cpp.c` (4/4)
 
 ### gAAMultiHashIter
-- [x] `gAAMultiHashIter::CallEFun_data` · 00566850 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHashIter::CallEFun_data` · 00566850 — ac2-script glue (ToHex also at Legions id 0x74000B; data by name in multi.rs)
 - [x] `gAAMultiHashIter::CallEFun_equals` · 005668c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gAAMultiHashIter::CallEFun_key` · 00566940 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gAAMultiHashIter::CallEFun_next` · 005669b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
@@ -3218,7 +3218,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gwccinternal.cpp.c` (10/10)
 
 ### gwccinternal
-- [x] `gwccinternal::CallEFun_ToHex` · 005532b0 · legions 0052dbe0 — ac2-script glue
+- [x] `gwccinternal::CallEFun_ToHex` · 005532b0 · legions 0052dbe0 — ac2-script glue (ToHex also at Legions id 0x74000B; data by name in multi.rs)
 - [x] `gwccinternal::CallEFun_ToIID` · 00553330 · legions 0052dc60 — ac2-script glue
 - [x] `gwccinternal::CallEFun_ToLHex` · 005533b0 · legions 0052dce0 — ac2-script glue
 - [x] `gwccinternal::CallEFun__WCC_strcat_float` · 00553430 · legions 0052dd60 — ac2-script glue

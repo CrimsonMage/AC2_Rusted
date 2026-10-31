@@ -299,6 +299,24 @@ impl BackpackUi {
             .find_map(|p| p.stack_ui_done(s, context, amount))
     }
 
+    /// Legions `gmBackpackUI` 0x00441CE0 (notice 0x49D, through 0x00441DD0; no symbols): the
+    /// player's capacity (`gmCWInterface::GetMaxContainerSize`) changed, so the last page (the
+    /// highest first slot) takes what the other pages leave of it, at least one slot.
+    pub fn max_container_size_changed(
+        &mut self,
+        tree: &mut UiTree,
+        s: &dyn InventorySource,
+        player: u64,
+    ) {
+        let capacity = s.max_container_size(player) as i64;
+        let total: i64 = self.packs.iter().map(|p| i64::from(p.max_size())).sum();
+        let Some(last) = self.packs.iter_mut().max_by_key(|p| p.first_slot()) else {
+            return;
+        };
+        let size = i64::from(last.max_size()) + capacity - total;
+        last.set_max_size(tree, s, if size < 0 { 1 } else { size as u32 });
+    }
+
     /// `ContainerDisplay::RecvNotice_UpdateContainer` for the pages over `container`.
     pub fn update_container(
         &mut self,

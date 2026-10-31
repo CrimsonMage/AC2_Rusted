@@ -20,6 +20,9 @@ pub(super) const DO_MODE: u32 = 0x0080_0015;
 /// `gCWPhysicsObject::CallEFun_DoBehavior` (`m_efun` 0x80001B).
 pub(super) const DO_BEHAVIOR: u32 = 0x0080_001B;
 
+/// `gCWInterface::CallEFun_Sleep` (`m_efun` 0x7F004F).
+pub(super) const SLEEP: u32 = 0x007F_004F;
+
 /// A mode or behaviour the script started on an object's body, with the context that waits for
 /// it to finish.
 #[derive(Debug, Clone, PartialEq)]
@@ -120,4 +123,42 @@ pub fn finish<P: ScriptPort + ?Sized>(port: &mut P, object: u64, completions: Ve
         resume(port, object, context, error, &mut out);
     }
     port.push_outbox(out);
+}
+
+impl ScriptHost {
+    /// `g_ClientEventTriggers` for the sleeps: each `SleepAwakener` whose time has come
+    /// (`Timer::cur_time`, earliest first) runs `gCWInterface::Resume_Sleep` (admin 0x004BB120):
+    /// a context of the object still waiting in `Sleep` has its efun frame closed and runs on.
+    /// Returns each object with how its context ended.
+    pub fn wake_sleepers(&mut self) -> Vec<(u64, DispatchOutcome)> {
+        let now = self.vm.cur_time;
+        let mut due: Vec<(f64, u64, u32)> = Vec::new();
+        self.vm.sleepers.retain(|s| {
+            let ready = s.0 <= now;
+            if ready {
+                due.push(*s);
+            }
+            !ready
+        });
+        due.sort_by(|a, b| a.0.total_cmp(&b.0));
+        due.into_iter()
+            .filter_map(|(_, id, cid)| Some((id, self.resume_sleep(id, cid)?)))
+            .collect()
+    }
+
+    fn resume_sleep(&mut self, id: u64, cid: u32) -> Option<DispatchOutcome> {
+        let process = self.processes.get_mut(&id)?;
+        let at = process
+            .waiting
+            .iter()
+            .position(|c| c.cid == cid && c.efun == SLEEP)?;
+        let mut ctx = process.waiting.remove(at);
+        ctx.efun = 0;
+        self.vm.last_fault = None;
+        let status = match ctx.leave() {
+            Ok(()) => self.vm.execute(&mut ctx),
+            Err(_) => self.vm.fault(Fault::Stack),
+        };
+        Some(self.finish(id, ctx, status))
+    }
 }

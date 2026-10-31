@@ -114,6 +114,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     });
     efuns.register(0x00A3_0013, set_from_model);
     efuns.register(0x00A3_0014, add_keyframe);
+    efuns.register(0x00A3_0003, verify);
 
     efuns.register(0x00A4_0001, num_elements);
     efuns.register(0x00A4_0002, push_tail);
@@ -442,4 +443,87 @@ fn pop_front(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         }
     }
     status
+}
+
+/// `gmKeyframe::Verify` (admin 0x0060A900): what is missing from the keyframe, appended to
+/// `error` in retail's words; whether it is complete. The client keeps no movie file name, so a
+/// movie track always reports its data missing, as retail's empty name does.
+fn verify_keyframe(data: &dyn crate::vm::ScriptData, k: &Keyframe, error: &mut String) -> bool {
+    use ac2_weenie::TRACK_MOVIE;
+    let (s, n) = (k.scene_id, k.frame_num);
+    let mut ok = true;
+    if s == 0 {
+        error.push_str(&format!("gmKeyframe::Verify[k:{n}]> SceneID is invalid\n"));
+        ok = false;
+    }
+    let mut missing = |what: &str| {
+        error.push_str(&format!("gmKeyframe::Verify[s:0x{s:X}, k:{n}]> {what}\n"));
+    };
+    if k.defined_tracks & 0x1F == 0 {
+        missing("Keyframe has no data");
+        ok = false;
+    }
+    for (bit, did, name) in [
+        (TRACK_VIDEO, k.video, "video"),
+        (TRACK_AUDIO, k.audio, "audio"),
+        (TRACK_VOICE, k.voice, "voice"),
+    ] {
+        if k.defined_tracks & bit != 0 && did == 0 {
+            missing(&format!("No data for defined {name} track"));
+            ok = false;
+        }
+    }
+    let subtitle = string_info_from_net(&k.subtitle);
+    if k.has_subtitle() && !super::string_text::valid(data, &subtitle, true) {
+        missing("No data for defined subtitle ");
+        ok = false;
+    }
+    if k.defined_tracks & TRACK_MOVIE != 0 {
+        missing("No data for defined movie track");
+        ok = false;
+    }
+    if !k.has_duration() {
+        missing("Duration is invalid");
+        return false;
+    }
+    ok
+}
+
+/// `ggmSceneInfo::CallEFun_Verify(out wpstring error)` -> `gmSceneInfo::Verify` (admin
+/// 0x004721C0, 0x0060A170): the act, the id and each keyframe are checked; what fails is appended
+/// to `error`, and the efun answers whether the scene is complete.
+fn verify(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let call = Call::new(ctx);
+    let (this, out) = (call.this(), call.word(2));
+    let Some(scene) = scene(vm, this).cloned() else {
+        return vm.bad_this(this);
+    };
+    let mut error = String::new();
+    let mut ok = scene.act_id != 0;
+    if !ok {
+        error.push_str("gmSceneInfo::Verify> ActID is invalid\n");
+    }
+    if scene.id == 0 {
+        error.push_str("gmSceneInfo::Verify> ID is invalid\n");
+        ok = false;
+    }
+    if scene.keyframes.is_empty() {
+        error.push_str("gmSceneInfo::Verify> No Keyframes\n");
+        ok = false;
+    }
+    for (n, k) in scene.keyframes.iter().enumerate() {
+        if !verify_keyframe(vm.data(), k, &mut error) {
+            error.push_str(&format!(
+                "gmSceneInfo::Verify> keyframe #{} failed verification.\n",
+                n + 1
+            ));
+            ok = false;
+        }
+    }
+    let target = super::out_native(vm, ctx, out);
+    if let Some(NativeObject::WString(s)) = vm.native_mut(target) {
+        s.extend(error.encode_utf16());
+    }
+    Call::new(ctx).ret(3, u32::from(ok), INT_RESULT);
+    InterpStatus::Success
 }

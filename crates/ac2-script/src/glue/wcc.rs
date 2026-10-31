@@ -18,6 +18,9 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0074_0007, strcat_lfloat);
     efuns.register(0x0074_0008, to_hex);
     efuns.register(0x0074_0009, to_lhex);
+    // Legions' dispatcher (`CEFunDispatcher::GetEFunAddress`, 0x00496F40) also gives 0x74000B
+    // `CallEFun_ToHex` (0x0052DBE0, the same function as 0x740008).
+    efuns.register(0x0074_000B, to_hex);
     efuns.register(0x0074_000A, to_iid);
 }
 

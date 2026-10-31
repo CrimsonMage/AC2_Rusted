@@ -41,7 +41,7 @@ pub enum NoticeArg {
 
 /// Each notice efun with its arguments after `obj`: `o` the object, `i` one word, `L` a 64-bit
 /// id, `f` a float, `w` a wide string, `s` a `StringInfo`, `n` another native.
-const NOTICES: [(u32, &str, &str); 102] = [
+const NOTICES: [(u32, &str, &str); 104] = [
     (
         0x0084_0001,
         "CM_Allegiance::SendNotice_UpdateAllegianceProfile",
@@ -122,6 +122,14 @@ const NOTICES: [(u32, &str, &str); 102] = [
     (0x0085_0014, "CM_Character::SendNotice_PulseMissed", "oi"),
     (0x0085_0019, "CM_Character::SendNotice_AddMarker", "oiLiis"),
     (0x0085_001A, "CM_Character::SendNotice_ClearMarkers", "oi"),
+    // Legions (not admin) notice 0x49D, Legions 0x006A5870; the name is the client's.
+    (
+        0x008B_0005,
+        "CM_Inventory::SendNotice_MaxContainerSizeChanged",
+        "o",
+    ),
+    // `CM_Shortcut::SendNotice_RemoveRecipe(obj, didRecipe)` (admin 0x00726940).
+    (0x008F_0003, "CM_Shortcut::SendNotice_RemoveRecipe", "oi"),
     (0x0085_001B, "CM_Character::SendNotice_RemoveMarker", "oiL"),
     (0x0085_001C, "CM_Character::SendNotice_RemovePet", "oL"),
     (0x0085_001D, "CM_Character::SendNotice_UpdatePetMode", "oLi"),

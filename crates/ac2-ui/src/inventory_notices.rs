@@ -83,6 +83,9 @@ pub fn backpack_notice<S: InventoryNoticeSource>(
             *selection = new;
         }
         GameplayNotice::SetTargetingPointer(on) => backpack.set_targeting_pointer(tree, on),
+        GameplayNotice::MaxContainerSizeChanged(player) => {
+            backpack.max_container_size_changed(tree, source, player);
+        }
         _ => {}
     }
 }
