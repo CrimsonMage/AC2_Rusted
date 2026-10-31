@@ -6,7 +6,7 @@
 use std::sync::Arc;
 
 use crate::bsp::{BspTree, ContactKind, Polygon};
-use crate::cells::CellSource;
+use crate::cells::{CellSource, ShadowLists};
 use crate::fpu::{ld, st, F_EPSILON};
 use crate::objects::BBox;
 use crate::position::Position;
@@ -83,8 +83,8 @@ pub struct EnvCell {
     pub seen_outside: bool,
     /// `CObjCell::m_stabList`: the cells visible from this one.
     pub stab_list: Vec<u32>,
-    /// `CObjCell::m_staticShadowList`.
-    pub objects: Vec<u32>,
+    /// `CObjCell::m_staticShadowList` and `m_dynamicShadowList`.
+    pub objects: ShadowLists,
     /// `CEnvCell::GetPhysicsMaterialDID` (the cell's physics material id, `None` when it has none).
     pub physics_material: Option<u64>,
 }

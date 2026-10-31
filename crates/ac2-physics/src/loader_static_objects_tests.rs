@@ -47,7 +47,7 @@ fn env_cell_entities_are_collision_objects_in_their_cell() {
             .iter()
             .filter(|object| {
                 terrain
-                    .object_position(**object)
+                    .object_position(*object)
                     .is_some_and(|position| position.cell_id == id)
             })
             .count();

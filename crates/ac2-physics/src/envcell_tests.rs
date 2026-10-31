@@ -192,7 +192,7 @@ fn rooms() -> Terrain {
         ],
         seen_outside: true,
         stab_list: vec![ROOM_B],
-        objects: Vec::new(),
+        objects: Default::default(),
         physics_material: None,
     });
     let mut b_walls = door_wall(4.0, 1.0);
@@ -208,7 +208,7 @@ fn rooms() -> Terrain {
         }],
         seen_outside: false,
         stab_list: vec![ROOM_A],
-        objects: Vec::new(),
+        objects: Default::default(),
         physics_material: None,
     });
     terrain.connect_block(BLOCK, &[ROOM_A]);
@@ -351,7 +351,7 @@ fn an_interior_cell_names_its_physics_material() {
         portals: Vec::new(),
         seen_outside: false,
         stab_list: Vec::new(),
-        objects: Vec::new(),
+        objects: Default::default(),
         physics_material: Some(77),
     });
     assert_eq!(terrain.env_material(ROOM_A), Some(77));

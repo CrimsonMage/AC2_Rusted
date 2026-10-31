@@ -338,7 +338,7 @@ pub fn load_block_interiors(
             portals,
             seen_outside: cell.seen_outside,
             stab_list: cell.visible_cells.iter().map(|id| id.raw()).collect(),
-            objects: Vec::new(),
+            objects: Default::default(),
             physics_material: cell.physics_material.map(material_id),
         });
         if let Some(did) = cell.physics_material {

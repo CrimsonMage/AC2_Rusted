@@ -6,7 +6,7 @@
 use std::sync::Arc;
 
 use crate::bsp::{BspTree, ContactKind};
-use crate::cells::CellSource;
+use crate::cells::{CellSource, ShadowLists};
 use crate::collision_types::{CollisionParameters, PhysicsTypeMask};
 use crate::fpu::{ld, st};
 use crate::position::Position;
@@ -377,11 +377,12 @@ impl StaticObject {
 }
 
 impl Transition {
-    /// `CObjCell::find_obj_collisions`: the cell's shadow objects in order, until one does not
-    /// leave the transition `Ok`. Nothing collides on an initial placement.
+    /// `CObjCell::find_obj_collisions`: nothing on an initial placement; else the static shadow
+    /// list, and only when that left the transition `Ok`, the dynamic shadow list. (The step,
+    /// missile and temporarily-ethereal rules are `CPhysicsObj::FindObjCollisions`'.)
     pub(crate) fn find_obj_collisions(
         &mut self,
-        objects: &[u32],
+        objects: &ShadowLists,
         cells: &dyn CellSource,
     ) -> TransitionState {
         if self.sphere_path.insert_type
@@ -389,6 +390,20 @@ impl Transition {
         {
             return TransitionState::Ok;
         }
+        let ts = self.find_obj_collisions_in_list(&objects.static_list, cells);
+        if ts != TransitionState::Ok {
+            return ts;
+        }
+        self.find_obj_collisions_in_list(&objects.dynamic_list, cells)
+    }
+
+    /// `CObjCell::find_obj_collisions` (the list overload): each entry but the mover itself in
+    /// order, until one does not leave the transition `Ok`.
+    fn find_obj_collisions_in_list(
+        &mut self,
+        objects: &[u32],
+        cells: &dyn CellSource,
+    ) -> TransitionState {
         for &id in objects {
             // `pIVar1 != transition->object_info.object`: the mover is not its own obstruction.
             if self.identity == Some(id) {

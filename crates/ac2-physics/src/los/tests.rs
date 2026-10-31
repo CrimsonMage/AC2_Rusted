@@ -6,6 +6,7 @@ use std::sync::Arc;
 use super::objects::{trace_ray_cylsphere, trace_ray_sphere};
 use super::{LosParameters, Ray, RayIntersection};
 use crate::bsp::{BspTree, Node, Polygon};
+use crate::cells::CellSource;
 use crate::collision_types::{PhysicsTypeMask, WeenieTypes};
 use crate::envcell::{CellBsp, CellPortal, CellStructure, EnvCell};
 use crate::frame::Frame;
@@ -245,6 +246,55 @@ fn an_object_the_ray_is_ethereal_to_does_not_block_it() {
     assert_eq!(trace(&listed, PhysicsTypeMask::default()), 0);
 }
 
+/// `CObjCell::TraceRayObjects` walks the static shadow list and then the dynamic one: an object
+/// on either list blocks, and with one on each the nearer hit ends the ray.
+#[test]
+fn the_ray_tests_both_shadow_lists() {
+    let shape = Arc::new(ObjectShape::new(
+        Vec::new(),
+        vec![CylSphere {
+            low: Vector::ZERO,
+            height: 4.0,
+            radius: 1.0,
+        }],
+        Vec::new(),
+    ));
+    let place = |terrain: &mut Terrain, x: f32, fixed: bool| {
+        let at = v(x, 50.0, 0.0);
+        let position = Position::new(cell_at(at.x, at.y), Frame::new(at, Quaternion::IDENTITY));
+        let object = if fixed {
+            StaticObject::new(position, v(1.0, 1.0, 1.0), Arc::clone(&shape))
+        } else {
+            StaticObject::dynamic(position, v(1.0, 1.0, 1.0), Arc::clone(&shape), false)
+        };
+        terrain.insert_object(object);
+    };
+    let end_x = |fixed_at: Option<f32>, dynamic_at: Option<f32>| {
+        let mut terrain = flat();
+        if let Some(x) = fixed_at {
+            place(&mut terrain, x, true);
+        }
+        if let Some(x) = dynamic_at {
+            place(&mut terrain, x, false);
+        }
+        let cell = terrain.land_cell(cell_at(60.0, 50.0)).expect("cell");
+        assert_eq!(
+            cell.objects.static_list.len(),
+            usize::from(fixed_at.is_some())
+        );
+        assert_eq!(
+            cell.objects.dynamic_list.len(),
+            usize::from(dynamic_at.is_some())
+        );
+        let params = check(&terrain, v(50.0, 50.0, 2.0), v(20.0, 0.0, 0.0));
+        (params.trace_result(), params.end_point().x)
+    };
+    assert_eq!(end_x(Some(60.0), None).0, 1);
+    assert_eq!(end_x(None, Some(60.0)).0, 1);
+    assert!((end_x(Some(66.0), Some(60.0)).1 - 59.0).abs() < 1e-3);
+    assert!((end_x(Some(60.0), Some(66.0)).1 - 59.0).abs() < 1e-3);
+}
+
 #[test]
 fn shape_traces() {
     let ray = Ray::line_segment(v(-5.0, 0.0, 0.0), v(5.0, 0.0, 0.0));
@@ -329,7 +379,7 @@ fn room(terrain: &mut Terrain) {
         }],
         seen_outside: true,
         stab_list: Vec::new(),
-        objects: Vec::new(),
+        objects: Default::default(),
         physics_material: None,
     });
     terrain.connect_block(0x7F7F_FFFF, &[ROOM]);

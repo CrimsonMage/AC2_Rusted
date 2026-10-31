@@ -2550,13 +2550,13 @@ key	status	note
 0047c120	-	retail free-object pool (DBOCache exception, AGENTS.md)
 0047c150	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047c320	_	needs port: object cells: membership, detection voyeurs, frills, shadows
-0047c330	~	ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
+0047c330	x	ac2-physics cells.rs ShadowLists::remove_shadow_object, terrain.rs list_out: first match on the object's own list, last entry takes its slot, as retail; m_objectList and voyeurs are not touched by this body
 0047c390	~	ac2-client: CellManager's block changes
 0047c3f0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047c440	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047c460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047c510	~	ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
-0047c560	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
+0047c510	x	ac2-physics objects.rs Transition::find_obj_collisions_in_list: each entry but the mover itself (object_info.object) in order, stop at the first non-OK; step, missile and temp-ignore rules are CPhysicsObj::FindObjCollisions' (find_object_collisions); no admin-only branch in this body
+0047c560	x	ac2-physics los/objects.rs trace_ray_objects: static list then dynamic list, last nonzero result stands, final cell = this cell; blocking masks and server objects in check_ray_intersect; UseExactDrawingRep (CPhysicsObj::TraceRay on drawn parts) is a justified skip
 0047c600	-	SmartArray container destructor (Vec drop)
 0047c640	-	hash table container; Rust map replaces it
 0047c8c0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
@@ -2565,12 +2565,12 @@ key	status	note
 0047c9e0	-	Re-read the Legions body: Drop covers it; the behaviour it forwards to is array frees and the voyeur table delete
 0047ca70	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047cb40	~	ac2-client: CellManager's block changes
-0047cb70	~	ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
+0047cb70	x	ac2-physics objects.rs Transition::find_obj_collisions: nothing on INITIAL_PLACEMENT_INSERT, else the static list and, only if that returned OK, the dynamic list; the step, missile and temp-ignore rules are CPhysicsObj::FindObjCollisions' (find_object_collisions); no admin-only branch in this body (admin and Legions bodies identical)
 0047cbb0	-	copy assignment of plain data (Rust clone/move)
 0047cc40	-	copy assignment of plain data (Rust clone/move)
 0047cd90	x	
 0047ce60	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047cfc0	~	ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
+0047cfc0	x	ac2-physics cells.rs ShadowLists::add_shadow_object, terrain.rs list_in: the static list for a static object (StaticObject::is_static), else the dynamic list; CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not part of this body (voyeurs live in ac2-smartbox membership.rs)
 0047d020	~	ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
 0047d0c0	~	ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
 0047d0d0	~	ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
@@ -2732,7 +2732,7 @@ key	status	note
 00485770	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 00485800	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 00485890	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
-00485930	~	ac2-physics los: BSP, shadow objects, portals and now UseExactDrawingRep through CEnvCell::TraceRayAgainstMesh; objects are the static shadow list only (no dynamic list or blocking masks)
+00485930	x	ac2-physics los/env.rs: BSP, portals, UsePhysicsRep objects through trace_ray_objects (static list then dynamic list, blocking masks) and UseExactDrawingRep through CEnvCell::TraceRayAgainstMesh
 00486180	-	write path (client reads DATs only)
 004861d0	-	write path (client reads DATs only)
 00486210	x	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)

@@ -64,15 +64,69 @@ impl TerrainPolygon {
     }
 }
 
+/// A cell's two shadow lists (`CObjCell::m_staticShadowList`, `m_dynamicShadowList`): object ids,
+/// kept apart by the object's static test (`CPhysicsObj::is_static`, vtable +0x234), so every walk
+/// visits the static list first and the dynamic list second.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ShadowLists {
+    /// `CObjCell::m_staticShadowList`.
+    pub static_list: Vec<u32>,
+    /// `CObjCell::m_dynamicShadowList`.
+    pub dynamic_list: Vec<u32>,
+}
+
+impl ShadowLists {
+    /// `CObjCell::AddShadowObject`: the object goes on the static list when it is static, else on
+    /// the dynamic list.
+    pub fn add_shadow_object(&mut self, id: u32, is_static: bool) {
+        if is_static {
+            self.static_list.push(id);
+        } else {
+            self.dynamic_list.push(id);
+        }
+    }
+
+    /// `CObjCell::RemoveShadowObject`: the first entry of the object's list takes the last
+    /// entry's place (order is not kept); nothing happens when it is not listed.
+    pub fn remove_shadow_object(&mut self, id: u32, is_static: bool) {
+        let list = if is_static {
+            &mut self.static_list
+        } else {
+            &mut self.dynamic_list
+        };
+        if let Some(index) = list.iter().position(|&other| other == id) {
+            list.swap_remove(index);
+        }
+    }
+
+    /// Every listed object: the static list, then the dynamic list.
+    pub fn iter(&self) -> impl Iterator<Item = u32> + '_ {
+        self.static_list
+            .iter()
+            .chain(self.dynamic_list.iter())
+            .copied()
+    }
+
+    /// Whether `id` is on either list.
+    pub fn contains(&self, id: &u32) -> bool {
+        self.static_list.contains(id) || self.dynamic_list.contains(id)
+    }
+
+    /// Whether both lists are empty.
+    pub fn is_empty(&self) -> bool {
+        self.static_list.is_empty() && self.dynamic_list.is_empty()
+    }
+}
+
 /// A resident land cell (`CLandCell`): its id, the terrain polygons over it, in slot order
 /// (`(vertex_per_cell * ix + iy) * 2` and `+1`; a slot over a landscape hole is empty), the
-/// static objects shadowing it (`CObjCell::m_staticShadowList`) and the interior cells whose
+/// objects shadowing it (`CObjCell::m_staticShadowList`, `m_dynamicShadowList`) and the interior cells whose
 /// outside portals it touches (`CObjCell::m_touchingCells`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct LandCell {
     pub cell_id: u32,
     pub polygons: [Option<TerrainPolygon>; POLYS_PER_LANDCELL],
-    pub objects: Vec<u32>,
+    pub objects: ShadowLists,
     pub touching: Vec<u32>,
 }
 
@@ -127,7 +181,7 @@ impl<'a> ObjCell<'a> {
         }
     }
 
-    pub(crate) fn objects(&self) -> &'a [u32] {
+    pub(crate) fn objects(&self) -> &'a ShadowLists {
         match self {
             ObjCell::Land(cell) => &cell.objects,
             ObjCell::Env(cell) => &cell.objects,
@@ -196,6 +250,25 @@ fn find_env_collisions(transition: &mut Transition, cell: &LandCell) -> Transiti
 mod tests {
     use super::*;
 
+    #[test]
+    fn shadow_lists_split_by_the_static_test_and_walk_static_first() {
+        let mut lists = ShadowLists::default();
+        lists.add_shadow_object(7, false);
+        lists.add_shadow_object(3, true);
+        lists.add_shadow_object(9, true);
+        assert_eq!(lists.static_list, vec![3, 9]);
+        assert_eq!(lists.dynamic_list, vec![7]);
+        assert_eq!(lists.iter().collect::<Vec<_>>(), vec![3, 9, 7]);
+        // Removal looks only on the object's own list, and the last entry takes the slot.
+        lists.remove_shadow_object(7, true);
+        assert_eq!(lists.dynamic_list, vec![7]);
+        lists.remove_shadow_object(3, true);
+        assert_eq!(lists.static_list, vec![9]);
+        lists.remove_shadow_object(7, false);
+        lists.remove_shadow_object(9, true);
+        assert!(lists.is_empty());
+    }
+
     fn flat(z: f32) -> TerrainPolygon {
         TerrainPolygon::new([
             Vector::new(0.0, 0.0, z),
@@ -232,7 +305,7 @@ mod tests {
         let cell = LandCell {
             cell_id: 0x7F7F_000A,
             polygons: [None; POLYS_PER_LANDCELL],
-            objects: Vec::new(),
+            objects: ShadowLists::default(),
             touching: Vec::new(),
         };
         // Cell 0x0A is (x 1, y 1): 20..40 on both axes.

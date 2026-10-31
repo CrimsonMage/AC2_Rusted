@@ -15,6 +15,8 @@ use crate::position::Position;
 use crate::shapes::cylsphere::CylSphere;
 use crate::terrain::Terrain;
 use crate::test_support::{desc, walking_values};
+use crate::transition::sphere_path::InsertType;
+use crate::transition::{Transition, TransitionState};
 use crate::vector::{Quaternion, Sphere, Vector};
 
 const BLOCK: u32 = 0x7F7F_FFFF;
@@ -368,4 +370,107 @@ fn a_missile_collides_with_its_target_at_the_containment_radius() {
     // Another target leaves the object to its shape.
     let (_, hit, _) = missile_pass(&world, Some((0x78, 0.5)), 70.0, 83.0);
     assert!(hit.is_empty(), "{hit:?}");
+}
+
+/// A static pillar (scenery) at `(x, y)`.
+fn scenery(terrain: &mut Terrain, x: f32, y: f32) -> u32 {
+    terrain.insert_object(StaticObject::new(
+        position(x, y, 0.0),
+        Vector::new(1.0, 1.0, 1.0),
+        pillar(),
+    ))
+}
+
+/// `CObjCell::AddShadowObject` / `RemoveShadowObject`: a static object is listed on the cell's
+/// static list and a dynamic one on its dynamic list; removing one empties its own list only.
+#[test]
+fn static_and_dynamic_objects_are_listed_apart() {
+    let mut world = flat();
+    let dynamic = creature(&mut world, 80.2, 84.0);
+    let fixed = scenery(&mut world, 80.2, 84.0);
+    let cell = cell_at(80.2, 84.0);
+    let lists = world.land_cell(cell).expect("cell").objects.clone();
+    assert_eq!(lists.static_list, vec![fixed]);
+    assert_eq!(lists.dynamic_list, vec![dynamic]);
+    assert_eq!(lists.iter().collect::<Vec<_>>(), vec![fixed, dynamic]);
+
+    world.remove_object(fixed);
+    let lists = &world.land_cell(cell).expect("cell").objects;
+    assert!(lists.static_list.is_empty());
+    assert_eq!(lists.dynamic_list, vec![dynamic]);
+    world.remove_object(dynamic);
+    assert!(world.land_cell(cell).expect("cell").objects.is_empty());
+}
+
+/// A transition for a small mover ending at `(80, 83.7)`, inside both pillars at `(80.2, 84)`.
+fn overlap_transition(world: &Terrain) -> (Transition, crate::cells::ShadowLists) {
+    use crate::collision_types::CollisionParameters;
+    use crate::transition::TransitionObject;
+    let spheres = [Sphere::new(Vector::new(0.0, 0.0, 1.0), 0.1)];
+    let collision = CollisionParameters::default();
+    let object = TransitionObject {
+        state: 0,
+        spheres: &spheres,
+        scale: 1.0,
+        step_up_height: 0.0,
+        step_down_height: 0.0,
+        affected_by_gravity: false,
+        contact: None,
+        sliding_normal: None,
+        frames_stationary_fall: 0,
+        containment_radius: 0.1,
+        collision: &collision,
+        identity: None,
+        instance_id: 0x99,
+        blocking: Default::default(),
+        missile_proximity: None,
+    };
+    let from = position(80.0, 83.0, 0.0);
+    let end = position(80.0, 83.7, 0.0);
+    let mut t = Transition::new(&object, Some(from.cell_id), Some(from), end);
+    t.sphere_path.set_check_pos(end, Some(end.cell_id));
+    let lists = world
+        .land_cell(cell_at(80.0, 84.0))
+        .expect("cell")
+        .objects
+        .clone();
+    (t, lists)
+}
+
+/// `CObjCell::find_obj_collisions`: a static hit stops the walk before any dynamic object is
+/// tested; when the static object lets the mover through, the dynamic list is walked.
+#[test]
+fn find_obj_collisions_walks_static_before_dynamic() {
+    let mut world = flat();
+    // Inserted dynamic first, so id order is the opposite of the lists' order.
+    let dynamic = creature(&mut world, 80.2, 84.0);
+    let fixed = scenery(&mut world, 80.2, 84.0);
+    let (mut t, lists) = overlap_transition(&world);
+    let ts = t.find_obj_collisions(&lists, &world);
+    assert_ne!(ts, TransitionState::Ok);
+    assert!(t.object_stamps.contains_key(&fixed));
+    assert!(
+        !t.object_stamps.contains_key(&dynamic),
+        "{:?}",
+        t.object_stamps
+    );
+
+    // Ethereal static object: the walk goes on to the dynamic list.
+    world.set_object_ethereal(fixed, true);
+    let (mut t, lists) = overlap_transition(&world);
+    let ts = t.find_obj_collisions(&lists, &world);
+    assert_ne!(ts, TransitionState::Ok);
+    assert!(t.object_stamps.contains_key(&dynamic));
+}
+
+/// `CObjCell::find_obj_collisions` does nothing on an initial placement.
+#[test]
+fn find_obj_collisions_skips_initial_placement() {
+    let mut world = flat();
+    creature(&mut world, 80.2, 84.0);
+    scenery(&mut world, 80.2, 84.0);
+    let (mut t, lists) = overlap_transition(&world);
+    t.sphere_path.insert_type = InsertType::InitialPlacement;
+    assert_eq!(t.find_obj_collisions(&lists, &world), TransitionState::Ok);
+    assert!(t.object_stamps.is_empty());
 }

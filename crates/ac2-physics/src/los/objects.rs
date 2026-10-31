@@ -13,7 +13,7 @@ use crate::shapes::cylsphere::CylSphere;
 use crate::vector::{Sphere, Vector};
 
 impl<'a> LosTrace<'a> {
-    /// `CObjCell::TraceRayObjects`: every shadow object of the cell in order; the last nonzero
+    /// `CObjCell::TraceRayObjects`: the static shadow list, then the dynamic one; the last nonzero
     /// result stands and the final cell becomes this cell.
     pub(super) fn trace_ray_objects(
         &mut self,
@@ -21,7 +21,7 @@ impl<'a> LosTrace<'a> {
         cell: ObjCell<'a>,
     ) -> u32 {
         let mut result = 0;
-        for &id in cell.objects() {
+        for id in cell.objects().iter() {
             let Some(object) = self.cells.object(id) else {
                 continue;
             };

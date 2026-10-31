@@ -8,7 +8,7 @@ use std::sync::Arc;
 use ac2_core::CellId;
 use ac2_world::{terrain_polygon_cut, LandBlockDesc};
 
-use crate::cells::{CellSource, LandCell, TerrainPolygon};
+use crate::cells::{CellSource, LandCell, ShadowLists, TerrainPolygon};
 use crate::collision_types::PhysicsTypeMask;
 use crate::envcell::EnvCell;
 use crate::find_cells::shadow_cells;
@@ -175,7 +175,7 @@ impl Terrain {
         if !object.is_static() {
             object.covered = Some(object.position());
         }
-        self.list_in(id, &cells);
+        self.list_in(id, object.is_static(), &cells);
         let entry = Some((object, cells));
         match self.objects.get_mut(id as usize) {
             Some(slot) => *slot = entry,
@@ -196,14 +196,27 @@ impl Terrain {
         shadow_cells(&position, local, self)
     }
 
-    /// Enters object `id` in the shadow lists of `cells`.
-    fn list_in(&mut self, id: u32, cells: &[u32]) {
+    /// Enters object `id` in the shadow lists of `cells` (`CObjCell::AddShadowObject`: the static
+    /// list for a static object, else the dynamic list).
+    fn list_in(&mut self, id: u32, is_static: bool, cells: &[u32]) {
         for cell_id in cells {
             if let Some(cell) = self.cells.get_mut(cell_id) {
-                cell.objects.push(id);
+                cell.objects.add_shadow_object(id, is_static);
             }
             if let Some(cell) = self.env_cells.get_mut(cell_id) {
-                cell.objects.push(id);
+                cell.objects.add_shadow_object(id, is_static);
+            }
+        }
+    }
+
+    /// Takes object `id` out of the shadow lists of `cells` (`CObjCell::RemoveShadowObject`).
+    fn list_out(&mut self, id: u32, is_static: bool, cells: &[u32]) {
+        for cell_id in cells {
+            if let Some(cell) = self.cells.get_mut(cell_id) {
+                cell.objects.remove_shadow_object(id, is_static);
+            }
+            if let Some(cell) = self.env_cells.get_mut(cell_id) {
+                cell.objects.remove_shadow_object(id, is_static);
             }
         }
     }
@@ -327,17 +340,11 @@ impl Terrain {
         };
         object.position = position;
         if !object.is_static() && stale {
-            for cell_id in cells.drain(..) {
-                if let Some(cell) = self.cells.get_mut(&cell_id) {
-                    cell.objects.retain(|&other| other != id);
-                }
-                if let Some(cell) = self.env_cells.get_mut(&cell_id) {
-                    cell.objects.retain(|&other| other != id);
-                }
-            }
+            let old = std::mem::take(cells);
+            self.list_out(id, false, &old);
             *cells = shadow_cells(&position, object.shadow_box().grown(COVER_MARGIN), &*self);
             object.covered = Some(position);
-            self.list_in(id, cells);
+            self.list_in(id, false, cells);
         }
         self.objects[id as usize] = Some(entry);
     }
@@ -425,32 +432,26 @@ impl Terrain {
     /// (`CPhysicsObj::remove_shadows_from_cells`, `CObjCell::RemoveObject`).
     /// Its id is free for the next insert.
     pub fn remove_object(&mut self, id: u32) {
-        let Some(Some((_, cells))) = self.objects.get_mut(id as usize).map(Option::take) else {
+        let Some(Some((object, cells))) = self.objects.get_mut(id as usize).map(Option::take)
+        else {
             return;
         };
-        for cell_id in cells {
-            if let Some(cell) = self.cells.get_mut(&cell_id) {
-                cell.objects.retain(|&other| other != id);
-            }
-            if let Some(cell) = self.env_cells.get_mut(&cell_id) {
-                cell.objects.retain(|&other| other != id);
-            }
-        }
+        self.list_out(id, object.is_static(), &cells);
         self.free.push(id);
     }
 
-    /// The static objects whose shadow box covers `cell_id`, in insertion order.
-    fn shadowing(&self, cell_id: u32) -> Vec<u32> {
-        self.objects
-            .iter()
-            .enumerate()
-            .filter(|(_, entry)| {
-                entry
-                    .as_ref()
-                    .is_some_and(|(_, cells)| cells.contains(&cell_id))
-            })
-            .map(|(id, _)| id as u32)
-            .collect()
+    /// The objects whose shadow box covers `cell_id`, in insertion order, on the static or dynamic
+    /// list by their static test (`CObjCell::AddShadowObject`).
+    fn shadowing(&self, cell_id: u32) -> ShadowLists {
+        let mut lists = ShadowLists::default();
+        for (id, entry) in self.objects.iter().enumerate() {
+            if let Some((object, cells)) = entry {
+                if cells.contains(&cell_id) {
+                    lists.add_shadow_object(id as u32, object.is_static());
+                }
+            }
+        }
+        lists
     }
 
     /// Sets a block's water surface height (`CLandBlockData::m_bHasWater`/`m_waterPlane`), or
@@ -769,7 +770,7 @@ mod tests {
             let a = in_place.land_cell(cell).expect("cell").objects.clone();
             let b = absorbed.land_cell(cell).expect("cell").objects.clone();
             assert_eq!(a, b, "cell {cell:08x}");
-            assert_eq!(a, vec![0], "cell {cell:08x}");
+            assert_eq!(a.static_list, vec![0], "cell {cell:08x}");
         }
     }
 
