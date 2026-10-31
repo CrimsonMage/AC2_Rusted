@@ -144,6 +144,54 @@ fn the_floating_arrow_turns_to_its_target_and_hides_without_one() {
 }
 
 #[test]
+fn the_modern_arrows_are_drawn_turned_not_turned_bitmaps() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud =
+        crate::build_styled_hud(&store, 1024, 768, crate::hud_style::HudStyle::Modern).unwrap();
+    let tree = &mut hud.tree;
+    // The floating arrow: the delta's drawing for its angle, unturned.
+    let mut arrow = hud.guide_arrow.take().expect("the floating arrow");
+    let view = |relative_degrees: f32| crate::guide_arrow::GuideArrowView {
+        relative_degrees,
+        label: "43.0N, 11.7E · 118 m".into(),
+    };
+    for (relative, rotation) in [(0.0, 90), (90.0, 0), (180.0, 270), (-45.0, 135)] {
+        arrow.update(tree, Some(&view(relative)));
+        let element = tree.get(arrow.arrow()).unwrap();
+        assert_eq!(element.rotation, 0, "{relative}");
+        let file = element.image().map(|i| i.file);
+        let step = crate::modern_art_pointer::pointer_step(rotation);
+        assert_eq!(file, Some(crate::modern_art_pointer::DELTA_POINTER + step));
+    }
+    // The selection's off-screen indicator: the chevron disc's drawing, unturned.
+    let mut reticle = hud.reticle.take().expect("the reticle");
+    reticle.selection_changed(tree, Some(7), Some("Gnome"), None);
+    let project = |p: [f32; 3]| ([-3.0 + p[0], p[1]], false);
+    let target = crate::ReticleTarget {
+        id: 7,
+        bounds: ([-0.1, -0.1, 0.0], [0.1, 0.1, 0.0]),
+        project: &project,
+        planar_distance: Some(10.0),
+    };
+    reticle.update(tree, Some(target), false);
+    let indicator = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| tree.get(r).unwrap().id() == tokenize("OffScreenIndicator"))
+        .unwrap();
+    let element = tree.get(indicator).unwrap();
+    assert!(element.shown);
+    assert_eq!(element.rotation, 0);
+    // Off the left edge it points left (180 degrees).
+    let left = crate::modern_art_pointer::DISC_POINTER + 36;
+    assert_eq!(element.image().map(|i| i.file), Some(left));
+}
+
+#[test]
 fn a_coordinate_in_read_only_text_is_found_under_a_press() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;

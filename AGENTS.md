@@ -377,6 +377,15 @@ game rules and server-visible behaviour exactly retail.
   their top with a gold title centred (CONFIRM, MESSAGE, PLEASE WAIT, RESURRECTION), the body
   text moved down clear of it; retail's dialogs had no title band. The answers and messages are
   retail's.
+  The arrows that point the way are drawn by the client (`ac2_ui::modern_art_pointer`): retail
+  turned `OffScreenIndicator`'s small bitmap by its surface object's rotation, which the UI
+  layer samples nearest, so it showed jagged at most angles. Here each arrow is drawn anti-aliased
+  already turned, every 5 degrees, under the client's own DIDs, and the element shows the
+  drawing for its angle unturned. The selection's off-screen indicator is a chevron disc (dark
+  glass in a gold ring, a double chevron pointing out; `Reticle::set_pointer_art`) and the
+  floating arrow (the Tracker's match, a map coordinate) a notched gold delta with a short
+  fading trail (`GuideArrow::set_pointer_art`). Where they stand and which way they point stay
+  as before.
   The fellow mini panel's rows (`ac2_ui::modern_fellow_rows`) are 24 pixels tall with 10-pixel
   health and vigor bars (retail's: 15 tall, 5-pixel bars), their numbers shown from the start
   (retail's mini panel started them hidden until the page's number button), and a fine light rule

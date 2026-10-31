@@ -274,6 +274,7 @@ pub mod modern_art;
 mod modern_art_chat;
 mod modern_art_drawer;
 mod modern_art_loot;
+pub mod modern_art_pointer;
 mod modern_art_radar;
 mod modern_art_windows;
 pub mod modern_banner;

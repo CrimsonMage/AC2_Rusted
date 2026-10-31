@@ -240,6 +240,10 @@ pub fn build_styled_hud(
     let mut reticle = gameplay
         .as_ref()
         .and_then(|layout| Reticle::create(&mut tree, layout));
+    // The modern style's off-screen arrow is the drawn chevron disc (`modern_art_pointer`).
+    if let (HudStyle::Modern, Some(reticle)) = (style, reticle.as_mut()) {
+        reticle.set_pointer_art(crate::modern_art_pointer::DISC_POINTER);
+    }
     let names = match (&gameplay, &reticle) {
         (Some(layout), Some(reticle)) => {
             let (frames, attempts) = reticle.name_tuning();
@@ -503,7 +507,14 @@ pub fn build_styled_hud(
     });
     let guide_arrow = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
-        .and_then(|gameplay| crate::guide_arrow::GuideArrow::create(&mut tree, gameplay));
+        .and_then(|gameplay| crate::guide_arrow::GuideArrow::create(&mut tree, gameplay))
+        .map(|mut arrow| {
+            // The modern style's floating arrow is the drawn delta (`modern_art_pointer`).
+            if style == HudStyle::Modern {
+                arrow.set_pointer_art(crate::modern_art_pointer::DELTA_POINTER);
+            }
+            arrow
+        });
     let tracker = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
         crate::tracker_ui::TrackerUi::create(&mut tree, gameplay, &all_layouts, radar_top)
     });

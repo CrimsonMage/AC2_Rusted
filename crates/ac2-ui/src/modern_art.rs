@@ -530,6 +530,7 @@ pub fn bake(images: &mut HashMap<u32, UiPixels>, icons: &HashMap<u32, UiPixels>)
     crate::modern_art_chat::bake(images);
     crate::modern_art_loot::bake(images);
     crate::modern_art_windows::bake(images);
+    crate::modern_art_pointer::bake(images);
     // The slots' DAT frame gives way to the wells' own line; pressed, a gold ring.
     images.insert(SLOT_FRAME, slot(SLOT_CLEAR));
     images.insert(SLOT_FRAME_PRESSED, slot(SLOT_PRESSED));

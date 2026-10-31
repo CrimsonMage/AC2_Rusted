@@ -66,6 +66,9 @@ pub struct Reticle {
     /// `m_precludedFromTop` / `m_precludedFromBottom` (`CM_UI::SendNotice_PrecludeFrom*`).
     pub precluded_top: i32,
     pub precluded_bottom: i32,
+    /// The modern style's drawn arrow for the indicator (`modern_art_pointer`), the first of its
+    /// steps; `None` turns retail's art.
+    pointer_art: Option<u32>,
 }
 
 fn int_attribute(tree: &UiTree, index: usize, name: &str) -> Option<i32> {
@@ -182,11 +185,18 @@ impl Reticle {
             has_info: false,
             precluded_top: 0,
             precluded_bottom: 0,
+            pointer_art: None,
         };
         for root in reticle.objects() {
             tree.show_object(root, false);
         }
         Some(reticle)
+    }
+
+    /// The modern style: the indicator shows the client's drawn arrow `base` at its angle
+    /// (`modern_art_pointer`) instead of turning retail's art.
+    pub fn set_pointer_art(&mut self, base: u32) {
+        self.pointer_art = Some(base);
     }
 
     fn objects(&self) -> impl Iterator<Item = usize> + '_ {
@@ -500,7 +510,10 @@ impl Reticle {
         tree.show_object(self.name, false);
         tree.show_object(self.stuff, false);
         tree.show_object(indicator, true);
-        tree.set_object_rotation(indicator, rotation + turn);
+        match self.pointer_art {
+            Some(base) => crate::modern_art_pointer::point(tree, indicator, base, rotation + turn),
+            None => tree.set_object_rotation(indicator, rotation + turn),
+        }
         tree.set_object_position(indicator, x, y);
         // `m_lastSelectionRect`: `Box2D(x, y, width, height)`.
         self.selection_rect = Some([x, y, x + w - 1, y + h - 1]);

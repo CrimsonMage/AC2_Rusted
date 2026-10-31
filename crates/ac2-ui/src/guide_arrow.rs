@@ -32,6 +32,9 @@ pub struct GuideArrow {
     label: Option<usize>,
     /// What was last shown (rotation, label), so an unchanged frame changes nothing.
     shown: Option<(i32, String)>,
+    /// The modern style's drawn arrow (`modern_art_pointer`), the first of its steps; `None`
+    /// turns retail's art.
+    pointer_art: Option<u32>,
 }
 
 impl GuideArrow {
@@ -52,7 +55,14 @@ impl GuideArrow {
             arrow,
             label,
             shown: None,
+            pointer_art: None,
         })
+    }
+
+    /// The modern style: the arrow shows the client's drawn arrow `base` at its angle
+    /// (`modern_art_pointer`) instead of turning retail's art.
+    pub fn set_pointer_art(&mut self, base: u32) {
+        self.pointer_art = Some(base);
     }
 
     /// The arrow's root (for tests and the frame's layering).
@@ -84,7 +94,10 @@ impl GuideArrow {
         };
         let (w, h) = size(tree, self.arrow);
         tree.show_object(self.arrow, true);
-        tree.set_object_rotation(self.arrow, rotation);
+        match self.pointer_art {
+            Some(base) => crate::modern_art_pointer::point(tree, self.arrow, base, rotation),
+            None => tree.set_object_rotation(self.arrow, rotation),
+        }
         tree.set_object_position(self.arrow, display_w / 2 - w / 2, TOP - h / 2);
         if let Some(label) = self.label {
             tree.set_text(label, &view.label);
