@@ -287,6 +287,7 @@ mod modern_dialog;
 #[cfg(test)]
 mod modern_dialog_tests;
 mod modern_drawer_bar;
+mod modern_fellow_rows;
 mod modern_inventory;
 #[cfg(test)]
 mod modern_inventory_tests;

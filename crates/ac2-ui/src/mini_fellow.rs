@@ -40,6 +40,8 @@ pub struct MiniFellowUi {
     helper: Option<FellowRows>,
     /// The helper's selections and tells, for the HUD to send.
     requests: Vec<FellowshipRequest>,
+    /// The modern style's rows (`FellowRows::set_modern`).
+    modern: bool,
 }
 
 impl MiniFellowUi {
@@ -53,9 +55,15 @@ impl MiniFellowUi {
             shown: false,
             helper: None,
             requests: Vec::new(),
+            modern: false,
         };
         ui.show(tree, false);
         ui
+    }
+
+    /// The modern style's rows: numbers shown, a rule under each (`FellowRows::set_modern`).
+    pub fn set_modern(&mut self) {
+        self.modern = true;
     }
 
     /// Whether the panel is shown (`UIFramework::IsShown`).
@@ -134,6 +142,9 @@ impl MiniFellowUi {
             return;
         };
         let mut rows = FellowRows::new(list, Arc::clone(&self.layout), true);
+        if self.modern {
+            rows.set_modern();
+        }
         rows.populate(tree, source, &data.fellows, data.leader);
         self.helper = Some(rows);
     }

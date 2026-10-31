@@ -292,3 +292,48 @@ fn a_press_on_a_mini_panel_row_selects_the_member() {
         ]
     );
 }
+
+/// The modern mini panel (`modern_fellow_rows`): rows 24 tall with a rule at their foot and the
+/// health and vigor numbers shown; the classic rows keep retail's 15 and start the numbers hidden.
+#[test]
+fn the_modern_mini_rows_show_their_numbers_and_a_rule() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    for style in [crate::HudStyle::Modern, crate::HudStyle::Classic] {
+        let mut hud = crate::build_styled_hud(&store, 1365, 768, style).unwrap();
+        let GameplayHud {
+            tree, mini_fellow, ..
+        } = &mut hud;
+        let panel = mini_fellow.as_mut().expect("the mini panel");
+        let data = FellowshipData {
+            name: "Wanderers".into(),
+            leader: 1,
+            social: true,
+            looting: 2,
+            fellows: vec![fellow(1, "Explorer", 50), fellow(2, "Mira", 40)],
+        };
+        panel.update_fellowship(tree, &player(), &data);
+        let modern = style == crate::HudStyle::Modern;
+        for (_, row) in panel.rows(tree) {
+            assert_eq!(tree.el(row).rect.height(), if modern { 24 } else { 15 });
+            assert_eq!(
+                tree.child_recursive(row, tokenize("ModernFellowRule"))
+                    .is_some(),
+                modern
+            );
+            // The numbers: the visible texts other than the name.
+            let mut shown = 0;
+            let mut stack = tree.children(row).to_vec();
+            while let Some(e) = stack.pop() {
+                stack.extend(tree.children(e).iter().copied());
+                let el = tree.get(e).unwrap();
+                if el.visible() && el.text().is_some_and(|t| t.contains('[')) {
+                    shown += 1;
+                }
+            }
+            assert_eq!(shown > 0, modern, "{style:?}");
+        }
+    }
+}

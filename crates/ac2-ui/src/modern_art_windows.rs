@@ -77,7 +77,7 @@ pub const WIN_ROW: u32 = 0x7E01_0132;
 pub const WIN_ROW_SEL: u32 = 0x7E01_0133;
 pub const WIN_ROW_BORDER: i32 = 5;
 /// The fellows' meters (the design's `.meter`): health, vigor and the meter's empty well at the
-/// panel's size (277 by 14), then at the mini panel's (215 by 5).
+/// panel's size (277 by 14), then at the modern mini panel's bar size (215 by 10).
 pub const WIN_METER: [u32; 6] = [
     0x7E01_0134,
     0x7E01_0135,
@@ -86,6 +86,9 @@ pub const WIN_METER: [u32; 6] = [
     0x7E01_0138,
     0x7E01_0139,
 ];
+/// The rule under each fellow mini panel row: a light line (`#ece3c4` at 45%) fading at its ends.
+pub const FELLOW_RULE: u32 = 0x7E01_0142;
+pub const FELLOW_RULE_BORDER: i32 = 12;
 /// The secure trade's title strip (271 by 18) and its divider (7 by 110).
 pub const WIN_STRIP: u32 = 0x7E01_013A;
 pub const WIN_DIVIDER: u32 = 0x7E01_013B;
@@ -584,6 +587,20 @@ fn meter_well(w: usize, h: usize) -> UiPixels {
     c.finish()
 }
 
+/// The fellow rows' rule: one row of light, faded over its first and last 12 pixels.
+fn fellow_rule() -> UiPixels {
+    let w = 32usize;
+    let mut c = Canvas::new(w, 1);
+    c.paint(
+        |_, _| -1.0,
+        |x, _, d| {
+            let edge = (x.min(w as f32 - x) / 12.0).min(1.0);
+            (rgb(CREAM, 0.45 * edge), inside(d))
+        },
+    );
+    c.finish()
+}
+
 /// The secure trade's title strip: the header's stone shaded down, a black line at its foot.
 fn strip() -> UiPixels {
     let (w, h) = (271usize, 18usize);
@@ -658,10 +675,11 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (WIN_METER[0], meter(277, 14, 0xE0504A, 0x7A1A16)),
         (WIN_METER[1], meter(277, 14, 0x4A62E8, 0x16207A)),
         (WIN_METER[2], meter_well(277, 14)),
-        (WIN_METER[3], meter(215, 5, 0xE0504A, 0x7A1A16)),
-        (WIN_METER[4], meter(215, 5, 0x4A62E8, 0x16207A)),
-        (WIN_METER[5], meter_well(215, 5)),
+        (WIN_METER[3], meter(215, 10, 0xE0504A, 0x7A1A16)),
+        (WIN_METER[4], meter(215, 10, 0x4A62E8, 0x16207A)),
+        (WIN_METER[5], meter_well(215, 10)),
         (WIN_STRIP, strip()),
+        (FELLOW_RULE, fellow_rule()),
         (
             WIN_TRADE,
             frame(

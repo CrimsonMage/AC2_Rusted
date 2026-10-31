@@ -56,6 +56,8 @@ pub struct FellowRows {
     pub(crate) fellows: Vec<FellowInfo>,
     leader: Option<u64>,
     selection: Option<u64>,
+    /// The modern style's mini panel (`set_modern`): numbers shown, a rule under each row.
+    modern: bool,
 }
 
 impl FellowRows {
@@ -69,7 +71,15 @@ impl FellowRows {
             fellows: Vec::new(),
             leader: None,
             selection: None,
+            modern: false,
         }
+    }
+
+    /// The modern style's mini panel (AGENTS.md: the HUD's two styles): each member's health and
+    /// vigor numbers show from the start (retail's mini panel started them hidden, the page's
+    /// number button showing them), and a fine rule under each row parts the members at a glance.
+    pub fn set_modern(&mut self) {
+        self.modern = true;
     }
 
     /// `FellowshipHelper::AddAllFellows`, the leader moved up, then `UpdateXP`.
@@ -134,6 +144,10 @@ impl FellowRows {
             return;
         };
         let info = FellowInfo::new(tree, root, fellow, strings, self.mini);
+        if self.modern && self.mini {
+            info.toggle_text_state(tree);
+            crate::modern_fellow_rows::add_rule(tree, root);
+        }
         tree.list_add_item(self.list, root);
         self.fellows.push(info);
     }

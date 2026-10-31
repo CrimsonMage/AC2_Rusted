@@ -230,8 +230,9 @@ pub fn build_styled_hud(
     // The modern radar's art (`modern_radar::restyle`), before the radar's roots are made.
     let gameplay = match style {
         HudStyle::Modern => gameplay.map(|g| {
-            Arc::new(crate::modern_windows::restyle(
-                &crate::modern_radar::restyle(&g),
+            // The windows' parts, then the fellow mini panel's taller rows.
+            Arc::new(crate::modern_fellow_rows::restyle(
+                &crate::modern_windows::restyle(&crate::modern_radar::restyle(&g)),
             ))
         }),
         HudStyle::Classic => gameplay,
@@ -306,9 +307,13 @@ pub fn build_styled_hud(
         _ => None,
     };
     // `gmGamePlayUI::SetupChildren` makes the mini panel after the toolbar's roots.
-    let mini_fellow = layouts[&LAYOUT_GAMEPLAY]
-        .as_ref()
-        .map(|gameplay| MiniFellowUi::create(&mut tree, gameplay));
+    let mini_fellow = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
+        let mut mini = MiniFellowUi::create(&mut tree, gameplay);
+        if style == HudStyle::Modern {
+            mini.set_modern();
+        }
+        mini
+    });
     // `gmGamePlayUI::SetupChildren` makes the pet panel with the mini panel.
     let pets = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
         let mut pets = PetUi::create(&mut tree, gameplay);
