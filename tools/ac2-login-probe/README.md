@@ -44,12 +44,13 @@ with its opcode and length and keeps going.
 
 ## Local AC2e server
 
-The client is tested against the AC2e server (github.com/Thwargle/AC2e), run on the Legions DATs.
+The client is tested against the AC2e server (github.com/Thwargle/AC2e), run on the 7230 DATs
+(`AC2_DAT_DIR`, default `../dataset-7230`; `AC2E_DATA=legions` with the DVD set instead).
 `scripts/ac2e-login-test.sh` is the live logon test: it starts a server on `127.0.0.1:19380`,
 runs this probe against it and stops the server, exiting with the probe's code.
 
 ```
-AC2_DAT_DIR=DIR scripts/ac2e-login-test.sh
+scripts/ac2e-login-test.sh
 ```
 
 To keep a server running for the client or the probe, `scripts/ac2e-server.sh` starts one on
@@ -58,8 +59,8 @@ To keep a server running for the client or the probe, `scripts/ac2e-server.sh` s
 `ac2e serve` with AC2e's launcher options:
 
 ```
-AC2_DAT_DIR=DIR scripts/ac2e-server.sh
-ac2-login-probe --host 127.0.0.1 --port 9000 --version 7148 --account local
+scripts/ac2e-server.sh
+ac2-login-probe --host 127.0.0.1 --port 9000 --version 7148 --account local --dat-dir ../dataset-7230
 ```
 
 AC2e speaks the admin 7148 layouts (7230 is experimental). Without `--auth-data` it takes a plain
