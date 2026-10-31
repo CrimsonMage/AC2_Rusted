@@ -1,5 +1,4 @@
-//! The region's ambient music on the Legions DVD's DATs (`AC2_DAT_DIR`; skipped on 7230, whose
-//! town block's land points name another environment), end to end and headless: the
+//! The region's ambient music on the real DATs (`AC2_DAT_DIR`), end to end and headless: the
 //! player enters the world at the double's spawn, the frames run, and the sound manager's
 //! `SinkCommand`s go to a tee that records them and mixes into a [`MixingSink`] (no device).
 //! Standing outdoors in the town block the land points' environment dominates and its music is
@@ -67,18 +66,21 @@ struct Harness {
 }
 
 fn town_spawn() -> Option<legions_server_double::Spawn> {
-    let dataset = ac2_dat::test_support::env_legions_dataset()?;
+    let dataset = ac2_dat::test_support::env_dataset()?;
     let store = ac2_db::ResourceStore::new(dataset);
     let world = ac2_client::DatWorld::new(Arc::new(store)).ok()?;
+    // The town block: the DVD's CB4D; 7230 gave part of CB4D's land points another
+    // environment, so its spawn is the neighbouring CB4C, all of whose points are the town's.
+    let block = ac2_dat::test_support::pinned(0xCB4D_u32, 0xCB4C) << 16;
     let top = world
         .world()
-        .load_landblock(ac2_core::CellId::new(0xCB4D_0001))
+        .load_landblock(ac2_core::CellId::new(block | 1))
         .ok()??
         .height_grid()
         .into_iter()
         .fold(0.0, f32::max);
     Some(legions_server_double::Spawn {
-        cell: 0xCB4D_0025,
+        cell: block | 0x25,
         origin: [96.0, 96.0, top + 2.0],
         rotation: [1.0, 0.0, 0.0, 0.0],
     })
@@ -86,7 +88,7 @@ fn town_spawn() -> Option<legions_server_double::Spawn> {
 
 impl Harness {
     fn enter(spawn: legions_server_double::Spawn) -> Option<Self> {
-        let dataset = ac2_dat::test_support::env_legions_dataset()?;
+        let dataset = ac2_dat::test_support::env_dataset()?;
         let store = Arc::new(ac2_db::ResourceStore::new(dataset));
         let world = ac2_client::DatWorld::new(Arc::clone(&store)).ok()?;
         let (transport, server) = legions_server_double::double(spawn);
@@ -267,7 +269,7 @@ fn a_long_dominant_environment_keeps_one_music_voice() {
     let Some(spawn) = town_spawn() else {
         return;
     };
-    let [_, _, z] = spawn.origin;
+    let ([_, _, z], cell) = (spawn.origin, spawn.cell);
     let Some(mut harness) = Harness::enter(spawn) else {
         return;
     };
@@ -287,7 +289,7 @@ fn a_long_dominant_environment_keeps_one_music_voice() {
         if frame % 64 == 0 {
             x = if x == 96.0 { 101.0 } else { 96.0 };
             harness.server.borrow_mut().send_player_position(
-                0xCB4D_0025,
+                cell,
                 [x, 96.0, z],
                 [stamp, stamp + 1, stamp + 2],
             );
@@ -455,7 +457,7 @@ fn the_town_ambient_emitters_are_the_region_records_continuous_sounds() {
     let Some(spawn) = town_spawn() else {
         return;
     };
-    let Some(dataset) = ac2_dat::test_support::env_legions_dataset() else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
     let store = ac2_db::ResourceStore::new(dataset);
