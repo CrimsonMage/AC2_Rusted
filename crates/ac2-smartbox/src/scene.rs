@@ -25,6 +25,9 @@ pub struct CameraFrame {
     pub first_person: bool,
     /// The camera effects' screen flash (r, g, b, a; `SceneTool::m_cFlashColor`).
     pub flash: [f32; 4],
+    /// `SceneTool::m_bDisableDegrades` (`CameraManager::disable_degrades`): the map view draws
+    /// every object at full detail.
+    pub disable_degrades: bool,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -120,6 +123,7 @@ impl SceneCamera {
             fov: self.fov,
             first_person: camera.first_person,
             flash: camera.flash_colour(),
+            disable_degrades: camera.disable_degrades(),
         }
     }
 

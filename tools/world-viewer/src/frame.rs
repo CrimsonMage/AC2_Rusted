@@ -39,6 +39,7 @@ pub fn fly_camera_frame(fly: &FlyCamera, block_size: f32) -> CameraFrame {
         fov: FLY_FOV,
         first_person: false,
         flash: [0.0; 4],
+        disable_degrades: false,
     }
 }
 

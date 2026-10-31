@@ -188,3 +188,16 @@ fn an_empty_detail_list_picks_among_every_degrade() {
     assert_eq!(lists.select(0, 0.5), Some(1));
     assert_eq!(DegradeLists::new(&[]).select(2, 1.0), None);
 }
+
+#[test]
+fn disabled_degrades_draw_full_detail_with_the_alpha_test_rule_kept() {
+    let options = DegradeOptions::default();
+    // Far past the 100 unit visible distance: degrading culls it, the switch draws it whole.
+    assert!(part_array_lod(500.0, &info(), 1.0, 1).is_none());
+    let lod = undegraded_lod(500.0, &options);
+    assert_eq!((lod.factor, lod.alpha), (1.0, 1.0));
+    assert_eq!(lod.material_detail, options.material_detail);
+    assert!(lod.force_disable_alpha_test);
+    assert!(!undegraded_lod(40.0, &options).force_disable_alpha_test);
+    assert_eq!(lod.draw_detail(&options, true).degrade, 1.0);
+}

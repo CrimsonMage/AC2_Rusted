@@ -5029,7 +5029,7 @@ key	status	note
 004ef8f0	-	render plumbing
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004ef9c0	x	the root group's posed bones (ObjectPose::bones) with their CSetup parents (ObjectSkeleton::root_parents), carried on ObjectPlacement
-004efb00	x	ac2-render object::degrade (degrade_scale, part_array_lod: cull at max(s*visible,20), 7.5% fade, degrade factor, material detail, ForceDisableAlphaTest past 40) + scene/lod.rs; particle systems, draw and setup id in scene/particles.rs and model.rs. Reflection/shadow-volume branches n/a
+004efb00	x	ac2-render object::degrade (degrade_scale, part_array_lod: cull at max(s*visible,20), 7.5% fade, degrade factor, material detail, ForceDisableAlphaTest past 40) + scene/lod.rs; with SceneTool::m_bDisableDegrades (map view) undegraded_lod: no cull, fade, degrade or distance material detail (factor 1, alpha 1, MaterialDetail pref), ForceDisableAlphaTest past 40 still set; particle systems, draw and setup id in scene/particles.rs and model.rs. Reflection/shadow-volume branches n/a
 004f0140	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first); PartGroupTree::get_holding_location over the live tree
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -8210,7 +8210,7 @@ key	status	note
 005767a0	x	ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 00576850	x	ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 00576930	-	no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only [vtable-checked: not a slot of any located Legions vtable]
-00576a10	~	ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance and models SceneTool::m_bDisableDegrades (disable_degrades(), saved and restored as DAT_00ae634c); SetDefaults, LookAtGround, SetMouseLookState and SetFirstPersonState leave the map view through it. Not consumed yet: CPartArray::Draw with the switch on draws every object at full detail with no distance cull, and ac2-render scene/lod.rs SceneDegrades::lod does not read it
+00576a10	x	ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance and models SceneTool::m_bDisableDegrades (disable_degrades(), saved and restored as DAT_00ae634c); SetDefaults, LookAtGround, SetMouseLookState and SetFirstPersonState leave the map view through it. Consumed: CameraFrame::disable_degrades -> ac2-client view.rs prepare -> WorldScene::set_disable_degrades -> scene/lod.rs SceneDegrades (object::undegraded_lod)
 00576b00	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 00576b40	x	ac2-smartbox camera.rs set_defaults: leaves the map view first (SetMapView(0)), then behind the player at the default pitch and distance
 00576c70	x	ac2-smartbox camera.rs look_at_ground: leaves the map view first, then 1.37 or the default pitch

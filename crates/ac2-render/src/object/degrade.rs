@@ -189,6 +189,21 @@ pub fn part_array_lod(
     }
 }
 
+/// `CPartArray::Draw` with `SceneTool::m_bDisableDegrades` set (the map view): no visible-distance
+/// cull, no fade, no distance degrade and no distance material detail, so the factor is 1, the
+/// alpha 1 and the material detail the `MaterialDetail` setting. The Setup's level is still read
+/// at `ModelDetail`, and `SceneTool::m_bForceDisableAlphaTest` is still set past 40 units: the
+/// switch only clears `bVar7`, which the 40-unit test does not read.
+pub fn undegraded_lod(distance: f32, options: &DegradeOptions) -> ObjectLod {
+    ObjectLod {
+        factor: 1.0,
+        alpha: 1.0,
+        material_detail: options.material_detail,
+        visible_distance: f32::MAX,
+        force_disable_alpha_test: distance > 40.0,
+    }
+}
+
 /// [`part_array_lod`] for an object whose Setup is `info`, at `options`' model detail.
 pub fn object_lod(
     distance: f32,

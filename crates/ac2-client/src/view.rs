@@ -479,6 +479,8 @@ impl ClientView {
             return false;
         };
         self.scene.set_clock(time);
+        self.scene
+            .set_disable_degrades(frame.camera.is_some_and(|c| c.disable_degrades));
         self.presenter.set_brightness(gpu, self.brightness);
         let flash = frame.camera.map_or([0.0; 4], |c| c.flash);
         self.presenter.set_flash(gpu, flash);

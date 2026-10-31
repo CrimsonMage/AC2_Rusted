@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 143 done, 26 partial, 52 to do, 41 skipped.
+262 retail functions: 144 done, 25 partial, 52 to do, 41 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -197,7 +197,7 @@ Legend and workflow: [README](README.md).
 - [x] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 - [x] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 
-## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (40/46)
+## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (41/46)
 
 ### TargetingModule
 - [x] `TargetingModule::TargetingModule` · 00574850 · legions 00544720
@@ -239,7 +239,7 @@ Legend and workflow: [README](README.md).
 - [x] `CameraManager::LookAtSelf` · 005767a0 · legions 00546660 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 - [x] `CameraManager::SwingOutLeft` · 00576850 · legions 005467f0 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 - [-] `CameraManager::SwingOutRight` · 00576930 — no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only [vtable-checked: not a slot of any located Legions vtable]
-- [~] `CameraManager::SetMapView` · 00576a10 · legions 005468d0 — ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance and models SceneTool::m_bDisableDegrades (disable_degrades(), saved and restored as DAT_00ae634c); SetDefaults, LookAtGround, SetMouseLookState and SetFirstPersonState leave the map view through it. Not consumed yet: CPartArray::Draw with the switch on draws every object at full detail with no distance cull, and ac2-render scene/lod.rs SceneDegrades::lod does not read it
+- [x] `CameraManager::SetMapView` · 00576a10 · legions 005468d0 — ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance and models SceneTool::m_bDisableDegrades (disable_degrades(), saved and restored as DAT_00ae634c); SetDefaults, LookAtGround, SetMouseLookState and SetFirstPersonState leave the map view through it. Consumed: CameraFrame::disable_degrades -> ac2-client view.rs prepare -> WorldScene::set_disable_degrades -> scene/lod.rs SceneDegrades (object::undegraded_lod)
 - [x] `CameraManager::GetTargetOffset` · 00576b00 · legions 005469c0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::SetDefaults` · 00576b40 · legions 00546a30 — ac2-smartbox camera.rs set_defaults: leaves the map view first (SetMapView(0)), then behind the player at the default pitch and distance
 - [x] `CameraManager::LookAtGround` · 00576c70 · legions 00546b60 — ac2-smartbox camera.rs look_at_ground: leaves the map view first, then 1.37 or the default pitch
