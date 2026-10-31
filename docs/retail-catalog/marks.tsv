@@ -8394,7 +8394,7 @@ key	status	note
 005841c0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584290	x	self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 005843b0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-00584540	~	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change. SceneTool::m_bRenderingToShadowMap (set in SceneTool::StartShadowMap, cleared in FinishShadowMap) clears CPartArray::Draw bVar7 (like m_bDisableDegrades): casters = SceneFrame::shadow_placements (SceneDegrades::shadow_placements), every scenery placement undegraded, unfaded, not distance-culled; the sun cascades static casters use the same list
+00584540	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change. SceneTool::m_bRenderingToShadowMap (set in SceneTool::StartShadowMap, cleared in FinishShadowMap) clears CPartArray::Draw bVar7 (like m_bDisableDegrades): casters = SceneFrame::shadow_placements (SceneDegrades::shadow_placements), every scenery placement undegraded, unfaded, not distance-culled; the sun cascades static casters use the same list
 005847b0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584950	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584b10	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
