@@ -49,6 +49,9 @@
 //! snapshot with it on draws every warm-up frame so the history converges on the still camera.
 //! `--pan N` (with `--fly`) then draws N more frames with the camera turning and advancing a
 //! little each, to check the anti-aliasing for ghosting.
+//! `--walk-pan N` then draws N more frames with the player walking on and turning under the
+//! following camera, so its body and the crowd's move across the screen.
+//! `--aa-ref FILE` writes the same frame again with it off, to measure the temporal error.
 //! `--size` sets the headless frame's size (default 1280x720). `--grass-copies N` draws each near grass frill N times (1: retail's frills only; default 4,
 //! draw distance 2's).
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
@@ -166,6 +169,10 @@ struct Args {
     antialiasing: bool,
     /// Frames of a moving `--fly` camera after the warm-up (`--pan`), 0: a still camera.
     pan: u32,
+    /// Frames the player walks on and turns after the warm-up (`--walk-pan`), 0: standing still.
+    walk_pan: u32,
+    /// A second snapshot of the same frame with the anti-aliasing off (`--aa-ref`).
+    aa_reference: Option<PathBuf>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -209,6 +216,8 @@ fn parse_args() -> Result<Args, String> {
         size: (1280, 720),
         antialiasing: ac2_render::prefs::SceneOptions::default().antialiasing,
         pan: 0,
+        walk_pan: 0,
+        aa_reference: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -375,6 +384,10 @@ fn parse_args() -> Result<Args, String> {
                 };
             }
             "--pan" => args.pan = value()?.parse().map_err(|e| format!("--pan: {e}"))?,
+            "--aa-ref" => args.aa_reference = Some(value()?.into()),
+            "--walk-pan" => {
+                args.walk_pan = value()?.parse().map_err(|e| format!("--walk-pan: {e}"))?;
+            }
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
             }
@@ -394,6 +407,27 @@ fn parse_args() -> Result<Args, String> {
         return Err("--crowd needs --snapshot or --bench".into());
     }
     Ok(args)
+}
+
+/// The headless scene's graphics options from the command line, with `antialiasing` as given.
+fn scene_options(args: &Args, antialiasing: bool) -> ac2_render::prefs::SceneOptions {
+    ac2_render::prefs::SceneOptions {
+        degrade: args.degrade,
+        object_shadows: args.object_shadows,
+        light_coronas: args.light_coronas,
+        antialiasing,
+        static_shadows: args.static_shadows,
+        trilinear: args.trilinear,
+        anisotropic: args.anisotropic,
+        cloud_shadows: args.cloud_shadows,
+        water_reflections: args.water_reflections,
+        shore_effects: args.shore_effects,
+        frill: ac2_render::frill::FrillSettings {
+            copies: args.grass_copies,
+            ..Default::default()
+        },
+        ..Default::default()
+    }
 }
 
 fn main() {
@@ -539,23 +573,7 @@ fn snapshot(
         (width, height),
         args.hud_style,
     );
-    view.set_scene_options(ac2_render::prefs::SceneOptions {
-        degrade: args.degrade,
-        object_shadows: args.object_shadows,
-        light_coronas: args.light_coronas,
-        antialiasing: args.antialiasing,
-        static_shadows: args.static_shadows,
-        trilinear: args.trilinear,
-        anisotropic: args.anisotropic,
-        cloud_shadows: args.cloud_shadows,
-        water_reflections: args.water_reflections,
-        shore_effects: args.shore_effects,
-        frill: ac2_render::frill::FrillSettings {
-            copies: args.grass_copies,
-            ..Default::default()
-        },
-        ..Default::default()
-    });
+    view.set_scene_options(scene_options(args, args.antialiasing));
     let model = models.get(args.model).filter(|_| !args.fly);
     let mut fly = match (args.fly, args.at) {
         (true, Some(at)) => ground_camera(&world, args.block, at),
@@ -661,6 +679,32 @@ fn snapshot(
         view.render(&gpu, &target.color_view, &target.depth_view, true);
         let _ = gpu.device.poll(wgpu::PollType::wait_indefinitely());
     }
+    // `--walk-pan`: the player walks on and turns every frame under the following camera, so its
+    // body and the crowd's move across the screen (a check on ghosting).
+    let crowd = frame.objects.clone();
+    for step in 0..args.walk_pan {
+        let input = walk::WalkInput {
+            forward: 1.0,
+            turn: 0.35,
+            ..Default::default()
+        };
+        walk.update(
+            1.0 / 60.0,
+            f64::from(args.walk_seconds) + 1.0 + f64::from(step) / 60.0,
+            input,
+        );
+        frame = frame::client_frame(mode, &walk, &fly, model.map(|m| m.visual), time_of_day);
+        frame.objects.clone_from(&crowd);
+        view.update(&gpu, &frame, std::time::Duration::from_millis(4));
+        view.prepare(
+            &gpu,
+            &frame,
+            width as f32 / height as f32,
+            f64::from(step) / 60.0,
+        );
+        view.render(&gpu, &target.color_view, &target.depth_view, true);
+        let _ = gpu.device.poll(wgpu::PollType::wait_indefinitely());
+    }
     view.prepare(&gpu, &frame, width as f32 / height as f32, 0.0);
     if args.bench > 0 {
         let report = bench::run(
@@ -690,6 +734,18 @@ fn snapshot(
     let Some(path) = &args.snapshot else {
         return;
     };
+    write_png(&target, &gpu, path);
+    // `--aa-ref`: the same frame again with the anti-aliasing off, to compare against.
+    if let Some(reference) = &args.aa_reference {
+        view.set_scene_options(scene_options(args, false));
+        view.prepare(&gpu, &frame, width as f32 / height as f32, 0.0);
+        view.render(&gpu, &target.color_view, &target.depth_view, true);
+        write_png(&target, &gpu, reference);
+    }
+}
+
+fn write_png(target: &FrameTarget, gpu: &Gpu, path: &std::path::Path) {
+    let (width, height) = (target.width, target.height);
     let rgba = target.read_rgba(&gpu.device, &gpu.queue);
     let file = std::fs::File::create(path).expect("snapshot file");
     let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), width, height);
