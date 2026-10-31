@@ -839,7 +839,7 @@ fn run(args: Args) -> Result<(), String> {
     let mut prefs = ac2_client::ClientPrefs::load(prefs_path, Arc::clone(&store))
         .map_err(|e| format!("preferences: {e}"))?;
     // The saved graphics quality, else one chosen from the GPU, before anything reads the bank.
-    prefs.apply_startup_quality(ac2_gpu::suggested_quality_level());
+    let quality = prefs.apply_startup_quality(ac2_gpu::suggested_quality_level());
     // `RenderTexture::DropUnwantedLevels` reads `TextureDetail` as each texture loads.
     if let Some(detail) = ac2_render::prefs::texture_detail(prefs.bank()) {
         store.set_texture_detail(detail);
@@ -936,7 +936,9 @@ fn run(args: Args) -> Result<(), String> {
         client,
         world,
         controls: Some(controls),
-        radius: args.radius,
+        radius: args
+            .radius
+            .unwrap_or_else(|| ac2_render::prefs::near_radius_for_level(quality)),
         scene_options,
         state: None,
         wheel: WheelAccumulator::default(),

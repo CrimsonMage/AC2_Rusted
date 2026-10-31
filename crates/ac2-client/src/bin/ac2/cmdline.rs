@@ -16,7 +16,8 @@ pub(crate) struct Args {
     pub version: String,
     /// `gmClient::m_startChar`: enter with this character, skipping character selection.
     pub character: Option<String>,
-    pub radius: i32,
+    /// `--radius`: the resident ring of landblocks; by the quality level when not given.
+    pub radius: Option<i32>,
     /// `Preferences.ini` (`-prefs` in retail): the default is in the user's configuration directory.
     pub prefs: Option<String>,
     /// `chargen <file>` (`CharGenData::SetFileName`): every created character is also captured
@@ -152,7 +153,7 @@ fn parse_from(
         account: "local".into(),
         version: ac2_net::LEGIONS_VERSION.into(),
         character: None,
-        radius: 1,
+        radius: None,
         prefs: None,
         chargen: None,
         host: None,
@@ -212,7 +213,7 @@ fn parse_from(
             "character" => args.character = Some(value),
             "prefs" => args.prefs = Some(value),
             "chargen" => args.chargen = Some(value),
-            "radius" => args.radius = value.parse().map_err(|e| format!("--radius: {e}"))?,
+            "radius" => args.radius = Some(value.parse().map_err(|e| format!("--radius: {e}"))?),
             "width" => args.width = Some(window_size("width", &value)?),
             "height" => args.height = Some(window_size("height", &value)?),
             "language" => args.language = Some(value),

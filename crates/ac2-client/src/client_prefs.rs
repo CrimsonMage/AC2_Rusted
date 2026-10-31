@@ -180,6 +180,7 @@ impl ClientPrefs {
         let mut options = ac2_render::prefs::scene_options(self.file.bank());
         if let Some(level) = self.quality_level {
             options.ao_quality = ac2_render::prefs::ao_quality_for_level(level);
+            options.degrade.scenery_reach = ac2_render::prefs::scenery_reach_for_level(level);
         }
         options
     }

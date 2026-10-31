@@ -201,3 +201,28 @@ fn disabled_degrades_draw_full_detail_with_the_alpha_test_rule_kept() {
     assert!(!undegraded_lod(40.0, &options).force_disable_alpha_test);
     assert_eq!(lod.draw_detail(&options, true).degrade, 1.0);
 }
+
+#[test]
+fn the_scenery_reach_multiplies_static_scenerys_distances_only() {
+    let degrade = Ac2DegradeInfo {
+        levels: [info(); 3],
+    };
+    let retail = DegradeOptions {
+        scenery_draw_distance: 2,
+        ..DegradeOptions::default()
+    };
+    let reached = DegradeOptions {
+        scenery_reach: 2.0,
+        ..retail
+    };
+    let visible = f64::from(info().visible);
+    assert_eq!(degrade_scale(&reached, false, 60.0), 2.0);
+    // Mobile (adaptive) objects keep retail's frame-rate scale.
+    assert_eq!(
+        degrade_scale(&reached, true, 60.0),
+        degrade_scale(&retail, true, 60.0)
+    );
+    let past = (visible * 1.5) as f32;
+    assert!(object_lod(past, &degrade, &retail, false, 60.0).is_none());
+    assert!(object_lod(past, &degrade, &reached, false, 60.0).is_some());
+}

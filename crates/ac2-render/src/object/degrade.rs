@@ -29,6 +29,10 @@ pub struct DegradeOptions {
     pub adaptive_degrade: bool,
     /// `AdaptiveDegradeBias` (`0x40000065`), -1 to 1.
     pub adaptive_degrade_bias: f32,
+    /// The client's scenery reach (`AGENTS.md` exception): multiplies the static scenery's
+    /// distance scale past `SceneryDrawDistance`'s, so its objects keep their cheapest degrade
+    /// and retail's fade out to a farther edge. 1 is retail.
+    pub scenery_reach: f32,
 }
 
 impl Default for DegradeOptions {
@@ -41,6 +45,7 @@ impl Default for DegradeOptions {
             scenery_draw_distance: 1,
             adaptive_degrade: false,
             adaptive_degrade_bias: 0.0,
+            scenery_reach: 1.0,
         }
     }
 }
@@ -107,11 +112,12 @@ impl ObjectLod {
 /// `AdaptiveDegrade` is on (`SceneTool::framesPerSecond`).
 pub fn degrade_scale(options: &DegradeOptions, adaptive: bool, frames_per_second: f32) -> f64 {
     if !adaptive {
-        return match options.scenery_draw_distance {
+        let retail = match options.scenery_draw_distance {
             0 => f64::from(0.4_f32),
             1 => f64::from(0.7_f32),
             _ => 1.0,
         };
+        return retail * f64::from(options.scenery_reach.max(1.0));
     }
     if !options.adaptive_degrade {
         return 1.0;

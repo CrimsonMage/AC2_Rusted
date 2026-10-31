@@ -443,6 +443,15 @@ game rules and server-visible behaviour exactly retail.
   leaves it unchanged), fading out between 25 and 60 m from the eye (`terrain.wgsl`
   `DETAIL_FADE`); a layer whose surface has none binds mid grey. The detail is part of the layer
   set (`TerrainLayer::detail`), as `LScapeMaterialInfo::CornerMatch` already compared it.
+- Exception: the scenery reaches farther at quality levels 4 and 5. Retail kept a resident
+  ring of one landblock around the camera's (3 x 3 blocks) and culled each static scenery
+  object past its Setup's `DegradeInfo` visible distance times the `SceneryDrawDistance` scale
+  (0.4, 0.7 or 1; `CPartArray::Draw`), so ridges a few hundred metres out stood bare. At levels 4
+  and 5 the client keeps a ring of two (5 x 5 blocks, as the AC2e Unreal remake streams;
+  `ac2_render::prefs::near_radius_for_level`, unless `--radius` is given) and multiplies the static
+  scenery's distance scale by 2 (`DegradeOptions::scenery_reach`, `scenery_reach_for_level`), so
+  those objects draw out to twice retail's distances at their cheapest degrade with retail's fade
+  at the new edge; mobile objects keep retail's adaptive scale. Levels 1 to 3 stay retail.
 - Exception: grass frills reach past retail's ring. Retail merged the frills within
   `(m_current_lscape_radius + 1) * square_length` of the camera cell (`FrillRender::RefreshFrillMesh`,
   still done) and faded them out between `radius * square_length - 8` and `radius * square_length`

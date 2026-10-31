@@ -530,6 +530,32 @@ pub const AO_LOW: u8 = 1;
 /// 3 slices of 6 steps per side.
 pub const AO_HIGH: u8 = 2;
 
+/// The static scenery's reach for a quality level (`DegradeOptions::scenery_reach`; an
+/// `AGENTS.md` exception): retail's 1 below level 4, twice retail's distances from it.
+pub fn scenery_reach_for_level(level: u32) -> f32 {
+    if level >= SCENERY_REACH_FROM_LEVEL {
+        SCENERY_REACH
+    } else {
+        1.0
+    }
+}
+
+/// The resident ring of landblocks around the camera's (`WorldScene`'s near radius) for a
+/// quality level: retail's 1 (3 x 3 blocks) below level 4, 2 (5 x 5, as the AC2e remake streams)
+/// from it, so the scenery reach has blocks to draw (`AGENTS.md` exception).
+pub fn near_radius_for_level(level: u32) -> i32 {
+    if level >= SCENERY_REACH_FROM_LEVEL {
+        2
+    } else {
+        1
+    }
+}
+
+/// The lowest quality level that reaches the scenery past retail's distances.
+pub const SCENERY_REACH_FROM_LEVEL: u32 = 4;
+/// How much farther than retail's `SceneryDrawDistance` scale the static scenery reaches there.
+pub const SCENERY_REACH: f32 = 2.0;
+
 /// The ambient occlusion tier for an overall graphics quality level (a client deviation: retail
 /// drew none). Level 1 turns it off, 2 and 3 are low, 4 and 5 high; a level without a preset
 /// keeps the high default.
@@ -686,6 +712,7 @@ pub fn degrade_options(bank: &PreferenceBank) -> DegradeOptions {
             Some(Value::Float(bias)) => *bias,
             _ => defaults.adaptive_degrade_bias,
         },
+        scenery_reach: defaults.scenery_reach,
     }
 }
 

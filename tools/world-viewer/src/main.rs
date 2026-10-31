@@ -356,6 +356,11 @@ fn parse_args() -> Result<Args, String> {
                     .parse()
                     .map_err(|e| format!("--scenery-distance: {e}"))?;
             }
+            "--scenery-reach" => {
+                args.degrade.scenery_reach = value()?
+                    .parse()
+                    .map_err(|e| format!("--scenery-reach: {e}"))?;
+            }
             "--object-shadows" => {
                 let level: i32 = value()?
                     .parse()

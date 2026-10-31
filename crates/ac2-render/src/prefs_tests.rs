@@ -390,3 +390,15 @@ fn the_ambient_occlusion_tier_follows_the_quality_level() {
     assert_eq!(ao_quality_for_level(6), AO_HIGH);
     assert_eq!(SceneOptions::default().ao_quality, AO_HIGH);
 }
+
+#[test]
+fn quality_four_and_five_reach_the_scenery_over_five_by_five_blocks() {
+    for level in 1..=3 {
+        assert_eq!(super::scenery_reach_for_level(level), 1.0);
+        assert_eq!(super::near_radius_for_level(level), 1);
+    }
+    for level in 4..=5 {
+        assert_eq!(super::scenery_reach_for_level(level), 2.0);
+        assert_eq!(super::near_radius_for_level(level), 2);
+    }
+}
