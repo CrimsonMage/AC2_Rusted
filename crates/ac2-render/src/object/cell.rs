@@ -35,6 +35,19 @@ pub struct CellLighting<'a> {
     pub interior_ambient: [f32; 3],
 }
 
+/// The cell mesh's first degrade on the CPU (`CEnvCell::GetNearbyGeometry`'s source).
+pub fn load_cell_geometry(
+    store: &ResourceStore,
+    cell: &Ac2EnvCell,
+) -> ResourceResult<Option<crate::cell_geometry::CellGeometry>> {
+    let mesh = store.load_cached_packed::<Ac2Mesh>(TypedResourceRef::new(
+        DatFileKind::Portal,
+        cell.cell_mesh,
+        0,
+    ))?;
+    Ok(mesh.and_then(|mesh| crate::cell_geometry::CellGeometry::from_mesh(&mesh)))
+}
+
 /// Loads `cell` placed at `world_frame` (its landblock origin plus its own frame), with its
 /// baked vertex colours and the layers `settings` draws.
 pub fn load_cell_model(

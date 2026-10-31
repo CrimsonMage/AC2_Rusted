@@ -42,7 +42,7 @@ fn a_landblock_decal_lands_at_the_emitter_plus_the_node_origin() {
 }
 
 #[test]
-fn a_dungeon_or_cellless_decal_is_not_made() {
+fn a_cellless_decal_is_not_made_and_a_dungeon_one_carries_its_cell() {
     let mut random = Random::default();
     let origin = Vec3::new(1.0, 1.0, 1.0);
     assert!(decal_spec(
@@ -55,17 +55,18 @@ fn a_dungeon_or_cellless_decal_is_not_made() {
         &mut random
     )
     .is_none());
-    // An environment cell (id 0x0102_0100 and up).
-    assert!(decal_spec(
+    // An environment cell (id 0x0102_0100 and up): the scene builds it from the cell's mesh.
+    let spec = decal_spec(
         &decal(0.0, 0.0),
         0x0102_0100,
         origin,
         Vec3::Y,
         BLOCK,
         0.0,
-        &mut random
+        &mut random,
     )
-    .is_none());
+    .expect("a dungeon decal");
+    assert_eq!(spec.cell, 0x0102_0100);
 }
 
 #[test]

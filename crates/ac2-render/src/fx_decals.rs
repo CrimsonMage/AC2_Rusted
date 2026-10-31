@@ -6,9 +6,8 @@
 //! for every node of a startup FX, with no gate. The decal then lives on its own: stopping the FX
 //! does not end it (`DecalEffect` has no emitter). The calls queue here and the scene takes them
 //! ([`FxDecals::take_calls`]).
-//!
-//! Not ported here: a decal on a dungeon cell (`DecalEffect::ConstructDungeonDecal` needs the cell's
-//! polygons; such a node makes no decal).
+//! A decal in an env cell carries the cell id; the scene builds it from the cell's mesh
+//! (`DecalEffect::ConstructDungeonDecal`).
 
 use std::collections::BTreeSet;
 
@@ -18,9 +17,6 @@ use ac2_math::Vec3;
 
 use crate::decal::DecalSpec;
 use crate::fx_streaks::{node_plays, StreakContext};
-
-/// The `0x0100` cell-id bound: a cell below it is a landblock cell (`LandDefs::first_envcell_id`).
-const FIRST_ENVCELL_ID: u32 = 0x100;
 
 /// The world-space origin of landblock `cell`'s corner: the block's east and north offsets in
 /// metres (the same origin the near terrain meshes use).
@@ -42,7 +38,7 @@ pub struct EmitterPlace {
 
 /// The decal `DoDecalFX` makes for `decal` at an emitter in `cell` standing at `origin` (its
 /// block-local position) heading `forward`, at client time `time`; `None` where retail makes
-/// none (a dungeon cell, or no cell at all).
+/// none (no cell at all).
 ///
 /// The order of the work follows `FXManager::DoDecalFX`: the waveforms are read at `time`;
 /// the position is the emitter's plus the node's origin; with a radius the decal is scattered
@@ -59,7 +55,7 @@ pub fn decal_spec(
     time: f64,
     random: &mut Random,
 ) -> Option<DecalSpec> {
-    if cell == 0 || (cell & 0xFFFF) >= FIRST_ENVCELL_ID {
+    if cell == 0 {
         return None;
     }
     let size = decal.size.value(time);
@@ -107,6 +103,7 @@ pub fn decal_spec(
         color: decal.color,
         draw_once: false,
         origin: world,
+        cell,
     })
 }
 

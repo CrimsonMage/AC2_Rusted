@@ -56,6 +56,7 @@ fn decal_triangles_fill_the_particle_draw_range() {
         color: [1.0, 1.0, 1.0, 1.0],
         draw_once: false,
         origin: Vec3::ZERO,
+        cell: 0,
     };
     let mut decals = DecalEffects::default();
     decals.create(spec, 0.0, &ground());

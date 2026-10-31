@@ -48,6 +48,8 @@ pub struct CullCell {
     pub structure: Option<Arc<Ac2CellStruct>>,
     /// `world` inverted: the scene's space into the cell's.
     pub inverse: Mat4,
+    /// The cell mesh's first degrade on the CPU (`CEnvCell::GetNearbyGeometry`).
+    pub geometry: Option<crate::cell_geometry::CellGeometry>,
 }
 
 impl CullCell {
@@ -397,6 +399,7 @@ mod tests {
             shared_cells: Vec::new(),
             structure: None,
             inverse: Mat4::IDENTITY,
+            geometry: None,
         }
     }
 

@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 362 done, 26 partial, 18 to do, 583 skipped.
+989 retail functions: 363 done, 26 partial, 17 to do, 583 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (40/140)
+## `portal/shared/src/cell/envcell.cpp.c` (41/140)
 
 ### PackObj
 - [-] `PackObj::Pack` · 0047f1a0 — write path (client reads DATs only)
@@ -180,7 +180,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::GatherInsideObjects` · 00483970 · legions 0047d810 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [-] `CEnvCell::FromFileNode` · 00483a60 — text source format (admin tools)
 - [~] `CEnvCell::AddStaticLights` · 00484090 · legions 0047d900 — interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
-- [ ] `CEnvCell::GetNearbyGeometry` · 00484200 · legions 0047da70 — needs port: indoor env cell: visibility, lights, portals, rendering
+- [x] `CEnvCell::GetNearbyGeometry` · 00484200 · legions 0047da70 — ac2-render scene/decals.rs dungeon_decal_ground + cell_geometry.rs nearby_geometry: the decal carries its cell (DecalSpec::cell); the block's resident CullCell (CObjCell::GetVisible) gives the cell mesh first degrade (CellGeometry, Arcs shared with the decoded mesh) and its portal polygons; triangles whose cell-local bounds overlap the box of the largest edge, plus one ring of portal neighbours whose portal bounds overlap, go through construct_decal. Not resident: no decal. Tests: nearby_geometry unit test, dungeon_decal_tests real data
 - [x] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-world env_cell_markers (same resolve_entity_visual as env_cell_entities, so drawn and collision entities agree); drawn by ac2-render scene interiors
 - [-] `CEnvCell::InitLightSources` · 00484710 · legions 0047df80 — entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 - [ ] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0 — needs port: indoor env cell: visibility, lights, portals, rendering

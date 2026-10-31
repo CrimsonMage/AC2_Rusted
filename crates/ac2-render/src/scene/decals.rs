@@ -8,15 +8,53 @@ use ac2_world::land_block_size;
 
 use super::loader::BlockKey;
 use super::{ParticleBatch, WorldScene};
-use crate::decal::{DecalSpec, GroundTriangle};
+use crate::cell_geometry::nearby_geometry;
+use crate::decal::{DecalSpec, GroundTriangle, GroundVertex};
+
+/// `LandDefs::first_envcell_id`: a cell id below it is a landblock cell.
+const FIRST_ENVCELL_ID: u32 = 0x100;
 
 impl WorldScene {
     /// `DecalEffectManager::CreateDecalEffect` for an FX decal: its material loads off the frame
-    /// thread (like a streak's), and the decal starts now on the resident ground under it.
+    /// thread (like a streak's), and the decal starts now on the geometry under it
+    /// (`DecalEffect::Init`: the resident ground for a landblock cell, the env cell's mesh for an
+    /// interior one). A dungeon decal whose cell is not resident makes none
+    /// (`ConstructDungeonDecal` fails, the decal is not alive).
     pub fn start_object_decal(&mut self, spec: DecalSpec) {
         self.request_material(spec.material);
-        let ground = self.decal_ground(spec.origin);
+        let ground = if spec.cell & 0xFFFF >= FIRST_ENVCELL_ID {
+            let Some(ground) = self.dungeon_decal_ground(&spec) else {
+                return;
+            };
+            ground
+        } else {
+            self.decal_ground(spec.origin)
+        };
         self.decals.create(spec, self.particles.now(), &ground);
+    }
+
+    /// `DecalEffect::ConstructDungeonDecal`'s geometry: the visible env cell the decal starts in
+    /// (`CObjCell::GetVisible`), its triangles and its portal neighbours' that the decal's box
+    /// reaches (`CEnvCell::GetNearbyGeometry`, radius the largest box edge). `None` when the cell
+    /// is not resident or has no mesh.
+    pub(super) fn dungeon_decal_ground(&self, spec: &DecalSpec) -> Option<Vec<GroundTriangle>> {
+        let key: BlockKey = ((spec.cell >> 24) as u8, (spec.cell >> 16) as u8);
+        let cull = self.blocks.get(&key)?.cull.as_ref()?;
+        // `fDecalRadius->m_vSize` is the one edge on all three axes.
+        let nearby = nearby_geometry(&cull.cells, spec.cell, spec.origin, spec.size)?;
+        Some(
+            nearby
+                .origins
+                .chunks_exact(3)
+                .zip(nearby.normals.chunks_exact(3))
+                .map(|(o, n)| {
+                    std::array::from_fn(|i| GroundVertex {
+                        position: o[i].to_array(),
+                        normal: n[i].to_array(),
+                    })
+                })
+                .collect(),
+        )
     }
 
     /// The ground the decal at `origin` lands on: the two triangles of each of the nine polygons
@@ -71,3 +109,7 @@ impl WorldScene {
             .collect()
     }
 }
+
+#[cfg(test)]
+#[path = "dungeon_decal_tests.rs"]
+mod dungeon_decal_tests;

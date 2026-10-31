@@ -1268,7 +1268,7 @@ Legend and workflow: [README](README.md).
 - [-] `FXState::FXState` · 005058b0 · legions 004f3b80 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### FXManager
-- [x] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — DoDecalFX ported in ac2-render fx_decals.rs: the start vector read past Position (offset 0x30 = Frame::fl2gv row 1) is the emitter forward (local y in global axes), turned about z by the rotation and normalised; client emitter_place passes it. Dungeon cells are DecalEffect::ConstructDungeonDecal (tracked there)
+- [x] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — DoDecalFX ported in ac2-render fx_decals.rs: the start vector read past Position (offset 0x30 = Frame::fl2gv row 1) is the emitter forward (local y in global axes), turned about z by the rotation and normalised; client emitter_place passes it. The spec carries the emitter cell, so dungeon cells build via DecalEffect::ConstructDungeonDecal (scene/decals.rs)
 - [x] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — ac2-smartbox fx_manager.rs appearance_fx_step and fx_objects.rs appearance_fx: a new FX applies each node's appearance at its starting scalar (0 for a ramping node), a running one at the current scalar after an instant node's jump (DoTargettedFX), startup FX at full scalar (DoStartupFX); UseTime re-applies it as the scalar ramps; removed by StopFX and expiry
 
 ### DBObjGrabber<FxScript>

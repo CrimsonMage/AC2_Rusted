@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 186 done, 54 partial, 182 to do, 359 skipped.
+781 retail functions: 187 done, 53 partial, 182 to do, 359 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -453,7 +453,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderVertexBuffer::RayIntersectsTriList` · 005b7e00 · legions 005821b0 — needs port: ray vs triangle list (picking)
 - [-] `RenderVertexBuffer::LockAnimVertices` · 005b8450 · legions 00582800 — D3D device/resource plumbing; wgpu replaces
 
-## `portal/client/src/render/decal/decaleffect.cpp.c` (7/9)
+## `portal/client/src/render/decal/decaleffect.cpp.c` (8/9)
 
 ### DecalEffect
 - [x] `DecalEffect::ClipPolygonAgainstPlane` · 005dd100 · legions 0059ddf0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
@@ -463,8 +463,8 @@ Legend and workflow: [README](README.md).
 - [-] `DecalEffect::~DecalEffect` · 005de7b0 · legions 0059f540 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [x] `DecalEffect::ConstructDecal` · 005de7e0 · legions 0059f570 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 - [x] `DecalEffect::ConstructLandscapeDecal` · 005dee50 · legions 0059fbe0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
-- [~] `DecalEffect::ConstructDungeonDecal` · 005df1e0 · legions 0059ff70 — dungeon decals not ported: needs the emitter cell id carried through DecalSpec, the visible env cell (CObjCell::GetVisible) and its mesh triangles plus portal neighbours on the CPU (CEnvCell::GetNearbyGeometry), which the scene only holds as GPU models; such nodes make no decal
-- [x] `DecalEffect::Init` · 005df350 · legions 005a00e0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffect::ConstructDungeonDecal` · 005df1e0 · legions 0059ff70 — ac2-render scene/decals.rs dungeon_decal_ground + cell_geometry.rs nearby_geometry: the decal carries its cell (DecalSpec::cell); the block's resident CullCell (CObjCell::GetVisible) gives the cell mesh first degrade (CellGeometry, Arcs shared with the decoded mesh) and its portal polygons; triangles whose cell-local bounds overlap the box of the largest edge, plus one ring of portal neighbours whose portal bounds overlap, go through construct_decal. Not resident: no decal. Tests: nearby_geometry unit test, dungeon_decal_tests real data
+- [x] `DecalEffect::Init` · 005df350 · legions 005a00e0 — decal FX: DecalEffect::new builds from the ground triangles; WorldScene::start_object_decal picks the landscape ground (cell below 0x100) or the env cell geometry (DecalEffect::Init split); tests: decal_tests, fx_decals_tests, dungeon_decal_tests
 
 ## `portal/client/src/render/decal/decaleffectgroup.cpp.c` (3/5)
 

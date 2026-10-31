@@ -55,6 +55,7 @@ pub(crate) fn light_pool(light: &PointLight, ground: f32, material: DataId) -> O
         color: [r, g, b, 1.0],
         draw_once: true,
         origin: light.origin,
+        cell: 0,
     })
 }
 

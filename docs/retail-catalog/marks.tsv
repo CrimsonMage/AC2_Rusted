@@ -2717,7 +2717,7 @@ key	status	note
 00483680	x	ac2-render interior_cull.rs check_visibility (frustum vs cell box, then the portals that face the viewer's side against Frustum::check_polygon); WorkerPolygon/Frustum polygon clip in worker_polygon.rs and frustum.rs; wired by scene/mod.rs visible_interior_cells for every outside-stab cell that touches outside; unit tested
 00483970	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00484090	~	interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
-00484200	_	needs port: indoor env cell: visibility, lights, portals, rendering
+00484200	x	ac2-render scene/decals.rs dungeon_decal_ground + cell_geometry.rs nearby_geometry: the decal carries its cell (DecalSpec::cell); the block's resident CullCell (CObjCell::GetVisible) gives the cell mesh first degrade (CellGeometry, Arcs shared with the decoded mesh) and its portal polygons; triangles whose cell-local bounds overlap the box of the largest edge, plus one ring of portal neighbours whose portal bounds overlap, go through construct_decal. Not resident: no decal. Tests: nearby_geometry unit test, dungeon_decal_tests real data
 00484680	x	ac2-world env_cell_markers (same resolve_entity_visual as env_cell_entities, so drawn and collision entities agree); drawn by ac2-render scene interiors
 00484710	-	entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 00484760	_	needs port: indoor env cell: visibility, lights, portals, rendering
@@ -5443,7 +5443,7 @@ key	status	note
 00505850	x	ac2-assets Ac2FxNode::appearance_key (m_apr_key: key and scalar) read where FXManager::DoAppearanceFX applies the node
 00505870	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005058b0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-00505960	x	DoDecalFX ported in ac2-render fx_decals.rs: the start vector read past Position (offset 0x30 = Frame::fl2gv row 1) is the emitter forward (local y in global axes), turned about z by the rotation and normalised; client emitter_place passes it. Dungeon cells are DecalEffect::ConstructDungeonDecal (tracked there)
+00505960	x	DoDecalFX ported in ac2-render fx_decals.rs: the start vector read past Position (offset 0x30 = Frame::fl2gv row 1) is the emitter forward (local y in global axes), turned about z by the rotation and normalised; client emitter_place passes it. The spec carries the emitter cell, so dungeon cells build via DecalEffect::ConstructDungeonDecal (scene/decals.rs)
 00505c30	x	ac2-smartbox fx_manager.rs appearance_fx_step and fx_objects.rs appearance_fx: a new FX applies each node's appearance at its starting scalar (0 for a ramping node), a running one at the current scalar after an instant node's jump (DoTargettedFX), startup FX at full scalar (DoStartupFX); UseTime re-applies it as the scalar ramps; removed by StopFX and expiry
 00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 00505ce0	-	STL/MSVC or archive template helper; Rust collections replace it
@@ -9597,8 +9597,8 @@ key	status	note
 005de7b0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005de7e0	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005dee50	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
-005df1e0	~	dungeon decals not ported: needs the emitter cell id carried through DecalSpec, the visible env cell (CObjCell::GetVisible) and its mesh triangles plus portal neighbours on the CPU (CEnvCell::GetNearbyGeometry), which the scene only holds as GPU models; such nodes make no decal
-005df350	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005df1e0	x	ac2-render scene/decals.rs dungeon_decal_ground + cell_geometry.rs nearby_geometry: the decal carries its cell (DecalSpec::cell); the block's resident CullCell (CObjCell::GetVisible) gives the cell mesh first degrade (CellGeometry, Arcs shared with the decoded mesh) and its portal polygons; triangles whose cell-local bounds overlap the box of the largest edge, plus one ring of portal neighbours whose portal bounds overlap, go through construct_decal. Not resident: no decal. Tests: nearby_geometry unit test, dungeon_decal_tests real data
+005df350	x	decal FX: DecalEffect::new builds from the ground triangles; WorldScene::start_object_decal picks the landscape ground (cell below 0x100) or the env cell geometry (DecalEffect::Init split); tests: decal_tests, fx_decals_tests, dungeon_decal_tests
 005df410	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df4a0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df590	x	layout.rs sub_ids decodes subIDArray; every local layout sub id is its own string table (real_data_tests), the DBOCache preload has no effect in ac2-db

@@ -11,11 +11,12 @@ use ac2_db::ResourceStore;
 use ac2_math::{BBox, Mat4, Vec3};
 use ac2_world::{Ac2CellStruct, Ac2EnvCell, Ac2WorldSource, LensFlare, LensFlarePoint};
 
+use crate::cell_geometry::CellGeometry;
 use crate::interior_cull::{compute_cell_groups, BlockCull, CullCell, CullPortal};
 
 use crate::object::{
-    load_cell_model, object_point_lights, CellLighting, ObjectEnvironment, ObjectModel, PointLight,
-    RenderSettings, SceneLight,
+    load_cell_geometry, load_cell_model, object_point_lights, CellLighting, ObjectEnvironment,
+    ObjectModel, PointLight, RenderSettings, SceneLight,
 };
 
 /// `CLandBlockInfo::m_InteriorFogType` linear.
@@ -85,7 +86,12 @@ fn cell_bounds(structure: &Ac2CellStruct, world: Mat4) -> BBox {
 
 /// The cull's view of one env cell: its portals' polygons from the cell mesh, its bounds and
 /// frame in the scene.
-fn cull_cell(cell: &Ac2EnvCell, structure: &Arc<Ac2CellStruct>, world: Mat4) -> CullCell {
+fn cull_cell(
+    cell: &Ac2EnvCell,
+    structure: &Arc<Ac2CellStruct>,
+    world: Mat4,
+    geometry: Option<CellGeometry>,
+) -> CullCell {
     let portals = cell
         .portals
         .iter()
@@ -118,6 +124,7 @@ fn cull_cell(cell: &Ac2EnvCell, structure: &Arc<Ac2CellStruct>, world: Mat4) -> 
         shared_cells: cell.shared_cells.iter().map(|id| id.raw()).collect(),
         structure: Some(Arc::clone(structure)),
         inverse: world.inverse(),
+        geometry,
     }
 }
 
@@ -159,7 +166,8 @@ pub fn load_block_interiors(
         };
         let frame = world.env_cell_world_frame(&cell);
         if let Some(structure) = world.cell_struct(cell.cell_mesh).ok().flatten() {
-            let culled = cull_cell(&cell, &structure.arc(), frame.to_mat4());
+            let geometry = load_cell_geometry(store, &cell).ok().flatten();
+            let culled = cull_cell(&cell, &structure.arc(), frame.to_mat4(), geometry);
             cull_cells.insert(culled.id, culled);
         }
         let Some(model) = load_cell_model(store, &cell, frame, lighting, settings)

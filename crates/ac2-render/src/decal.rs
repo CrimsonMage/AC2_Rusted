@@ -46,7 +46,8 @@ pub type DecalTriangle = [DecalCorner; 3];
 
 /// What `FXManager::DoDecalFX` hands `CreateDecalEffect` (`DecalEffectDesc`): the material, the
 /// lifespan, the box edge (the same on all three axes), the tangent direction, the colour, whether
-/// the decal draws once, and the decal's origin in world space.
+/// the decal draws once, the decal's origin in world space and the cell it starts in
+/// (`Position::objcell_id`; 0 for none, which lands on the ground like a landscape cell).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct DecalSpec {
     pub material: DataId,
@@ -56,6 +57,7 @@ pub struct DecalSpec {
     pub color: [f32; 4],
     pub draw_once: bool,
     pub origin: Vec3,
+    pub cell: u32,
 }
 
 /// One face of the decal's box: `n . p + d >= 0` is inside (`Plane`).

@@ -124,6 +124,7 @@ fn spec(material: u32, once: bool) -> DecalSpec {
         color: [1.0, 0.5, 0.25, 0.8],
         draw_once: once,
         origin: Vec3::new(0.0, 0.0, 0.0),
+        cell: 0,
     }
 }
 
