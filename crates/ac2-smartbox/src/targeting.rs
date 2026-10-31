@@ -11,8 +11,9 @@
 //! interpolation) and its physics position is made by whoever builds the [`CameraView`] and
 //! [`CameraObjects`]: the client hands over drawn positions every frame (`AGENTS.md`'s camera
 //! exception) and physics ones for the behaviour events. A bone is always the drawn one
-//! (`GetBonePosition`). The one case not modelled is a child object (`CPhysicsObj::m_pParent`
-//! set, vtable `0x560`), whose drawing position `GetPosition` takes whatever the flag. Float
+//! (`GetBonePosition`), and so is a child object's (`CPhysicsObj::m_pParent` set, vtable `0x560`:
+//! `GetPosition` takes its drawing position whatever the flag; `UpdateChild` sets that from its
+//! holder, which is how the caller's [`CameraObjects`] must answer for it). Float
 //! order follows the x87 code (53-bit precision): `ld`/`st` mark loads and `float` stores.
 
 use ac2_physics::{Frame, Position, Quaternion, Vector};
@@ -235,6 +236,16 @@ impl TargetingModule {
         self.old_parent_id = self.parent_id;
         self.parent_id = INVALID_IID;
         self.turn_on(self.fake_trans_time, self.fake_trans_time);
+    }
+
+    /// The ids `GetPosition` can be asked for next: the target and parent, current and old.
+    pub fn followed_ids(&self) -> [u64; 4] {
+        [
+            self.target_id,
+            self.parent_id,
+            self.old_target_id,
+            self.old_parent_id,
+        ]
     }
 
     /// `TargetingModule::GetPosition`: the object's position, or its bone's

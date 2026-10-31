@@ -10,7 +10,7 @@ use ac2_anim::Ac2AnimEvent;
 use ac2_math::{Mat4, Vec3};
 use ac2_physics::{Frame, PhysicsBody, Position, Quaternion, Vector};
 use ac2_smartbox::camera_fx::CameraFx;
-use ac2_smartbox::targeting::{CameraObjects, CameraView};
+use ac2_smartbox::targeting::{CameraObjects, CameraView, INVALID_IID};
 use ac2_smartbox::CameraSubject;
 
 use crate::client::{Client, Player};
@@ -32,6 +32,10 @@ pub(crate) struct CameraWorld<'a> {
     pub(crate) drawn: bool,
     /// `CPhysics::sRenderInterpolation`.
     pub(crate) interpolation: f32,
+    /// The objects that `HasParent` among the ones the camera follows
+    /// ([`Client::camera_children`]), with their `m_posDrawing` as `CPhysicsObj::UpdateChild`
+    /// set it from the holder's drawing position.
+    pub(crate) children: &'a [(u64, Position)],
 }
 
 impl CameraWorld<'_> {
@@ -43,8 +47,13 @@ impl CameraWorld<'_> {
     }
 
     /// Where body `id` stands for the camera: see [`Self::drawn`]. `drawn` false asks for its
-    /// physics position, which is not what a bone uses.
+    /// physics position, which is not what a bone uses. A parented object is always where it is
+    /// drawn (`TargetingModule::GetPosition`: `GetParent` set takes `GetDrawingPosition`, the
+    /// `_bDrawingPos` flag unread), since its physics position is not where it is held.
     fn position_of(&self, id: u64, body: &PhysicsBody, drawn: bool) -> Position {
+        if let Some((_, held)) = self.children.iter().find(|(child, _)| *child == id) {
+            return *held;
+        }
         if !drawn {
             return body.position();
         }
@@ -136,6 +145,28 @@ impl Client {
         })
     }
 
+    /// The drawing positions of the objects the camera follows (the targeting module's target and
+    /// parent, new and old) that `HasParent`: `CPhysicsObj::UpdateChild` places each from its
+    /// holder's drawing position, the object table's child graph giving holder and holding
+    /// location. Few ids, so the holder's bones are posed only for those.
+    fn camera_children(&self) -> Vec<(u64, Position)> {
+        let links = self.session.objects().links();
+        let mut out: Vec<(u64, Position)> = Vec::new();
+        for id in self.camera.targeting.followed_ids() {
+            if id == INVALID_IID || out.iter().any(|(seen, _)| *seen == id) {
+                continue;
+            }
+            let held = links
+                .parent_of(id)
+                .zip(links.info_of(id))
+                .and_then(|(holder, info)| self.held_drawing_position(holder, info));
+            if let Some(held) = held {
+                out.push((id, held));
+            }
+        }
+        out
+    }
+
     /// `AvatarVisibleInFirstPerson` (`SceneOptions::avatar_first_person`).
     pub fn set_avatar_first_person(&mut self, level: u8) {
         self.avatar_first_person = level;
@@ -173,11 +204,13 @@ impl Client {
             .and_then(|p| p.body.as_ref())
             .is_some_and(|b| b.physics.check_for_dynamic_fp_camera());
         self.camera.dynamic_first_person = dynamic && self.avatar_shown();
+        let children = self.camera_children();
         let world = CameraWorld {
             player: self.player.as_ref(),
             remotes: &self.remotes,
             drawn: !interpolate,
             interpolation: self.render_interpolation,
+            children: &children,
         };
         self.scene
             .update_with(&mut self.camera, &subject, &world, quantum, interpolate);
@@ -229,11 +262,13 @@ impl Client {
             let Some(subject) = self.camera_subject(false) else {
                 return;
             };
+            let children = self.camera_children();
             let world = CameraWorld {
                 player: self.player.as_ref(),
                 remotes: &self.remotes,
                 drawn: false,
                 interpolation: self.render_interpolation,
+                children: &children,
             };
             let view = CameraView {
                 player: Some(&subject),
@@ -280,11 +315,13 @@ impl Client {
         let Some(subject) = self.camera_subject(false) else {
             return;
         };
+        let children = self.camera_children();
         let world = CameraWorld {
             player: self.player.as_ref(),
             remotes: &self.remotes,
             drawn: false,
             interpolation: self.render_interpolation,
+            children: &children,
         };
         let view = CameraView {
             player: Some(&subject),
@@ -307,6 +344,7 @@ impl Client {
             remotes: &self.remotes,
             drawn: false,
             interpolation: self.render_interpolation,
+            children: &[],
         };
         let mut distance = |source: u64| -> Option<f64> {
             let from = match world.body(source) {
@@ -335,5 +373,52 @@ mod tests {
         assert!(!avatar_shown(2, Some(AVATAR_HIDDEN_MODE)));
         assert!(avatar_shown(2, other));
         assert!(avatar_shown(2, None));
+    }
+
+    fn standing(x: f32) -> Position {
+        Position::new(
+            0x0299_0109,
+            Frame::new(
+                Vector::new(x, 0.0, 0.0),
+                Quaternion::new(1.0, 0.0, 0.0, 0.0),
+            ),
+        )
+    }
+
+    fn body_at(x: f32) -> PhysicsBody {
+        let shape = ac2_physics::BodyShape {
+            spheres: Vec::new(),
+            height: 1.0,
+            step_up_height: 0.0,
+            step_down_height: 0.0,
+            scale: 1.0,
+            allow_free_heading: false,
+        };
+        PhysicsBody::new(standing(x), shape, None)
+    }
+
+    /// `TargetingModule::GetPosition`: an object with a parent is at its drawing position
+    /// (`UpdateChild`'s, from the holder), whatever `_bDrawingPos` says; one without follows it.
+    #[test]
+    fn a_parented_object_is_at_its_drawing_position_whatever_the_flag() {
+        let remotes = Remotes::default();
+        let held = standing(7.0);
+        let children = [(5_u64, held)];
+        let world = CameraWorld {
+            player: None,
+            remotes: &remotes,
+            drawn: false,
+            interpolation: 0.5,
+            children: &children,
+        };
+        let body = body_at(1.0);
+        for drawn in [false, true] {
+            assert_eq!(world.position_of(5, &body, drawn), held);
+        }
+        assert_eq!(world.position_of(6, &body, false), body.position());
+        assert_eq!(
+            world.position_of(6, &body, true),
+            body.drawing_position(0.5)
+        );
     }
 }
