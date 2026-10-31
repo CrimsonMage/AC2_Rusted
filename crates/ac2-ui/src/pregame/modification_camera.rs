@@ -21,8 +21,12 @@ pub fn direct(ui: &PregameUi, setup: &mut ViewSetup<'_>) {
     let Some(race) = ui.data().current().map(|c| c.race) else {
         return;
     };
-    let bounds = setup.object(modification.phys_obj()).and_then(|o| o.bounds);
+    // `CPhysicsObj::GetRenderBoundingBox`: a skinned avatar's parts take their static mesh's
+    // render box (`CPhysicsPart::BuildRenderBoundingBox` without the local transform), the mesh
+    // at rest and unscaled; the Setup's stored box is only the fallback.
+    let setup_bounds = setup.object(modification.phys_obj()).and_then(|o| o.bounds);
     let avatar = setup.figures.last().and_then(|p| p.drawn.as_ref());
+    let bounds = avatar.and_then(|a| a.bounds).or(setup_bounds);
     if let (Some(bounds), Some(avatar)) = (bounds, avatar) {
         let scale_z = avatar.rig_scale.z;
         let (camera, light) =

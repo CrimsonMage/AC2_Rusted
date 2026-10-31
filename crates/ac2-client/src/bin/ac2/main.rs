@@ -154,6 +154,8 @@ struct App {
     chargen: ChargenSource,
     /// The `--chargen` capture file (`CharGenData`), made into the pregame view's capture.
     chargen_file: Option<std::path::PathBuf>,
+    /// `--intro`: show the intro's pictures before connecting (skipped by default).
+    intro: bool,
     /// `width` / `height` (`Client+0x60` / `Client+100`): the initial window size, when given.
     window_size: Option<winit::dpi::PhysicalSize<u32>>,
     /// The server's host (as given, `--host`, else its address) and port
@@ -626,6 +628,10 @@ impl ApplicationHandler for App {
                 self.scene_options.object_shadows,
             )
         });
+        let pregame = pregame.map(|mut view| {
+            view.set_intro(self.intro);
+            view
+        });
         self.state = Some(State {
             applied_size: saved_size,
             window,
@@ -954,6 +960,7 @@ fn run(args: Args) -> Result<(), String> {
             data: script_data_for_chargen,
         },
         chargen_file: args.chargen.as_deref().map(ac2_prefs::paths::config_file),
+        intro: args.intro,
         // `Client+0x60` / `+100` start at 0x400 x 0x300; either argument alone keeps the other.
         window_size: (args.width.is_some() || args.height.is_some()).then(|| {
             winit::dpi::PhysicalSize::new(args.width.unwrap_or(1024), args.height.unwrap_or(768))

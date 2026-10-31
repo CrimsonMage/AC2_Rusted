@@ -52,6 +52,8 @@ pub struct PregameView {
     server: (String, u16),
     /// The character set a session that ended kept: the UI starts at character selection with it.
     resume: Option<CharacterSet>,
+    /// Show the intro's pictures (`--intro`); skipped by default.
+    intro: bool,
 }
 
 impl PregameView {
@@ -89,6 +91,7 @@ impl PregameView {
             dirty: false,
             capture: CharGenCapture::default(),
             resume: None,
+            intro: false,
             server: (String::new(), 0),
         }
     }
@@ -104,6 +107,11 @@ impl PregameView {
 
     /// Starts at character selection with the set the session kept, instead of the intro
     /// (the screens after `gmGamePlayUI::EndSession` and `UIFlow::QueueUIMode`).
+    /// Shows the intro (`gmIntroUI`) before the connecting screen, as retail did.
+    pub fn set_intro(&mut self, intro: bool) {
+        self.intro = intro;
+    }
+
     pub fn resume_at_character_selection(mut self, set: CharacterSet) -> Self {
         self.resume = Some(set);
         self
@@ -276,6 +284,9 @@ impl PregameView {
                     ui.tree_mut().set_text_clipboard(crate::clipboard::shared());
                     // The screens drawn at the window's size, not stretched from 1024 x 768.
                     ui.tree_mut().set_render_scale(self.scale.scale);
+                    if !self.intro {
+                        ui.skip_intro();
+                    }
                     if let Some(set) = self.resume.take() {
                         ui.resume_at_character_selection(set);
                     }

@@ -68,6 +68,7 @@ impl Rig {
             .unwrap();
         let mut view = PregameView::new(Arc::clone(&store), &gpu, ac2_gpu::COLOR_FORMAT, SIZE)
             .with_scenes(world);
+        view.set_intro(true);
         if chargen {
             let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
                 .unwrap()
@@ -493,6 +494,7 @@ fn the_modification_camera_answers_zoom_and_rotation() {
     rig.click("HeadButton");
     assert!(camera(&rig).zoomed, "the head page frames the head");
     let (zoomed, _) = rig.draw();
+    save("pregame_scene_avatar_zoomed.png", &zoomed);
     let zoom_change = changed_between(&before, &zoomed, &viewport);
     assert!(
         zoom_change > 10_000,

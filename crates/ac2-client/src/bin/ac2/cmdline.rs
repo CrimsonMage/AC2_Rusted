@@ -55,6 +55,9 @@ pub(crate) struct Args {
     /// without `gunserver`, the client does what a launcher does for its server's own GUN
     /// service (AC2e starts one with every server): see [`Args::gun_config`].
     pub no_gun: bool,
+    /// `intro` (the client's own switch): show the intro's pictures (`gmIntroUI`) before the
+    /// connecting screen. Retail always showed them; the client skips them without it.
+    pub intro: bool,
 }
 
 impl Args {
@@ -164,7 +167,11 @@ const WITH_VALUE: [&str; 18] = [
 
 /// Whether `name` is an option this program knows.
 fn is_option(name: &str) -> bool {
-    WITH_VALUE.contains(&name) || matches!(name, "rodat" | "glsticket" | "gunticket" | "no-gun")
+    WITH_VALUE.contains(&name)
+        || matches!(
+            name,
+            "rodat" | "glsticket" | "gunticket" | "no-gun" | "intro"
+        )
 }
 
 /// `width` / `height` are type 0x22: `strtol(text, 0, 0)`.
@@ -201,6 +208,7 @@ fn parse_from(
         gun_ticket: false,
         gun_ticket_override: None,
         no_gun: false,
+        intro: false,
     };
     let mut it = tokens.into_iter().peekable();
     while let Some(token) = it.next() {
@@ -216,6 +224,10 @@ fn parse_from(
         }
         if name == "no-gun" {
             args.no_gun = true;
+            continue;
+        }
+        if name == "intro" {
+            args.intro = true;
             continue;
         }
         if name == "gunticket" {
@@ -338,6 +350,8 @@ mod tests {
             ("gun.test", false)
         );
 
+        assert!(!parse("--account A").unwrap().intro);
+        assert!(parse("--account A --intro").unwrap().intro);
         let (config, explicit) = parse("--account A --no-gun").unwrap().gun_config(server);
         assert!(!explicit);
         assert!(config.server.is_empty());

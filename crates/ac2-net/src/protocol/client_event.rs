@@ -23,7 +23,9 @@ pub enum ClientEvent {
     /// `Proto_UI::SendDeleteCharacter`, queue 4.
     DeleteCharacter { account: String, character: u64 },
     /// `Proto_UI::SendCharGenResult`: the account (`PStringBase<char>`), then
-    /// `gmCharGenResult::Pack`; queue 8 (encrypted with the session key).
+    /// `gmCharGenResult::Pack`; queue 4. Retail picks queue 8 (encrypted) only when its
+    /// `_secure` argument is set, and `gmGenerationConfirmationUI::ListenToMessage` passes 0
+    /// (admin 7148 0x004C9DCB).
     CharGenResult {
         account: String,
         result: crate::protocol::char_gen::CharGenResult,
@@ -91,7 +93,7 @@ impl ClientEvent {
                 let mut w = Writer::event(Opcode::CHAR_GEN_RESULT);
                 w.string(account.as_bytes());
                 result.write(&mut w);
-                (8, w.bytes)
+                (QUEUE_CONTROL, w.bytes)
             }
             Self::DeleteCharacter { account, character } => {
                 let mut w = Writer::event(Opcode::CHARACTER_DELETION);

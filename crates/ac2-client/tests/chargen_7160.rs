@@ -537,7 +537,7 @@ fn the_sent_character_is_the_packed_result_byte_for_byte() {
         result: result.clone(),
     }
     .encode();
-    assert_eq!(queue, 8);
+    assert_eq!(queue, 4);
     assert_eq!(sent, encoded);
     // The layout: the opcode, the account's packed string, the name, six words, then the
     // table's count with its bucket index and the (key, value) pairs in table order.

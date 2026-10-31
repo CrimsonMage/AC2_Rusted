@@ -543,6 +543,9 @@ game rules and server-visible behaviour exactly retail.
   the game, one for its GUN service); the client takes the ticket from a file (`glsticket FILE`),
   and the launcher waits for that. Passwords are never kept.
   `scripts/ac2e-launcher-test.sh` runs that start against a local AC2e.
+- Exception: the intro is skipped. Retail's `gmUIFlow::gmUIFlow` queued `gmIntroUI` first (two
+  pictures four seconds each, with its music, before the data patch screen); the client opens the
+  data patch (connecting) screen first (`PregameUi::skip_intro`) unless started with `--intro`.
 - Exception: the quest guide (`ac2_guide`, a modern addition: the AC2Hero site baked in at build
   time from `AC2HERO_DIR`, nothing of it committed). The option panel's Assistance button
   (`gmOptionUI`, which opened the hidden `AssistanceTab` page for `gmAssistanceUI`'s calls) is

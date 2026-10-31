@@ -1,5 +1,5 @@
 //! Character creation and deletion against the Legions server double: the
-//! `Proto_UI::SendCharGenResult` blob byte for byte (queue 8, the account, then
+//! `Proto_UI::SendCharGenResult` blob byte for byte (queue 4, the account, then
 //! `gmCharGenResult::Pack`), the server's verification, and a deletion confirmed.
 
 use std::time::Duration;
@@ -73,7 +73,7 @@ fn a_character_is_created_and_deleted() {
         .iter()
         .find(|(_, _, data)| data[..4] == [0x2A, 0, 1, 0])
         .unwrap();
-    assert_eq!(*queue, 8);
+    assert_eq!(*queue, 4);
     let mut expected = 0x0001_002Au32.to_le_bytes().to_vec();
     pack_string(&mut expected, 0, b"local");
     pack_wide_string(&mut expected, 0, "Birch");

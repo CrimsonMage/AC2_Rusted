@@ -723,7 +723,7 @@ impl State {
                     let data = self.blobs.last().unwrap().2.clone();
                     self.chat_event(&data);
                 }
-                // `Proto_UI::SendCharGenResult` (queue 8, in the clear without a session key).
+                // `Proto_UI::SendCharGenResult` (queue 4; 8 only when `_secure`).
                 0x0001_002A => {
                     let data = self.blobs.last().unwrap().2.clone();
                     match ac2_net::protocol::decode_char_gen_result(&data) {

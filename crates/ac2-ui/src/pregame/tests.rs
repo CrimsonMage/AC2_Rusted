@@ -151,6 +151,23 @@ pub(super) fn to_selection(ui: &mut PregameUi, set: CharacterSet) {
     assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
 }
 
+/// `skip_intro`: the data patch screen opens first, with no intro or its music.
+#[test]
+fn skipping_the_intro_opens_the_connecting_screen_first() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.skip_intro();
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_DATA_PATCH);
+    assert!(!ui
+        .take_requests()
+        .contains(&PregameRequest::Music(0x2C00_039B)));
+    ui.character_set(set());
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+}
+
 /// A keyboard action (any action that is not the pointer's).
 pub(super) const KEY: u32 = 0x4000_0100;
 

@@ -16,7 +16,7 @@ impl Opcode {
     pub const CHAR_EXIT_GAME: u32 = 0x0001_0027;
     /// S: `ECM_Login::RecvEvt_CharacterDeletion`. C: `Proto_UI::SendDeleteCharacter`, queue 4.
     pub const CHARACTER_DELETION: u32 = 0x0001_0029;
-    /// C: `Proto_UI::SendCharGenResult`, queue 8 (4 without a result).
+    /// C: `Proto_UI::SendCharGenResult`, queue 4 (8 when `_secure`, which the UI never sets).
     pub const CHAR_GEN_RESULT: u32 = 0x0001_002A;
     /// C: `Proto_UI::SendEnterWorld`, queue 4.
     pub const ENTER_WORLD: u32 = 0x0001_002B;

@@ -271,6 +271,18 @@ impl PregameUi {
     /// The UI reopened after a session ended: the set the session kept is the character list, and
     /// the flow goes to character selection instead of the intro (`UIFlow::QueueUIMode`, as
     /// `DoPleaseWaitCancel` queues it). The next UI loop makes the framework.
+    /// Skips the intro (`gmIntroUI`'s pictures): the data patch (connecting) screen opens first,
+    /// as the intro's close would have opened it. A client choice; retail always showed it.
+    pub fn skip_intro(&mut self) {
+        if self
+            .flow
+            .queued()
+            .is_some_and(|(mode, _)| mode == MODE_INTRO)
+        {
+            self.flow.queue_mode(MODE_DATA_PATCH, "");
+        }
+    }
+
     pub fn resume_at_character_selection(&mut self, set: CharacterSet) {
         self.data.set_characters(set);
         self.flow.queue_mode(MODE_CHARACTER_SELECTION, "");
