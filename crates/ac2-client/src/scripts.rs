@@ -48,6 +48,8 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     // The combat IFuns the gameplay UI calls with no stand-in (`gmCWInterface::Dismount`,
     // `StopAttacking`).
     IFUN_DISMOUNT,
+    // 7230: a `CM_Usage` confirmation's yes.
+    IFUN_CONFIRM_USE,
     IFUN_STOP_ATTACKING,
     IFUN_STOP_ATTACKING_IF_AUTO_MOVING,
     // The pet panel's requests (`gmCWInterface::RequestPet*`, `RequestSetPetName`).

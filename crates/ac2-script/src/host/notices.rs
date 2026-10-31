@@ -132,12 +132,13 @@ const NOTICES: [(u32, &str, &str); 102] = [
         "CM_Character::SendNotice_PetIsUnderAttack",
         "oL",
     ),
-    // 7230 only, notice 0x4A3 (7230 0x006A6120): `gmSkillTreeUI` keeps the 64-bit value and
-    // the two words and refreshes every node (7230 0x00449C30). The name is the client's; the
-    // 7230 build has no symbols.
+    // 7230 only, notice 0x4A3 (7230 0x006A6120): `gmSkillTreeUI` keeps the available experience
+    // and the two credit counts as `RecvNotice_UpdateSkillPanel` does (7230 0x00449C30 against
+    // 0x00449BA0), refreshing each node with a fuller routine (0x004495F0). The name is the
+    // client's; the 7230 build has no symbols.
     (
         0x0085_0021,
-        "CM_Character::SendNotice_UpdateSkillTreeState",
+        "CM_Character::SendNotice_RefreshSkillPanel",
         "oLii",
     ),
     (0x0086_0001, "CM_Combat::SendNotice_UpdateAttackState", "oi"),

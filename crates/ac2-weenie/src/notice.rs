@@ -167,6 +167,15 @@ pub enum GameplayNotice {
         context: u32,
         text: StringInfo,
     },
+    /// 7230 only, notice 0x4A4 (`CM_Usage`, efun 0x00920003; the name is the client's): the
+    /// script asks the player to confirm `text`; a yes calls the interface's 0x00B4014F with
+    /// `first`, `second` and `context` (7230 `gmGamePlayUI` 0x00408190).
+    ConfirmUse {
+        first: u64,
+        second: u64,
+        context: u32,
+        text: StringInfo,
+    },
     /// `CM_Character::SendNotice_UpdateMountState`.
     UpdateMountState(bool),
     /// `CM_Character::SendNotice_ResurrectionRequestedByOther`: who offers it.

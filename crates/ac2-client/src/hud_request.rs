@@ -124,6 +124,15 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
                     context,
                     yes,
                 },
+                DialogRequest::ConfirmUse {
+                    first,
+                    second,
+                    context,
+                } => Command::ConfirmUse {
+                    first,
+                    second,
+                    context,
+                },
                 DialogRequest::ClearResurrection => Command::ClearResurrectionRequest,
                 DialogRequest::RequestResurrect => Command::RequestResurrect,
             }),

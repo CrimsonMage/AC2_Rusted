@@ -66,6 +66,19 @@ pub(super) fn typed(
             skill_credits: int(args, 1)?,
             hero_skill_credits: int(args, 2)?,
         },
+        // 7230: the panel's totals as `UpdateSkillPanel` carries them (its per-node refresh,
+        // 7230 0x004495F0, also rebuilds each node's texts; not ported).
+        "RefreshSkillPanel" => N::UpdateSkillPanel {
+            available_xp: long(args, 0)?,
+            skill_credits: int(args, 1)?,
+            hero_skill_credits: int(args, 2)?,
+        },
+        "ConfirmUse" => N::ConfirmUse {
+            first: long(args, 0)?,
+            second: long(args, 1)?,
+            context: int(args, 2)?,
+            text: info(args, 3),
+        },
         "ReloadOptions" => N::ReloadOptions,
         "ReloadShortcuts" => N::ReloadShortcuts,
         "ContainerStateUpdate" => N::ContainerStateUpdate {

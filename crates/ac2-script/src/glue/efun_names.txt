@@ -1534,7 +1534,7 @@
 0085001e gCM_Character::CallEFun_SendNotice_AddPet
 0085001f gCM_Character::CallEFun_SendNotice_UpdatePetName
 00850020 gCM_Character::CallEFun_SendNotice_PetIsUnderAttack
-00850021 gCM_Character::CallEFun_SendNotice_UpdateSkillTreeState
+00850021 gCM_Character::CallEFun_SendNotice_RefreshSkillPanel
 00860001 gCM_Combat::CallEFun_SendNotice_UpdateAttackState
 00860002 gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack
 00860003 gCM_Combat::CallEFun_SendNotice_StartSpecialAttack

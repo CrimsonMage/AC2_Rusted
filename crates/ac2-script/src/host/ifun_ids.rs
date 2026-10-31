@@ -13,6 +13,10 @@ pub const IFUN_SET_WHICH_SHORTCUT_SET: u32 = 0x00B4_0071;
 pub const IFUN_SET_SHOW_RADAR_COORDS: u32 = 0x00B4_007D;
 /// `gmCWInterface::SetShowObjectNames` (`ggmCWInterface::CallIFun_SetShowObjectNames`).
 pub const IFUN_SET_SHOW_OBJECT_NAMES: u32 = 0x00B4_00CE;
+/// 7230: the answer to a `CM_Usage` confirmation (notice 0x4A4) the player agreed to: the two
+/// ids and the word the notice carried (7230 0x00452240, from `gmGamePlayUI`'s dialog answer at
+/// 0x00408493; "no" calls nothing). The 7230 build has no symbols; the name is the client's.
+pub const IFUN_CONFIRM_USE: u32 = 0x00B4_014F;
 /// `gmCWInterface::Dismount` (`ggmCWInterface::CallIFun_Dismount`: no arguments; the toolbar's
 /// dismount button).
 pub const IFUN_DISMOUNT: u32 = 0x00B4_00E5;

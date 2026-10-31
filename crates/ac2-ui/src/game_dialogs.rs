@@ -47,6 +47,9 @@ pub struct ScriptPopup {
     pub dialog: u32,
     pub object: u64,
     pub context: u32,
+    /// 7230's `CM_Usage` confirmation (`GameplayNotice::ConfirmUse`): its two ids, answered
+    /// through the interface's 0x00B4014F instead of resuming a script context.
+    pub use_ids: Option<(u64, u64)>,
 }
 
 /// `gmGamePlayUI`'s wait and message contexts (`_waitContext`, `_messageContexts`, 0 for none),
@@ -121,6 +124,32 @@ impl GameplayDialogs {
             dialog,
             object,
             context,
+            use_ids: None,
+        });
+        dialog
+    }
+
+    /// 7230 `gmGamePlayUI` 0x00408190 (notice 0x4A4): the previous use confirmation closes
+    /// unanswered, then a confirmation (`DIALOG_CONFIRMATION`, 0x40000001) asks the text and
+    /// keeps the ids and the word for its answer. Returns the dialog's context.
+    pub fn ask_confirm_use(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        text: &str,
+        ids: (u64, u64),
+        context: u32,
+    ) -> u32 {
+        if let Some(at) = self.popups.iter().position(|p| p.use_ids.is_some()) {
+            let old = self.popups.remove(at);
+            dialogs.close_dialog(tree, old.dialog);
+        }
+        let dialog = dialogs.make_dialog(tree, text, DIALOG_CONFIRMATION, false);
+        self.popups.push(ScriptPopup {
+            dialog,
+            object: 0,
+            context,
+            use_ids: Some(ids),
         });
         dialog
     }
@@ -298,6 +327,60 @@ mod tests {
         assert!(!game.recv_close_wait_dialog(context));
     }
 
+    /// 7230 `gmGamePlayUI` 0x00408190 / 0x00408493: a second use confirmation replaces the first,
+    /// and only a yes is answered (with the ids and the word).
+    #[test]
+    fn a_use_confirmation_replaces_the_last_and_only_its_yes_is_answered() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut dialogs = DialogFactory::new(None);
+        let mut game = GameplayDialogs::default();
+        let first = game.ask_confirm_use(&mut tree, &mut dialogs, "a", (1, 2), 7);
+        let second = game.ask_confirm_use(&mut tree, &mut dialogs, "b", (3, 4), 8);
+        assert_eq!(dialogs.shown(), Some((second, DIALOG_CONFIRMATION)));
+        assert!(
+            game.take_popup(first).is_none(),
+            "the first closed unanswered"
+        );
+        let popup = game.take_popup(second).expect("the second is kept");
+        assert_eq!((popup.use_ids, popup.context), (Some((3, 4)), 8));
+
+        let mut death = DeathPanel::default();
+        let yes = game.ask_confirm_use(&mut tree, &mut dialogs, "c", (5, 6), 9);
+        let no = game.ask_confirm_use(&mut tree, &mut dialogs, "d", (5, 6), 9);
+        let answers = [
+            DialogOutcome::Confirmation {
+                context: yes,
+                yes: true,
+            },
+            DialogOutcome::Confirmation {
+                context: no,
+                yes: false,
+            },
+        ];
+        // `yes` was replaced by `no`, so neither answer reaches the interface.
+        let asked = game.frame_answers(&mut death, &mut tree, &mut dialogs, &Text, &answers);
+        assert!(asked.is_empty());
+        let last = game.ask_confirm_use(&mut tree, &mut dialogs, "e", (5, 6), 9);
+        let asked = game.frame_answers(
+            &mut death,
+            &mut tree,
+            &mut dialogs,
+            &Text,
+            &[DialogOutcome::Confirmation {
+                context: last,
+                yes: true,
+            }],
+        );
+        assert_eq!(
+            asked,
+            vec![DialogRequest::ConfirmUse {
+                first: 5,
+                second: 6,
+                context: 9
+            }]
+        );
+    }
+
     #[test]
     fn messages_are_listed_until_they_are_answered() {
         let mut tree = UiTree::new(1024, 768);
@@ -448,6 +531,9 @@ pub struct PopupQuestion {
     pub text: StringInfo,
     pub object: u64,
     pub context: u32,
+    /// 7230's use confirmation's ids (`GameplayNotice::ConfirmUse`); `None` for a script's
+    /// `PopupYesNoDialog`.
+    pub use_ids: Option<(u64, u64)>,
 }
 
 /// A message box as the notice carried it (`GameplayNotice::DisplayMessage`), until the dialogs
@@ -471,6 +557,13 @@ pub enum DialogRequest {
         object: u64,
         context: u32,
         yes: bool,
+    },
+    /// 7230: a use confirmation agreed to; the interface's 0x00B4014F takes the ids and the
+    /// word (7230 0x00408493).
+    ConfirmUse {
+        first: u64,
+        second: u64,
+        context: u32,
     },
     /// The resurrection offer declined: the request is cleared.
     ClearResurrection,
@@ -508,6 +601,18 @@ pub fn popup_questions(events: &[SessionEvent]) -> Vec<PopupQuestion> {
                 text: text.clone(),
                 object: *object,
                 context: *context,
+                use_ids: None,
+            }),
+            SessionEvent::Notice(GameplayNotice::ConfirmUse {
+                first,
+                second,
+                context,
+                text,
+            }) => Some(PopupQuestion {
+                text: text.clone(),
+                object: 0,
+                context: *context,
+                use_ids: Some((*first, *second)),
             }),
             _ => None,
         })
@@ -530,7 +635,10 @@ impl GameplayDialogs {
         // `gmCWInterface::PopupYesNoDialog`: the question's confirmation, answered later.
         for question in popup_backlog.drain(..) {
             let line = text.render_wire(&question.text);
-            self.ask_popup(tree, dialogs, &line, question.object, question.context);
+            match question.use_ids {
+                Some(ids) => self.ask_confirm_use(tree, dialogs, &line, ids, question.context),
+                None => self.ask_popup(tree, dialogs, &line, question.object, question.context),
+            };
         }
         for notice in display_backlog.drain(..) {
             let line = text.render_wire(&notice.text);
@@ -561,11 +669,22 @@ impl GameplayDialogs {
                 DialogOutcome::Message { context } => self.close_message(context),
                 DialogOutcome::Confirmation { context, yes } => {
                     if let Some(popup) = self.take_popup(context) {
-                        requests.push(DialogRequest::PopupAnswer {
-                            object: popup.object,
-                            context: popup.context,
-                            yes,
-                        });
+                        match popup.use_ids {
+                            // 7230 0x00408493: only a yes calls the interface.
+                            Some((first, second)) if yes => {
+                                requests.push(DialogRequest::ConfirmUse {
+                                    first,
+                                    second,
+                                    context: popup.context,
+                                })
+                            }
+                            Some(_) => {}
+                            None => requests.push(DialogRequest::PopupAnswer {
+                                object: popup.object,
+                                context: popup.context,
+                                yes,
+                            }),
+                        }
                         continue;
                     }
                     match death.recv_close_confirmation(context, yes) {

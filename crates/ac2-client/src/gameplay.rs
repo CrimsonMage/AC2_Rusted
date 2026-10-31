@@ -213,6 +213,12 @@ pub enum Command {
         context: u32,
         yes: bool,
     },
+    /// 7230: a `CM_Usage` confirmation agreed to (`IFUN_CONFIRM_USE`, the player's script).
+    ConfirmUse {
+        first: u64,
+        second: u64,
+        context: u32,
+    },
     /// A fellowship or allegiance panel action (`gmCWInterface::DoFellowship*`,
     /// `SwearAllegiance`, `BreakAllegiance`, `AcceptVassal`, `DeclineVassal`,
     /// `QueryAllegianceProfile`).
@@ -495,6 +501,17 @@ impl Client {
                     context,
                     yes,
                 } => self.answer_popup(*object, *context, *yes),
+                Command::ConfirmUse {
+                    first,
+                    second,
+                    context,
+                } => {
+                    use ac2_net::protocol::PackValue::{Int, LongInt};
+                    self.own_ifun(
+                        crate::scripts::IFUN_CONFIRM_USE,
+                        &[LongInt(*first), LongInt(*second), Int(*context)],
+                    )
+                }
                 Command::Social(request) => self.social_request(request),
                 Command::Dismount => self.own_ifun(crate::scripts::IFUN_DISMOUNT, &[]),
                 Command::StopAttacking(target) => self.own_ifun(
