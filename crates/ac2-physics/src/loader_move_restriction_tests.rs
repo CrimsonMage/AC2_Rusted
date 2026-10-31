@@ -43,12 +43,76 @@ fn passable(world: &Ac2WorldSource, x: u32, y: u32) -> Option<bool> {
     Some(world.load_landblock(block).ok()??.is_passable())
 }
 
-/// A passable block and its eastern neighbour whose passability is `east`.
-fn passable_block_before(world: &Ac2WorldSource, east: bool) -> Option<(u32, u32)> {
-    (0..255u32)
+/// A side of a block a mover crosses, with what `handle_move_restriction` must answer.
+#[derive(Debug, Clone, Copy)]
+struct Crossing {
+    name: &'static str,
+    /// Block step across the edge.
+    step: (i32, i32),
+    /// Unit direction of the 2 m move.
+    dir: Vector,
+    /// Where the mover starts in its own block (1 m inside the edge, mid-block along it).
+    start: Vector,
+    /// Where it ends in the neighbouring block.
+    finish: Vector,
+    /// The collision normal expected: `curr_pos` lies on this side of the target cell's centre.
+    normal: Vector,
+}
+
+const CROSSINGS: [Crossing; 4] = [
+    Crossing {
+        name: "east",
+        step: (1, 0),
+        dir: Vector::new(1.0, 0.0, 0.0),
+        start: Vector::new(159.0, 70.0, 0.0),
+        finish: Vector::new(1.0, 70.0, 0.0),
+        normal: Vector::new(-1.0, 0.0, 0.0),
+    },
+    Crossing {
+        name: "west",
+        step: (-1, 0),
+        dir: Vector::new(-1.0, 0.0, 0.0),
+        start: Vector::new(1.0, 70.0, 0.0),
+        finish: Vector::new(159.0, 70.0, 0.0),
+        normal: Vector::new(1.0, 0.0, 0.0),
+    },
+    Crossing {
+        name: "north",
+        step: (0, 1),
+        dir: Vector::new(0.0, 1.0, 0.0),
+        start: Vector::new(70.0, 159.0, 0.0),
+        finish: Vector::new(70.0, 1.0, 0.0),
+        normal: Vector::new(0.0, -1.0, 0.0),
+    },
+    Crossing {
+        name: "south",
+        step: (0, -1),
+        dir: Vector::new(0.0, -1.0, 0.0),
+        start: Vector::new(70.0, 1.0, 0.0),
+        finish: Vector::new(70.0, 159.0, 0.0),
+        normal: Vector::new(0.0, 1.0, 0.0),
+    },
+];
+
+impl Crossing {
+    fn neighbour(&self, (x, y): (u32, u32)) -> Option<(u32, u32)> {
+        let (nx, ny) = (x as i32 + self.step.0, y as i32 + self.step.1);
+        ((0..256).contains(&nx) && (0..256).contains(&ny)).then_some((nx as u32, ny as u32))
+    }
+}
+
+/// A passable block whose neighbour across `crossing` has passability `neighbour_passable`.
+fn passable_block_beside(
+    world: &Ac2WorldSource,
+    crossing: &Crossing,
+    neighbour_passable: bool,
+) -> Option<((u32, u32), (u32, u32))> {
+    (0..256u32)
         .flat_map(|x| (0..256u32).map(move |y| (x, y)))
-        .find(|&(x, y)| {
-            passable(world, x, y) == Some(true) && passable(world, x + 1, y) == Some(east)
+        .filter(|&(x, y)| passable(world, x, y) == Some(true))
+        .find_map(|block| {
+            let next = crossing.neighbour(block)?;
+            (passable(world, next.0, next.1) == Some(neighbour_passable)).then_some((block, next))
         })
 }
 
@@ -88,15 +152,16 @@ fn insert_pass(terrain: &Terrain, from: Position, end: Position) -> (Transition,
     (transition, state)
 }
 
-/// A mover on the western block's eastern edge, moving 2 m east. Returns the transition after
-/// one pass and where the check position started.
-fn cross_east_edge(
+/// A mover on `block`'s edge, moving 2 m across `crossing`. Returns the transition after one
+/// pass and where the check position started.
+fn cross_edge(
     terrain: &Terrain,
-    (x, y): (u32, u32),
+    crossing: &Crossing,
+    block: (u32, u32),
+    next: (u32, u32),
 ) -> (Transition, TransitionState, Position) {
-    // 1 m inside the western block, ending 1 m inside the eastern one; mid-block in y.
-    let mut from = position(x, y, Vector::new(159.0, 70.0, 0.0));
-    let mut end = position(x + 1, y, Vector::new(1.0, 70.0, 0.0));
+    let mut from = position(block.0, block.1, crossing.start);
+    let mut end = position(next.0, next.1, crossing.finish);
     for pos in [&mut from, &mut end] {
         let ground = -terrain.height_above_terrain(pos).unwrap_or(0.0);
         pos.frame.origin.z = ground;
@@ -105,60 +170,94 @@ fn cross_east_edge(
     (transition, state, end)
 }
 
-#[test]
-fn a_move_into_an_impassable_block_is_turned_back_at_the_edge() {
-    let Some(world) = open_world() else {
-        return;
-    };
-    let Some(edge) = passable_block_before(&world, false) else {
-        eprintln!("no passable block borders an impassable one to its east");
-        return;
+/// Loads both blocks of a crossing found by `passable_block_beside`, or `None` (noted) without
+/// game data or such a pair.
+fn crossing_setup(
+    crossing: &Crossing,
+    neighbour_passable: bool,
+) -> Option<(Arc<Ac2WorldSource>, Terrain, (u32, u32), (u32, u32))> {
+    let world = open_world()?;
+    let Some((block, next)) = passable_block_beside(&world, crossing, neighbour_passable) else {
+        eprintln!(
+            "{}: no passable block has a neighbour with passable={neighbour_passable}",
+            crossing.name
+        );
+        return None;
     };
     let mut terrain = Terrain::new();
-    for (bx, by) in [edge, (edge.0 + 1, edge.1)] {
+    for (bx, by) in [block, next] {
         load_terrain_block(&world, &mut terrain, block_id(bx, by)).expect("landblock decodes");
     }
-    let target = terrain
-        .land_cell(position(edge.0 + 1, edge.1, Vector::new(1.0, 70.0, 0.0)).cell_id)
-        .expect("the impassable block's cell is resident");
-    assert!(
-        !target.passable,
-        "insert_block carries the block's passability"
-    );
-    let (t, state, end) = cross_east_edge(&terrain, edge);
-    eprintln!("block {edge:?} -> east impassable: {state:?}");
-    assert_eq!(state, TransitionState::Adjusted);
-    assert!(t.collision_info.collision_normal_valid);
-    assert_eq!(
-        t.collision_info.collision_normal,
-        Vector::new(-1.0, 0.0, 0.0)
-    );
-    // The 2 m eastward path component is flipped: the check position is back at the edge side
-    // of the impassable block (x = 1 - 2 in its frame), i.e. where the mover started.
-    let pushed = t.sphere_path.check_pos.frame.origin;
-    assert!(
-        (pushed.x - (end.frame.origin.x - 2.0)).abs() < 1e-3,
-        "{pushed:?}"
-    );
-    assert!((pushed.y - end.frame.origin.y).abs() < 1e-3);
+    Some((world, terrain, block, next))
+}
+
+#[test]
+fn a_move_into_an_impassable_block_is_turned_back_at_each_edge() {
+    for crossing in &CROSSINGS {
+        let Some((_world, terrain, block, next)) = crossing_setup(crossing, false) else {
+            continue;
+        };
+        let target = terrain
+            .land_cell(position(next.0, next.1, crossing.finish).cell_id)
+            .expect("the impassable block's cell is resident");
+        assert!(
+            !target.passable,
+            "{}: insert_block carries the block's passability",
+            crossing.name
+        );
+        let (t, state, end) = cross_edge(&terrain, crossing, block, next);
+        eprintln!(
+            "{}: block {block:?} -> impassable {next:?}: {state:?}",
+            crossing.name
+        );
+        assert_eq!(state, TransitionState::Adjusted, "{}", crossing.name);
+        assert!(t.collision_info.collision_normal_valid, "{}", crossing.name);
+        assert_eq!(
+            t.collision_info.collision_normal, crossing.normal,
+            "{}",
+            crossing.name
+        );
+        // The 2 m path component along the move is negated: the check position ends back
+        // 2 m behind where it was, i.e. where the mover started; the other axis is unchanged.
+        let pushed = t.sphere_path.check_pos.frame.origin;
+        let expected = (
+            end.frame.origin.x - crossing.dir.x * 2.0,
+            end.frame.origin.y - crossing.dir.y * 2.0,
+        );
+        assert!(
+            (pushed.x - expected.0).abs() < 1e-3 && (pushed.y - expected.1).abs() < 1e-3,
+            "{}: {pushed:?} vs {expected:?}",
+            crossing.name
+        );
+    }
 }
 
 #[test]
 fn the_same_move_into_a_passable_neighbour_is_not_restricted() {
-    let Some(world) = open_world() else {
-        return;
-    };
-    let Some(edge) = passable_block_before(&world, true) else {
-        eprintln!("no two passable blocks border each other");
-        return;
-    };
-    let mut terrain = Terrain::new();
-    for (bx, by) in [edge, (edge.0 + 1, edge.1)] {
-        load_terrain_block(&world, &mut terrain, block_id(bx, by)).expect("landblock decodes");
+    for crossing in &CROSSINGS {
+        let Some((_world, terrain, block, next)) = crossing_setup(crossing, true) else {
+            continue;
+        };
+        let (t, state, end) = cross_edge(&terrain, crossing, block, next);
+        eprintln!(
+            "{}: block {block:?} -> passable {next:?}: {state:?}",
+            crossing.name
+        );
+        assert!(
+            !t.collision_info.collision_normal_valid,
+            "{}",
+            crossing.name
+        );
+        assert_ne!(state, TransitionState::Adjusted, "{}", crossing.name);
+        assert_eq!(
+            t.sphere_path.check_pos.frame.origin.x, end.frame.origin.x,
+            "{}",
+            crossing.name
+        );
+        assert_eq!(
+            t.sphere_path.check_pos.frame.origin.y, end.frame.origin.y,
+            "{}",
+            crossing.name
+        );
     }
-    let (t, state, end) = cross_east_edge(&terrain, edge);
-    eprintln!("block {edge:?} -> east passable: {state:?}");
-    assert!(!t.collision_info.collision_normal_valid);
-    assert_ne!(state, TransitionState::Adjusted);
-    assert_eq!(t.sphere_path.check_pos.frame.origin.x, end.frame.origin.x);
 }
