@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 142 done, 27 partial, 52 to do, 41 skipped.
+262 retail functions: 143 done, 26 partial, 52 to do, 41 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -257,7 +257,7 @@ Legend and workflow: [README](README.md).
 - [-] `CameraManager::~CameraManager` · 00577840 · legions 005477e0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 - [x] `CameraManager::MouseMove` · 005778a0 · legions 00547840 — ac2-client camera_mouse.rs / input_handlers
 
-## `portal/client/src/smartbox/camera/targetingmodule.cpp.c` (9/11)
+## `portal/client/src/smartbox/camera/targetingmodule.cpp.c` (10/11)
 
 ### TargetingModule
 - [x] `TargetingModule::SetPlayer` · 00579180 · legions 00548ae0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
@@ -265,11 +265,11 @@ Legend and workflow: [README](README.md).
 - [x] `TargetingModule::CalcCameraDistance` · 00579210 · legions 00548b70
 - [x] `TargetingModule::GetInterpViewerOffset` · 00579420 · legions 00548d80 — ac2-smartbox targeting.rs interp_viewer_offset (old and new offsets lerped by the blend's time while mIsOn) and camera.rs; read by the player's LookAtManager::Update
 - [x] `TargetingModule::FakeTransition` · 005794b0 · legions 00548e10 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
-- [~] `TargetingModule::GetPosition` · 00579500 · legions 00548e60 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; physics positions stand in for drawing positions; the player's head turn to the target (vtable 0x4f8) is not modelled
+- [~] `TargetingModule::GetPosition` · 00579500 · legions 00548e60 — ac2-smartbox targeting.rs get_position over CameraObjects; ac2-client client_camera.rs CameraWorld hands over drawn positions every frame (the AGENTS.md camera exception: PhysicsBody::drawing_position, the player's led_drawing_position) and physics positions for behaviour events; bones are always drawn (GetBonePosition uses m_posDrawing); head turn (LookAt 0x4F8) is take_look_at applied by update_camera; camera dummies are the player's bones 0x40000004/5. Not modelled: a child object (CPhysicsObj parent set, vtable 0x560) answers its GetDrawingPosition whatever the flag
 - [x] `TargetingModule::StoreTargetPos` · 00579670 · legions 00548fd0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `TargetingModule::StoreParentPos` · 00579700 · legions 00549060 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `TargetingModule::Update` · 00579780 · legions 005490e0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
-- [~] `TargetingModule::InternalCalcViewerPos` · 00579910 · legions 00549270 — ac2-smartbox targeting.rs: no-parent, parent-and-target and parent-alone branches, bone types, camera dummies; the player's head turns to the target (LookAt 0x4f8, take_look_at, applied by ac2-client update_camera when the target changes); physics positions stand in for drawing positions
+- [x] `TargetingModule::InternalCalcViewerPos` · 00579910 · legions 00549270 — ac2-smartbox targeting.rs: no-parent, parent-and-target and parent-alone branches, bone types, camera dummies; the player's head turns to the target (LookAt 0x4F8, take_look_at, applied by ac2-client update_camera); positions are the drawn ones the client hands over (see GetPosition)
 - [x] `TargetingModule::CalcViewerPos` · 0057a320 · legions 00549c80 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 
 ## `portal/client/src/smartbox/smartbox.cpp.c` (8/30)

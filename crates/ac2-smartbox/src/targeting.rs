@@ -6,9 +6,14 @@
 //! camera's two dummy objects on the player (`CameraManager::SetupCameraDummyObjects`), and the
 //! camera returns to the player when their period runs out.
 //!
-//! Positions are the objects' physics positions: the client keeps no drawing position for the
-//! camera (`GetPosition`'s `_bDrawingPos`). Float order follows the x87 code (53-bit precision):
-//! `ld`/`st` mark loads and `float` stores.
+//! Where an object stands is the caller's: `GetPosition`'s `_bDrawingPos` choice between the
+//! object's drawing position (its previous and current positions slerped by the render
+//! interpolation) and its physics position is made by whoever builds the [`CameraView`] and
+//! [`CameraObjects`]: the client hands over drawn positions every frame (`AGENTS.md`'s camera
+//! exception) and physics ones for the behaviour events. A bone is always the drawn one
+//! (`GetBonePosition`). The one case not modelled is a child object (`CPhysicsObj::m_pParent`
+//! set, vtable `0x560`), whose drawing position `GetPosition` takes whatever the flag. Float
+//! order follows the x87 code (53-bit precision): `ld`/`st` mark loads and `float` stores.
 
 use ac2_physics::{Frame, Position, Quaternion, Vector};
 

@@ -24,6 +24,14 @@ const AVATAR_HIDDEN_MODE: u32 = 0x4000_0001;
 pub(crate) struct CameraWorld<'a> {
     pub(crate) player: Option<&'a Player>,
     pub(crate) remotes: &'a Remotes,
+    /// `TargetingModule::GetPosition`'s `_bDrawingPos`: every object stands where it is drawn
+    /// this frame (`PhysicsBody::drawing_position` at `interpolation`, the player's
+    /// `led_drawing_position`, as the camera's own subject); without, where its physics put it.
+    /// A bone is always where its object is drawn (`CPhysicsObj::GetBonePosition` combines
+    /// `m_posDrawing`).
+    pub(crate) drawn: bool,
+    /// `CPhysics::sRenderInterpolation`.
+    pub(crate) interpolation: f32,
 }
 
 impl CameraWorld<'_> {
@@ -33,12 +41,25 @@ impl CameraWorld<'_> {
             None => self.remotes.get(id)?.body(),
         }
     }
+
+    /// Where body `id` stands for the camera: see [`Self::drawn`]. `drawn` false asks for its
+    /// physics position, which is not what a bone uses.
+    fn position_of(&self, id: u64, body: &PhysicsBody, drawn: bool) -> Position {
+        if !drawn {
+            return body.position();
+        }
+        if self.player.is_some_and(|p| p.id == id) {
+            body.led_drawing_position(self.interpolation)
+        } else {
+            body.drawing_position(self.interpolation)
+        }
+    }
 }
 
 impl CameraObjects for CameraWorld<'_> {
     fn subject(&self, id: u64) -> Option<CameraSubject> {
         let body = self.remotes.get(id)?.body()?;
-        let position = body.position();
+        let position = self.position_of(id, body, self.drawn);
         let state = body.movement_state();
         let [vx, vy, vz] = state.velocity;
         Some(CameraSubject {
@@ -60,7 +81,7 @@ impl CameraObjects for CameraWorld<'_> {
         let to_bone = body.bone_type_matrix(bone)?;
         let relative = to_bone * Mat4::from_translation(Vec3::new(offset.x, offset.y, offset.z));
         let (_, rotation, translation) = relative.to_scale_rotation_translation();
-        let position = body.position();
+        let position = self.position_of(id, body, true);
         let frame = Frame::combine_scaled(
             &position.frame,
             Vector::new(translation.x, translation.y, translation.z),
@@ -155,6 +176,8 @@ impl Client {
         let world = CameraWorld {
             player: self.player.as_ref(),
             remotes: &self.remotes,
+            drawn: !interpolate,
+            interpolation: self.render_interpolation,
         };
         self.scene
             .update_with(&mut self.camera, &subject, &world, quantum, interpolate);
@@ -209,6 +232,8 @@ impl Client {
             let world = CameraWorld {
                 player: self.player.as_ref(),
                 remotes: &self.remotes,
+                drawn: false,
+                interpolation: self.render_interpolation,
             };
             let view = CameraView {
                 player: Some(&subject),
@@ -258,6 +283,8 @@ impl Client {
         let world = CameraWorld {
             player: self.player.as_ref(),
             remotes: &self.remotes,
+            drawn: false,
+            interpolation: self.render_interpolation,
         };
         let view = CameraView {
             player: Some(&subject),
@@ -278,6 +305,8 @@ impl Client {
         let world = CameraWorld {
             player: self.player.as_ref(),
             remotes: &self.remotes,
+            drawn: false,
+            interpolation: self.render_interpolation,
         };
         let mut distance = |source: u64| -> Option<f64> {
             let from = match world.body(source) {
