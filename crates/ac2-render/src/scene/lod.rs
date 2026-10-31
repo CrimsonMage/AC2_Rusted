@@ -95,6 +95,39 @@ impl SceneDegrades {
         )
     }
 
+    /// The detail of an object drawn while `SceneTool::m_bRenderingToShadowMap` is set:
+    /// `CPartArray::Draw` clears `bVar7` there, so no visible-distance cull or fade, factor 1 and
+    /// the material detail as set; the Setup's level is still read at `ModelDetail`.
+    pub fn shadow_map_detail(&self) -> PlacedDetail {
+        let lod = undegraded_lod(0.0, &self.options);
+        PlacedDetail {
+            detail: lod.draw_detail(&self.options, false),
+            alpha: lod.alpha,
+        }
+    }
+
+    /// The scenery the shadow casters draw (`LScapeRender::RefreshShadowMap`, and the sun cascades
+    /// that stand in for it near the eye): every placement at [`Self::shadow_map_detail`], however
+    /// far from the eye (`CLandBlock::GatherObjects` skips the in-view test while rendering to the
+    /// shadow map, and `CPartArray::Draw` its visible-distance cull).
+    pub fn shadow_placements<'a>(
+        &self,
+        placements: impl Iterator<Item = &'a super::Placement>,
+    ) -> Vec<super::FramePlacement> {
+        let shadow = self.shadow_map_detail();
+        placements
+            .map(|p| super::FramePlacement {
+                visual: p.visual,
+                world: p.world,
+                frill_normal: None,
+                frill_shade: 1.0,
+                detail: shadow.detail,
+                alpha: shadow.alpha,
+                grass: [0.0; 3],
+            })
+            .collect()
+    }
+
     /// A placed (client-made, temporary-id) object of `visual` at `origin` seen from `eye`:
     /// `None` when `CPartArray::Draw` culls it. A visual without a Setup draws in full.
     pub fn placed(&self, visual: DataId, origin: Vec3, eye: Vec3) -> Option<PlacedDetail> {
@@ -168,6 +201,40 @@ mod tests {
         assert!(degrades.object(9, 500.0, false, false).is_none());
         let near = degrades.object(9, 20.0, false, false).unwrap();
         assert_eq!(near.alpha, 1.0);
+    }
+
+    #[test]
+    fn shadow_map_draws_a_far_object_undegraded_whatever_the_switch() {
+        let mut degrades = degrades();
+        degrades.options.model_detail = 1;
+        for disabled in [false, true] {
+            degrades.disabled = disabled;
+            // The normal pass culls it; the shadow map's `bVar7` is clear either way.
+            assert_eq!(
+                degrades
+                    .placed(DataId::new(7), Vec3::new(500.0, 0.0, 0.0), Vec3::ZERO)
+                    .is_none(),
+                !disabled
+            );
+            let shadow = degrades.shadow_map_detail();
+            assert_eq!((shadow.alpha, shadow.detail.degrade), (1.0, 1.0));
+            assert_eq!(shadow.detail.model_detail, 1);
+            assert!(!shadow.detail.force_disable_alpha_test);
+        }
+    }
+
+    #[test]
+    fn shadow_placements_keep_the_culled_scenery() {
+        let degrades = degrades();
+        let far = super::super::Placement {
+            visual: DataId::new(7),
+            world: ac2_math::Mat4::from_translation(Vec3::new(500.0, 0.0, 0.0)),
+            frill: false,
+        };
+        let kept = degrades.shadow_placements([&far].into_iter());
+        assert_eq!(kept.len(), 1);
+        assert_eq!(kept[0].detail, degrades.shadow_map_detail().detail);
+        assert_eq!(kept[0].alpha, 1.0);
     }
 
     #[test]

@@ -5029,7 +5029,7 @@ key	status	note
 004ef8f0	-	render plumbing
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004ef9c0	x	the root group's posed bones (ObjectPose::bones) with their CSetup parents (ObjectSkeleton::root_parents), carried on ObjectPlacement
-004efb00	x	ac2-render object::degrade (degrade_scale, part_array_lod: cull at max(s*visible,20), 7.5% fade, degrade factor, material detail, ForceDisableAlphaTest past 40) + scene/lod.rs; with SceneTool::m_bDisableDegrades (map view) undegraded_lod: no cull, fade, degrade or distance material detail (factor 1, alpha 1, MaterialDetail pref), ForceDisableAlphaTest past 40 still set; particle systems, draw and setup id in scene/particles.rs and model.rs. Reflection/shadow-volume branches n/a
+004efb00	x	ac2-render object::degrade (degrade_scale, part_array_lod: cull at max(s*visible,20), 7.5% fade, degrade factor, material detail, ForceDisableAlphaTest past 40) + scene/lod.rs; with SceneTool::m_bDisableDegrades (map view) undegraded_lod: no cull, fade, degrade or distance material detail (factor 1, alpha 1, MaterialDetail pref), ForceDisableAlphaTest past 40 still set; particle systems, draw and setup id in scene/particles.rs and model.rs. m_bRenderingToShadowMap (landscape shadow map pass) also clears bVar7: SceneDegrades::shadow_map_detail. Reflection/shadow-volume branches n/a
 004f0140	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first); PartGroupTree::get_holding_location over the live tree
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -8394,7 +8394,7 @@ key	status	note
 005841c0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584290	x	self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 005843b0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-00584540	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
+00584540	~	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change. SceneTool::m_bRenderingToShadowMap (set in SceneTool::StartShadowMap, cleared in FinishShadowMap) clears CPartArray::Draw bVar7 (like m_bDisableDegrades): casters = SceneFrame::shadow_placements (SceneDegrades::shadow_placements), every scenery placement undegraded, unfaded, not distance-culled; the sun cascades static casters use the same list
 005847b0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584950	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584b10	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)

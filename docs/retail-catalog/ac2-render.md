@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 187 done, 53 partial, 182 to do, 359 skipped.
+781 retail functions: 186 done, 54 partial, 182 to do, 359 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1004,7 +1004,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeMaterialInfo::MultiCombine` · 005919d0 · legions 00561000
 - [x] `LScapeMaterialInfo::Create` · 00591a40 · legions 00561070
 
-## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (10/39)
+## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (9/39)
 
 ### LScapeLighting
 - [x] `LScapeLighting::GetAmbientLight` · 005835c0 · legions 00552d30
@@ -1049,7 +1049,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::UpdateLighting` · 005841c0 · legions 00553900 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 - [x] `LScapeRender::CalculateShadowColor` · 00584290 · legions 005539d0 — self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 - [ ] `LScapeRender::GetTerrainGeometry` · 005843b0 · legions 00553af0 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-- [x] `LScapeRender::RefreshShadowMap` · 00584540 · legions 00553c80 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
+- [~] `LScapeRender::RefreshShadowMap` · 00584540 · legions 00553c80 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change. SceneTool::m_bRenderingToShadowMap (set in SceneTool::StartShadowMap, cleared in FinishShadowMap) clears CPartArray::Draw bVar7 (like m_bDisableDegrades): casters = SceneFrame::shadow_placements (SceneDegrades::shadow_placements), every scenery placement undegraded, unfaded, not distance-culled; the sun cascades static casters use the same list
 - [ ] `LScapeRender::Init` · 005847b0 · legions 00553ee0 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 - [ ] `LScapeRender::CalcBlockDrawOrderInternal` · 00584950 · legions 00554080 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 - [ ] `LScapeRender::CalcBlockDrawOrder` · 00584b10 · legions 00554240 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)

@@ -107,6 +107,8 @@ pub struct SceneFrame {
     pub sky: SkyFrame,
     /// Scenery and entities, then the frills `RefreshFrillMesh` keeps.
     pub placements: Vec<FramePlacement>,
+    /// The scenery the shadow casters draw: never culled, undegraded.
+    pub shadow_placements: Vec<FramePlacement>,
     /// Resident blocks with near terrain, and those with near water, in a stable order.
     pub terrain: Vec<BlockKey>,
     pub water: Vec<BlockKey>,
@@ -793,14 +795,8 @@ impl WorldScene {
         // Each frill with the block it stands in, for that block's terrain under it.
         let frills: Vec<(BlockKey, &Placement)> = keys
             .iter()
-            .flat_map(|key| {
-                self.blocks[key]
-                    .placements
-                    .iter()
-                    .filter(|p| self.models.contains_key(&p.visual))
-                    .map(move |p| (*key, p))
-            })
-            .filter(|(_, p)| p.frill)
+            .flat_map(|key| self.blocks[key].placements.iter().map(move |p| (*key, p)))
+            .filter(|(_, p)| p.frill && self.models.contains_key(&p.visual))
             .collect();
         let candidates: Vec<FrillCandidate> = frills
             .iter()
@@ -838,6 +834,7 @@ impl WorldScene {
             })
             .chain(self.frill_placements(&frills, &chosen, &far_frills, shadow_bit))
             .collect();
+        let shadow_placements = degrades.shadow_placements(all().filter(|p| !p.frill));
         let sky_objects = self
             .world
             .region()
@@ -918,6 +915,7 @@ impl WorldScene {
             lighting,
             sky,
             placements,
+            shadow_placements,
             terrain,
             water,
             interiors,

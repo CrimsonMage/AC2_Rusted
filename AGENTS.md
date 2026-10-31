@@ -78,7 +78,9 @@ game rules and server-visible behaviour exactly retail.
   objects (no frills) and every body and world object cast into, posed and skinned. Terrain,
   objects and bodies receive them with 3 x 3 PCF and keep `mix(1 - strength, 1, lit)` of their
   colour at the static strength (`m_cStaticShadowStrength`), so the cascades meet the landscape
-  map seamlessly; the terrain takes the darker of the two, and a frill already darkened by the
+  map seamlessly (the static casters draw as the map's do, `m_bRenderingToShadowMap` clearing
+  `CPartArray::Draw`'s degrade steps: every placement undegraded, unfaded and not distance-culled;
+  bodies and world objects keep their own detail, as retail's volumes did); the terrain takes the darker of the two, and a frill already darkened by the
   landscape map is not darkened twice. The landscape map stays as retail draws it past the
   cascades. Level 0 draws none, as retail. UI viewport scenes use them too: `UIScene::Render` drew
   its entities' stencil volumes at `m_cVolumetricShadowStrength` 0.75 from level 2 up (the

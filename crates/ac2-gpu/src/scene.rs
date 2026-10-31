@@ -432,11 +432,16 @@ impl SceneRenderer {
             .iter()
             .filter_map(|key| Some((*key, self.blocks.get(key)?.terrain.as_ref()?)))
             .collect();
+        // Every scenery placement at undegraded detail, however far (`m_bRenderingToShadowMap`).
         let casters: Vec<ObjectInstance<'_>> = frame
-            .placements
+            .shadow_placements
             .iter()
-            .filter(|p| p.frill_normal.is_none())
-            .filter_map(|p| Some(ObjectInstance::new(self.models.get(&p.visual)?, p.world)))
+            .filter_map(|p| {
+                Some(ObjectInstance {
+                    detail: p.detail,
+                    ..ObjectInstance::new(self.models.get(&p.visual)?, p.world)
+                })
+            })
             .collect();
         let matrix = self.shadow_map.refresh(
             gpu,
@@ -480,11 +485,12 @@ impl SceneRenderer {
         let frame = &self.frame;
         let lighting = &frame.lighting;
         let tier = self.sun_shadows.tier().filter(|_| lit);
+        // The static casters stand in for the landscape map near the eye, so they draw as it
+        // does: undegraded and unfaded (`CPartArray::Draw` with `m_bRenderingToShadowMap` set).
         let casters: Vec<ObjectInstance<'_>> = frame
-            .placements
+            .shadow_placements
             .iter()
             .filter(|_| !self.viewport)
-            .filter(|p| p.frill_normal.is_none())
             .filter_map(|p| {
                 Some(ObjectInstance {
                     tint: [1.0, 1.0, 1.0, p.alpha],
