@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 156 done, 13 partial, 104 to do, 153 skipped.
+426 retail functions: 159 done, 11 partial, 102 to do, 154 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -246,7 +246,7 @@ Legend and workflow: [README](README.md).
 - [-] `LandscapeDefs::LoadHeightList` · 0062a2f0 — text source loader, admin build only
 - [-] `LandscapeDefs::FromFileNode` · 0062a430 — text source format (admin tools)
 
-## `portal/shared/src/geometry/lightsource.cpp.c` (5/12)
+## `portal/shared/src/geometry/lightsource.cpp.c` (7/12)
 
 ### LightSource
 - [-] `LightSource::operator=` · 00621cd0 · legions 005dd0b0 — operator=: Rust value semantics (glam/ac2-math provides it)
@@ -255,12 +255,12 @@ Legend and workflow: [README](README.md).
 - [x] `LightSource::RefreshMaxRange` · 00621ef0 · legions 005dd2d0 — ac2-render object::cell / point_lights
 - [x] `LightSource::CalculateAttenuation` · 00621f30 · legions 005dd310 — ac2-world ac2_light_info.rs (LightSource::CalculateAttenuation formula)
 - [~] `LightSource::ApplyProperty` · 00621fb0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
-- [ ] `LightSource::BuildOptionalProperties` · 00622190 — needs port: light optional property build from DAT
+- [-] `LightSource::BuildOptionalProperties` · 00622190 — admin-only (no 7160 match); the Legions property read is ac2-assets read_ac2_light_source and ac2-world ac2_light_info decode
 - [-] `LightSource::LightSource` · 00622500 · legions 005dd8d0 — ctor/dtor: Rust struct construction and Drop
 - [x] `LightSource::ApplyPropertyCollection` · 00622650 — ac2-assets ac2_light_source.rs (LightSource::ApplyPropertyCollection decode)
 - [ ] `LightSource::GetDiffuse` · 00622730 · legions 005ddb00 — needs port (check): cited only in render cell.rs comment; confirm GetDiffuse is implemented there
-- [~] `LightSource::GetWeight` · 00622760 · legions 005ddb30 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
-- [~] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
+- [x] `LightSource::GetWeight` · 00622760 · legions 005ddb30 — object/point_lights.rs weight (range waveform now, intensity upper bound, sun terms for type 0x40000003) and fill_render_light (sun colour x intensity + outdoor ambient for sunlight-type)
+- [x] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0 — object/point_lights.rs weight (range waveform now, intensity upper bound, sun terms for type 0x40000003) and fill_render_light (sun colour x intensity + outdoor ambient for sunlight-type)
 
 ## `portal/shared/src/geometry/matrix4.cpp.c` (11/18)
 
@@ -667,11 +667,11 @@ Legend and workflow: [README](README.md).
 ### CVertexArray
 - [-] `CVertexArray::FromFileNode` · 00730df0 — text source format (admin tools)
 
-## `portal/shared/src/geometry/waveform.cpp.c` (2/10)
+## `portal/shared/src/geometry/waveform.cpp.c` (3/10)
 
 ### Waveform
 - [ ] `Waveform::SetDefaults` · 00622c40 · legions 005de010 — needs port: waveform defaults and upper bound
-- [ ] `Waveform::GetUpperBounds` · 00622c70 · legions 005de040 — needs port: waveform defaults and upper bound
+- [x] `Waveform::GetUpperBounds` · 00622c70 · legions 005de040 — ac2-math Waveform::upper_bound (GetUpperBounds)
 - [x] `Waveform::GetValueForPhase` · 00622cf0 · legions 005de0c0 — ac2-math waveform.rs: all kinds; NOISE = RollDice(-1,1) * amplitude + base, FRACTAL = fBm1(freq*phase + time, 1 - roughness, 2, 6) * amplitude + base, checked against the admin disassembly (kind table 0x622EEC)
 - [x] `Waveform::GetValue` · 00622f10 · legions 005de2e0 — ac2-math waveform.rs: all kinds; NOISE = RollDice(-1,1) * amplitude + base, FRACTAL = fBm1(freq*phase + time, 1 - roughness, 2, 6) * amplitude + base, checked against the admin disassembly (kind table 0x622EEC)
 - [-] `Waveform::Waveform` · 00622f30 · legions 005de300 — ctor/dtor: Rust struct construction and Drop

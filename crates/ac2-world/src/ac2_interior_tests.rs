@@ -312,3 +312,39 @@ fn env_cell_entities_and_markers_resolve_the_same_entities() {
     );
     assert!(cells > 0);
 }
+
+/// `CEnvCell::AddStaticLights` reads a block's `CLightInfo` per env cell and files each light by
+/// its own cell (`SceneTool::LinkLight`): the DATs hold no light of an outdoor cell, so outdoors
+/// the only point lights are the FX lights of objects. Every static light stands in an env cell
+/// its block lists, bar the four of a block whose `LandBlockInfo` is missing.
+#[test]
+fn every_static_light_of_the_dats_belongs_to_an_interior_cell() {
+    let Some((dataset, world)) = ac2_world() else {
+        return;
+    };
+    let (mut interior, mut outdoor, mut unlisted) = (0, 0, 0);
+    for did in cell_ids(&dataset, |low| low == 0xFFFC) {
+        let block = CellId::new(did);
+        let info = world
+            .light_info(block)
+            .unwrap()
+            .expect("listed record exists");
+        let cells = world
+            .landblock_interior(block)
+            .unwrap()
+            .map_or(0, |interior| interior.cell_count);
+        for light in info.lights.iter() {
+            let low = light.cell.raw() & 0xFFFF;
+            if low < 0x100 {
+                outdoor += 1;
+            } else if low < 0x100 + cells {
+                interior += 1;
+            } else {
+                unlisted += 1;
+            }
+        }
+    }
+    assert_eq!(outdoor, 0);
+    assert_eq!(unlisted, 4);
+    assert_eq!(interior, 39_855 + 1_135 + 2);
+}

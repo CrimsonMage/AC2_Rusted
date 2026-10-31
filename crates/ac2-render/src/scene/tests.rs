@@ -361,6 +361,69 @@ fn a_moving_object_is_lit_by_the_static_lights_on_its_side() {
     );
 }
 
+/// Outdoors the lights of a moving object are the FX lights of the lamps around it (the DATs list
+/// static lights only for interior cells): the town lamp's startup light (`0x1F001B6D`) lights an
+/// object beside it, not one out of its range, and not one inside a cell.
+#[test]
+fn a_moving_object_outdoors_is_lit_by_the_fx_lamp_beside_it() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    // Opening the world registers the DATs' vocabulary the FX records are read with.
+    let world = Ac2WorldSource::open(Arc::clone(&store)).unwrap().unwrap();
+    let lamp_visual = ac2_core::DataId::new(0x1F00_1B6D);
+    let table = ac2_assets::resolve_ac2_visual_fx_particles(&store, lamp_visual)
+        .unwrap()
+        .expect("the lamp has FX");
+    let starts = crate::fx_particles::startup_light_starts(9, &table);
+    assert!(!starts.is_empty(), "the lamp's startup FX places a light");
+    let size = world.block_size();
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0xCB, 0x4D));
+    let _ = scene.wait();
+    assert!(
+        scene
+            .blocks
+            .values()
+            .filter_map(|block| block.scene_lights.as_deref())
+            .flatten()
+            .all(|light| light.indoor),
+        "no static light stands outdoors"
+    );
+    let (x, y) = (203.5 * size, 77.5 * size);
+    for start in &starts {
+        scene.start_object_light(start.emitter, start.light);
+    }
+    let lamp = Vec3::new(x, y, 100.0);
+    scene.place_objects(&[super::ObjectPlacement {
+        emitter: 9,
+        cell: 0xCB4D_0025,
+        frame: ac2_math::Frame::new(lamp, ac2_math::Quat::IDENTITY),
+        scale: Vec3::ONE,
+        particle_scale: 1.0,
+        bones: Vec::new(),
+        named_bones: Vec::new(),
+        parents: std::sync::Arc::from(Vec::new()),
+        speed: 0.0,
+    }]);
+    let beside = lamp + Vec3::new(1.0, 0.0, 0.0);
+    assert!(
+        !scene.object_lit_by(beside, 0.5, false).is_empty(),
+        "an object beside the lamp is lit by it"
+    );
+    assert!(
+        scene.object_lit_by(beside, 0.5, true).is_empty(),
+        "the lamp does not light an object inside"
+    );
+    assert!(
+        scene
+            .object_lit_by(lamp + Vec3::splat(1.0e4), 0.5, false)
+            .is_empty(),
+        "an object out of the lamp's range is not lit"
+    );
+}
+
 #[test]
 fn the_rain_and_water_systems_load_with_the_scene() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
@@ -377,4 +440,49 @@ fn the_rain_and_water_systems_load_with_the_scene() {
     assert!(scene.rain_splash.is_some());
     assert!(scene.rain_ripples.is_some());
     assert!(scene.water_bubbles.is_some());
+}
+
+/// A lamp post placed in a landblock lights what moves near it: the entity's startup FX light
+/// (`ApplyStartupFX` -> `CPartArray::CreateLightSource`) is a dynamic light of the scene. Block
+/// 6885 holds one (range 10, a warm white) at (16733, 21391, 172).
+#[test]
+fn a_moving_object_is_lit_by_a_landblock_lamp_post_outdoors() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .unwrap();
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0x68, 0x85));
+    let _ = scene.wait();
+    let lamp = Vec3::new(16733.0, 21391.0, 172.0);
+    let beside = lamp + Vec3::new(2.0, 0.0, 0.0);
+    let lit = scene.object_lit_by(beside, 0.5, false);
+    assert_eq!(lit.len(), 1, "{lit:?}");
+    assert_eq!(lit[0].origin, lamp);
+    assert_eq!(lit[0].range, 10.0);
+    assert!(
+        scene.object_lit_by(beside, 0.5, true).is_empty(),
+        "an outdoor lamp does not light an object inside a cell"
+    );
+    assert!(
+        scene
+            .object_lit_by(lamp + Vec3::new(30.0, 0.0, 0.0), 0.5, false)
+            .is_empty(),
+        "an object out of range is not lit"
+    );
+    // `LightSourceEffects` off: the lights are gone.
+    let mut options = crate::prefs::SceneOptions {
+        light_source_effects: false,
+        ..Default::default()
+    };
+    scene.set_options(options);
+    assert!(scene.object_lit_by(beside, 0.5, false).is_empty());
+    // The block leaving the ring takes its lights with it.
+    options.light_source_effects = true;
+    scene.set_options(options);
+    scene.set_center((0x10, 0x10));
+    let _ = scene.wait();
+    assert!(scene.object_lit_by(beside, 0.5, false).is_empty());
 }

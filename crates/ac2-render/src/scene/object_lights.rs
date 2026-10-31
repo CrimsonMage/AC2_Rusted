@@ -11,7 +11,8 @@ use std::collections::HashMap;
 use ac2_assets::{Ac2FxLight, Ac2LightSource};
 use ac2_math::{Frame, Vec3};
 
-use super::ObjectPlacement;
+use super::entity_lights::EntityLight;
+use super::{BlockKey, ObjectPlacement};
 use crate::object::{PointLight, MAX_POINT_LIGHTS};
 
 /// `LightSource::FillRenderLight`'s smallest range.
@@ -28,13 +29,34 @@ struct FxLight {
     created: f64,
 }
 
+/// One startup light of a landblock entity: it stands where the entity does while the block is
+/// resident.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct EntityFx {
+    block: BlockKey,
+    light: Ac2FxLight,
+    origin: Vec3,
+    created: f64,
+}
+
 /// The FX lights of the scene and the last frame each emitter stood at.
 #[derive(Debug, Default)]
 pub(super) struct ObjectLights {
     lights: Vec<FxLight>,
+    /// The startup lights of the resident blocks' entities (outdoors).
+    entities: Vec<EntityFx>,
+    /// `Render::m_Prefs.LightSourceEffects`: whether the entities' lights light the objects.
+    entities_lit: bool,
     /// The frame of each emitter that has been placed (kept while its lights run).
     frames: HashMap<u64, Frame>,
+    /// Whether each placed emitter stands in an interior cell: `CPartArray::CreateLightSource`'s
+    /// light carries its object's cell (`m_CellID`), which `SceneTool::AddDynamicLights` compares
+    /// with the focus's side.
+    indoor: HashMap<u64, bool>,
 }
+
+/// `LandDefs::first_envcell_id`: the cells from here up are interior ones.
+const FIRST_ENV_CELL: u32 = 0x100;
 
 /// `PrepareObjectForDrawing`'s opacity for a light `elapsed` seconds old: `None` once its
 /// lifespan is spent, else a fade in over the first fade time and a fade out over the last.
@@ -73,10 +95,31 @@ impl ObjectLights {
         });
     }
 
+    /// The startup lights of the entities of `block`, which became resident at `now`.
+    pub(super) fn add_block(&mut self, block: BlockKey, lights: &[EntityLight], now: f64) {
+        self.entities.extend(lights.iter().map(|entity| EntityFx {
+            block,
+            light: entity.light,
+            origin: entity.origin,
+            created: now,
+        }));
+    }
+
+    /// `LightSourceEffects` changed: the entities' lights light the objects only while it is on.
+    pub(super) fn set_entities_lit(&mut self, lit: bool) {
+        self.entities_lit = lit;
+    }
+
+    /// The block's entities left the world.
+    pub(super) fn remove_block(&mut self, block: &BlockKey) {
+        self.entities.retain(|entity| entity.block != *block);
+    }
+
     /// `CPartArray::DestroyAllTransientFX`: the object left the world, so its lights go.
     pub(super) fn remove_emitter(&mut self, emitter: u64) {
         self.lights.retain(|light| light.emitter != emitter);
         self.frames.remove(&emitter);
+        self.indoor.remove(&emitter);
     }
 
     /// The frame's object placements: each placed emitter's frame is remembered, and spent lights
@@ -84,6 +127,8 @@ impl ObjectLights {
     pub(super) fn place(&mut self, placements: &[ObjectPlacement], now: f64) {
         for placement in placements {
             self.frames.insert(placement.emitter, placement.frame);
+            self.indoor
+                .insert(placement.emitter, placement.cell & 0xFFFF >= FIRST_ENV_CELL);
         }
         self.prune(now);
     }
@@ -94,21 +139,42 @@ impl ObjectLights {
     }
 
     /// The point lights an object at `position` with bounding radius `radius` sees at `now`:
-    /// lights in range (`distance < range + radius`), heaviest first, at most the device's
-    /// point lights.
-    pub(super) fn point_lights(&self, now: f64, position: Vec3, radius: f32) -> Vec<PointLight> {
-        let mut candidates: Vec<(f32, PointLight)> = self
-            .lights
+    /// lights on its side (`indoor`) in range (`distance < max range + radius`), heaviest first,
+    /// at most the device's point lights.
+    pub(super) fn point_lights(
+        &self,
+        now: f64,
+        position: Vec3,
+        radius: f32,
+        indoor: bool,
+    ) -> Vec<PointLight> {
+        let reaches = |light: &Ac2FxLight, point: &PointLight| {
+            // `LightSource::RefreshMaxRange`: the range waveform's upper bound.
+            let reach = light.source.range_wave.upper_bound().unwrap_or(0.0);
+            let distance = point.origin.distance(position);
+            (distance < reach + radius).then(|| weight(point, distance))
+        };
+        let placed = self.lights.iter().filter_map(|fx| {
+            let frame = self.frames.get(&fx.emitter)?;
+            if self.indoor.get(&fx.emitter) != Some(&indoor) {
+                return None;
+            }
+            let opacity = light_opacity(&fx.light, now - fx.created)?;
+            let origin = frame.local_to_global_point(fx.light.offset);
+            let point = fill(&fx.light.source, origin, opacity, now);
+            Some((reaches(&fx.light, &point)?, point))
+        });
+        // The entities stand outdoors (`CLandBlock` objects).
+        let entities = self
+            .entities
             .iter()
+            .filter(|_| !indoor && self.entities_lit)
             .filter_map(|fx| {
-                let frame = self.frames.get(&fx.emitter)?;
                 let opacity = light_opacity(&fx.light, now - fx.created)?;
-                let origin = frame.local_to_global_point(fx.light.offset);
-                let point = fill(&fx.light.source, origin, opacity, now);
-                let distance = origin.distance(position);
-                (distance < point.range + radius).then(|| (weight(&point, distance), point))
-            })
-            .collect();
+                let point = fill(&fx.light.source, fx.origin, opacity, now);
+                Some((reaches(&fx.light, &point)?, point))
+            });
+        let mut candidates: Vec<(f32, PointLight)> = placed.chain(entities).collect();
         // `_STL::sort` with `GetWeight`: heaviest first.
         candidates.sort_by(|a, b| b.0.total_cmp(&a.0));
         candidates
@@ -120,6 +186,11 @@ impl ObjectLights {
 
     /// Every placed point light at `now` (`SceneTool::m_aDynamicLights` of the frame).
     pub(super) fn all(&self, now: f64) -> Vec<PointLight> {
+        let entities = self.entities.iter().filter_map(|fx| {
+            let opacity = light_opacity(&fx.light, now - fx.created)?;
+            (fx.light.source.kind == ac2_assets::LIGHT_POINT)
+                .then(|| fill(&fx.light.source, fx.origin, opacity, now))
+        });
         self.lights
             .iter()
             .filter(|fx| fx.light.source.kind == ac2_assets::LIGHT_POINT)
@@ -133,12 +204,15 @@ impl ObjectLights {
                     now,
                 ))
             })
+            .chain(entities)
             .collect()
     }
 
     /// Drops the lights that are spent at `now`.
     fn prune(&mut self, now: f64) {
         self.lights
+            .retain(|fx| light_opacity(&fx.light, now - fx.created).is_some());
+        self.entities
             .retain(|fx| light_opacity(&fx.light, now - fx.created).is_some());
     }
 }
@@ -253,7 +327,7 @@ mod tests {
         let mut lights = ObjectLights::default();
         lights.start(7, fx(0.0, 0.0), 0.0);
         lights.place(&[placed(7, 10.0)], 0.0);
-        let points = lights.point_lights(0.0, Vec3::new(10.0, 0.0, 0.0), 1.0);
+        let points = lights.point_lights(0.0, Vec3::new(10.0, 0.0, 0.0), 1.0, false);
         assert_eq!(points.len(), 1);
         assert_eq!(points[0].origin, Vec3::new(10.0, 0.0, 1.0));
         assert_eq!(points[0].attenuation, [1.0, 0.0, 10.0 / 25.0]);
@@ -264,9 +338,28 @@ mod tests {
         let mut lights = ObjectLights::default();
         lights.start(7, fx(0.0, 0.0), 0.0);
         // Emitter 7 never placed: no light.
-        assert!(lights.point_lights(0.0, Vec3::ZERO, 1.0).is_empty());
+        assert!(lights.point_lights(0.0, Vec3::ZERO, 1.0, false).is_empty());
         lights.place(&[placed(7, 100.0)], 0.0);
-        assert!(lights.point_lights(0.0, Vec3::ZERO, 1.0).is_empty());
+        assert!(lights.point_lights(0.0, Vec3::ZERO, 1.0, false).is_empty());
+    }
+
+    /// `SceneTool::AddDynamicLights`: an FX light carries its object's cell, so it lights only
+    /// objects on the same side of the indoor/outdoor divide.
+    #[test]
+    fn an_fx_light_lights_only_objects_on_its_side() {
+        let mut lights = ObjectLights::default();
+        lights.start(7, fx(0.0, 0.0), 0.0);
+        let mut outside = placed(7, 0.0);
+        outside.cell = 0xCB4D_0025;
+        lights.place(&[outside], 0.0);
+        let at = Vec3::new(0.0, 0.0, 1.0);
+        assert_eq!(lights.point_lights(0.0, at, 0.0, false).len(), 1);
+        assert!(lights.point_lights(0.0, at, 0.0, true).is_empty());
+        let mut inside = placed(7, 0.0);
+        inside.cell = 0x02BB_0100;
+        lights.place(&[inside], 0.0);
+        assert!(lights.point_lights(0.0, at, 0.0, false).is_empty());
+        assert_eq!(lights.point_lights(0.0, at, 0.0, true).len(), 1);
     }
 
     #[test]
@@ -281,7 +374,7 @@ mod tests {
                 .collect::<Vec<_>>(),
             0.0,
         );
-        let points = lights.point_lights(0.0, Vec3::ZERO, 0.0);
+        let points = lights.point_lights(0.0, Vec3::ZERO, 0.0, false);
         assert_eq!(points.len(), MAX_POINT_LIGHTS);
         assert!(points[0].origin.x <= points[1].origin.x);
     }

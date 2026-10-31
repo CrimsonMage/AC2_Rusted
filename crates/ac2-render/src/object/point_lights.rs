@@ -37,6 +37,25 @@ pub struct SceneLight {
     pub indoor: bool,
 }
 
+/// The sun terms a sunlight-type light (`LightSource::m_Type` `0x40000003`) takes at run time
+/// (`SceneTool::SetSunlight`, `SceneTool::SetOutdoorAmbient`): the sun's colour and diffuse
+/// intensity, and the outdoor ambient (`WorldRender::SetupEnvironment`'s `sunAmbient`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SunTerms {
+    pub color: [f32; 3],
+    pub intensity: f32,
+    pub ambient: [f32; 3],
+}
+
+/// What a pick of an object's lights reads besides the lights: the client time the waveforms are
+/// sampled at and, when the scene has one, the sun a sunlight-type light follows (without it those
+/// lights are left out).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct LightContext {
+    pub time: f64,
+    pub sun: Option<SunTerms>,
+}
+
 /// The point lights the device gets for an object at `position` with bounding radius `radius`.
 pub fn object_point_lights(
     scene: &[SceneLight],
@@ -44,21 +63,35 @@ pub fn object_point_lights(
     radius: f32,
     indoor: bool,
 ) -> Vec<PointLight> {
-    object_point_lights_in(scene.iter(), position, radius, indoor)
+    object_point_lights_in(
+        scene.iter(),
+        position,
+        radius,
+        indoor,
+        LightContext::default(),
+    )
 }
 
-/// [`object_point_lights`] over lights held in several places (the resident blocks').
+/// [`object_point_lights`] over lights held in several places (the resident blocks'), read at
+/// `context`'s time and sun. `SceneTool::CacheStaticLights` keeps the lights of the list on the
+/// object's side of the indoor/outdoor divide (`SceneTool::LinkLight` files each by its cell);
+/// a sunlight-type light only lights an object that stands inside.
 pub fn object_point_lights_in<'a>(
     scene: impl Iterator<Item = &'a SceneLight>,
     position: Vec3,
     radius: f32,
     indoor: bool,
+    context: LightContext,
 ) -> Vec<PointLight> {
     let mut candidates: Vec<(f32, f32, &SceneLight)> = scene
-        .filter(|light| light.light.kind == Ac2LightKind::Point)
+        .filter(|light| match light.light.kind {
+            Ac2LightKind::Point => true,
+            Ac2LightKind::Sunlight => indoor && context.sun.is_some(),
+            Ac2LightKind::Directional => false,
+        })
         .map(|light| {
             let distance = light.origin.distance(position);
-            (weight(&light.light, distance), distance, light)
+            (weight(&light.light, distance, context), distance, light)
         })
         .collect();
     // `_STL::sort` with `GetWeight`: heaviest first.
@@ -70,26 +103,43 @@ pub fn object_point_lights_in<'a>(
         })
         .take(MAX_CACHED_LIGHTS)
         .take(MAX_POINT_LIGHTS)
-        .map(|(_, _, light)| fill_render_light(light))
+        .map(|(_, _, light)| fill_render_light(light, context))
         .collect()
 }
 
-/// `LightSource::RefreshMaxRange`: the upper bound of the range waveform.
+/// `LightSource::RefreshMaxRange`: the upper bound of the range waveform (zero where it has
+/// none, the field's initial value).
 fn max_range(light: &Ac2StaticLight) -> f32 {
-    light.range
+    light.range_wave.upper_bound().unwrap_or(0.0)
 }
 
-/// `LightSource::GetWeight` for a point light: `(range - d) / range * intensity * opacity *
-/// mean diffuse`, capped at 1.
-fn weight(light: &Ac2StaticLight, distance: f32) -> f32 {
-    let mean = (light.color[2] + light.color[1] + light.color[0]) * 0.333_333_34;
-    let range = light.range;
-    (((range - distance) / range) * light.intensity * mean).min(1.0)
+/// `LightSource::GetWeight` for a point or sunlight-type light: `(range - d) / range` times the
+/// intensity, the opacity and the mean diffuse, capped at 1. The range is the waveform's value now, the intensity
+/// its upper bound (1 where it has none); a sunlight-type light takes the sun's colour and
+/// multiplies in the sun's intensity bound.
+fn weight(light: &Ac2StaticLight, distance: f32, context: LightContext) -> f32 {
+    let (color, sun_intensity) = match (light.kind, context.sun) {
+        (Ac2LightKind::Point, _) => (light.color, 1.0),
+        (Ac2LightKind::Sunlight, Some(sun)) => (sun.color, sun.intensity),
+        _ => return 1.0,
+    };
+    let mean = (color[2] + color[1] + color[0]) * 0.333_333_34;
+    let range = light.range_at(context.time);
+    let intensity = light.intensity_wave.upper_bound().unwrap_or(1.0);
+    (((range - distance) / range) * sun_intensity * intensity * mean).min(1.0)
 }
 
 /// `LightSource::FillRenderLight` for a static point light.
-fn fill_render_light(scene: &SceneLight) -> PointLight {
-    static_point_light(&scene.light, scene.origin)
+fn fill_render_light(scene: &SceneLight, context: LightContext) -> PointLight {
+    let mut point = static_point_light_at(&scene.light, scene.origin, context.time);
+    if let (Ac2LightKind::Sunlight, Some(sun)) = (scene.light.kind, context.sun) {
+        // The sun's colour times its intensity plus the outdoor ambient, then the light's own
+        // intensity (`FillRenderLight`'s type `0x40000003` branch).
+        let intensity = scene.light.intensity_at(context.time);
+        point.diffuse =
+            std::array::from_fn(|i| (sun.color[i] * sun.intensity + sun.ambient[i]) * intensity);
+    }
+    point
 }
 
 /// `LightSource::FillRenderLight` for a static point light standing at `origin` in the scene, at
@@ -183,5 +233,32 @@ mod tests {
         // Out of range, or on the other side of the indoor divide.
         assert!(object_point_lights(&[light(20.0, 10.0, true)], Vec3::ZERO, 1.0, true).is_empty());
         assert!(object_point_lights(&[light(1.0, 10.0, true)], Vec3::ZERO, 1.0, false).is_empty());
+    }
+
+    /// `FillRenderLight`'s type `0x40000003` branch: a sunlight-type light is a point light of the
+    /// sun's colour times its intensity plus the outdoor ambient, scaled by the light's own
+    /// intensity; it lights only objects inside, and only where the scene has a sun.
+    #[test]
+    fn a_sunlight_type_light_follows_the_sun_inside() {
+        let mut sun_light = light(1.0, 10.0, true);
+        sun_light.light.kind = Ac2LightKind::Sunlight;
+        let scene = [sun_light];
+        let sun = SunTerms {
+            color: [1.0, 0.5, 0.0],
+            intensity: 0.8,
+            ambient: [0.1; 3],
+        };
+        let at = |indoor, sun| {
+            let context = LightContext { time: 0.0, sun };
+            object_point_lights_in(scene.iter(), Vec3::ZERO, 1.0, indoor, context)
+        };
+        assert!(at(true, None).is_empty());
+        assert!(at(false, Some(sun)).is_empty());
+        let lit = at(true, Some(sun));
+        assert_eq!(lit.len(), 1);
+        // (colour * 0.8 + 0.1) * the light's intensity 0.5.
+        for (got, want) in lit[0].diffuse.iter().zip([0.45, 0.25, 0.05]) {
+            assert!((got - want).abs() < 1e-5, "{got} {want}");
+        }
     }
 }

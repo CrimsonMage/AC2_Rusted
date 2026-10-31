@@ -63,6 +63,8 @@ pub struct LoadedBlock {
     /// The entities' startup particle systems. Their materials arrive in `models`, keyed by the
     /// material's DID, as a model of one empty triangle the renderer fills each frame.
     pub particles: Vec<ParticleSource>,
+    /// The entities' startup lights (`CPartArray::CreateLightSource` at `ApplyStartupFX`).
+    pub lights: Vec<super::entity_lights::EntityLight>,
     pub images: Images,
 }
 
@@ -357,6 +359,7 @@ impl Worker {
             .iter()
             .filter_map(|source| self.particle(*source, &mut models))
             .collect();
+        let lights = super::entity_lights::block_entity_lights(&world, id);
         let mut interiors = load_block_interiors(&world, &store, id, &self.settings);
         if let Some(interiors) = interiors.as_mut() {
             for (visual, _, _) in &interiors.objects {
@@ -413,6 +416,7 @@ impl Worker {
             models,
             interiors: interiors.map(Box::new),
             particles,
+            lights,
             images,
         }
     }

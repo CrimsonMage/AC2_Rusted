@@ -41,7 +41,7 @@ pub use pixel_shader::{
 };
 pub use point_lights::{
     object_point_lights, object_point_lights_in, static_point_light, static_point_light_at,
-    PointLight, SceneLight, MAX_POINT_LIGHTS,
+    LightContext, PointLight, SceneLight, SunTerms, MAX_POINT_LIGHTS,
 };
 pub use skeleton::{blend_vertex, GroupPose, ObjectSkeleton, SkeletonGroup};
 pub use water::load_water_model;

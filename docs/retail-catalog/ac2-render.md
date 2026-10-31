@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 187 done, 53 partial, 182 to do, 359 skipped.
+781 retail functions: 193 done, 52 partial, 177 to do, 359 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0 — needs port: scene camera properties
 - [x] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (20/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (26/100)
 
 ### SceneTool
 - [-] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10 — scene motion blur (m_fBlurAmount from CameraFX mBlur): no shipped FX node names a blur CameraFX (blur.cfx 0x55000002 is unreferenced; ac2-assets ac2_fx_tests lists the 22 camera FX nodes), so the blend never runs with the DATs
@@ -794,7 +794,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::ClipToViewport` · 0056b080 · legions 0053b4a0 — needs port: scene ClipToViewport step
 
 ### LightSorterPredicate
-- [ ] `LightSorterPredicate::operator()` · 0056b100 · legions 0053b520 — needs port: light sort predicate (which lights are kept)
+- [x] `LightSorterPredicate::operator()` · 0056b100 · legions 0053b520 — ac2-render object::point_lights object_point_lights_in and scene object_lit_by: candidates sorted heaviest first by GetWeight
 
 ### SceneTool
 - [x] `SceneTool::SetAmbientLight` · 0056b150 · legions 0053b570 — ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -837,8 +837,8 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::SetupOrthographicProjection` · 0056ca70 · legions 0053ce50 — needs port (check): Rust code with a similar name exists but does not cite this function; verify and cite, or port
 - [ ] `SceneTool::InverseRotate` · 0056cb90 · legions 0053cf70 — needs port: scene InverseRotate step
 - [ ] `SceneTool::InverseTransform` · 0056cd40 · legions 0053d120 — needs port: scene InverseTransform step
-- [ ] `SceneTool::GetLight` · 0056cee0 · legions 0053d2c0 — needs port: scene GetLight step
-- [ ] `SceneTool::UnlinkAllLights` · 0056cf20 · legions 0053d300 — needs port: scene UnlinkAllLights step
+- [x] `SceneTool::GetLight` · 0056cee0 · legions 0053d2c0 — No list of lights to index or unlink: each resident block owns its static lights (BlockInfo.scene_lights, entity lights in ObjectLights) and drops them when the block leaves (WorldScene remove path)
+- [x] `SceneTool::UnlinkAllLights` · 0056cf20 · legions 0053d300 — No list of lights to index or unlink: each resident block owns its static lights (BlockInfo.scene_lights, entity lights in ObjectLights) and drops them when the block leaves (WorldScene remove path)
 - [ ] `SceneTool::DrawLine` · 0056d000 · legions 0053d3e0 — needs port: scene DrawLine primitive (verify client use before porting)
 - [ ] `SceneTool::DrawTexturedTriangle` · 0056d0b0 · legions 0053d490 — needs port: scene DrawTexturedTriangle primitive (verify client use before porting)
 - [ ] `SceneTool::DrawTriangle` · 0056d1e0 · legions 0053d5c0 — needs port: scene DrawTriangle primitive (verify client use before porting)
@@ -886,14 +886,14 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::CreateDefaultMaterial` · 005709b0 · legions 00540e60 — needs port: scene CreateDefaultMaterial step
 - [-] `SceneTool::Startup` · 00570f00 · legions 005413b0 — D3D device lifecycle/restore; wgpu replaces
 - [x] `SceneTool::LinkLight` · 00571630 · legions 00541ae0 — SceneTool::LinkLight cited in ac2-client ui_scene/camera.rs:13 (scene lights linked, sun disabled)
-- [ ] `SceneTool::AddDynamicLights` · 005716c0 · legions 00541b70 — needs port: scene AddDynamicLights step
+- [x] `SceneTool::AddDynamicLights` · 005716c0 · legions 00541b70 — ac2-render scene/object_lights.rs point_lights: FX and landblock-entity lights on the focus side (light cell vs object cell), in range by RefreshMaxRange (Waveform::upper_bound), weight-sorted
 - [x] `SceneTool::RequestPixelScan` · 00571860 · legions 00541d10 — only LensFlareEffect::Draw scanned pixels; replaced by ac2-gpu lens_flare.rs's depth scan pass (AGENTS.md exception)
 - [ ] `SceneTool::ScanRequestedPixels` · 005718c0 · legions 00541d70 — needs port: pixel scan (colour/ID under a screen pixel)
 - [ ] `SceneTool::EndFrame` · 00571a40 · legions 00541ef0 — needs port: scene EndFrame step
 - [x] `SceneTool::SortLights` · 00571da0 · legions 00542250 — ac2-render object::cell / point_lights
-- [~] `SceneTool::CacheStaticLights` · 00571ec0 · legions 00542370 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
-- [~] `SceneTool::ApplyLights` · 00572110 · legions 005425c0 — outdoor sun only; dynamic/point lights and shadow direction not yet
-- [ ] `SceneTool::GetLightsForPosition` · 005726b0 · legions 00542b60 — needs port: scene GetLightsForPosition step
+- [x] `SceneTool::CacheStaticLights` · 00571ec0 · legions 00542370 — object_point_lights_in: weight sort, six cap, range test by max range, indoor/outdoor side, sunlight-type lights follow the sun inside; the DATs hold no outdoor static light (every CLightInfo light is an env cell light); the 2 directional lights of the DATs are left to the sun
+- [~] `SceneTool::ApplyLights` · 00572110 · legions 005425c0 — Point/sunlight/FX lights done (object_lit_by). Per-object shadow direction (m_vShadowDirection from the lights) not ported: shadows are the global sun cascades (AGENTS exception), one direction for all objects
+- [x] `SceneTool::GetLightsForPosition` · 005726b0 · legions 00542b60 — ac2-render WorldScene::object_lit_by: static pick plus dynamic lights sorted together, at most four; the sunlight term is the scene sun (ClientView)
 
 ## `portal/client/src/smartbox/worldrender/cellrender.cpp.c` (0/2)
 

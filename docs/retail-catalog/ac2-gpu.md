@@ -1,6 +1,6 @@
 # ac2-gpu: The render device
 
-95 retail functions: 11 done, 2 partial, 6 to do, 76 skipped.
+95 retail functions: 12 done, 1 partial, 6 to do, 76 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/render/core/d3d/renderd3d.cpp.c` (0/11)
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderD3D::DetectDisplayModes` · 005d9dc0 · legions 0059b3a0 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderD3D::Startup` · 005d9e70 · legions 0059b450 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 
-## `portal/client/src/render/core/d3d/renderdeviced3d.cpp.c` (11/84)
+## `portal/client/src/render/core/d3d/renderdeviced3d.cpp.c` (12/84)
 
 ### RenderIndexBuffer
 - [-] `RenderIndexBuffer::~RenderIndexBuffer` · 005c49d0 · legions 0058ba80 — D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
@@ -106,7 +106,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderDeviceD3D::CreateVertexBuffer` · 005c72e0 — D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
 - [-] `RenderDeviceD3D::ClearLights` · 005c7300 — light-list storage, empty admin stub, or surface copy; lights.rs selects lights and the shadow map renders in place (shadow_map.rs)
 - [ ] `RenderDeviceD3D::SetupVertexStates` · 005c7320 · legions 0058e390 — needs port (check): sets the D3D material (diffuse, ambient, specular from the vertex colour) and lighting state; confirm the object.wgsl material and vertex-colour path before marking
-- [~] `RenderDeviceD3D::SetupVertexShaderConstants` · 005c7740 · legions 0058e7b0 — sun, up to four point lights, c_AmbientColor and pixel constants c0-c5
+- [x] `RenderDeviceD3D::SetupVertexShaderConstants` · 005c7740 · legions 0058e7b0 — object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 - [~] `RenderDeviceD3D::SetupState` · 005c88f0 — object::pass::layer_pass; special textures (frame buffer, distortion map) unbound, TEXTUREFACTOR taken as material diffuse while lit
 - [-] `RenderDeviceD3D::SetDefaultDeviceStates` · 005c91c0 · legions 00590190 — texture-stage binding (wgpu bind groups), default render-state baseline (each pipeline sets its own), or fragment.dll compiler loader (object.wgsl is the port)
 - [-] `RenderDeviceD3D::DetectDisplayFormats` · 005c9820 · legions 005907f0 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it

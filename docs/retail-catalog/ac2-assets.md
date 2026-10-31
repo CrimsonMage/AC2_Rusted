@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 202 done, 11 partial, 0 to do, 572 skipped.
+785 retail functions: 207 done, 6 partial, 0 to do, 572 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (29/62)
@@ -241,7 +241,7 @@ Legend and workflow: [README](README.md).
 - [-] `MaterialInstance::Allocate` · 005bb7c0 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [-] `MaterialInstance::~MaterialInstance` · 005bb7d0 · legions 00584f30 — ctor/dtor of plain data; Rust constructs and drops values
 
-## `portal/client/src/render/material/materiallayer.cpp.c` (3/20)
+## `portal/client/src/render/material/materiallayer.cpp.c` (8/20)
 
 ### MaterialLayer
 - [-] `MaterialLayer::Begin` · 005cb660 · legions 00592640 — reset to defaults before decode / reset of plain fields; Rust builds fresh values
@@ -253,7 +253,7 @@ Legend and workflow: [README](README.md).
 ### MaterialLayer
 - [-] `MaterialLayer::End` · 005cb9b0 · legions 005928e0 — frees the record's sub-objects and arrays (destructor path); Rust values drop
 - [-] `MaterialLayer::Destroy` · 005cbad0 · legions 00592a00 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-- [~] `MaterialLayer::GetVertexShader` · 005cbae0 · legions 00592a10 — fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
+- [x] `MaterialLayer::GetVertexShader` · 005cbae0 · legions 00592a10 — object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 
 ### MaterialLayer::ShaderInfo
 - [-] `MaterialLayer::ShaderInfo::ShaderInfo` · 005cbbd0 — ctor/dtor of plain data; Rust constructs and drops values
@@ -273,15 +273,15 @@ Legend and workflow: [README](README.md).
 - [x] `MaterialLayer::StreamPack` · 005cc0b0 · legions 00592fe0 — ac2-assets/src/ac2_material.rs: MaterialLayer::StreamPack stage decode (4-stage limit, LM modifiers)
 - [-] `MaterialLayer::LoadFromFileNode` · 005cc6b0 — text source loader, admin build only
 - [-] `MaterialLayer::SaveToFileNode` · 005ce650 — writer for DAT/pack output; the client only reads (tool-only)
-- [~] `MaterialLayer::BuildVertexShader` · 005cfef0 · legions 005935e0 — object.wgsl runs the fragment.dll programs (unlit, lit, lit vertex diffuse, per-pixel sun); point-light variants not yet. The shader-info array append (SmartArray<ShaderInfo>::AddToEnd) is the same table
+- [x] `MaterialLayer::BuildVertexShader` · 005cfef0 · legions 005935e0 — object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 - [-] `MaterialLayer::Copy` · 005d0320 · legions 00593a10 — copy of plain data; Rust clones values
 
 ### SmartArray<MaterialLayer::ShaderInfo>
-- [~] `SmartArray<MaterialLayer::ShaderInfo>::AddToEnd` · 005d0360 · legions 00593a50 — object.wgsl runs the fragment.dll programs (unlit, lit, lit vertex diffuse, per-pixel sun); point-light variants not yet. The shader-info array append (SmartArray<ShaderInfo>::AddToEnd) is the same table
+- [x] `SmartArray<MaterialLayer::ShaderInfo>::AddToEnd` · 005d0360 · legions 00593a50 — object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 
 ### MaterialLayer
-- [~] `MaterialLayer::BuildVertexShaders` · 005d03d0 · legions 00593ac0 — fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
-- [~] `MaterialLayer::PrepareShaders` · 005d06e0 · legions 00593dd0 — fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
+- [x] `MaterialLayer::BuildVertexShaders` · 005d03d0 · legions 00593ac0 — object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
+- [x] `MaterialLayer::PrepareShaders` · 005d06e0 · legions 00593dd0 — object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 
 ## `portal/client/src/render/material/materialmodifier.cpp.c` (1/12)
 

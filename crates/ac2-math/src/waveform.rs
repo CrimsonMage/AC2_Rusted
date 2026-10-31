@@ -66,6 +66,20 @@ impl Waveform {
         })
     }
 
+    /// `Waveform::GetUpperBounds`: the largest value the waveform can reach (`amplitude + base`,
+    /// the base for a constant), or `None` when it has no bound (a `SPEED` that rises, or an
+    /// amplitude that grows).
+    pub fn upper_bound(&self) -> Option<f32> {
+        match self.kind {
+            kind::NONE => Some(self.base),
+            kind::SPEED => (self.amplitude <= 0.0).then_some(self.base),
+            kind::NOISE..=kind::FRAMELOOP => {
+                (self.amplitude_velocity <= 0.0).then_some(self.amplitude + self.base)
+            }
+            _ => None,
+        }
+    }
+
     /// `Waveform::GetValue`: the value at client time `time`.
     pub fn value(&self, time: f64) -> f32 {
         self.value_for_phase(0.0, time)
@@ -165,6 +179,31 @@ mod tests {
         assert_eq!((wave.amplitude, wave.frequency), (3.0, 7.0));
         assert_eq!(wave.roughness_velocity, 10.0);
         assert_eq!(Waveform::from_packed(&bytes[..43]), None);
+    }
+
+    /// `Waveform::GetUpperBounds`.
+    #[test]
+    fn the_upper_bound_is_the_base_plus_the_amplitude_unless_unbounded() {
+        assert_eq!(Waveform::constant(5.0).upper_bound(), Some(5.0));
+        let sine = Waveform {
+            kind: kind::SINE,
+            base: 6.0,
+            amplitude: 2.0,
+            ..Waveform::default()
+        };
+        assert_eq!(sine.upper_bound(), Some(8.0));
+        let growing = Waveform {
+            amplitude_velocity: 1.0,
+            ..sine
+        };
+        assert_eq!(growing.upper_bound(), None);
+        let rising = Waveform {
+            kind: kind::SPEED,
+            amplitude: 1.0,
+            ..sine
+        };
+        assert_eq!(rising.upper_bound(), None);
+        assert_eq!(Waveform::default().upper_bound(), None);
     }
 
     #[test]

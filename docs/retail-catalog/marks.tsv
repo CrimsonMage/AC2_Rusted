@@ -8047,7 +8047,7 @@ key	status	note
 0056afb0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 0056b010	_	needs port: scene ViewportToClip step
 0056b080	_	needs port: scene ClipToViewport step
-0056b100	_	needs port: light sort predicate (which lights are kept)
+0056b100	x	ac2-render object::point_lights object_point_lights_in and scene object_lit_by: candidates sorted heaviest first by GetWeight
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1a0	x	SceneTool::SetFogProperties cited in ac2-client ui_scene/data.rs:92 (want_fog, colour, near, far applied in camera.rs)
@@ -8084,8 +8084,8 @@ key	status	note
 0056ca70	_	needs port (check): Rust code with a similar name exists but does not cite this function; verify and cite, or port
 0056cb90	_	needs port: scene InverseRotate step
 0056cd40	_	needs port: scene InverseTransform step
-0056cee0	_	needs port: scene GetLight step
-0056cf20	_	needs port: scene UnlinkAllLights step
+0056cee0	x	No list of lights to index or unlink: each resident block owns its static lights (BlockInfo.scene_lights, entity lights in ObjectLights) and drops them when the block leaves (WorldScene remove path)
+0056cf20	x	No list of lights to index or unlink: each resident block owns its static lights (BlockInfo.scene_lights, entity lights in ObjectLights) and drops them when the block leaves (WorldScene remove path)
 0056d000	_	needs port: scene DrawLine primitive (verify client use before porting)
 0056d0b0	_	needs port: scene DrawTexturedTriangle primitive (verify client use before porting)
 0056d1e0	_	needs port: scene DrawTriangle primitive (verify client use before porting)
@@ -8121,14 +8121,14 @@ key	status	note
 005709b0	_	needs port: scene CreateDefaultMaterial step
 00570f00	-	D3D device lifecycle/restore; wgpu replaces
 00571630	x	SceneTool::LinkLight cited in ac2-client ui_scene/camera.rs:13 (scene lights linked, sun disabled)
-005716c0	_	needs port: scene AddDynamicLights step
+005716c0	x	ac2-render scene/object_lights.rs point_lights: FX and landblock-entity lights on the focus side (light cell vs object cell), in range by RefreshMaxRange (Waveform::upper_bound), weight-sorted
 00571860	x	only LensFlareEffect::Draw scanned pixels; replaced by ac2-gpu lens_flare.rs's depth scan pass (AGENTS.md exception)
 005718c0	_	needs port: pixel scan (colour/ID under a screen pixel)
 00571a40	_	needs port: scene EndFrame step
 00571da0	x	ac2-render object::cell / point_lights
-00571ec0	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
-00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
-005726b0	_	needs port: scene GetLightsForPosition step
+00571ec0	x	object_point_lights_in: weight sort, six cap, range test by max range, indoor/outdoor side, sunlight-type lights follow the sun inside; the DATs hold no outdoor static light (every CLightInfo light is an env cell light); the 2 directional lights of the DATs are left to the sun
+00572110	~	Point/sunlight/FX lights done (object_lit_by). Per-object shadow direction (m_vShadowDirection from the lights) not ported: shadows are the global sun cascades (AGENTS exception), one direction for all objects
+005726b0	x	ac2-render WorldScene::object_lit_by: static pick plus dynamic lights sorted together, at most four; the sunlight term is the scene sun (ClientView)
 00572820	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 00572840	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005728f0	_	needs port: scene camera properties
@@ -9302,7 +9302,7 @@ key	status	note
 005c72e0	-	D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
 005c7300	-	light-list storage, empty admin stub, or surface copy; lights.rs selects lights and the shadow map renders in place (shadow_map.rs)
 005c7320	_	needs port (check): sets the D3D material (diffuse, ambient, specular from the vertex colour) and lighting state; confirm the object.wgsl material and vertex-colour path before marking
-005c7740	~	sun, up to four point lights, c_AmbientColor and pixel constants c0-c5
+005c7740	x	object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 005c88f0	~	object::pass::layer_pass; special textures (frame buffer, distortion map) unbound, TEXTUREFACTOR taken as material diffuse while lit
 005c91c0	-	texture-stage binding (wgpu bind groups), default render-state baseline (each pipeline sets its own), or fragment.dll compiler loader (object.wgsl is the port)
 005c9820	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
@@ -9344,7 +9344,7 @@ key	status	note
 005cb8b0	-	pack size helper (STREAMPACK_SIZEOF); Rust reads fields directly
 005cb9b0	-	frees the record's sub-objects and arrays (destructor path); Rust values drop
 005cbad0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-005cbae0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
+005cbae0	x	object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 005cbbd0	-	ctor/dtor of plain data; Rust constructs and drops values
 005cbbe0	x	object::parse_pixel_shader + ac2-gpu pixel_program (ps.1.1 to WGSL)
 005cbcb0	-	ctor/dtor of plain data; Rust constructs and drops values
@@ -9353,11 +9353,11 @@ key	status	note
 005cbdc0	-	copy of plain data; Rust clones values
 005cc0b0	x	ac2-assets/src/ac2_material.rs: MaterialLayer::StreamPack stage decode (4-stage limit, LM modifiers)
 005ce650	-	writer for DAT/pack output; the client only reads (tool-only)
-005cfef0	~	object.wgsl runs the fragment.dll programs (unlit, lit, lit vertex diffuse, per-pixel sun); point-light variants not yet. The shader-info array append (SmartArray<ShaderInfo>::AddToEnd) is the same table
+005cfef0	x	object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 005d0320	-	copy of plain data; Rust clones values
-005d0360	~	object.wgsl runs the fragment.dll programs (unlit, lit, lit vertex diffuse, per-pixel sun); point-light variants not yet. The shader-info array append (SmartArray<ShaderInfo>::AddToEnd) is the same table
-005d03d0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
-005d06e0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
+005d0360	x	object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
+005d03d0	x	object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
+005d06e0	x	object.wgsl already takes up to four point lights per draw (draw.points, point_to_light, per-light intensity); the lights come from WorldScene::object_lit_by
 005d07a0	x	ac2-render particles
 005d07b0	x	ac2-render particles
 005d07f0	x	ac2-render particles
@@ -11135,14 +11135,14 @@ key	status	note
 00621ef0	x	ac2-render object::cell / point_lights
 00621f30	x	ac2-world ac2_light_info.rs (LightSource::CalculateAttenuation formula)
 00621fb0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
-00622190	_	needs port: light optional property build from DAT
+00622190	-	admin-only (no 7160 match); the Legions property read is ac2-assets read_ac2_light_source and ac2-world ac2_light_info decode
 00622500	-	ctor/dtor: Rust struct construction and Drop
 00622650	x	ac2-assets ac2_light_source.rs (LightSource::ApplyPropertyCollection decode)
 00622730	_	needs port (check): cited only in render cell.rs comment; confirm GetDiffuse is implemented there
-00622760	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
-00622900	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
+00622760	x	object/point_lights.rs weight (range waveform now, intensity upper bound, sun terms for type 0x40000003) and fill_render_light (sun colour x intensity + outdoor ambient for sunlight-type)
+00622900	x	object/point_lights.rs weight (range waveform now, intensity upper bound, sun terms for type 0x40000003) and fill_render_light (sun colour x intensity + outdoor ambient for sunlight-type)
 00622c40	_	needs port: waveform defaults and upper bound
-00622c70	_	needs port: waveform defaults and upper bound
+00622c70	x	ac2-math Waveform::upper_bound (GetUpperBounds)
 00622cf0	x	ac2-math waveform.rs: all kinds; NOISE = RollDice(-1,1) * amplitude + base, FRACTAL = fBm1(freq*phase + time, 1 - roughness, 2, 6) * amplitude + base, checked against the admin disassembly (kind table 0x622EEC)
 00622f10	x	ac2-math waveform.rs: all kinds; NOISE = RollDice(-1,1) * amplitude + base, FRACTAL = fBm1(freq*phase + time, 1 - roughness, 2, 6) * amplitude + base, checked against the admin disassembly (kind table 0x622EEC)
 00622f30	-	ctor/dtor: Rust struct construction and Drop

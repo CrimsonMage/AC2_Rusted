@@ -8,7 +8,7 @@
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
-//! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--trilinear 0|1] [--anisotropic 0|1] [--water-reflections 0|1|2]
+//! [--light-coronas 0|1] [--light-effects 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--trilinear 0|1] [--anisotropic 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! world-viewer ... [--hud-style modern|classic]
@@ -37,6 +37,8 @@
 //! `SceneryDrawDistance` (object degrades and distances); both default to the preference default,
 //! medium. `--object-shadows` sets its `DynamicObjectShadows` level (default 2, medium; 0 none).
 //! `--light-coronas 0` turns off the sky's lens flares (`LightCoronas`; default on).
+//! `--light-effects 0` turns off the lamps' and fires' lights on what moves and on the ground
+//! (`LightSourceEffects`; default on).
 //! `--static-shadows` and `--cloud-shadows` set `LandscapeStaticObjectShadows` (default on) and
 //! `LandscapeCloudShadows` (default off; drawn only with the static shadows).
 //! `--trilinear` and `--anisotropic` set `TrilinearFiltering` (default on) and
@@ -151,6 +153,7 @@ struct Args {
     object_shadows: ac2_render::prefs::ObjectShadows,
     /// The headless scene's `LightCoronas` (the sky's lens flares).
     light_coronas: bool,
+    light_effects: bool,
     /// The `--fly` camera's height in the block, over the ground's.
     height: Option<f32>,
     /// The headless scene's `LandscapeStaticObjectShadows` and `LandscapeCloudShadows`.
@@ -208,6 +211,7 @@ fn parse_args() -> Result<Args, String> {
         degrade: ac2_render::object::DegradeOptions::default(),
         object_shadows: ac2_render::prefs::SceneOptions::default().object_shadows,
         light_coronas: ac2_render::prefs::SceneOptions::default().light_coronas,
+        light_effects: ac2_render::prefs::SceneOptions::default().light_source_effects,
         height: None,
         static_shadows: ac2_render::prefs::SceneOptions::default().static_shadows,
         trilinear: ac2_render::prefs::SceneOptions::default().trilinear,
@@ -339,6 +343,12 @@ fn parse_args() -> Result<Args, String> {
                     .map_err(|e| format!("--object-shadows: {e}"))?;
                 args.object_shadows = ac2_render::prefs::ObjectShadows::from_preference(level);
             }
+            "--light-effects" => {
+                let on: u8 = value()?
+                    .parse()
+                    .map_err(|e| format!("--light-effects: {e}"))?;
+                args.light_effects = on != 0;
+            }
             "--light-coronas" => {
                 let on: u8 = value()?
                     .parse()
@@ -428,6 +438,7 @@ fn scene_options(args: &Args, antialiasing: bool) -> ac2_render::prefs::SceneOpt
         degrade: args.degrade,
         object_shadows: args.object_shadows,
         light_coronas: args.light_coronas,
+        light_source_effects: args.light_effects,
         antialiasing,
         ao_quality: args.ao_quality,
         static_shadows: args.static_shadows,

@@ -5,6 +5,7 @@
 //! the scene's loader thread; the frame thread only drains finished loads and lays out frames.
 
 mod decals;
+mod entity_lights;
 mod grass;
 mod interiors;
 mod light_decals;
@@ -215,6 +216,9 @@ pub struct WorldScene {
     particles: SceneParticles,
     /// The point lights of object FX (`CPartArray::CreateLightSource`).
     object_lights: ObjectLights,
+    /// The sun a sunlight-type static light follows (`SceneTool::SetSunlight`), as the last
+    /// frame laid it out.
+    sun_terms: Option<crate::object::SunTerms>,
     /// The emitters' streaks (`CPartArray::CreateStreakEffect`) and whether they draw
     /// (`Render::m_Prefs.StreakEffects`: `StreakEffectManager::RenderStreakEffects` skips them).
     object_streaks: ObjectStreaks,
@@ -290,7 +294,12 @@ impl WorldScene {
             degrades: lod::SceneDegrades::default(),
             object_picks: HashMap::new(),
             particles: SceneParticles::new(),
-            object_lights: ObjectLights::default(),
+            object_lights: {
+                let mut lights = ObjectLights::default();
+                lights.set_entities_lit(defaults.light_source_effects);
+                lights
+            },
+            sun_terms: None,
             object_streaks: ObjectStreaks::default(),
             streaks_visible: true,
             decals: crate::decal::DecalEffects::default(),
@@ -323,6 +332,8 @@ impl WorldScene {
     pub fn set_options(&mut self, options: SceneOptions) {
         self.frill = options.frill;
         self.light_source_effects = options.light_source_effects;
+        self.object_lights
+            .set_entities_lit(options.light_source_effects);
         self.particles.set_fog_effects(options.volumetric_fog);
         self.water_reflections = options.water_reflections;
         self.shore_effects = options.shore_effects;
@@ -370,6 +381,7 @@ impl WorldScene {
             self.blocks.remove(&block);
             self.heights.remove(&block);
             self.particles.remove_block(&block);
+            self.object_lights.remove_block(&block);
             self.evicted.push(block);
         }
         self.center = Some(center);
@@ -456,6 +468,8 @@ impl WorldScene {
                     return;
                 }
                 self.particles.add_block(block.key, &block.particles);
+                let now = self.particles.now();
+                self.object_lights.add_block(block.key, &block.lights, now);
                 if let Some(heights) = &block.heights {
                     self.heights.insert(block.key, Arc::clone(heights));
                 }
@@ -730,20 +744,31 @@ impl WorldScene {
     }
 
     /// The point lights of the FX lights that reach an object at `position` with bounding radius
-    /// `radius` at the scene's clock (the heaviest in range, at most the device's point lights).
-    pub fn object_point_lights(&self, position: Vec3, radius: f32) -> Vec<PointLight> {
+    /// `radius` at the scene's clock, on the object's side of the indoor/outdoor divide (the
+    /// heaviest in range, at most the device's point lights).
+    pub fn object_point_lights(
+        &self,
+        position: Vec3,
+        radius: f32,
+        indoor: bool,
+    ) -> Vec<PointLight> {
         self.object_lights
-            .point_lights(self.particles.now(), position, radius)
+            .point_lights(self.particles.now(), position, radius, indoor)
     }
 
     /// The point lights that light an object at `position` with bounding radius `radius`, standing
     /// in an interior cell (`indoor`) or outside: `CPhysicsObj::Draw`'s `SceneTool::CacheStaticLights`
-    /// (the resident blocks' static point lights on the object's side, in range, heaviest first)
-    /// and `ApplyLights`' dynamic lights (the FX lights) sorted together by weight, at most the
-    /// device's point lights. Retail keeps the static pick on the object until it has moved about
-    /// 10 cm; here the pick is made again each frame from the resident lights, which gives the
-    /// same lights at the cost of a distance test per light.
+    /// (the resident blocks' static lights on the object's side, in range, heaviest first) and
+    /// `SceneTool::AddDynamicLights`' lights (the FX lights, on the same side) sorted together by
+    /// weight, at most the device's point lights. Retail keeps the static pick on the object until
+    /// it has moved about 10 cm; here the pick is made again each frame from the resident lights,
+    /// which gives the same lights at the cost of a distance test per light.
+    ///
+    /// The DATs list static lights only for interior cells (`CEnvCell::AddStaticLights` reads a
+    /// block's `CLightInfo` per env cell), so outdoors the lights of an object are the FX lights
+    /// of the lamps and fires around it.
     pub fn object_lit_by(&self, position: Vec3, radius: f32, indoor: bool) -> Vec<PointLight> {
+        let now = self.particles.now();
         let mut lights = crate::object::object_point_lights_in(
             self.blocks
                 .values()
@@ -752,8 +777,12 @@ impl WorldScene {
             position,
             radius,
             indoor,
+            crate::object::LightContext {
+                time: now,
+                sun: self.sun_terms,
+            },
         );
-        lights.extend(self.object_point_lights(position, radius));
+        lights.extend(self.object_point_lights(position, radius, indoor));
         lights.sort_by(|a, b| {
             let weight = |l: &PointLight| object_lights::weight(l, l.origin.distance(position));
             weight(b).total_cmp(&weight(a))
@@ -785,6 +814,11 @@ impl WorldScene {
             .map(|(index, _)| index)
             .collect();
         let lighting = self.lighting_at(eye);
+        self.sun_terms = Some(crate::object::SunTerms {
+            color: lighting.dir_color,
+            intensity: lighting.dir_brightness,
+            ambient: lighting.ambient,
+        });
         let mut keys: Vec<BlockKey> = self.blocks.keys().copied().collect();
         keys.sort_unstable();
         let all = || {
