@@ -22,8 +22,9 @@
 @group(1) @binding(3) var occlusion: texture_2d<f32>;
 // The screen brightness's ramp (`RenderDeviceD3D::SetGamma`: each display level times
 // `1 + 2 * ScreenBrightness`, clamped), in x; 1 when neutral.
-// The world's look: the brightness ramp in `ramp.x`, and the camera effects' screen flash
-// (`SceneTool::m_cFlashColor`, straight alpha) drawn over the display levels before the ramp.
+// The world's look: the brightness ramp in `ramp.x`, the sharpening strength in `ramp.y`, and
+// the camera effects' screen flash (`SceneTool::m_cFlashColor`, straight alpha) drawn over the
+// display levels before the ramp.
 struct Look {
     ramp: vec4<f32>,
     flash: vec4<f32>,
@@ -68,21 +69,68 @@ fn display(linear: vec3<f32>) -> vec3<f32> {
     return clamp(linear_to_srgb(pbr_neutral(c)), vec3(0.0), vec3(1.0));
 }
 
+// The world's colour of one scene texel: occlusion, bloom, exposure and vignette, then the tone
+// map. `fs` calls it for the pixel and, when sharpening, for its four neighbours.
+fn shade(rgb: vec3<f32>, ao: f32, glow: vec3<f32>, post: vec4<f32>, vignette: f32) -> vec3<f32> {
+    var c = mix(max(rgb, vec3(0.0)) * ao, glow, post.g) * exp2(post.r);
+    c *= vignette;
+    return display(c);
+}
+
+// AMD's contrast adaptive sharpening (FidelityFX CAS) over the cross of `shade`d neighbours in
+// display levels: the weight follows how much headroom the local contrast leaves, so flat areas
+// and already hard edges stay put. `strength` 0..1 moves the lobe from -1/8 to -1/5.
+fn sharpen(
+    centre: vec3<f32>,
+    north: vec3<f32>,
+    west: vec3<f32>,
+    east: vec3<f32>,
+    south: vec3<f32>,
+    strength: f32,
+) -> vec3<f32> {
+    let low = min(centre, min(min(north, west), min(east, south)));
+    let high = max(centre, max(max(north, west), max(east, south)));
+    let amount = sqrt(clamp(min(low, vec3(1.0) - high) / max(high, vec3(1.0e-4)), vec3(0.0), vec3(1.0)));
+    let w = amount * mix(-0.125, -0.2, strength);
+    return clamp(
+        (centre + (north + west + east + south) * w) / (vec3(1.0) + 4.0 * w),
+        vec3(0.0),
+        vec3(1.0),
+    );
+}
+
 @fragment
 fn fs(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
-    let texel = textureLoad(scene, vec2<i32>(position.xy), 0);
+    let at = vec2<i32>(position.xy);
+    let texel = textureLoad(scene, at, 0);
     let size = vec2<f32>(textureDimensions(scene));
     let uv = position.xy / size;
     let post = textureLoad(exposure, vec2(0, 0), 0);
     // The bloom's sum over its levels, as their mean, mixed into the scene in linear light.
     let glow = textureSampleLevel(bloom, bloom_sampler, uv, 0.0).rgb * post.a;
     let ao = textureSampleLevel(occlusion, bloom_sampler, uv, 0.0).r;
-    var c = mix(max(texel.rgb, vec3(0.0)) * ao, glow, post.g) * exp2(post.r);
     // The vignette: 0 at the centre, 1 in the corners whatever the aspect.
     let aspect = vec2(size.x / size.y, 1.0);
     let edge = length((uv - 0.5) * aspect) / length(0.5 * aspect);
-    c *= 1.0 - post.b * smoothstep(0.35, 1.0, edge);
-    let flashed = mix(display(c), look.flash.rgb, look.flash.a);
+    let vignette = 1.0 - post.b * smoothstep(0.35, 1.0, edge);
+    var shaded = shade(texel.rgb, ao, glow, post, vignette);
+    // The temporal anti-aliasing's sharpening (`look.ramp.y`, 0 when off or neutral).
+    if look.ramp.y > 0.0 {
+        let top = vec2<i32>(size) - vec2(1, 1);
+        let north = textureLoad(scene, clamp(at + vec2(0, -1), vec2(0, 0), top), 0).rgb;
+        let west = textureLoad(scene, clamp(at + vec2(-1, 0), vec2(0, 0), top), 0).rgb;
+        let east = textureLoad(scene, clamp(at + vec2(1, 0), vec2(0, 0), top), 0).rgb;
+        let south = textureLoad(scene, clamp(at + vec2(0, 1), vec2(0, 0), top), 0).rgb;
+        shaded = sharpen(
+            shaded,
+            shade(north, ao, glow, post, vignette),
+            shade(west, ao, glow, post, vignette),
+            shade(east, ao, glow, post, vignette),
+            shade(south, ao, glow, post, vignette),
+            look.ramp.y,
+        );
+    }
+    let flashed = mix(shaded, look.flash.rgb, look.flash.a);
     return vec4(min(flashed * look.ramp.x, vec3(1.0)), 1.0);
 }
 

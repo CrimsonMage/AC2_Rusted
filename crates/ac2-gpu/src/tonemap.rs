@@ -9,6 +9,7 @@
 
 use crate::ao::{AoCamera, AoPipelines};
 use crate::post::{PostChain, PostPipelines};
+use crate::taa::{TaaPipelines, Temporal};
 use crate::{Gpu, DEPTH_FORMAT};
 
 /// The scene colour format: linear light, unclamped.
@@ -20,6 +21,8 @@ pub struct HdrTarget {
     pub height: u32,
     pub color_view: wgpu::TextureView,
     pub depth_view: wgpu::TextureView,
+    /// The colour texture, for the temporal resolve's copy back (`taa.rs`).
+    pub(crate) color: wgpu::Texture,
     group: wgpu::BindGroup,
 }
 
@@ -45,7 +48,9 @@ impl HdrTarget {
         };
         let color = texture(
             HDR_FORMAT,
-            wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+            wgpu::TextureUsages::RENDER_ATTACHMENT
+                | wgpu::TextureUsages::TEXTURE_BINDING
+                | wgpu::TextureUsages::COPY_DST,
             "ac2 hdr scene colour",
         );
         let depth = texture(
@@ -74,6 +79,7 @@ impl HdrTarget {
             height,
             color_view,
             depth_view,
+            color,
             group,
         }
     }
@@ -392,11 +398,13 @@ impl ToneMap {
     /// times `1 + 2 * brightness`, the brightness clamped to -0.2..1 (`ScreenBrightness`).
     pub fn set_brightness(&self, queue: &wgpu::Queue, brightness: f32) {
         let scale = 1.0 + 2.0 * brightness.clamp(-0.2, 1.0);
-        queue.write_buffer(
-            &self.world_look,
-            0,
-            bytemuck::cast_slice(&[scale, 0.0, 0.0, 0.0]),
-        );
+        queue.write_buffer(&self.world_look, 0, bytemuck::bytes_of(&scale));
+    }
+
+    /// The world's sharpening strength (`tonemap.wgsl`'s CAS, 0..1; 0 is off): on while the
+    /// temporal anti-aliasing is.
+    pub fn set_sharpen(&self, queue: &wgpu::Queue, strength: f32) {
+        queue.write_buffer(&self.world_look, 4, bytemuck::bytes_of(&strength));
     }
 
     /// `SceneTool::Render`'s screen flash (`m_cFlashColor`, the camera effects' sum): a quad of
@@ -462,6 +470,9 @@ pub struct ScenePresenter {
     camera: std::cell::Cell<Option<AoCamera>>,
     /// The eye adaptation is held: the exposure does not move ([`Self::hold_adaptation`]).
     held: std::cell::Cell<bool>,
+    taa_pipelines: TaaPipelines,
+    /// The world's temporal anti-aliasing (`Antialiasing`), off until [`Self::set_temporal_aa`].
+    taa: std::cell::RefCell<Temporal>,
 }
 
 impl ScenePresenter {
@@ -474,7 +485,33 @@ impl ScenePresenter {
             post: std::cell::RefCell::new(None),
             camera: std::cell::Cell::new(None),
             held: std::cell::Cell::new(false),
+            taa_pipelines: TaaPipelines::new(gpu),
+            taa: std::cell::RefCell::new(Temporal::new()),
         }
+    }
+
+    /// `Antialiasing`: the world's temporal anti-aliasing and sharpening on or off. Off draws
+    /// with no jitter, no resolve and no sharpening; turning it on starts a new history.
+    pub fn set_temporal_aa(&self, on: bool) {
+        self.taa.borrow_mut().set_enabled(on);
+    }
+
+    /// Starts the world's frame seen by `camera` and returns the clip-space jitter its draws
+    /// shift their view-projection by ([`crate::SceneRenderer::set_jitter`]): zero when the
+    /// anti-aliasing is off or `portal` (the portal space shows, which draws after the resolve
+    /// and restarts the history). Call it once per frame before the world is prepared.
+    pub fn begin_world_frame(
+        &self,
+        gpu: &Gpu,
+        camera: &ac2_render::Camera,
+        aspect: f32,
+        portal: bool,
+    ) -> [f32; 2] {
+        let mut taa = self.taa.borrow_mut();
+        let on = taa.enabled();
+        self.tonemap
+            .set_sharpen(&gpu.queue, if on { crate::taa::SHARPEN } else { 0.0 });
+        taa.begin_frame(camera, aspect, portal)
     }
 
     /// Holds the eye adaptation where it is (`true`) or lets it follow the scene again: renders
@@ -507,7 +544,9 @@ impl ScenePresenter {
 
     /// Records the ambient occlusion from `hdr`'s depth as it stands (the world's camera when
     /// `world`, else none: no occlusion). Call it once per frame after the world drew and before
-    /// anything clears the depth (the portal space's pass), then [`Self::post_chain`].
+    /// anything clears the depth (the portal space's pass), then [`Self::post_chain`]. The world's
+    /// temporal anti-aliasing resolves into the scene colour first, so the occlusion, bloom and
+    /// exposure see the resolved image.
     pub fn occlusion(
         &self,
         gpu: &Gpu,
@@ -516,6 +555,11 @@ impl ScenePresenter {
         world: bool,
     ) {
         let camera = if world { self.camera.get() } else { None };
+        if world {
+            self.taa
+                .borrow_mut()
+                .resolve(gpu, &self.taa_pipelines, encoder, hdr);
+        }
         if let Some(chain) = self.chain(gpu, hdr).as_ref() {
             chain.record_occlusion(gpu, &self.ao_pipelines, encoder, camera);
         }
@@ -572,6 +616,9 @@ impl ScenePresenter {
         if !fits {
             *self.target.borrow_mut() = Some(HdrTarget::new(gpu, &self.tonemap, width, height));
         }
+        self.taa
+            .borrow_mut()
+            .set_size((width.max(1), height.max(1)));
         std::cell::Ref::map(self.target.borrow(), |t| t.as_ref().expect("made above"))
     }
 }

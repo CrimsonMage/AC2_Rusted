@@ -116,8 +116,10 @@ fn the_display_section_registers_five_flags_and_leaves_the_resolution_out() {
     );
     assert_eq!(
         bank.find(0x4000_0060).expect("registered").value,
-        Value::Bool(false)
+        Value::Bool(true),
+        "Antialiasing drives the temporal anti-aliasing here and defaults on"
     );
+    assert!(super::scene_options(&bank).antialiasing);
 }
 
 #[test]

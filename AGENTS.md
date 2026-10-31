@@ -110,6 +110,24 @@ game rules and server-visible behaviour exactly retail.
   ray through the world's depth (`ac2_gpu` `water_reflection.rs`): what it meets on the screen,
   else the world's colour where the mirrored direction reaches the screen, blended in by a Fresnel
   weight, with procedural ripples at level 2. What is off the screen is not reflected.
+- Exception: `Antialiasing` drives temporal anti-aliasing and sharpening, and defaults on. Retail's
+  `Antialiasing` device preference (`ID_Rendering_Antialiasing`, key 0x4000_0060, default off) became
+  the D3D presentation's `MultiSampleType` (`RenderDeviceD3D::SetMultiSampleAntialias`,
+  `D3DRS_MULTISAMPLEANTIALIAS`). Here the scene targets stay single-sampled (the post chain, the
+  depth reads and the GL fallback need that): every world draw (objects with their particles,
+  frills, decals and streaks; the near and far terrain; the sky and its objects; the water's
+  reflection march) shifts by an 8-phase Halton(2,3) sub-pixel jitter, and one full-screen resolve
+  after the world's last contribution (`ac2_gpu` `taa.rs`, `taa.wgsl`) blends it into a history
+  reprojected from the depth buffer and the camera's motion (eye-relative matrices plus the eye's
+  step taken in f64; the sky as a direction), with a Catmull-Rom history filter, a variance clip in
+  YCoCg, Karis luminance weights and a blend of 0.1 rising to 0.25 with motion. The history restarts
+  on a resize, a camera cut (the eye over 5 m in a frame, or a field of view change), while the
+  portal space shows (it draws after the resolve, unjittered) and when the preference is turned
+  off and on. A contrast adaptive sharpen (CAS, strength 0.25) in the tone map runs only while it
+  is on. Off draws exactly as before: no jitter, no resolve, no sharpen. UI viewport scenes, the
+  sun shadow cascades, the landscape shadow map and the lens flares are not jittered. Moving
+  objects have no velocity yet (depth reprojection only), so the variance clip alone limits their
+  ghosting.
 - Exception: a particle repulsor acts in the space of the system's particles. Retail's
   `ParticleEmitter::DoRepulse` subtracted the repulsor's `Position` origin (the object's frame
   origin) from each particle's origin as they stood, which only agrees for a world-space system;

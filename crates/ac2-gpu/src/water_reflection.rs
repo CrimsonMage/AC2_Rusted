@@ -68,6 +68,8 @@ pub struct WaterReflection {
     target: RefCell<Option<Target>>,
     /// Whether the frame reflects (a plane was found and the level draws one).
     active: bool,
+    /// The frame's clip-space jitter for the temporal anti-aliasing (`crate::taa`), zero off.
+    jitter: [f32; 2],
 }
 
 impl WaterReflection {
@@ -216,7 +218,13 @@ impl WaterReflection {
             blocks_view,
             target: RefCell::new(None),
             active: false,
+            jitter: [0.0; 2],
         }
+    }
+
+    /// The clip-space jitter the next `prepare` projects the march with.
+    pub fn set_jitter(&mut self, jitter: [f32; 2]) {
+        self.jitter = jitter;
     }
 
     /// Writes the frame's reflection (`None`: nothing reflects): `horizon` is the linear colour a
@@ -268,7 +276,10 @@ impl WaterReflection {
         // the eye at the origin, so tens of kilometres out the plane's distance and the block
         // window keep their millimetres; the window's corner is taken off the eye in f64.
         let (view_matrix, plane) = relative_view(view, height);
-        let proj = camera::perspective(view.fov_y, aspect.max(1e-3), view.near, view.far);
+        let proj = crate::taa::jittered(
+            camera::perspective(view.fov_y, aspect.max(1e-3), view.near, view.far),
+            self.jitter,
+        );
         let corner = |block: u8, eye: f32| {
             (f64::from(block) * f64::from(block_size) - f64::from(eye)) as f32
         };

@@ -135,6 +135,7 @@ impl ObjectRenderer {
             program_ids: HashMap::new(),
             pipelines,
             stream_pipelines: false,
+            jitter: [0.0; 2],
             frame_buffer,
             frame_group,
             frame_layout,

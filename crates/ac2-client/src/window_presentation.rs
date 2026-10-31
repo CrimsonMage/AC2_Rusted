@@ -19,7 +19,8 @@
 //!   refresh rate for an exclusive full-screen device. Borderless fullscreen keeps the monitor's
 //!   current mode, and winit's exclusive fullscreen is not available on Wayland or macOS.
 //! - Antialiasing (`MultiSampleType` 2 samples): the scene draws into a single-sampled HDR target
-//!   and the tone map and UI read it. Multisampling needs resolve passes in `ac2-gpu` first.
+//!   and the tone map and UI read it. The preference drives the world's temporal anti-aliasing
+//!   instead (`SceneOptions::antialiasing`, `ac2_gpu` `taa.rs`; `AGENTS.md`).
 
 use ac2_prefs::{PreferenceBank, Value};
 

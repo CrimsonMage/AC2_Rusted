@@ -343,6 +343,12 @@ impl ObjectRenderer {
 
     /// Leave out (instead of waiting for) instances whose pipelines are still compiling: the
     /// running client, which must not stall a frame on a driver compile.
+    /// The clip-space jitter every frame uniform of the next `prepare` shifts the view-projection
+    /// by (`crate::taa::jittered`).
+    pub fn set_jitter(&mut self, jitter: [f32; 2]) {
+        self.jitter = jitter;
+    }
+
     pub fn set_stream_pipelines(&mut self, stream: bool) {
         self.stream_pipelines = stream;
     }
@@ -384,7 +390,8 @@ impl ObjectRenderer {
         // them with `Instance::rel`; `eye` stays absolute for the world-space lighting.
         let relative = crate::sky::camera_at_origin(camera);
         let uniform = FrameUniform {
-            view_proj: relative.view_projection(aspect).to_cols_array_2d(),
+            view_proj: crate::taa::jittered(relative.view_projection(aspect), self.jitter)
+                .to_cols_array_2d(),
             view: ac2_math::camera::look_at_mat4(relative.eye, relative.target, Vec3::Z)
                 .to_cols_array_2d(),
             eye: camera.eye.extend(1.0).to_array(),

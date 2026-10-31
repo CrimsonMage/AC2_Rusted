@@ -82,6 +82,8 @@ pub struct SceneRenderer {
     /// Which of the frame's world instances `prepare` found in the view (`draw` skips the rest
     /// of the same list).
     world_visible: Vec<bool>,
+    /// The clip-space jitter of the frame's world draws (the temporal anti-aliasing), zero off.
+    jitter: [f32; 2],
 }
 
 impl SceneRenderer {
@@ -99,6 +101,14 @@ impl SceneRenderer {
     /// World instances the last `prepare` left out as outside the view (bench statistics).
     pub fn culled_count(&self) -> usize {
         self.world_visible.iter().filter(|shown| !**shown).count()
+    }
+
+    /// The clip-space jitter ([`crate::ScenePresenter::begin_world_frame`]) the next `prepare`
+    /// shifts every world draw by: objects (particles, frills, decals and streaks among them),
+    /// the near and far terrain, the sky and its objects, and the water's reflection march. The
+    /// sun shadow cascades, the landscape shadow map and the lens flares stay unjittered.
+    pub fn set_jitter(&mut self, jitter: [f32; 2]) {
+        self.jitter = jitter;
     }
 
     /// Makes this the renderer of a UI viewport's scene: no landscape, and its sun shadows
@@ -233,6 +243,7 @@ impl SceneRenderer {
             images: HashMap::new(),
             frame: SceneFrame::default(),
             world_visible: Vec::new(),
+            jitter: [0.0; 2],
         }
     }
 
@@ -351,6 +362,9 @@ impl SceneRenderer {
     ) {
         self.frame = frame;
         self.frame_objects = objects;
+        self.objects.set_jitter(self.jitter);
+        self.terrain.set_jitter(self.jitter);
+        self.water.set_jitter(self.jitter);
         // The particles of the frame go into their materials' models.
         for batch in self.frame.particles.iter().chain(&self.frame.shore) {
             if let Some(model) = self.models.get_mut(&batch.material) {
@@ -388,6 +402,7 @@ impl SceneRenderer {
             wind: self.far_clouds.map_or(crate::sky::DEFAULT_CLOUD_WIND, |c| {
                 crate::sky::cloud_wind(&c)
             }),
+            jitter: self.jitter,
             ..SkyLook::default()
         };
         self.sky

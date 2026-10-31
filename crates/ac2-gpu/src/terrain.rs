@@ -105,6 +105,8 @@ pub struct TerrainRenderer {
     sun_shadow: crate::sun_shadow::SunShadowBinding,
     /// The frame's world-to-shadow-map transform (`crate::StaticShadowMap::texture_matrix`).
     shadow: Mat4,
+    /// The frame's clip-space jitter for the temporal anti-aliasing (`crate::taa`), zero off.
+    jitter: [f32; 2],
     wrap: wgpu::Sampler,
     clamp: wgpu::Sampler,
     /// The mip filter and anisotropy of `wrap` and `clamp` (`set_filtering`).
@@ -250,6 +252,7 @@ impl TerrainRenderer {
             shadow_view: textures.white().clone(),
             sun_shadow,
             shadow: Mat4::ZERO,
+            jitter: [0.0; 2],
             wrap,
             clamp,
             filtering,
@@ -458,6 +461,11 @@ impl TerrainRenderer {
         })
     }
 
+    /// The clip-space jitter the next `set_frame` shifts the view-projection by.
+    pub fn set_jitter(&mut self, jitter: [f32; 2]) {
+        self.jitter = jitter;
+    }
+
     /// Writes this frame's camera and lighting.
     pub fn set_frame(
         &self,
@@ -474,7 +482,8 @@ impl TerrainRenderer {
         });
         let rgb = |c: [f32; 3]| [c[0], c[1], c[2], 1.0];
         let uniform = FrameUniform {
-            view_proj: camera.view_projection(aspect).to_cols_array_2d(),
+            view_proj: crate::taa::jittered(camera.view_projection(aspect), self.jitter)
+                .to_cols_array_2d(),
             eye: camera.eye.extend(1.0).to_array(),
             light_dir: lighting.light_dir.extend(0.0).to_array(),
             dir_color: rgb(lighting.dir_color),

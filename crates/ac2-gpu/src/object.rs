@@ -281,6 +281,8 @@ pub struct ObjectRenderer {
     /// Whether `prepare` leaves out an instance whose pipelines are still compiling (the
     /// running client) rather than waiting for them (headless renders and tests).
     stream_pipelines: bool,
+    /// The frame's clip-space jitter for the temporal anti-aliasing (`crate::taa`), zero off.
+    jitter: [f32; 2],
     frame_buffer: wgpu::Buffer,
     frame_group: wgpu::BindGroup,
     frame_layout: wgpu::BindGroupLayout,

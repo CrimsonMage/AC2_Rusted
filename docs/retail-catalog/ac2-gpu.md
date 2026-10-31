@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 - [x] `RenderDeviceD3D::SetStageColorSource` · 005c4e90 · legions 0058beb0 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [x] `RenderDeviceD3D::SetStageAlphaSource` · 005c4f20 · legions 0058bf40 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [x] `RenderDeviceD3D::SetStageFilterMode` · 005c4fb0 · legions 0058bfd0 — per-stage point/linear; mip LINEAR only with TrilinearFiltering; LINEAR min+mag anisotropic (max 16) with AnisotropicFiltering and the adapter's ANISOTROPIC_FILTERING (TextureFiltering); wgpu needs min+mag+mip linear, so one linear filter alone stays non-anisotropic and an anisotropic stage forces a linear mip
-- [ ] `RenderDeviceD3D::SetMultiSampleAntialias` · 005c5080 · legions 0058c0a0 — needs port (check): edge antialias state toggled for UI surfaces (UISurfaceObject::Render); crates draw UI with no edge AA; confirm the visible effect before porting
+- [ ] `RenderDeviceD3D::SetMultiSampleAntialias` · 005c5080 · legions 0058c0a0 — TAA + sharpen stand in for D3D MSAA (AGENTS.md)
 - [-] `RenderDeviceD3D::Begin` · 005c50d0 · legions 0058c0f0 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderDeviceD3D::End` · 005c5170 · legions 0058c190 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderDeviceD3D::BeginScene` · 005c51a0 · legions 0058c1c0 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it

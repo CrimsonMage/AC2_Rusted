@@ -296,6 +296,7 @@ impl ClientView {
         self.renderer
             .set_texture_filtering(options.trilinear, options.anisotropic);
         self.brightness = options.brightness;
+        self.presenter.set_temporal_aa(options.antialiasing);
         self.hover_transparency = options.avatar_hover_transparency;
         self.scene.set_options(options);
     }
@@ -486,6 +487,12 @@ impl ClientView {
         self.presenter.set_brightness(gpu, self.brightness);
         let flash = frame.camera.map_or([0.0; 4], |c| c.flash);
         self.presenter.set_flash(gpu, flash);
+        // `Antialiasing`: the world's sub-pixel jitter for this frame (none while the portal space
+        // shows: it draws after the temporal resolve).
+        let jitter = self
+            .presenter
+            .begin_world_frame(gpu, &camera, aspect, self.portal.drawn());
+        self.renderer.set_jitter(jitter);
         self.presenter.set_camera(ac2_gpu::AoCamera {
             fov_y: camera.fov_y,
             near: camera.near,

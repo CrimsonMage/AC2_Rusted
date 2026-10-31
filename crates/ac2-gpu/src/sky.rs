@@ -37,6 +37,8 @@ pub struct SkyLook {
     pub time: f64,
     /// The deck's drift in m/s ([`cloud_wind`]).
     pub wind: [f32; 2],
+    /// The frame's clip-space jitter for the temporal anti-aliasing (`crate::taa`), zero off.
+    pub jitter: [f32; 2],
 }
 
 impl Default for SkyLook {
@@ -46,6 +48,7 @@ impl Default for SkyLook {
             cloud_cover: DEFAULT_CLOUD_COVER,
             time: 0.0,
             wind: DEFAULT_CLOUD_WIND,
+            jitter: [0.0; 2],
         }
     }
 }
@@ -196,7 +199,7 @@ impl SkyRenderer {
     ) {
         let sun = lighting.light_dir.normalize_or_zero();
         let uniform = SkyUniform {
-            inv_view_proj: inverse_view_projection(camera, aspect).to_cols_array_2d(),
+            inv_view_proj: inverse_view_projection(camera, aspect, look.jitter).to_cols_array_2d(),
             eye: camera.eye.extend(1.0).to_array(),
             // The fog colour, and `fog_sky` (how far the sky is fogged out) in alpha.
             fog: {
@@ -246,8 +249,8 @@ impl SkyRenderer {
 /// so its rays only need the view's direction. Inverting the absolute view-projection in f32 at
 /// AC2's world coordinates (tens of kilometres) put the rays off by up to about 2 degrees, an error
 /// that changed with every step of the eye and made the sky jitter while moving.
-fn inverse_view_projection(camera: &Camera, aspect: f32) -> Mat4 {
-    camera_at_origin(camera).view_projection(aspect).inverse()
+fn inverse_view_projection(camera: &Camera, aspect: f32, jitter: [f32; 2]) -> Mat4 {
+    crate::taa::jittered(camera_at_origin(camera).view_projection(aspect), jitter).inverse()
 }
 
 /// `camera` moved so its eye is the origin, looking the same way.
@@ -285,7 +288,7 @@ mod tests {
 
     /// `sky.wgsl`'s `view_direction` for the screen point `ndc`.
     fn ray(camera: &ac2_render::Camera, ndc: [f32; 2]) -> ac2_math::Vec3 {
-        let far = super::inverse_view_projection(camera, 16.0 / 9.0)
+        let far = super::inverse_view_projection(camera, 16.0 / 9.0, [0.0; 2])
             * ac2_math::Vec4::new(ndc[0], ndc[1], 1.0, 1.0);
         (far.truncate() / far.w).normalize()
     }

@@ -305,7 +305,8 @@ pub fn register_device(bank: &mut PreferenceBank, names: &dyn NameTable) -> usiz
         flag(0x4000_0005, false),
         flag(0x4000_0007, false),
         flag(0x4000_0006, true),
-        flag(0x4000_0060, false),
+        // On: it drives the temporal anti-aliasing here (`AGENTS.md`); retail's default was off.
+        flag(ANTIALIASING, true),
     ];
     register_all(bank, names, defs, "Device")
 }
@@ -482,6 +483,10 @@ pub struct SceneOptions {
     /// `AnisotropicFiltering`: linear stages sample anisotropically
     /// (`RenderDeviceD3D::SetStageFilterMode`).
     pub anisotropic: bool,
+    /// `Antialiasing` (`ID_Rendering_Antialiasing`, default on): temporal anti-aliasing with
+    /// sharpening of the world (`ac2_gpu` `taa.rs`). Retail used it for D3D multisampling
+    /// (`RenderDeviceD3D::SetMultiSampleAntialias`).
+    pub antialiasing: bool,
 }
 
 impl Default for SceneOptions {
@@ -509,6 +514,7 @@ impl Default for SceneOptions {
             avatar_hover_transparency: true,
             trilinear: true,
             anisotropic: false,
+            antialiasing: true,
         }
     }
 }
@@ -598,6 +604,7 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
         ),
         trilinear: flag(bank, TRILINEAR_FILTERING, defaults.trilinear),
         anisotropic: flag(bank, ANISOTROPIC_FILTERING, defaults.anisotropic),
+        antialiasing: flag(bank, ANTIALIASING, defaults.antialiasing),
     }
 }
 
@@ -609,6 +616,8 @@ fn flag(bank: &PreferenceBank, key: u32, default: bool) -> bool {
     }
 }
 
+/// `ID_Rendering_Antialiasing` (`Device::InitializeRenderingPreferences`, section `0x4000000B`).
+pub const ANTIALIASING: u32 = 0x4000_0060;
 /// `ID_Graphics_ScreenBrightness`.
 pub const SCREEN_BRIGHTNESS: u32 = 0x4000_004B;
 /// `ID_Graphics_LandscapeShoreEffects`.
