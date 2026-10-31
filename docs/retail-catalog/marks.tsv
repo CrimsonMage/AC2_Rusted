@@ -2712,13 +2712,13 @@ key	status	note
 00483410	-	write path (client reads DATs only)
 00483430	-	write path (client reads DATs only)
 00483440	-	FileNode name wrapper (Rust strings)
-00483460	x	ac2-physics loader.rs load_block_interiors: each env-cell entity of type 0x40000001/0x40000007 (CEnvCell::InitStaticObjects filter, ac2-world env_cell_entities) becomes a StaticObject in that cell with shape, scale, blocking mask, at the entity offset; tested in loader_static_objects_tests.rs.
+00483460	x	ac2-physics loader.rs load_block_interiors: each env-cell entity of type 0x40000001/0x40000007 (CEnvCell::InitStaticObjects filter, ac2-world env_cell_entities) becomes a StaticObject in that cell with shape, scale, blocking mask, at the entity offset; the entity resolves through resolve_entity_visual, the same CPhysicsObj::makeObjectInternal(EntityDesc) chain and 0x4000006B no-object rule as the outdoor path (shared with env_cell_markers); tested in loader_static_objects_tests.rs and ac2_interior_tests.rs.
 004834f0	-	entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 00483680	x	ac2-render interior_cull.rs check_visibility (frustum vs cell box, then the portals that face the viewer's side against Frustum::check_polygon); WorkerPolygon/Frustum polygon clip in worker_polygon.rs and frustum.rs; wired by scene/mod.rs visible_interior_cells for every outside-stab cell that touches outside; unit tested
 00483970	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00484090	~	interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
 00484200	_	needs port: indoor env cell: visibility, lights, portals, rendering
-00484680	x	ac2-world env_cell_markers; drawn by ac2-render scene interiors
+00484680	x	ac2-world env_cell_markers (same resolve_entity_visual as env_cell_entities, so drawn and collision entities agree); drawn by ac2-render scene interiors
 00484710	-	entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 00484760	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00484800	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]

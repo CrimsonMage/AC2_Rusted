@@ -166,17 +166,35 @@ pub(crate) fn ac2_entity_markers(
         let Some((visual, template_scale)) = resolve_entity_visual(store, entity) else {
             continue;
         };
-        markers.push(Ac2OutdoorEntityMarker {
+        markers.push(authored_marker(
+            block_origin,
+            entity,
             visual,
-            world_frame: Frame::new(block_origin + entity.origin, entity.rotation),
-            scale: entity.scale * template_scale,
-            collides: is_static_object_type(entity.entity_type),
-            frill: false,
-            ethereal: entity_ethereal_mask(store, entity),
-        });
+            template_scale,
+            entity_ethereal_mask(store, entity),
+        ));
     }
     append_scene_markers(store, block_origin, block_cell_id, &mut markers);
     Ok(Arc::from(markers))
+}
+
+/// One authored landblock entity as a marker: it always draws, and collides only when its type
+/// is a static-object type ([`is_static_object_type`]).
+fn authored_marker(
+    block_origin: Vec3,
+    entity: &Ac2EntityDesc,
+    visual: DataId,
+    template_scale: Vec3,
+    ethereal: u64,
+) -> Ac2OutdoorEntityMarker {
+    Ac2OutdoorEntityMarker {
+        visual,
+        world_frame: Frame::new(block_origin + entity.origin, entity.rotation),
+        scale: entity.scale * template_scale,
+        collides: is_static_object_type(entity.entity_type),
+        frill: false,
+        ethereal,
+    }
 }
 
 /// The blocking-mask bits an entity's `PropertyCollection` sets
@@ -263,7 +281,10 @@ pub(crate) fn template_makes_no_object(template: &Ac2EntityDesc) -> bool {
 /// scale multiplies in (`makeObjectInternal` scales the object by the description's scale times its
 /// current one at every level), and a template that makes no object ends the chain
 /// ([`template_makes_no_object`]).
-fn resolve_entity_visual(store: &ResourceStore, entity: &Ac2EntityDesc) -> Option<(DataId, Vec3)> {
+pub(crate) fn resolve_entity_visual(
+    store: &ResourceStore,
+    entity: &Ac2EntityDesc,
+) -> Option<(DataId, Vec3)> {
     resolve_entity_chain(store, entity, 0)
 }
 

@@ -247,3 +247,68 @@ fn ac2_dungeon_cell_is_found_from_a_point_inside_it() {
         .flatten()
         .all(|p| p.is_finite() && *p != Vec3::ZERO));
 }
+
+/// `CEnvCell::CreatePhysicsObj` makes an env cell's objects through the same
+/// `ICPhysicsObj::makeObject(EntityDesc)` as the outdoor path, so the physics placements
+/// (`env_cell_entities`) and the drawn markers (`env_cell_markers`) resolve the same entities,
+/// including the `0x4000006B` no-object rejection. Prints the counts over every env cell.
+#[test]
+fn env_cell_entities_and_markers_resolve_the_same_entities() {
+    let Some((dataset, world)) = ac2_world() else {
+        return;
+    };
+    let mut by_type = std::collections::BTreeMap::<u32, usize>::new();
+    let (mut cells, mut static_typed, mut resolved, mut no_object, mut unresolved_other) =
+        (0usize, 0usize, 0usize, 0usize, 0usize);
+    for id in cell_ids(&dataset, |low| low >= 0x100) {
+        let Some(cell) = world.env_cell(CellId::new(id)).expect("env cell decodes") else {
+            continue;
+        };
+        cells += 1;
+        for entity in cell.entities.iter() {
+            *by_type.entry(entity.entity_type).or_insert(0) += 1;
+        }
+        let placements = world.env_cell_entities(&cell).expect("entities");
+        let markers = world.env_cell_markers(&cell);
+        assert_eq!(placements.len(), markers.len(), "cell 0x{id:08X}");
+        for (placement, marker) in placements.iter().zip(&markers) {
+            assert_eq!(placement.visual, marker.visual(), "cell 0x{id:08X}");
+            assert_eq!(placement.scale, marker.scale(), "cell 0x{id:08X}");
+        }
+        resolved += placements.len();
+        for entity in cell
+            .entities
+            .iter()
+            .filter(|e| crate::ac2_landblock_info::is_static_object_type(e.entity_type))
+        {
+            static_typed += 1;
+            let rejected = entity
+                .data
+                .filter(|d| d.raw() & 0xFF00_0000 == 0x4700_0000)
+                .and_then(|d| {
+                    world
+                        .resource_store()
+                        .load_cached_packed::<ac2_assets::Ac2EntityDesc>(
+                            ac2_db::TypedResourceRef::new(DatFileKind::Portal, d, 0),
+                        )
+                        .ok()
+                        .flatten()
+                })
+                .is_some_and(|t| crate::ac2_landblock_info::template_makes_no_object(&t));
+            if rejected {
+                no_object += 1;
+            }
+        }
+    }
+    unresolved_other += static_typed - resolved - no_object;
+    eprintln!(
+        "{cells} env cells; entity types {:?}; {static_typed} of static-object type, \
+         {resolved} resolved, {no_object} rejected by the no-object rule, \
+         {unresolved_other} unresolved for other reasons",
+        by_type
+            .iter()
+            .map(|(t, n)| format!("{t:08x}: {n}"))
+            .collect::<Vec<_>>()
+    );
+    assert!(cells > 0);
+}

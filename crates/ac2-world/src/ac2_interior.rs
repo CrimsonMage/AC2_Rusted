@@ -17,8 +17,6 @@ use crate::ac2_light_info::Ac2LightInfo;
 use crate::Ac2WorldSource;
 
 const CELL_MESH_PREFIX: u32 = 0x0100_0000;
-const ENTITY_DESC_PREFIX: u32 = 0x4700_0000;
-const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
 const LIGHT_INFO_SUFFIX: u32 = 0xFFFC;
 const LANDBLOCK_INFO_SUFFIX: u32 = 0xFFFE;
 
@@ -171,29 +169,13 @@ impl Ac2WorldSource {
             .iter()
             .filter(|entity| crate::ac2_landblock_info::is_static_object_type(entity.entity_type))
         {
-            let Some(data) = entity.data else {
+            // `CEnvCell::CreatePhysicsObj` makes the object through the same
+            // `ICPhysicsObj::makeObject(EntityDesc)` as the outdoor path, so the chain and
+            // its no-object rule are shared.
+            let Some((visual, template_scale)) =
+                crate::ac2_landblock_info::resolve_entity_visual(self.resource_store(), entity)
+            else {
                 continue;
-            };
-            let (visual, template_scale) = match data.raw() & 0xFF00_0000 {
-                VISUAL_DESC_PREFIX => (data, Vec3::ONE),
-                ENTITY_DESC_PREFIX => {
-                    let Some(template) = load::<ac2_assets::Ac2EntityDesc>(
-                        self.resource_store(),
-                        DatFileKind::Portal,
-                        data,
-                    )
-                    .ok()
-                    .flatten() else {
-                        continue;
-                    };
-                    match template.data {
-                        Some(visual) if visual.raw() & 0xFF00_0000 == VISUAL_DESC_PREFIX => {
-                            (visual, template.scale)
-                        }
-                        _ => continue,
-                    }
-                }
-                _ => continue,
             };
             placements.push(Ac2CellEntityPlacement {
                 visual,

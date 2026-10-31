@@ -186,3 +186,38 @@ fn authored_entities_of_other_types_draw_but_do_not_collide() {
     );
     assert!(after <= before);
 }
+
+/// The authored-entity marker draws every type and collides only for the static-object types.
+#[test]
+fn authored_marker_collides_only_for_static_object_types() {
+    for (entity_type, collides) in [
+        (0x4000_0001u32, true),
+        (0x4000_0002, false),
+        (0x4000_0007, true),
+        (0x4000_0006, false),
+        (0, false),
+    ] {
+        let entity = Ac2EntityDesc {
+            entity_type,
+            origin: Vec3::new(1.0, 2.0, 3.0),
+            scale: Vec3::splat(2.0),
+            ..Ac2EntityDesc::default()
+        };
+        let marker = authored_marker(
+            Vec3::new(160.0, 0.0, 0.0),
+            &entity,
+            DataId::new(0x1F00_0001),
+            Vec3::splat(0.5),
+            0,
+        );
+        assert_eq!(marker.collides(), collides, "type {entity_type:08x}");
+        assert_eq!(marker.visual(), DataId::new(0x1F00_0001));
+        assert_eq!(marker.scale(), Vec3::ONE);
+        assert_eq!(
+            marker.world_frame().origin,
+            Vec3::new(161.0, 2.0, 3.0),
+            "type {entity_type:08x}"
+        );
+        assert!(!marker.frill());
+    }
+}

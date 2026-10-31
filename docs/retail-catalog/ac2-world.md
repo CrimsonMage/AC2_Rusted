@@ -174,14 +174,14 @@ Legend and workflow: [README](README.md).
 - [-] `FileNodeName_PString::UnPack` · 00483440 · legions 0047d2e0 — FileNode name wrapper (Rust strings)
 
 ### CEnvCell
-- [x] `CEnvCell::CreatePhysicsObj` · 00483460 · legions 0047d300 — ac2-physics loader.rs load_block_interiors: each env-cell entity of type 0x40000001/0x40000007 (CEnvCell::InitStaticObjects filter, ac2-world env_cell_entities) becomes a StaticObject in that cell with shape, scale, blocking mask, at the entity offset; tested in loader_static_objects_tests.rs.
+- [x] `CEnvCell::CreatePhysicsObj` · 00483460 · legions 0047d300 — ac2-physics loader.rs load_block_interiors: each env-cell entity of type 0x40000001/0x40000007 (CEnvCell::InitStaticObjects filter, ac2-world env_cell_entities) becomes a StaticObject in that cell with shape, scale, blocking mask, at the entity offset; the entity resolves through resolve_entity_visual, the same CPhysicsObj::makeObjectInternal(EntityDesc) chain and 0x4000006B no-object rule as the outdoor path (shared with env_cell_markers); tested in loader_static_objects_tests.rs and ac2_interior_tests.rs.
 - [-] `CEnvCell::CreateLightSource` · 004834f0 · legions 0047d390 — entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 - [x] `CEnvCell::CheckVisibility` · 00483680 · legions 0047d520 — ac2-render interior_cull.rs check_visibility (frustum vs cell box, then the portals that face the viewer's side against Frustum::check_polygon); WorkerPolygon/Frustum polygon clip in worker_polygon.rs and frustum.rs; wired by scene/mod.rs visible_interior_cells for every outside-stab cell that touches outside; unit tested
 - [ ] `CEnvCell::GatherInsideObjects` · 00483970 · legions 0047d810 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [-] `CEnvCell::FromFileNode` · 00483a60 — text source format (admin tools)
 - [~] `CEnvCell::AddStaticLights` · 00484090 · legions 0047d900 — interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
 - [ ] `CEnvCell::GetNearbyGeometry` · 00484200 · legions 0047da70 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [x] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-world env_cell_markers; drawn by ac2-render scene interiors
+- [x] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-world env_cell_markers (same resolve_entity_visual as env_cell_entities, so drawn and collision entities agree); drawn by ac2-render scene interiors
 - [-] `CEnvCell::InitLightSources` · 00484710 · legions 0047df80 — entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 - [ ] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [-] `CEnvCell::InitLoad` · 00484800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
