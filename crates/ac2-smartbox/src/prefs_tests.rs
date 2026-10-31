@@ -65,3 +65,32 @@ fn the_defaults_and_ranges_are_the_ones_the_function_sets() {
     assert_eq!(pref(0x4000_0026).value, Value::Bool(false));
     assert_eq!(pref(0x4000_0051).value, Value::Bool(true));
 }
+
+/// The height, transition time and auto distance are read from the bank (`HandleChange` stores
+/// them into the targeting module); a bank without them keeps `SetupPrefs`' defaults.
+#[test]
+fn the_height_transition_time_and_auto_distance_are_read() {
+    let mut bank = PreferenceBank::new(b"");
+    let defaults = super::values(&bank);
+    assert_eq!(
+        (
+            defaults.camera_height,
+            defaults.transition_time,
+            defaults.auto_distance
+        ),
+        (0.0, 1.0, true)
+    );
+    register(&mut bank, &Names);
+    bank.find_mut(0x4000_0027).expect("height").value = Value::Float(0.4);
+    bank.find_mut(0x4000_002F).expect("transition").value = Value::Float(0.25);
+    bank.find_mut(0x4000_0051).expect("auto distance").value = Value::Bool(false);
+    let values = super::values(&bank);
+    assert_eq!(
+        (
+            values.camera_height,
+            values.transition_time,
+            values.auto_distance
+        ),
+        (0.4, 0.25, false)
+    );
+}

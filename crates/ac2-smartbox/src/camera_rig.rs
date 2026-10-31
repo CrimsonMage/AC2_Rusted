@@ -59,10 +59,19 @@ impl CameraManager {
         self.fx.stop_all();
     }
 
-    /// `CameraManager::SetTargetObject`: the target becomes `id` (with the player set, which the
-    /// first target becomes in retail, it only moves the target).
+    /// `CameraManager::SetTargetObject`: the target becomes `id`. The first target the camera
+    /// is given (it has no player yet) is the player: it becomes `m_playerID` and the targeting
+    /// module's player, and the module takes the camera's distance. Retail also calls
+    /// `SetupCameraDummyObjects` then, which makes the two dummy objects on the player's camera
+    /// bones (`0x40000004`, `0x40000005`) and sets the effects' player id; here the dummies are
+    /// those bones, found when asked ([`Self::dummy_exists`]), and the effects read the player
+    /// from the targeting module.
     pub fn set_target_object(&mut self, view: &CameraView<'_>, id: u64, period: f32, ramp: f32) {
         self.targeting.store_target_pos(view, id, 0, period, ramp);
+        if self.targeting.player_id == INVALID_IID {
+            self.targeting.set_player(id);
+            self.targeting.camera_distance = self.camera_distance;
+        }
     }
 
     /// `CameraManager::SetParentObject`.

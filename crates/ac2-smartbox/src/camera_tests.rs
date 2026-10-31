@@ -182,17 +182,8 @@ fn the_zoom_keys_scale_the_distance_by_powers_of_the_retail_bases() {
     assert_eq!(camera.anim_scale, 1.0);
     // The zoom speed preference multiplies the extent: 1.5^(0.5 * 2) = 1.5.
     let values = CameraValues {
-        distance: 4.5,
-        tilt: 0.25,
-        rotate_speed: 1.0,
         zoom_speed: 2.0,
-        mouse_sensitivity: 1.0,
-        invert_y: false,
-        steer_player: true,
-        align_to_slope: true,
-        look_at_selection: true,
-        look_around: true,
-        look_at_camera: true,
+        ..CameraValues::default()
     };
     camera.apply_prefs(&values);
     camera.start_action(action::ZOOM_SCALE_OUT, 0.5, Some(&p));
@@ -251,4 +242,118 @@ fn map_view_saves_the_orbit_and_restores_it() {
     camera.start_action(action::MAP_VIEW, 0.0, Some(&p));
     assert!(!camera.mapview);
     assert_eq!((camera.viewer_offset, camera.camera_distance), before);
+}
+
+/// `CameraManager::HandleChange`: the height, transition time and auto distance go into the
+/// targeting module; a changed default distance or tilt becomes the default and the camera goes
+/// to it at once (`SetDefaults`); an unchanged one leaves a zoomed camera where it is.
+#[test]
+fn changed_preferences_apply_live() {
+    let mut camera = camera();
+    let values = CameraValues {
+        distance: 6.0,
+        tilt: 0.5,
+        camera_height: 0.3,
+        transition_time: 0.5,
+        auto_distance: false,
+        zoom_speed: 2.0,
+        rotate_speed: 3.0,
+        ..CameraValues::default()
+    };
+    camera.apply_prefs(&values);
+    assert_eq!(camera.camera_distance, 6.0);
+    assert_eq!(camera.viewer_offset, Vector::new(0.0, -1.0, 0.5));
+    assert_eq!(camera.targeting.camera_height, 0.3);
+    assert_eq!(camera.targeting.fake_trans_time, 0.5);
+    assert!(!camera.targeting.auto_distance);
+    assert_eq!((camera.zoom_scale, camera.rotate_scale), (2.0, 3.0));
+    // The same values again do not reset the zoom.
+    let p = player();
+    camera.start_action(action::ZOOM_IN, 0.0, Some(&p));
+    assert_eq!(camera.camera_distance, 4.5);
+    camera.apply_prefs(&values);
+    assert_eq!(camera.camera_distance, 4.5);
+    // The transition time is how long the next change blends.
+    camera.start_action(action::FAKE_TRANSITION, 0.0, Some(&p));
+    assert_eq!(camera.targeting.fake_trans_time, 0.5);
+}
+
+/// The camera height lifts the camera: it is added to the viewer's z.
+#[test]
+fn the_camera_height_preference_lifts_the_camera() {
+    let p = player();
+    let mut low = camera();
+    let before = low.update_camera(0.1, Some(&p), &p.position).frame.origin.z;
+    let mut high = camera();
+    high.apply_prefs(&CameraValues {
+        camera_height: 0.5,
+        ..CameraValues::default()
+    });
+    let after = high
+        .update_camera(0.1, Some(&p), &p.position)
+        .frame
+        .origin
+        .z;
+    assert!((f64::from(after) - f64::from(before) - 0.5).abs() < 1e-5);
+}
+
+/// `SetMapView` switches `SceneTool::m_bDisableDegrades` on and restores its earlier value; the
+/// things that take the camera out of the map view (`SetDefaults`, `LookAtGround`,
+/// `SetMouseLookState`, `SetFirstPersonState`) do so through it.
+#[test]
+fn the_map_view_disables_degrades_and_the_other_camera_changes_leave_it() {
+    let p = player();
+    let mut camera = camera();
+    assert!(!camera.disable_degrades());
+    camera.start_action(action::MAP_VIEW, 0.0, Some(&p));
+    assert!(camera.mapview && camera.disable_degrades());
+    camera.start_action(action::MAP_VIEW, 0.0, Some(&p));
+    assert!(!camera.mapview && !camera.disable_degrades());
+    // A switch that was already on stays on when the map view ends.
+    camera.disable_degrades = true;
+    camera.set_map_view(true);
+    camera.set_map_view(false);
+    assert!(camera.disable_degrades());
+    camera.disable_degrades = false;
+
+    let leave: [(&str, fn(&mut CameraManager, &CameraSubject)); 5] = [
+        ("reset", |c, p| c.start_action(action::RESET, 0.0, Some(p))),
+        ("look at ground", |c, p| {
+            c.start_action(action::LOOK_AT_GROUND, 0.0, Some(p))
+        }),
+        ("mouse look", |c, p| {
+            c.start_action(action::TOGGLE_MOUSE_LOOK, 0.0, Some(p))
+        }),
+        ("first person", |c, p| {
+            c.start_action(action::TOGGLE_FIRST_PERSON, 0.0, Some(p))
+        }),
+        ("default distance", |c, _| {
+            c.apply_prefs(&CameraValues {
+                distance: 7.0,
+                ..CameraValues::default()
+            })
+        }),
+    ];
+    for (name, change) in leave {
+        let mut fresh = self::camera();
+        fresh.start_action(action::MAP_VIEW, 0.0, Some(&p));
+        assert!(fresh.mapview, "{name}");
+        change(&mut fresh, &p);
+        assert!(!fresh.mapview, "{name}");
+        assert!(!fresh.disable_degrades(), "{name}");
+    }
+}
+
+/// `GetCameraDistance` adds the camera-distance effects' sum, except in first person and the map
+/// view.
+#[test]
+fn the_camera_distance_effects_add_to_the_distance() {
+    let mut camera = camera();
+    camera.fx.camera_distance_sum = 2.0;
+    assert_eq!(camera.get_camera_distance(), 6.5);
+    camera.set_map_view(true);
+    assert_eq!(camera.get_camera_distance(), 160.0);
+    camera.set_map_view(false);
+    camera.set_first_person(true);
+    assert_eq!(camera.get_camera_distance(), FIRST_PERSON_DISTANCE);
 }

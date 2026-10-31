@@ -157,6 +157,11 @@ pub struct CameraManager {
     zoom_scale: f32,
     /// `SetMapView`'s saved viewer offset and distance (`DAT_00ae6350`..`DAT_00ae635c`).
     map_saved: (Vector, f32),
+    /// `SceneTool::m_bDisableDegrades`: objects draw at full detail with no distance cull. The map
+    /// view turns it on (the static is shared with the screenshot capture, which this client does
+    /// not run) and restores `map_saved_degrades` (`DAT_00ae634c`) when it ends.
+    disable_degrades: bool,
+    map_saved_degrades: bool,
     align_to_slope: bool,
     start_shoulder: Vector,
     current_shoulder: Vector,
@@ -211,6 +216,8 @@ impl CameraManager {
             rotate_scale: 1.0,
             zoom_scale: 1.0,
             map_saved: (Vector::new(0.0, 0.0, 0.0), 0.0),
+            disable_degrades: false,
+            map_saved_degrades: false,
             align_to_slope: true,
             start_shoulder: Vector::new(0.0, 0.0, 0.0),
             current_shoulder: Vector::new(0.0, 0.0, 0.0),
@@ -231,34 +238,46 @@ impl CameraManager {
     }
 
     /// `SmartBox::SetCameraDefaults` for a new player: `SetTargetObject(player, 1, 1)`, the
-    /// look-at offset `height * mInitialCameraHeight` above it, then `SetDefaults`.
+    /// look-at offset `height * mInitialCameraHeight` above it, then `SetDefaults`. A camera
+    /// still holding another player (retail's `SmartBox` ran `ResetCamera` when it left) is reset
+    /// first.
     pub fn set_player(&mut self, subject: &CameraSubject, initial_camera_height: f32) {
+        if self.targeting.player_id != INVALID_IID && self.targeting.player_id != subject.id {
+            self.reset();
+        }
         let height = st(subject.height * ld(initial_camera_height));
-        // `SetTargetObject`: `StoreTargetPos` from no target finds no old position to blend
-        // from; the first target becomes the player.
         let view = CameraView {
             player: Some(subject),
             objects: &NoObjects,
         };
-        self.targeting
-            .store_target_pos(&view, subject.id, 0, 1.0, 1.0);
-        self.targeting.set_player(subject.id);
-        self.targeting.camera_distance = self.camera_distance;
+        self.set_target_object(&view, subject.id, 1.0, 1.0);
         self.target_offset = Vector::new(0.0, 0.0, height);
         self.set_defaults(Some(subject));
     }
 
-    /// `CameraManager::ResetCamera` (the player left): no player, and no camera effects
-    /// (the effects' player id is cleared; their tracks run out unseen).
+    /// `CameraManager::ResetCamera` (the player left): `m_playerID` and the effects' player id
+    /// become invalid, and `TargetingModule::SetPlayer(INVALID_IID)`. The effects' tracks are
+    /// stopped here where retail lets them run out unseen (`UseTime` does nothing without a
+    /// player, and a track past its period is gone by the next one).
+    ///
+    /// Retail then destroys the two camera dummy objects (`CObjectMaint::DestroyObject` of
+    /// `IIDUtils::GetCameraParent` and `GetCameraTarget`) and the camera's fourteen preferences
+    /// (`PreferenceBank::Destroy`, which `SetupPrefs` makes again for the next player). Neither
+    /// has anything to remove here: the dummies are the player's camera bones, found when asked
+    /// (`SetupCameraDummyObjects`), and the preferences are registered once with the options and
+    /// keep their saved values across a log-out.
     pub fn reset(&mut self) {
         self.targeting.set_player(INVALID_IID);
         self.fx.stop_all();
     }
 
-    /// `CameraManager::GetCameraDistance`: the distance (the effects' distance sum is kept but
-    /// not added, as retail's).
+    /// `CameraManager::GetCameraDistance`: the distance, plus the camera-distance effects' sum
+    /// (`mCameraDistanceSum`) outside first person and the map view.
     pub fn get_camera_distance(&self) -> f32 {
-        self.camera_distance
+        if self.first_person || self.mapview {
+            return self.camera_distance;
+        }
+        st(ld(self.camera_distance) + ld(self.fx.camera_distance_sum))
     }
 
     /// `CameraManager::GetGlobalDirection`: `-m_viewerOffset`, the pitch in z included.
@@ -269,6 +288,9 @@ impl CameraManager {
 
     /// `CameraManager::SetDefaults`: behind the player at the default pitch and distance.
     fn set_defaults(&mut self, subject: Option<&CameraSubject>) {
+        if self.mapview {
+            self.set_map_view(false);
+        }
         if self.mouse_look {
             let pitched = Vector::new(0.0, -1.0, self.prefs_pitch).d3dx_normalize();
             let heading = direction_heading(self.viewer_offset.x, self.viewer_offset.y);
@@ -424,8 +446,10 @@ impl CameraManager {
     }
 
     /// `CameraManager::SetMapView(state)`: the overhead map view saves the viewer offset and
-    /// distance, looks down from 1.37 at 160 m, and restores them when it is turned off. The
-    /// retail `SceneTool::m_bDisableDegrades` switch is not modelled here.
+    /// distance, looks down from 1.37 at 160 m, and restores them when it is turned off. It also
+    /// turns `SceneTool::m_bDisableDegrades` on, so the far objects the camera now looks over
+    /// draw at full detail instead of being culled at their degrade distances, and restores the
+    /// switch's earlier value afterwards ([`Self::disable_degrades`]).
     pub fn set_map_view(&mut self, state: bool) {
         if self.first_person {
             return;
@@ -435,11 +459,14 @@ impl CameraManager {
             self.viewer_offset = Vector::new(0.0, -1.0, MAP_VIEW_PITCH);
             self.targeting.fake_transition();
             self.camera_distance = MAP_VIEW_DISTANCE;
+            self.map_saved_degrades = self.disable_degrades;
+            self.disable_degrades = true;
             self.mapview = true;
             return;
         }
         let (offset, distance) = self.map_saved;
         self.camera_distance = distance;
+        self.disable_degrades = self.map_saved_degrades;
         self.targeting.camera_distance = distance;
         self.viewer_offset = offset;
         self.targeting.fake_transition();
@@ -464,6 +491,9 @@ impl CameraManager {
     /// `CameraManager::LookAtGround`: steep down (1.37), or back to the default pitch when
     /// already there.
     fn look_at_ground(&mut self) {
+        if self.mapview {
+            self.set_map_view(false);
+        }
         if self.first_person {
             return;
         }
@@ -482,6 +512,9 @@ impl CameraManager {
     /// `CameraManager::SetMouseLookState`: the viewer offset turns between the player's frame
     /// (orbiting with it) and the world's (mouse look).
     pub fn set_mouse_look(&mut self, state: bool, subject: Option<&CameraSubject>) {
+        if self.mapview {
+            self.set_map_view(false);
+        }
         if self.mouse_look == state {
             return;
         }
@@ -500,6 +533,9 @@ impl CameraManager {
     pub fn set_first_person(&mut self, state: bool) {
         if self.first_person == state {
             return;
+        }
+        if self.mapview {
+            self.set_map_view(false);
         }
         if state {
             self.camera_distance = FIRST_PERSON_DISTANCE;
@@ -724,18 +760,36 @@ impl CameraManager {
         self.current_shoulder = Vector::new(lerp(t.x, s.x), lerp(t.y, s.y), lerp(t.z, s.z));
     }
 
-    /// The camera's preference values, as the bank holds them (`CameraManager::HandleApply` and
-    /// the handlers of the keys [`crate::prefs`] registers). The distance and the tilt are the
-    /// defaults the camera returns to at its next reset (`SetDefaults`), not the live camera.
+    /// `SceneTool::m_bDisableDegrades` as the camera leaves it: on in the map view. The scene's
+    /// object draw (`CPartArray::Draw`) reads it.
+    pub fn disable_degrades(&self) -> bool {
+        self.disable_degrades
+    }
+
+    /// The camera's preference values, as the bank holds them (`CameraManager::HandleApply` runs
+    /// `HandleChange` for each preference that changed; the client hands over all of them, and
+    /// the ones that did not change do nothing). The height, transition time and auto distance
+    /// go straight into the targeting module; the rotate and zoom speeds and the mouse and
+    /// steering switches into the camera. A changed default distance or tilt becomes the new
+    /// default and the camera goes to it at once (`SetDefaults`, which leaves the map view).
     pub fn apply_prefs(&mut self, values: &CameraValues) {
-        self.prefs_distance = values.distance;
-        self.prefs_pitch = values.tilt;
-        self.rotate_scale = values.rotate_speed;
+        self.targeting.camera_height = values.camera_height;
+        self.targeting.fake_trans_time = values.transition_time;
+        self.targeting.auto_distance = values.auto_distance;
         self.zoom_scale = values.zoom_speed;
+        self.rotate_scale = values.rotate_speed;
         self.mouse_sensitivity = values.mouse_sensitivity;
         self.invert_y = values.invert_y;
         self.third_person_steers = values.steer_player;
         self.align_to_slope = values.align_to_slope;
+        if values.distance != self.prefs_distance {
+            self.prefs_distance = values.distance;
+            self.set_defaults(None);
+        }
+        if values.tilt != self.prefs_pitch {
+            self.prefs_pitch = values.tilt;
+            self.set_defaults(None);
+        }
     }
 
     /// `CameraManager::m_fov`: 65 plus the camera effects' sum after `use_time` (at least 10).

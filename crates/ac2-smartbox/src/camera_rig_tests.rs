@@ -172,3 +172,60 @@ fn a_player_parent_turns_the_players_head_to_the_target() {
     assert!(shot.frame.origin.y < 70.0, "{shot:?}");
     assert!(shot.frame.vector_heading().y > 0.9, "{shot:?}");
 }
+
+/// `SetTargetObject` makes the first target the player (`m_playerID`, the targeting module's
+/// player, its camera distance); a later one only moves the target.
+#[test]
+fn the_first_target_becomes_the_player_and_later_ones_only_move_the_target() {
+    let player = subject(PLAYER, at(70.0, 70.0, 50.0));
+    let view = CameraView {
+        player: Some(&player),
+        objects: &World,
+    };
+    let mut camera = CameraManager::new();
+    camera.camera_distance = 4.0;
+    assert_eq!(camera.targeting.player_id, INVALID_IID);
+    camera.set_target_object(&view, PLAYER, 1.0, 1.0);
+    assert_eq!(camera.targeting.player_id, PLAYER);
+    assert_eq!(camera.targeting.camera_distance, 4.0);
+    assert!(camera.targeting.target_is_player());
+    camera.set_target_object(&view, NPC, 1.0, 0.0);
+    assert_eq!(camera.targeting.player_id, PLAYER, "not the player");
+    assert_eq!(camera.targeting.target_id, NPC);
+}
+
+/// `ResetCamera` clears the player; the next player's `SetCameraDefaults` starts afresh, and a
+/// player that changes without a reset is reset for.
+#[test]
+fn reset_clears_the_player_and_a_new_player_starts_afresh() {
+    let (mut camera, player) = rig();
+    let view = CameraView {
+        player: Some(&player),
+        objects: &World,
+    };
+    camera.set_target_object(&view, NPC, -1.0, 0.0);
+    camera.fx.add(
+        crate::camera_fx::TrackKind::Fov,
+        &CameraFx {
+            has_fov: true,
+            intensity: 5.0,
+            period: 5.0,
+            ..CameraFx::default()
+        },
+        PLAYER,
+        1.0,
+    );
+    camera.reset();
+    assert_eq!(camera.targeting.player_id, INVALID_IID);
+    assert_eq!(camera.targeting.target_id, INVALID_IID);
+    assert!(camera.fx.tracks.is_empty());
+    let other = subject(0x5000_0002, at(10.0, 10.0, 50.0));
+    camera.set_player(&other, 0.75);
+    assert_eq!(camera.targeting.player_id, other.id);
+    camera.set_player(&player, 0.75);
+    assert_eq!(
+        camera.targeting.player_id, PLAYER,
+        "the old player was reset"
+    );
+    assert!(camera.targeting.target_is_player());
+}

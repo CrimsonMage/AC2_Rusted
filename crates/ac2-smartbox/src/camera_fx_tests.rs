@@ -63,6 +63,28 @@ fn every_camera_fx_in_the_dat_decodes() {
     }
 }
 
+/// `CameraManager::UseTime` publishes the motion blur (`SceneTool::m_fBlurAmount`) and
+/// `GetCameraDistance` adds the camera-distance sum, but no shipped effect sets either flag, so
+/// no blur pass and no distance change is ever asked for.
+#[test]
+fn no_camera_fx_in_the_dat_blurs_or_changes_the_distance() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(Arc::clone(&dataset));
+    for did in dataset.ids_in_range(
+        DatFileKind::Portal,
+        CAMERA_FX_PREFIX,
+        CAMERA_FX_PREFIX | 0x00FF_FFFE,
+    ) {
+        let fx = load_camera_fx(&store, did)
+            .unwrap_or_else(|e| panic!("{did:08X} decode error: {e:?}"))
+            .unwrap_or_else(|| panic!("{did:08X} missing"));
+        assert!(!fx.blur, "{did:08X} blurs");
+        assert!(!fx.camera_distance, "{did:08X} changes the camera distance");
+    }
+}
+
 fn shake(period: f32, up: f32, down: f32) -> CameraFx {
     CameraFx {
         shake: true,

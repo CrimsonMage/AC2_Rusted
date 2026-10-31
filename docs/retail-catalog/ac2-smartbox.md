@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 133 done, 36 partial, 52 to do, 41 skipped.
+262 retail functions: 142 done, 27 partial, 52 to do, 41 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -197,7 +197,7 @@ Legend and workflow: [README](README.md).
 - [x] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 - [x] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 
-## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (31/46)
+## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (40/46)
 
 ### TargetingModule
 - [x] `TargetingModule::TargetingModule` · 00574850 · legions 00544720
@@ -205,7 +205,7 @@ Legend and workflow: [README](README.md).
 ### CameraManager
 - [-] `CameraManager::GetCameraManager` · 00574970 · legions 00544840 — CameraManager singleton accessor (Rust owns the camera struct)
 - [x] `CameraManager::CalcAlignToSlope` · 00574980 · legions 00544850 — ac2-client camera.rs
-- [~] `CameraManager::UseTime` · 00574b50 · legions 00544a20 — ac2-smartbox camera_rig.rs use_time: FX tracks, fov = 65 + clamped sum (75 idle), shake into the scene camera's current position, flash drawn (ac2-gpu tone map); the blur amount is published but no shipped FX blurs
+- [x] `CameraManager::UseTime` · 00574b50 · legions 00544a20 — ac2-smartbox camera_rig.rs use_time: FX tracks, fov = 65 + clamped sum (75 idle), flash drawn (ac2-gpu tone map), shake into the scene camera's current position; m_fBlurAmount is published (blur_amount) but no CameraFX in portal.dat has the blur flag (camera_fx_tests), so no blur pass is ever asked for
 - [x] `CameraManager::GetFirstPersonIsReady` · 00574c50 · legions 00544b20
 - [x] `CameraManager::CheckEnvOnly` · 00574ca0 · legions 00544b70 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::NoRayTrace` · 00574cc0 · legions 00544b90
@@ -213,7 +213,7 @@ Legend and workflow: [README](README.md).
 - [x] `CameraManager::ZoomOut` · 00574d40 · legions 00544c10 — camera action 0x400000B2
 - [x] `CameraManager::SetParentObject` · 00574d80 · legions 00544c50 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::SetupCameraDummyObjects` · 00574db0 · legions 00544c80 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
-- [~] `CameraManager::ResetCamera` · 00574eb0 · legions 00544d80 — the player target only
+- [x] `CameraManager::ResetCamera` · 00574eb0 · legions 00544d80 — ac2-smartbox camera.rs reset: m_playerID and the effects' player invalid, TargetingModule::SetPlayer(INVALID_IID), tracks stopped. The dummy-object DestroyObject calls (IIDUtils::GetCameraParent/Target) have nothing to destroy because the dummies are the player's camera bones found on demand, and the 14 PreferenceBank::Destroy calls only unregister keys SetupPrefs re-registers: the options keep them (and their saved values) across a log-out
 - [x] `CameraManager::SetFreeCamera` · 00574ff0 · legions 00544ec0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::SetTargetedCamera` · 00575040 · legions 00544f10 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::RestorePlayerCamera` · 00575090 · legions 00544f60 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
@@ -221,34 +221,34 @@ Legend and workflow: [README](README.md).
 - [x] `CameraManager::SetCameraAnimTarget` · 005750f0 · legions 00544fc0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::SetCameraAnimParent` · 00575150 · legions 00545020 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::FakeTransition` · 005751b0 · legions 00546710 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
-- [~] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090 — ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
+- [x] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090 — ac2-smartbox prefs.rs registers the fourteen keys in SetupPrefs' order with its ranges and defaults, links them, and values() reads all of them; the closing PreferenceBank::Apply of the three sections is apply_prefs (see HandleChange), live; the calls after it are the Preference destructors
 - [x] `CameraManager::StopAllCameraFX` · 00575a20 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 
 ### CameraFxTrack
 - [-] `CameraFxTrack::operator=` · 00575a30 · legions 00545900 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 
 ### CameraManager
-- [x] `CameraManager::GetCameraDistance` · 00575ab0 · legions 00545980 — no camera effects run, so their distance sum is 0
+- [x] `CameraManager::GetCameraDistance` · 00575ab0 · legions 00545980 — ac2-smartbox camera.rs get_camera_distance: adds the camera-distance effects' sum outside first person and the map view (Legions adds it; no shipped CameraFX sets the flag, camera_fx_tests)
 - [x] `CameraManager::ShoulderView` · 00575ad0 · legions 005459a0 — camera action 0x4000002A
-- [~] `CameraManager::SetTargetObject` · 00575b40 · legions 00545a10 — store_target_pos only; the first-target player set is set_player
+- [x] `CameraManager::SetTargetObject` · 00575b40 · legions 00545a10 — ac2-smartbox camera_rig.rs set_target_object: StoreTargetPos, and a camera with no player takes the target as m_playerID (SetPlayer, camera distance); SetupCameraDummyObjects is implicit (the dummies are the player's camera bones 0x40000004/5)
 - [x] `CameraManager::GetInterpViewerOffset` · 00575bc0 · legions 00545a90 — ac2-smartbox targeting.rs interp_viewer_offset (old and new offsets lerped by the blend's time while mIsOn) and camera.rs; read by the player's LookAtManager::Update
 - [x] `CameraManager::CalcShoulderOffset` · 00575c00 · legions 00545ad0
-- [~] `CameraManager::HandleApply` · 00575ee0 · legions 00545db0 — ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
+- [x] `CameraManager::HandleApply` · 00575ee0 · legions 00545db0 — ac2-smartbox camera.rs apply_prefs: HandleApply runs HandleChange (vtable +4) for each changed preference; the client (client_prefs.rs apply_live_preferences) hands over all of them and an unchanged one does nothing
 - [x] `CameraManager::DoCameraFX` · 00575f20 · legions 00545df0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::UpdateCamera` · 005760f0 · legions 00545fb0 — ac2-smartbox camera.rs update_camera_with (dynamic first-person head camera on bone 0x40000005 at (0, 0.2, 0.2)); ac2-client client_camera.rs sets dynamic_first_person from AvatarVisibleInFirstPerson, the player's mode and ModeTracker::CheckForDynamicFPCamera
 - [x] `CameraManager::LookAtSelf` · 005767a0 · legions 00546660 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 - [x] `CameraManager::SwingOutLeft` · 00576850 · legions 005467f0 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 - [-] `CameraManager::SwingOutRight` · 00576930 — no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only [vtable-checked: not a slot of any located Legions vtable]
-- [~] `CameraManager::SetMapView` · 00576a10 · legions 005468d0 — ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance; SceneTool::m_bDisableDegrades not modelled
+- [~] `CameraManager::SetMapView` · 00576a10 · legions 005468d0 — ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance and models SceneTool::m_bDisableDegrades (disable_degrades(), saved and restored as DAT_00ae634c); SetDefaults, LookAtGround, SetMouseLookState and SetFirstPersonState leave the map view through it. Not consumed yet: CPartArray::Draw with the switch on draws every object at full detail with no distance cull, and ac2-render scene/lod.rs SceneDegrades::lod does not read it
 - [x] `CameraManager::GetTargetOffset` · 00576b00 · legions 005469c0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
-- [x] `CameraManager::SetDefaults` · 00576b40 · legions 00546a30
-- [x] `CameraManager::LookAtGround` · 00576c70 · legions 00546b60 — camera action 0x400000AE (no map view)
-- [x] `CameraManager::SetMouseLookState` · 00576d10 · legions 00546c00 — ac2-client camera.rs (driven by gmCameraUI states)
-- [x] `CameraManager::SetFirstPersonState` · 00576dc0 · legions 00546cb0 — ac2-client camera.rs (driven by gmCameraUI states)
-- [~] `CameraManager::HandleChange` · 00576e30 — applied once with the preference defaults
-- [~] `CameraManager::StartAction` · 00577100 · legions 00546ff0 — ac2-smartbox camera.rs start_action / stop_action: every camera action id of Legions StartAction and StopAction; camera effects (FX) and the SceneTool degrade switch not modelled
-- [~] `CameraManager::StopAction` · 00577360 · legions 00547250 — ac2-smartbox camera.rs start_action / stop_action: every camera action id of Legions StartAction and StopAction; camera effects (FX) and the SceneTool degrade switch not modelled
-- [~] `CameraManager::CameraManager` · 005775a0 · legions 005475f0 — no camera effects manager
+- [x] `CameraManager::SetDefaults` · 00576b40 · legions 00546a30 — ac2-smartbox camera.rs set_defaults: leaves the map view first (SetMapView(0)), then behind the player at the default pitch and distance
+- [x] `CameraManager::LookAtGround` · 00576c70 · legions 00546b60 — ac2-smartbox camera.rs look_at_ground: leaves the map view first, then 1.37 or the default pitch
+- [x] `CameraManager::SetMouseLookState` · 00576d10 · legions 00546c00 — ac2-smartbox camera.rs set_mouse_look: leaves the map view first; the client drives it from gmCameraUI states (ICIDM mouse-look capture is the client's input)
+- [x] `CameraManager::SetFirstPersonState` · 00576dc0 · legions 00546cb0 — ac2-smartbox camera.rs set_first_person: leaves the map view first; the client drives it from gmCameraUI states
+- [x] `CameraManager::HandleChange` · 00576e30 — ac2-smartbox camera.rs apply_prefs: every case of Legions 0x546D20 (same switch as admin; only the field offsets differ): height, transition time and auto distance into TargetingModule, zoom and rotate speed, mouse sensitivity, Invert_Y, Steer_Player, Align_To_Slope, and a changed default distance or tilt runs SetDefaults at once; the avatar look switches (0x40000068/69/6A, player vtable 0x4D4/0x4D8/0x4DC) are applied by ac2-client client.rs each step (set_camera_look, look_at_selection)
+- [x] `CameraManager::StartAction` · 00577100 · legions 00546ff0 — ac2-smartbox camera.rs start_action: every action id of Legions StartAction; the body has no camera-FX call (the earlier note was wrong). Its only SceneTool effect is through SetMapView (see there)
+- [x] `CameraManager::StopAction` · 00577360 · legions 00547250 — ac2-smartbox camera.rs stop_action: every action id of Legions StopAction; no camera-FX or SceneTool call in the body
+- [x] `CameraManager::CameraManager` · 005775a0 · legions 005475f0 — ac2-smartbox camera.rs CameraManager::new: every field of the constructor (fov 65, viewer offset (0,-3.5,0), distance 3.5, prefs 4.5, steers on, scales 1, shoulders zero), the TargetingModule and the CameraFxManager (camera_fx.rs; its player id is the targeting module's). Two deliberate differences: the default tilt starts at the 0.25 SetupPrefs applies (the constructor's 0.15 is replaced before anything reads it), and m_dimouse (DirectInput mouse) is the client's input
 
 ### _STL::deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>
 - [-] `_STL::deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>::~deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>` · 00577720 · legions 005752f0 — STL less/map/rb-tree/deque internals (Rust std replaces)

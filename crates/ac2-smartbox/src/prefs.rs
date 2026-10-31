@@ -30,6 +30,12 @@ const STEER_PLAYER: u32 = 0x4000_006B;
 const ALIGN_TO_SLOPE: u32 = 0x4000_005A;
 /// `Camera_Zoom_Speed` (`CameraManager::SetupPrefs`'s `m_zoomScale`).
 const ZOOM_SPEED: u32 = 0x4000_002C;
+/// `Camera_Height` (`TargetingModule::mCameraHeight`), `Camera_Transition_Time`
+/// (`mFakeTransTime`) and `Camera_Auto_Distance` (`mAutoDistance`), which
+/// `CameraManager::HandleChange` stores into the targeting module.
+const CAMERA_HEIGHT: u32 = 0x4000_0027;
+const TRANSITION_TIME: u32 = 0x4000_002F;
+const AUTO_DISTANCE: u32 = 0x4000_0051;
 /// The look-at-selection switch: `CameraManager::HandleChange` passes it to the player's
 /// `CPhysicsObj::SetLookAtSelection` (ICPhysicsObj slot 0x4DC, read from the admin exe at
 /// 0x00577003).
@@ -47,6 +53,12 @@ pub struct CameraValues {
     pub tilt: f32,
     pub rotate_speed: f32,
     pub zoom_speed: f32,
+    /// `Camera_Height`: lifts the camera above the player (`mCameraHeight`).
+    pub camera_height: f32,
+    /// `Camera_Transition_Time`: how long a camera change blends (`mFakeTransTime`).
+    pub transition_time: f32,
+    /// `Camera_Auto_Distance`: a close camera eases out while the player runs (`mAutoDistance`).
+    pub auto_distance: bool,
     pub mouse_sensitivity: f32,
     pub invert_y: bool,
     pub steer_player: bool,
@@ -57,6 +69,14 @@ pub struct CameraValues {
     pub look_around: bool,
     /// The player's head turns toward the camera (`SetCameraLookAtCamera`).
     pub look_at_camera: bool,
+}
+
+impl Default for CameraValues {
+    /// The values `SetupPrefs` sets as defaults (an empty bank holds none, so every key keeps
+    /// its default).
+    fn default() -> Self {
+        values(&PreferenceBank::new(b""))
+    }
 }
 
 /// The camera's values in `bank` (a missing key keeps the camera's constructor default).
@@ -74,6 +94,9 @@ pub fn values(bank: &PreferenceBank) -> CameraValues {
         tilt: float(TILT, 0.25),
         rotate_speed: float(ROTATE_SPEED, 1.0),
         zoom_speed: float(ZOOM_SPEED, 1.0),
+        camera_height: float(CAMERA_HEIGHT, 0.0),
+        transition_time: float(TRANSITION_TIME, 1.0),
+        auto_distance: flag(AUTO_DISTANCE, true),
         mouse_sensitivity: float(MOUSE_SENSITIVITY, 1.0),
         invert_y: flag(INVERT_Y, false),
         steer_player: flag(STEER_PLAYER, true),
