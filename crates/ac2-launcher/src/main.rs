@@ -15,7 +15,20 @@ use eframe::egui;
 /// How long the launcher waits for the client to take its ticket.
 const HANDOFF_WAIT: Duration = Duration::from_secs(60);
 
+mod cli;
+
 fn main() -> eframe::Result {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if let Some(outcome) = cli::run(&args) {
+        match outcome {
+            Ok(text) => println!("{text}"),
+            Err(e) => {
+                eprintln!("ac2-launcher: {e}");
+                std::process::exit(1);
+            }
+        }
+        return Ok(());
+    }
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("AC2 Launcher")
