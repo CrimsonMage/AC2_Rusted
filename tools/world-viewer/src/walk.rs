@@ -106,9 +106,13 @@ pub struct Walk {
     /// Physics quanta run per quantum owed (a speed-up of the whole body, animation included).
     pub speed: u32,
     turn_to: Option<f32>,
+    /// The heading the player is turning to so the camera sees its front (`face_camera`).
+    face: Option<f32>,
     now: f64,
     /// The last load or entry failure.
     pub message: Option<String>,
+    /// What the player wears over the body's visual (`--outfit`); the bare visual without it.
+    appearance: Option<Arc<Appearance>>,
 }
 
 impl Walk {
@@ -130,9 +134,16 @@ impl Walk {
             random: Random::default(),
             speed: 1,
             turn_to: None,
+            face: None,
             now,
             message: None,
+            appearance: None,
         }
+    }
+
+    /// Dresses the player: the local `VisualDesc` the frame carries (`CPhysicsObj::m_local_vdesc`).
+    pub fn set_appearance(&mut self, appearance: Option<Arc<Appearance>>) {
+        self.appearance = appearance;
     }
 
     /// Loads the body for `visual` on a thread; the player takes it over where they stand (or
@@ -210,9 +221,11 @@ impl Walk {
                 .collect(),
             child_poses: ac2_physics::child_part_poses(&player.physics, None),
             // `CPhysicsObj::m_local_vdesc`: the server names the DAT `VisualDesc` it adds to.
-            appearance: Arc::new(Appearance {
-                parent: visual.raw(),
-                ..Appearance::default()
+            appearance: self.appearance.clone().unwrap_or_else(|| {
+                Arc::new(Appearance {
+                    parent: visual.raw(),
+                    ..Appearance::default()
+                })
             }),
             hidden: false,
             anim_scale: player.physics.draw_scale(),
@@ -329,6 +342,15 @@ impl Walk {
         }
     }
 
+    /// Turns the player round to face the camera, which looks freely (as with the right button
+    /// held): the front view the viewer's snapshots can ask for. The camera keeps its place
+    /// behind where the player stood, so the body turns, not the camera.
+    pub fn face_camera(&mut self) {
+        self.camera_action(actions::MOUSE_LOOK_HOLD, true);
+        let [x, y, _] = self.camera.global_direction();
+        self.face = Some((x.atan2(y).to_degrees() + 180.0).rem_euclid(360.0));
+    }
+
     /// A camera action (`camera_action::*`) started or stopped.
     pub fn camera_action(&mut self, action: u32, start: bool) {
         let subject = self
@@ -379,10 +401,17 @@ impl Walk {
             return;
         }
         let moving = input.forward != 0.0 || input.strafe != 0.0;
-        let heading = self.steer(moving);
+        let heading = self.steer(moving).or(self.face);
         let Some(player) = self.player.as_mut() else {
             return;
         };
+        if let Some(face) = self.face {
+            let turned =
+                (player.physics.movement_state().heading_degrees - face + 540.0) % 360.0 - 180.0;
+            if turned.abs() < 1.0 {
+                self.face = None;
+            }
+        }
         if input.jump {
             player.physics.jump();
         }

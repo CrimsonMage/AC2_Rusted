@@ -29,6 +29,11 @@
 //! filled, and leaves out the control panel; `--hud-panel NAME` (Inventory, Skill, Quest, Social,
 //! Examination, Navigation, Option; repeatable, implies `--hud`) opens that toolbar panel, and
 //! `--hud-pointer X,Y` puts the pointer there (window pixels; a hover look, implies `--hud`).
+//! `--outfit starter` dresses the snapshot's player as a new character of its race and sex
+//! (`CharacterGenSystem`'s defaults, as the creation screens ask for them); `--map 46.5N,0.3W`
+//! places the player at a map coordinate (`Position::FromRealMapCoords`'s form); `--face-camera`
+//! turns the player to face the camera (a front view; `--zoom-in N` brings the camera closer by N wheel steps); `--no-panel` leaves the viewer's control
+//! panel out of the snapshot.
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
 //! `--look` turns the `--fly` snapshot camera to YAW degrees clockwise from north and PITCH
 //! degrees above the horizon (the sky: `--look 0,60`). `--height Z` puts the `--fly` camera at
@@ -88,7 +93,9 @@ mod fly;
 mod frame;
 mod gui;
 mod hud_input;
+mod outfit;
 mod panel;
+mod place;
 mod races;
 mod session;
 mod walk;
@@ -180,6 +187,14 @@ struct Args {
     walk_pan: u32,
     /// A second snapshot of the same frame with the anti-aliasing off (`--aa-ref`).
     aa_reference: Option<PathBuf>,
+    /// What the player wears (`--outfit`).
+    outfit: outfit::Outfit,
+    /// The snapshot's camera looks at the player's front (`--face-camera`).
+    face_camera: bool,
+    /// Leaves the control panel out of the snapshot (`--no-panel`).
+    no_panel: bool,
+    /// Camera zoom steps in (`--zoom-in`): each is the wheel's `ZoomIn`, 1.5 m closer.
+    zoom_in: u32,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -227,6 +242,10 @@ fn parse_args() -> Result<Args, String> {
         pan: 0,
         walk_pan: 0,
         aa_reference: None,
+        outfit: outfit::Outfit::None,
+        face_camera: false,
+        no_panel: false,
+        zoom_in: 0,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -411,6 +430,17 @@ fn parse_args() -> Result<Args, String> {
             "--walk-pan" => {
                 args.walk_pan = value()?.parse().map_err(|e| format!("--walk-pan: {e}"))?;
             }
+            "--outfit" => args.outfit = outfit::Outfit::parse(&value()?)?,
+            "--face-camera" => args.face_camera = true,
+            "--no-panel" => args.no_panel = true,
+            "--zoom-in" => {
+                args.zoom_in = value()?.parse().map_err(|e| format!("--zoom-in: {e}"))?
+            }
+            "--map" => {
+                let (block, at) = place::parse_map(&value()?)?;
+                args.block = block;
+                args.at = Some(at);
+            }
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
             }
@@ -471,7 +501,7 @@ fn main() {
         std::env::var_os(ac2_client::CONTENT_DIR_ENV).as_deref(),
     ));
     let dataset = DatDataset::open(DatOpenOptions::new(&args.dat_dir)).expect("AC2 DATs mount");
-    let store = Arc::new(ResourceStore::new(dataset));
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
     let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("AC2 landscape vocabulary decodes")
         .expect("the DAT directory holds an AC2 dataset");
@@ -480,7 +510,14 @@ fn main() {
         Err(error) => (Vec::new(), Some(error)),
     };
     if args.snapshot.is_some() || args.bench > 0 {
-        snapshot(world, store, &models, &args);
+        // The snapshot's player, dressed as `--outfit` says (the viewer's window keeps the base body).
+        let dress = models.get(args.model).filter(|_| !args.fly).map(|model| {
+            outfit::appearance(&args.outfit, &dataset, &store, model).unwrap_or_else(|error| {
+                eprintln!("world-viewer: --outfit: {error}");
+                std::process::exit(2);
+            })
+        });
+        snapshot(world, store, &models, &args, dress.map(Arc::new));
     } else {
         let (x, y) = args.at.unwrap_or_else(|| {
             let half = world.block_size() / 2.0;
@@ -579,6 +616,7 @@ fn snapshot(
     store: Arc<ResourceStore>,
     models: &[races::PlayerModel],
     args: &Args,
+    dress: Option<Arc<ac2_weenie::Appearance>>,
 ) {
     let (width, height) = args.size;
     // Only `--gpu-times` asks the device for timestamp queries.
@@ -625,16 +663,23 @@ fn snapshot(
     if let Some(model) = model {
         println!("player: {}", model.label());
         walk.set_model(model.visual);
+        walk.set_appearance(dress);
+        for _ in 0..args.zoom_in {
+            walk.camera_action(walk::actions::ZOOM_IN, true);
+        }
         walk.teleport(walk::Landing {
             block: args.block,
             x,
             y,
         });
         walk.speed = args.speed;
-        walk_for(&mut view, &mut walk, &gpu, args.walk_seconds, model.visual);
+        let mut now = walk_for(&mut view, &mut walk, &gpu, args.walk_seconds, model.visual);
         if args.map_view {
             walk.camera_action(walk::actions::MAP_VIEW, true);
-            walk_for(&mut view, &mut walk, &gpu, 2.0, model.visual);
+            now = walk_for(&mut view, &mut walk, &gpu, 2.0, model.visual);
+        }
+        if args.face_camera {
+            face_camera(&mut view, &mut walk, &gpu, model.visual, now);
         }
         if let Some(message) = &walk.message {
             println!("walk: {message}");
@@ -744,7 +789,7 @@ fn snapshot(
         println!("{}", report.line());
     }
     view.render(&gpu, &target.color_view, &target.depth_view, true);
-    if !args.hud {
+    if !args.hud && !args.no_panel {
         control_panel(
             &gpu,
             &target,
@@ -879,6 +924,25 @@ fn control_panel(
     });
 }
 
+/// `--face-camera`: the player stands and turns round to the camera, two simulated seconds.
+fn face_camera(
+    view: &mut ClientView,
+    walk: &mut walk::Walk,
+    gpu: &Gpu,
+    visual: ac2_core::DataId,
+    mut now: f64,
+) {
+    const STEP: f32 = 1.0 / 60.0;
+    walk.face_camera();
+    let fly = FlyCamera::looking_at(Vec3::ZERO, Vec3::Y);
+    for _ in 0..120 {
+        now += f64::from(STEP);
+        walk.update(STEP, now, walk::WalkInput::default());
+        let frame = frame::client_frame(panel::Mode::Walk, walk, &fly, Some(visual), 0.0);
+        view.update(gpu, &frame, std::time::Duration::from_millis(4));
+    }
+}
+
 /// Runs the player in simulated 60 Hz time: until it is in the world (the cells load on their
 /// own threads), then `seconds` of walking forward.
 fn walk_for(
@@ -887,7 +951,7 @@ fn walk_for(
     gpu: &Gpu,
     seconds: f32,
     visual: ac2_core::DataId,
-) {
+) -> f64 {
     const STEP: f32 = 1.0 / 60.0;
     let started = std::time::Instant::now();
     let mut now = 0.0_f64;
@@ -909,9 +973,10 @@ fn walk_for(
         } else {
             if started.elapsed() > std::time::Duration::from_secs(120) || walk.message.is_some() {
                 println!("walk: the player never entered the world");
-                return;
+                return now;
             }
             std::thread::sleep(std::time::Duration::from_millis(5));
         }
     }
+    now
 }
