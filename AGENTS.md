@@ -213,9 +213,9 @@ game rules and server-visible behaviour exactly retail.
   stacked over it, the effects under them in as many rows as they take, and the indicators (net,
   PK, vitae) in a column at their right, packed so a hidden one leaves no gap; retail kept them in
   a block left of the bars. A switch at the panel's corner, shown while the pointer is over the
-  panel, changes the layout (not yet saved). The panel is laid out by the display's top left (8
-  pixels in), not a saved window, until the design's Edit layout mode lands; the indicators are
-  drawn 16 x 25. The fields are retail's, moved up to the panel (the
+  panel, changes the layout (kept in the HUD layout, `vitals.layout`). The panel is laid out by the
+  display's top left (8 pixels in), not a saved window, moved by the Edit layout mode's offset;
+  the indicators are drawn 16 x 25. The fields are retail's, moved up to the panel (the
   frame's own fields would clip them), so what they show and their presses stay retail's.
   At 30% health or less the health bar grows, its well pulses red, a LOW tag shows under the
   indicators and the screen's edge glows red (a full-display overlay root whose surface opacity
@@ -229,8 +229,8 @@ game rules and server-visible behaviour exactly retail.
   the disc's lower left and right, and a chip at its upper right giving the range in metres
   (retail showed none). The art is restyled in the gameplay layout before the radar is made, as
   `BaseField`'s state changes make its children anew; the places are set again each update. The
-  radar is laid out by the display's top right (12 and 8 pixels in), not a saved window, until the
-  design's Edit layout mode lands.
+  radar is laid out by the display's top right (12 and 8 pixels in), not a saved window, moved by
+  the Edit layout mode's offset.
   The chat windows are the design's (`ac2_ui::modern_chat`): each of the four `ChatWindow`s on
   teal glass in a bronze line (gold while active) under a bronze header holding its tab (its
   window key and its name, `ID_Option_Chat1`..`4`), the other windows' toggles, an opacity slider
