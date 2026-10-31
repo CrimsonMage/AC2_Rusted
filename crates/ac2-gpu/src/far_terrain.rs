@@ -113,9 +113,33 @@ pub struct GpuFarTerrain {
     indices: wgpu::Buffer,
     chunks: Vec<Range<u32>>,
     group: wgpu::BindGroup,
+    /// The far texture, for making `group` again (`TerrainRenderer::restage_far`).
+    view: wgpu::TextureView,
 }
 
 impl TerrainRenderer {
+    fn far_group(&self, device: &wgpu::Device, view: &wgpu::TextureView) -> wgpu::BindGroup {
+        device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("ac2 far terrain"),
+            layout: &self.far.layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&self.wrap),
+                },
+            ],
+        })
+    }
+
+    /// Makes the far mesh's bind group again with the current samplers.
+    pub fn restage_far(&self, gpu: &Gpu, far: &mut GpuFarTerrain) {
+        far.group = self.far_group(&gpu.device, &far.view);
+    }
+
     /// Uploads the far mesh around one centre block; `texture` is the far texture
     /// (`Ac2FarTerrain::texture`).
     pub fn upload_far(
@@ -140,20 +164,7 @@ impl TerrainRenderer {
         let view = self
             .textures
             .get(device, &gpu.queue, TextureKey::Texture(texture), load);
-        let group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("ac2 far terrain"),
-            layout: &self.far.layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: wgpu::BindingResource::TextureView(&view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: wgpu::BindingResource::Sampler(&self.wrap),
-                },
-            ],
-        });
+        let group = self.far_group(device, &view);
         GpuFarTerrain {
             vertices: device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("ac2 far terrain vertices"),
@@ -167,6 +178,7 @@ impl TerrainRenderer {
             }),
             chunks: far.chunk_ranges().to_vec(),
             group,
+            view,
         }
     }
 

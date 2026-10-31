@@ -293,6 +293,8 @@ impl ClientView {
         self.renderer.set_light_coronas(options.light_coronas);
         self.renderer
             .set_landscape_shadows(options.static_shadows, options.cloud_shadows);
+        self.renderer
+            .set_texture_filtering(options.trilinear, options.anisotropic);
         self.brightness = options.brightness;
         self.hover_transparency = options.avatar_hover_transparency;
         self.scene.set_options(options);

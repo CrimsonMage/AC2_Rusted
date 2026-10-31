@@ -151,6 +151,7 @@ impl ObjectRenderer {
             bone_group,
             bone_capacity: BONE_BYTES * 64,
             samplers: HashMap::new(),
+            filtering: TextureFiltering::default(),
             textures,
             time: 0.0,
             queue: Vec::new(),

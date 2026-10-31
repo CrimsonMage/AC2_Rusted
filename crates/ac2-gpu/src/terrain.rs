@@ -12,7 +12,7 @@ use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
 use crate::texture::{TextureCache, TextureKey};
-use crate::{Gpu, DEPTH_FORMAT};
+use crate::{Gpu, TextureFiltering, DEPTH_FORMAT};
 
 #[path = "far_terrain.rs"]
 mod far;
@@ -52,13 +52,43 @@ struct BatchUniform {
     rot: [u32; 4],
 }
 
+/// One draw of a block: its index range and bind group, with the parts the group is made of so it
+/// can be made again for new samplers.
+struct TerrainBatch {
+    range: Range<u32>,
+    group: wgpu::BindGroup,
+    uniform: wgpu::Buffer,
+    bases: Vec<wgpu::TextureView>,
+    masks: Vec<wgpu::TextureView>,
+}
+
+/// A sampler of the near and far landscape: linear min and mag, so anisotropic when the
+/// preference is on (`RenderDeviceD3D::SetStageFilterMode`).
+fn world_sampler(
+    device: &wgpu::Device,
+    address_mode: wgpu::AddressMode,
+    filtering: TextureFiltering,
+) -> wgpu::Sampler {
+    let (mipmap_filter, anisotropy_clamp) = filtering.for_stage(true, true);
+    device.create_sampler(&wgpu::SamplerDescriptor {
+        label: Some("ac2 terrain sampler"),
+        address_mode_u: address_mode,
+        address_mode_v: address_mode,
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Linear,
+        mipmap_filter,
+        anisotropy_clamp,
+        ..Default::default()
+    })
+}
+
 /// One landblock's near mesh on the GPU.
 pub struct TerrainBlock {
     /// World positions of the mesh, which bound the static shadow map (`StartShadowMap`).
     pub(crate) positions: Vec<Vec3>,
     vertices: wgpu::Buffer,
     indices: wgpu::Buffer,
-    batches: Vec<(Range<u32>, wgpu::BindGroup)>,
+    batches: Vec<TerrainBatch>,
 }
 
 pub struct TerrainRenderer {
@@ -77,6 +107,8 @@ pub struct TerrainRenderer {
     shadow: Mat4,
     wrap: wgpu::Sampler,
     clamp: wgpu::Sampler,
+    /// The mip filter and anisotropy of `wrap` and `clamp` (`set_filtering`).
+    filtering: TextureFiltering,
     far: far::FarPipeline,
     pub textures: TextureCache,
 }
@@ -193,18 +225,9 @@ impl TerrainRenderer {
             multiview_mask: None,
             cache: None,
         });
-        let filtered = |address_mode| {
-            device.create_sampler(&wgpu::SamplerDescriptor {
-                address_mode_u: address_mode,
-                address_mode_v: address_mode,
-                mag_filter: wgpu::FilterMode::Linear,
-                min_filter: wgpu::FilterMode::Linear,
-                mipmap_filter: wgpu::MipmapFilterMode::Linear,
-                ..Default::default()
-            })
-        };
-        let wrap = filtered(wgpu::AddressMode::Repeat);
-        let clamp = filtered(wgpu::AddressMode::ClampToEdge);
+        let filtering = TextureFiltering::default();
+        let wrap = world_sampler(device, wgpu::AddressMode::Repeat, filtering);
+        let clamp = world_sampler(device, wgpu::AddressMode::ClampToEdge, filtering);
         let textures = TextureCache::new(device, &gpu.queue);
         let sun_shadow = crate::sun_shadow::SunShadowBinding::placeholder(gpu);
         let frame_group = frame_group(
@@ -229,7 +252,29 @@ impl TerrainRenderer {
             shadow: Mat4::ZERO,
             wrap,
             clamp,
+            filtering,
             textures,
+        }
+    }
+
+    /// Sets the filtering of the landscape's samplers, near and far. Returns whether it changed;
+    /// the caller then makes the bind groups of the uploaded blocks again ([`Self::restage_block`],
+    /// [`Self::restage_far`]), since a bind group holds its samplers.
+    pub fn set_filtering(&mut self, gpu: &Gpu, filtering: TextureFiltering) -> bool {
+        if filtering == self.filtering {
+            return false;
+        }
+        self.filtering = filtering;
+        self.wrap = world_sampler(&gpu.device, wgpu::AddressMode::Repeat, filtering);
+        self.clamp = world_sampler(&gpu.device, wgpu::AddressMode::ClampToEdge, filtering);
+        self.rebind_frame(gpu);
+        true
+    }
+
+    /// Makes `block`'s bind groups again with the current samplers.
+    pub fn restage_block(&self, gpu: &Gpu, block: &mut TerrainBlock) {
+        for batch in &mut block.batches {
+            batch.group = self.batch_group(gpu, &batch.uniform, &batch.bases, &batch.masks);
         }
     }
 
@@ -306,8 +351,15 @@ impl TerrainRenderer {
         for batch in &mesh.batches {
             let start = indices.len() as u32;
             indices.extend_from_slice(&batch.indices);
-            let group = self.batch_group(gpu, &batch.layers.0, spacing, load);
-            batches.push((start..indices.len() as u32, group));
+            let (uniform, bases, masks) = self.batch_parts(gpu, &batch.layers.0, spacing, load);
+            let group = self.batch_group(gpu, &uniform, &bases, &masks);
+            batches.push(TerrainBatch {
+                range: start..indices.len() as u32,
+                group,
+                uniform,
+                bases,
+                masks,
+            });
         }
         TerrainBlock {
             positions: mesh
@@ -329,13 +381,13 @@ impl TerrainRenderer {
         }
     }
 
-    fn batch_group(
+    fn batch_parts(
         &mut self,
         gpu: &Gpu,
         layers: &[TerrainLayer],
         spacing: f32,
         load: &mut dyn FnMut(TextureKey) -> Option<Image>,
-    ) -> wgpu::BindGroup {
+    ) -> (wgpu::Buffer, Vec<wgpu::TextureView>, Vec<wgpu::TextureView>) {
         let mut scale = [0.0; 4];
         let mut rot = [1, 1, layers.len() as u32, 0];
         let mut bases = Vec::new();
@@ -365,6 +417,16 @@ impl TerrainRenderer {
                 contents: bytemuck::bytes_of(&BatchUniform { scale, rot }),
                 usage: wgpu::BufferUsages::UNIFORM,
             });
+        (uniform, bases, masks)
+    }
+
+    fn batch_group(
+        &self,
+        gpu: &Gpu,
+        uniform: &wgpu::Buffer,
+        bases: &[wgpu::TextureView],
+        masks: &[wgpu::TextureView],
+    ) -> wgpu::BindGroup {
         fn view(binding: u32, view: &wgpu::TextureView) -> wgpu::BindGroupEntry<'_> {
             wgpu::BindGroupEntry {
                 binding,
@@ -436,9 +498,9 @@ impl TerrainRenderer {
         for block in blocks {
             pass.set_vertex_buffer(0, block.vertices.slice(..));
             pass.set_index_buffer(block.indices.slice(..), wgpu::IndexFormat::Uint32);
-            for (range, group) in &block.batches {
-                pass.set_bind_group(1, group, &[]);
-                pass.draw_indexed(range.clone(), 0, 0..1);
+            for batch in &block.batches {
+                pass.set_bind_group(1, &batch.group, &[]);
+                pass.draw_indexed(batch.range.clone(), 0, 0..1);
             }
         }
     }

@@ -3,7 +3,7 @@
 
 use ac2_render::object::{blend, LayerPass, StagePass};
 
-use crate::DEPTH_FORMAT;
+use crate::{TextureFiltering, DEPTH_FORMAT};
 
 /// Byte stride of one draw's uniform block (the dynamic-offset alignment).
 pub const DRAW_STRIDE: u64 = 768;
@@ -168,28 +168,45 @@ pub struct SamplerKey {
     address_v: u32,
     min_filter: u32,
     mag_filter: u32,
+    filtering: TextureFiltering,
 }
 
-pub fn sampler_key(stage: Option<&StagePass>) -> SamplerKey {
-    stage.map_or(
-        SamplerKey {
-            address_u: 1,
-            address_v: 1,
-            min_filter: 2,
-            mag_filter: 2,
-        },
-        |stage| SamplerKey {
-            address_u: stage.address_u,
-            address_v: stage.address_v,
-            min_filter: stage.min_filter,
-            mag_filter: stage.mag_filter,
+pub fn sampler_key(stage: Option<&StagePass>, filtering: TextureFiltering) -> SamplerKey {
+    stage.map_or_else(
+        || SamplerKey::for_modes(1, 1, 2, 2, filtering),
+        |stage| {
+            SamplerKey::for_modes(
+                stage.address_u,
+                stage.address_v,
+                stage.min_filter,
+                stage.mag_filter,
+                filtering,
+            )
         },
     )
 }
 
 impl SamplerKey {
-    /// `D3DTSS_MIPFILTER` is LINEAR when the trilinear preference is on (taken as on here).
-    pub fn create(&self, device: &wgpu::Device) -> wgpu::Sampler {
+    pub(crate) fn for_modes(
+        address_u: u32,
+        address_v: u32,
+        min_filter: u32,
+        mag_filter: u32,
+        filtering: TextureFiltering,
+    ) -> Self {
+        Self {
+            address_u,
+            address_v,
+            min_filter,
+            mag_filter,
+            filtering,
+        }
+    }
+
+    /// The sampler's description. `D3DTSS_MIPFILTER` is LINEAR while `TrilinearFiltering` is on,
+    /// and a LINEAR min and mag filter are anisotropic while `AnisotropicFiltering` is on
+    /// (`RenderDeviceD3D::SetStageFilterMode`; see [`TextureFiltering::for_stage`]).
+    pub(crate) fn descriptor(&self) -> wgpu::SamplerDescriptor<'static> {
         let address = |mode: u32| match mode {
             2 => wgpu::AddressMode::MirrorRepeat,
             3 | 4 => wgpu::AddressMode::ClampToEdge,
@@ -202,14 +219,22 @@ impl SamplerKey {
                 wgpu::FilterMode::Linear
             }
         };
-        device.create_sampler(&wgpu::SamplerDescriptor {
+        let (mipmap_filter, anisotropy_clamp) = self
+            .filtering
+            .for_stage(self.min_filter > 1, self.mag_filter > 1);
+        wgpu::SamplerDescriptor {
             label: Some("ac2 stage sampler"),
             address_mode_u: address(self.address_u),
             address_mode_v: address(self.address_v),
             mag_filter: filter(self.mag_filter),
             min_filter: filter(self.min_filter),
-            mipmap_filter: wgpu::MipmapFilterMode::Linear,
+            mipmap_filter,
+            anisotropy_clamp,
             ..Default::default()
-        })
+        }
+    }
+
+    pub fn create(&self, device: &wgpu::Device) -> wgpu::Sampler {
+        device.create_sampler(&self.descriptor())
     }
 }

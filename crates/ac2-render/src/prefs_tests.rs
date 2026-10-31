@@ -341,3 +341,39 @@ fn the_resolution_lists_the_modes_over_800_by_600_with_1024_by_768_the_default()
     assert!(register_display_resolution(&mut stale, &Names, &modes));
     assert_eq!(display_resolution(&stale), Some((1024, 768)));
 }
+
+#[test]
+fn quality_levels_four_and_five_turn_anisotropic_filtering_on() {
+    use crate::prefs::{scene_options, ANISOTROPIC_FILTERING, TRILINEAR_FILTERING};
+    for level in 1..=5 {
+        let mut bank = bank();
+        register_graphics(&mut bank, &Names);
+        assert!(apply_quality(&mut bank, level));
+        let options = scene_options(&bank);
+        assert_eq!(options.anisotropic, level >= 4, "level {level}");
+        // Retail's table is unchanged: anisotropic is 0 at every level, and its default stays off.
+        assert!(QUALITY_PRESETS[level as usize - 1]
+            .iter()
+            .any(|l| l.key == ANISOTROPIC_FILTERING && l.value == 0.0 && l.default == 0.0));
+        assert_eq!(
+            bank.find(ANISOTROPIC_FILTERING)
+                .expect("registered")
+                .default,
+            Value::Bool(false)
+        );
+        // Trilinear follows retail's preset: off at levels 1 and 2.
+        assert_eq!(options.trilinear, level >= 3, "level {level}");
+        assert!(bank.find(TRILINEAR_FILTERING).is_some());
+    }
+}
+
+#[test]
+fn the_scene_options_read_the_filtering_with_registered_defaults() {
+    use crate::prefs::{scene_options, SceneOptions};
+    let defaults = SceneOptions::default();
+    assert!(defaults.trilinear && !defaults.anisotropic);
+    let mut bank = bank();
+    register_graphics(&mut bank, &Names);
+    let options = scene_options(&bank);
+    assert!(options.trilinear && !options.anisotropic);
+}

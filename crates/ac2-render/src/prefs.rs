@@ -388,6 +388,14 @@ fn register_all(
     registered
 }
 
+/// `ID_Graphics_TrilinearFiltering` (`Render::m_Prefs.TrilinearFiltering`, registered on).
+pub const TRILINEAR_FILTERING: u32 = 0x4000_005E;
+/// `ID_Graphics_AnisotropicFiltering` (`Render::m_Prefs.AnisotropicFiltering`, registered off).
+pub const ANISOTROPIC_FILTERING: u32 = 0x4000_005F;
+/// The lowest quality level that turns `AnisotropicFiltering` on (a client deviation: retail's
+/// presets leave it off at every level; see AGENTS.md).
+pub const ANISOTROPIC_FROM_LEVEL: u32 = 4;
+
 /// `Render::SetOverallGraphicsQuality(level)`: the preset's values and defaults for `level` (1 to
 /// 5), then the graphics section applied. Returns whether the level has a preset. The section is
 /// applied either way, as the function does.
@@ -416,6 +424,12 @@ pub fn apply_quality(bank: &mut PreferenceBank, level: u32) -> bool {
                     ac2_prefs::Kind::Text => {}
                 }
             }
+        }
+    }
+    // Deviation: retail's presets leave `AnisotropicFiltering` off; levels 4 and 5 turn it on.
+    if preset.is_some() && level >= ANISOTROPIC_FROM_LEVEL {
+        if let Some(pref) = bank.find_mut(ANISOTROPIC_FILTERING) {
+            pref.set_bool(true);
         }
     }
     bank.apply(GRAPHICS_SECTION);
@@ -462,6 +476,12 @@ pub struct SceneOptions {
     /// `AvatarMouseHoverTransparency` (`ID_Avatar_MouseHoverTransparency`, default on): the third
     /// person avatar fades while the pointer is over it ([`crate::hover_fade::MouseHoverFade`]).
     pub avatar_hover_transparency: bool,
+    /// `TrilinearFiltering`: the stage samplers' mip filter is linear, else point
+    /// (`RenderDeviceD3D::SetStageFilterMode`).
+    pub trilinear: bool,
+    /// `AnisotropicFiltering`: linear stages sample anisotropically
+    /// (`RenderDeviceD3D::SetStageFilterMode`).
+    pub anisotropic: bool,
 }
 
 impl Default for SceneOptions {
@@ -487,6 +507,8 @@ impl Default for SceneOptions {
             brightness: 0.0,
             avatar_first_person: 2,
             avatar_hover_transparency: true,
+            trilinear: true,
+            anisotropic: false,
         }
     }
 }
@@ -574,6 +596,8 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             AVATAR_MOUSE_HOVER_TRANSPARENCY,
             defaults.avatar_hover_transparency,
         ),
+        trilinear: flag(bank, TRILINEAR_FILTERING, defaults.trilinear),
+        anisotropic: flag(bank, ANISOTROPIC_FILTERING, defaults.anisotropic),
     }
 }
 

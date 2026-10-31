@@ -8,7 +8,7 @@
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
-//! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
+//! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--trilinear 0|1] [--anisotropic 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! world-viewer ... [--hud-style modern|classic]
@@ -39,6 +39,8 @@
 //! `--light-coronas 0` turns off the sky's lens flares (`LightCoronas`; default on).
 //! `--static-shadows` and `--cloud-shadows` set `LandscapeStaticObjectShadows` (default on) and
 //! `LandscapeCloudShadows` (default off; drawn only with the static shadows).
+//! `--trilinear` and `--anisotropic` set `TrilinearFiltering` (default on) and
+//! `AnisotropicFiltering` (default off; 16x where the adapter allows it).
 //! `--water-reflections` sets `WaterReflections` (default 2: reflected and rippled), and
 //! `--shore-effects` `LandscapeShoreEffects` (default 2: breaking water on the shores).
 //! `--flash` draws a camera effect's screen flash of that colour over the snapshot (0..1 each, as
@@ -144,6 +146,8 @@ struct Args {
     height: Option<f32>,
     /// The headless scene's `LandscapeStaticObjectShadows` and `LandscapeCloudShadows`.
     static_shadows: bool,
+    trilinear: bool,
+    anisotropic: bool,
     cloud_shadows: bool,
     /// The headless scene's `WaterReflections` and `LandscapeShoreEffects` levels.
     water_reflections: u8,
@@ -187,6 +191,8 @@ fn parse_args() -> Result<Args, String> {
         light_coronas: ac2_render::prefs::SceneOptions::default().light_coronas,
         height: None,
         static_shadows: ac2_render::prefs::SceneOptions::default().static_shadows,
+        trilinear: ac2_render::prefs::SceneOptions::default().trilinear,
+        anisotropic: ac2_render::prefs::SceneOptions::default().anisotropic,
         cloud_shadows: ac2_render::prefs::SceneOptions::default().cloud_shadows,
         water_reflections: ac2_render::prefs::SceneOptions::default().water_reflections,
         shore_effects: ac2_render::prefs::SceneOptions::default().shore_effects,
@@ -245,6 +251,18 @@ fn parse_args() -> Result<Args, String> {
                     yaw.parse().map_err(|e| format!("--look: {e}"))?,
                     pitch.parse().map_err(|e| format!("--look: {e}"))?,
                 ));
+            }
+            "--trilinear" => {
+                args.trilinear = value()?
+                    .parse::<u8>()
+                    .map_err(|e| format!("--trilinear: {e}"))?
+                    != 0;
+            }
+            "--anisotropic" => {
+                args.anisotropic = value()?
+                    .parse::<u8>()
+                    .map_err(|e| format!("--anisotropic: {e}"))?
+                    != 0;
             }
             "--static-shadows" => {
                 args.static_shadows = value()?
@@ -505,6 +523,8 @@ fn snapshot(
         object_shadows: args.object_shadows,
         light_coronas: args.light_coronas,
         static_shadows: args.static_shadows,
+        trilinear: args.trilinear,
+        anisotropic: args.anisotropic,
         cloud_shadows: args.cloud_shadows,
         water_reflections: args.water_reflections,
         shore_effects: args.shore_effects,

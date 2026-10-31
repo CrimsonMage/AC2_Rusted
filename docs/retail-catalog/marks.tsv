@@ -9236,7 +9236,7 @@ key	status	note
 005c4e00	-	texture-stage binding (wgpu bind groups), default render-state baseline (each pipeline sets its own), or fragment.dll compiler loader (object.wgsl is the port)
 005c4e90	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c4f20	x	ac2-render object::pass / texture_matrix, ac2-gpu object
-005c4fb0	~	point/linear per stage; anisotropic preference not modelled, mip filter linear
+005c4fb0	x	per-stage point/linear; mip LINEAR only with TrilinearFiltering; LINEAR min+mag anisotropic (max 16) with AnisotropicFiltering and the adapter's ANISOTROPIC_FILTERING (TextureFiltering); wgpu needs min+mag+mip linear, so one linear filter alone stays non-anisotropic and an anisotropic stage forces a linear mip
 005c5080	_	needs port (check): edge antialias state toggled for UI surfaces (UISurfaceObject::Render); crates draw UI with no edge AA; confirm the visible effect before porting
 005c50d0	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 005c5170	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it

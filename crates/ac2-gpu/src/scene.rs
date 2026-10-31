@@ -63,6 +63,8 @@ pub struct SceneRenderer {
     cloud_shadows: bool,
     far_clouds: Option<CloudShadow>,
     rebind_clouds: bool,
+    /// `(TrilinearFiltering, AnisotropicFiltering)` to apply at the next `prepare`.
+    pending_filtering: Option<(bool, bool)>,
     /// The sun shadow cascades of bodies and objects, and the level they are sized for next.
     sun_shadows: SunShadows,
     object_shadows: ObjectShadows,
@@ -109,6 +111,50 @@ impl SceneRenderer {
     /// the next `prepare`.
     pub fn set_object_shadows(&mut self, level: ObjectShadows) {
         self.object_shadows = level;
+    }
+
+    /// Sets the world textures' filtering from `TrilinearFiltering` and `AnisotropicFiltering`
+    /// (`RenderDeviceD3D::SetStageFilterMode`), from the next `prepare`.
+    pub fn set_texture_filtering(&mut self, trilinear: bool, anisotropic: bool) {
+        self.pending_filtering = Some((trilinear, anisotropic));
+    }
+
+    /// Applies a changed filtering: new samplers, then every uploaded model, block and the far
+    /// mesh gets its bind groups made again (they hold their samplers).
+    fn apply_filtering(&mut self, gpu: &Gpu) {
+        let Some((trilinear, anisotropic)) = self.pending_filtering.take() else {
+            return;
+        };
+        let filtering = crate::TextureFiltering::for_gpu(gpu, trilinear, anisotropic);
+        let objects_changed = self.objects.set_filtering(filtering);
+        let terrain_changed = self.terrain.set_filtering(gpu, filtering);
+        if objects_changed {
+            let models = self
+                .models
+                .values_mut()
+                .chain(self.world_objects.values_mut());
+            let water = self.blocks.values_mut().flat_map(|block| {
+                let interiors = block.interiors.iter_mut().flat_map(|i| i.cells.iter_mut());
+                block
+                    .water
+                    .iter_mut()
+                    .chain(interiors.map(|(model, _)| model))
+            });
+            let far_water = self.far.iter_mut().filter_map(|(_, water)| water.as_mut());
+            for model in models.chain(water).chain(far_water) {
+                self.objects.restage(gpu, model);
+            }
+        }
+        if terrain_changed {
+            for block in self.blocks.values_mut() {
+                if let Some(terrain) = &mut block.terrain {
+                    self.terrain.restage_block(gpu, terrain);
+                }
+            }
+            if let Some((far, _)) = &mut self.far {
+                self.terrain.restage_far(gpu, far);
+            }
+        }
     }
 
     /// Whether the near landscape takes the static shadow map (`LandscapeStaticObjectShadows`)
@@ -169,6 +215,7 @@ impl SceneRenderer {
             cloud_shadows: ac2_render::prefs::SceneOptions::default().cloud_shadows,
             far_clouds: None,
             rebind_clouds: false,
+            pending_filtering: None,
             terrain,
             shadow_map,
             sun_shadows,
@@ -315,6 +362,7 @@ impl SceneRenderer {
                 );
             }
         }
+        self.apply_filtering(gpu);
         let lighting = self.frame.lighting;
         if self.rebind_clouds {
             self.bind_clouds(gpu);

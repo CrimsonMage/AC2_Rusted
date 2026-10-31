@@ -379,6 +379,16 @@ game rules and server-visible behaviour exactly retail.
   saved. Retail's `Render::InitRenderingPreferences` applied a saved level 1 to 5 (still done, by
   `ClientPrefs::apply_startup_quality`) and otherwise kept the registered defaults, which are
   level 3's medium model and scenery detail, sized for 2002 hardware.
+- Exception: levels 4 and 5 of the graphics quality turn 16x anisotropic filtering on. Retail's
+  `Render::SetOverallGraphicsQuality` left `AnisotropicFiltering` off at every level (the
+  `QUALITY_PRESETS` table stays as retail has it) and `RenderDeviceD3D::SetStageFilterMode` made a
+  LINEAR min or mag filter ANISOTROPIC only while the preference was on, at the caps'
+  `MaxAnisotropy`, with a LINEAR mip filter only while `TrilinearFiltering` was on. `apply_quality`
+  (`ac2_render::prefs`) sets `AnisotropicFiltering` after the preset at levels 4 and 5, and the
+  samplers (`ac2_gpu::TextureFiltering`) clamp at 16 where the adapter has
+  `ANISOTROPIC_FILTERING` (retail's caps check). wgpu allows a clamp above 1 only with min, mag
+  and mip all linear, so a stage is anisotropic only when both its min and mag filters are linear
+  (retail needed either), and an anisotropic stage takes a linear mip even with trilinear off.
 - Exception: grass frills reach past retail's ring. Retail merged the frills within
   `(m_current_lscape_radius + 1) * square_length` of the camera cell (`FrillRender::RefreshFrillMesh`,
   still done) and faded them out between `radius * square_length - 8` and `radius * square_length`

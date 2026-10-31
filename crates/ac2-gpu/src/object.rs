@@ -30,7 +30,7 @@ use crate::object_state::{
 use crate::pixel_program::shade_function;
 use crate::shading::FRAME_SHADING;
 use crate::texture::{TextureCache, TextureKey};
-use crate::Gpu;
+use crate::{Gpu, TextureFiltering};
 
 #[path = "object_shadow.rs"]
 mod shadow;
@@ -299,6 +299,8 @@ pub struct ObjectRenderer {
     bone_group: wgpu::BindGroup,
     bone_capacity: u64,
     samplers: HashMap<SamplerKey, wgpu::Sampler>,
+    /// The mip filter and anisotropy of the stage samplers (`set_filtering`).
+    filtering: TextureFiltering,
     pub textures: TextureCache,
     time: f64,
     /// Laid out by `prepare`, recorded by `draw`.

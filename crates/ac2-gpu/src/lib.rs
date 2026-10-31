@@ -7,6 +7,7 @@
 //! back for headless checks. Colour math stays in gamma space as the retail D3D blender did.
 
 mod ao;
+mod filtering;
 mod frame;
 mod lens_flare;
 mod object;
@@ -35,6 +36,7 @@ mod water_reflection;
 
 pub use ac2_render::scene::SceneObject;
 pub use ao::AoCamera;
+pub use filtering::{TextureFiltering, MAX_ANISOTROPY};
 pub use frame::{acquire_frame, render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
 pub use object::{sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
 pub use portal_space::PortalDraw;

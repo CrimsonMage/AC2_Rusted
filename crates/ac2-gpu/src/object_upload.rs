@@ -102,6 +102,31 @@ impl ObjectRenderer {
         }
     }
 
+    /// Sets the stage samplers' filtering. Returns whether it changed; the caller then rebuilds
+    /// the stage bind groups of every uploaded model with [`ObjectRenderer::restage`], since a
+    /// bind group holds its samplers.
+    pub fn set_filtering(&mut self, filtering: TextureFiltering) -> bool {
+        if filtering == self.filtering {
+            return false;
+        }
+        self.filtering = filtering;
+        self.samplers.clear();
+        true
+    }
+
+    /// Rebuilds the stage bind groups of `model` with the current samplers. Its textures are on
+    /// the GPU already, so nothing is loaded.
+    pub fn restage(&mut self, gpu: &Gpu, model: &mut GpuObjectModel) {
+        let mut none = |_: TextureKey| None;
+        for part in &mut model.parts {
+            for batch in &mut part.batches {
+                for pass in &mut batch.passes {
+                    pass.textures = self.stage_group(gpu, &pass.pass, &mut none);
+                }
+            }
+        }
+    }
+
     /// Replaces the geometry of `model`'s first part and batch: a particle material's model,
     /// whose triangles are laid out again every frame (`ParticleSystem::FillVertexBuffer`).
     pub fn set_geometry(
@@ -206,7 +231,7 @@ impl ObjectRenderer {
                 None => self.textures.white().clone(),
             };
             views.push(view);
-            let key = sampler_key(stage);
+            let key = sampler_key(stage, self.filtering);
             let sampler = self
                 .samplers
                 .entry(key)
