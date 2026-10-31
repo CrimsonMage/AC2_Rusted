@@ -6,7 +6,8 @@
 #
 #   AC2E_DIR=DIR scripts/ac2e-gun-test.sh      (AC2_DAT_DIR defaults to ../dataset-7230)
 #
-# AC2E_DIR must be an AC2e checkout that has the GUN service (branch gun-support). Ports:
+# AC2E_DIR must be an AC2e checkout that has the GUN service (branch gun-support, on
+# rust-client-7230 for the 7230 opt-in). Ports:
 # AC2E_BIND (default 127.0.0.1:19381) and AC2E_GUN_BIND (default 127.0.0.1:19311), so a server
 # you are playing on keeps running.
 set -eu
@@ -26,6 +27,7 @@ cargo build -q -p ac2-login-probe --manifest-path "$root/Cargo.toml"
 "$root/scripts/ac2e-server.sh" --seconds 600 --gun-bind "$AC2E_GUN_BIND" > "$log" 2>&1 &
 server=$!
 stop() {
+  kill -0 "$server" 2>/dev/null || return 0
   touch "$state/data/stop.request"
   i=0; while kill -0 "$server" 2>/dev/null && [ "$i" -lt 40 ]; do sleep 0.25; i=$((i + 1)); done
   kill "$server" 2>/dev/null || true
