@@ -500,7 +500,8 @@ fn main() {
         &args.dat_dir,
         std::env::var_os(ac2_client::CONTENT_DIR_ENV).as_deref(),
     ));
-    let dataset = DatDataset::open(DatOpenOptions::new(&args.dat_dir)).expect("AC2 DATs mount");
+    let dataset = DatDataset::open(DatOpenOptions::for_retail_install(&args.dat_dir))
+        .expect("AC2 DATs mount");
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
     let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("AC2 landscape vocabulary decodes")

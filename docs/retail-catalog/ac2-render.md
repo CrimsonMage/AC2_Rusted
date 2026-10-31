@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 194 done, 51 partial, 177 to do, 359 skipped.
+781 retail functions: 196 done, 51 partial, 175 to do, 359 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -357,12 +357,12 @@ Legend and workflow: [README](README.md).
 - [-] `RenderTextureD3D::RenderTextureD3D` · 005bc190 · legions 005858f0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [-] `RenderTextureD3D::~RenderTextureD3D` · 005bc230 · legions 00585980 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 
-## `portal/client/src/render/core/texture/rendertexture.cpp.c` (1/29)
+## `portal/client/src/render/core/texture/rendertexture.cpp.c` (3/29)
 
 ### RenderTexture
 - [-] `RenderTexture::Create2D` · 005bcaa0 · legions 00586200 — D3D device/resource plumbing; wgpu replaces
 - [-] `RenderTexture::CreateCube` · 005bcaf0 · legions 00586260 — D3D device/resource plumbing; wgpu replaces
-- [ ] `RenderTexture::ShouldDropHighDetail` · 005bcb40 · legions 005862b0 — needs port: render texture level handling (detail level, sub-objects)
+- [x] `RenderTexture::ShouldDropHighDetail` · 005bcb40 · legions 005862b0 — ResourceStore::dropped_texture_levels from TextureDetail (load_ac2_texture_chain); highres.dat mounted via for_retail_install
 - [ ] `RenderTexture::Refresh` · 005bcb60 · legions 005862d0 — needs port: render texture level handling (detail level, sub-objects)
 - [-] `RenderTexture::SelectTextureFormat` · 005bcb90 · legions 00586300 — D3D device/resource plumbing; wgpu replaces
 - [-] `RenderTexture::ReleaseSourceLevelReferences` · 005bcc20 · legions 00586390 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
@@ -394,7 +394,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderTexture::Allocator` · 005bd450 — custom allocator; Rust ownership
 - [-] `RenderTexture::Destroy` · 005bd490 · legions 005869a0 — D3D device/resource plumbing; wgpu replaces
 - [ ] `RenderTexture::SetNumSourceLevels` · 005bd4c0 · legions 005869d0 — needs port: render texture level handling (detail level, sub-objects)
-- [ ] `RenderTexture::DropUnwantedLevels` · 005bd4f0 · legions 00586a00 — needs port: render texture level handling (detail level, sub-objects)
+- [x] `RenderTexture::DropUnwantedLevels` · 005bd4f0 · legions 00586a00 — ResourceStore::dropped_texture_levels from TextureDetail (load_ac2_texture_chain); highres.dat mounted via for_retail_install
 - [-] `RenderTexture::CopyInto` · 005bd600 · legions 00586b10 — D3D device/resource plumbing; wgpu replaces
 - [ ] `RenderTexture::GetSubDataIDs` · 005bd750 — needs port: render texture level handling (detail level, sub-objects)
 - [ ] `RenderTexture::InitLoad` · 005bd820 · legions 00586d40 — needs port: render texture level handling (detail level, sub-objects)

@@ -43,7 +43,7 @@ fn main() -> Result<(), String> {
         }
     }
     let dat_dir = dat_dir.ok_or("--dat-dir is required")?;
-    let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(&dat_dir))
+    let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::for_retail_install(&dat_dir))
         .map_err(|e| e.to_string())?;
     let store = Arc::new(ac2_db::ResourceStore::new(Arc::clone(&dataset)));
     ac2_db::install_ac2_property_types(&store).map_err(|e| e.to_string())?;

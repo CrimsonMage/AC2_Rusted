@@ -331,7 +331,10 @@ fn load_ac2_texture_chain(
         return Ok(None);
     };
     let mut levels = Vec::with_capacity(chain.levels.len());
-    for did in &chain.levels {
+    // `RenderTexture::DropUnwantedLevels`: the Environment Texture Detail choice leaves out the leading
+    // (largest) source levels, the `highres.dat` one at the top choice only without that file.
+    let dropped = store.dropped_texture_levels(chain.levels.len());
+    for did in &chain.levels[dropped..] {
         // HighRes is optional; an unmounted or missing high-resolution record falls back to Portal.
         let level = match load_level(store, DatFileKind::HighRes, *did) {
             Ok(Some(level)) => Some((DatFileKind::HighRes, level)),

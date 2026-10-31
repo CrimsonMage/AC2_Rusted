@@ -12,7 +12,9 @@ pub fn env_dataset() -> Option<Arc<DatDataset>> {
     DATASET
         .get_or_init(|| {
             let root = std::env::var_os("AC2_DAT_DIR")?;
-            Some(DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount"))
+            Some(
+                DatDataset::open(DatOpenOptions::for_retail_install(root)).expect("AC2 DATs mount"),
+            )
         })
         .clone()
 }

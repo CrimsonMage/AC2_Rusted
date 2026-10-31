@@ -729,6 +729,19 @@ pub fn landscape_draw_distance(bank: &PreferenceBank) -> Option<u32> {
     }
 }
 
+/// `ID_Graphics_TextureDetail` (`Render::m_Prefs.TextureDetail`, an enum 0 to 4).
+pub const TEXTURE_DETAIL_KEY: u32 = 0x4000_004F;
+
+/// The Environment Texture Detail choice as the bank holds it, for
+/// `ResourceStore::set_texture_detail` (`RenderTexture::DropUnwantedLevels`); `None` when it is not
+/// registered.
+pub fn texture_detail(bank: &PreferenceBank) -> Option<u8> {
+    match bank.find(TEXTURE_DETAIL_KEY)?.value {
+        Value::Int(v) => Some(v.clamp(0, 4) as u8),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 #[path = "prefs_tests.rs"]
 mod prefs_tests;

@@ -9100,7 +9100,7 @@ key	status	note
 005bca00	-	D3D device/resource plumbing; wgpu replaces
 005bcaa0	-	D3D device/resource plumbing; wgpu replaces
 005bcaf0	-	D3D device/resource plumbing; wgpu replaces
-005bcb40	_	needs port: render texture level handling (detail level, sub-objects)
+005bcb40	x	ResourceStore::dropped_texture_levels from TextureDetail (load_ac2_texture_chain); highres.dat mounted via for_retail_install
 005bcb60	_	needs port: render texture level handling (detail level, sub-objects)
 005bcb90	-	D3D device/resource plumbing; wgpu replaces
 005bcc20	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
@@ -9118,7 +9118,7 @@ key	status	note
 005bd450	-	custom allocator; Rust ownership
 005bd490	-	D3D device/resource plumbing; wgpu replaces
 005bd4c0	_	needs port: render texture level handling (detail level, sub-objects)
-005bd4f0	_	needs port: render texture level handling (detail level, sub-objects)
+005bd4f0	x	ResourceStore::dropped_texture_levels from TextureDetail (load_ac2_texture_chain); highres.dat mounted via for_retail_install
 005bd600	-	D3D device/resource plumbing; wgpu replaces
 005bd750	_	needs port: render texture level handling (detail level, sub-objects)
 005bd820	_	needs port: render texture level handling (detail level, sub-objects)

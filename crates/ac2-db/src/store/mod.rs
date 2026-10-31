@@ -1,4 +1,4 @@
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::AtomicU8;
 use std::sync::Arc;
 
 use ac2_core::DataId;
@@ -34,7 +34,8 @@ pub struct ResourceStore {
     typed_cache: TypedResourceCache,
     decode_flights: Arc<DecodeFlights>,
     decode_failures: Arc<DecodeFailureDiagnostics>,
-    high_detail_textures: Arc<AtomicBool>,
+    /// `Render::m_Prefs.TextureDetail` (0 to 4), which `RenderTexture::DropUnwantedLevels` reads.
+    texture_detail: Arc<AtomicU8>,
 }
 
 struct BodyLoad<'a, Decode, Charge> {
@@ -96,7 +97,7 @@ impl ResourceStore {
             typed_cache: TypedResourceCache::new(cache_config),
             decode_flights: Arc::new(DecodeFlights::default()),
             decode_failures: Arc::new(DecodeFailureDiagnostics::default()),
-            high_detail_textures: Arc::new(AtomicBool::new(false)),
+            texture_detail: Arc::new(AtomicU8::new(texture_detail::MAX_TEXTURE_DETAIL)),
         }
     }
 

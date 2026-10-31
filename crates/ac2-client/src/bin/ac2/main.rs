@@ -821,7 +821,9 @@ fn run(args: Args) -> Result<(), String> {
         env_content.as_deref(),
     );
     ac2_client::set_content_dir(content);
-    let mut dat_options = ac2_dat::DatOpenOptions::new(&args.dat_dir);
+    // `highres.dat` beside the others is mounted, as the retail installer's High Resolution
+    // Files option did; `RenderTexture::DropUnwantedLevels` decides per texture whether its level is used.
+    let mut dat_options = ac2_dat::DatOpenOptions::for_retail_install(&args.dat_dir);
     if let Some(language) = &args.language {
         dat_options.local_dat_file_name =
             ac2_dat::local_dat_for_language(args.dat_dir.as_ref(), language)?;
@@ -838,6 +840,10 @@ fn run(args: Args) -> Result<(), String> {
         .map_err(|e| format!("preferences: {e}"))?;
     // The saved graphics quality, else one chosen from the GPU, before anything reads the bank.
     prefs.apply_startup_quality(ac2_gpu::suggested_quality_level());
+    // `RenderTexture::DropUnwantedLevels` reads `TextureDetail` as each texture loads.
+    if let Some(detail) = ac2_render::prefs::texture_detail(prefs.bank()) {
+        store.set_texture_detail(detail);
+    }
     let dat_world = DatWorld::new(Arc::clone(&store))?;
     let world = Arc::clone(dat_world.world());
     // `gmClient::InitKeymap`: the player's keymap files, else the DATs' maps.

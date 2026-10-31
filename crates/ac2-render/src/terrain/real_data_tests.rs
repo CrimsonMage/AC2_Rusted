@@ -74,3 +74,24 @@ fn landblocks_build_blended_meshes_whose_layers_all_load() {
         );
     }
 }
+
+#[test]
+fn texture_detail_keeps_or_drops_the_highres_level() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    // `RenderTexture::DropUnwantedLevels` on the grass frills' texture: the top choice keeps the
+    // `highres.dat` level, the next leaves it out and one more halves it again.
+    for (detail, width) in [(4u8, 1024u32), (3, 512), (2, 256)] {
+        let store = ResourceStore::new(Arc::clone(&dataset));
+        store.set_texture_detail(detail);
+        let image = load_texture_image(&store, DataId::new(0x4000_0008))
+            .unwrap()
+            .expect("grass texture");
+        let top = image
+            .blocks
+            .as_ref()
+            .map_or_else(|| image.levels[0].width, |b| b.levels[0].width);
+        assert_eq!(top, width, "detail {detail}");
+    }
+}
