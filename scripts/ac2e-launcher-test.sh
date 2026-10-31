@@ -32,7 +32,7 @@ mkdir -p "$AC2E_STATE/data"
   > "$AC2E_STATE/accounts.log" 2>&1 &
 accounts=$!
 sleep 2
-"$root/scripts/ac2e-server.sh" --seconds 600 --auth-data "$auth" > "$log" 2>&1 &
+"$root/scripts/ac2e-server.sh" --auth-data "$auth" > "$log" 2>&1 &
 server=$!
 stop() {
   kill "$accounts" 2>/dev/null || true

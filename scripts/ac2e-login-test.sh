@@ -22,7 +22,7 @@ mkdir -p "$state"
 log=$state/login-test-server.log
 
 cargo build -q -p ac2-login-probe --manifest-path "$root/Cargo.toml"
-"$root/scripts/ac2e-server.sh" --seconds 600 > "$log" 2>&1 &
+"$root/scripts/ac2e-server.sh" > "$log" 2>&1 &
 server=$!
 # AC2e stops cleanly (releasing its data lock) when it sees stop.request; kill only as a fallback.
 stop() {
