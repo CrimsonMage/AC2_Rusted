@@ -327,6 +327,21 @@ impl Walk {
     }
 
     /// A camera action (`camera_action::*`) started or stopped.
+    /// `RecvEvt_DoMode` for `mode` alone, else `RecvEvt_DoBehavior` for `behavior` entered from
+    /// `mode`. Returns whether the body took it.
+    pub fn act(&mut self, mode: u32, behavior: Option<u32>) -> bool {
+        let Some(player) = self.player.as_mut() else {
+            return false;
+        };
+        match behavior {
+            Some(behavior) => player.physics.do_behavior(&ac2_anim::Ac2BehaviorParams {
+                mode,
+                ..ac2_anim::Ac2BehaviorParams::new(behavior)
+            }),
+            None => player.physics.do_mode(0, mode),
+        }
+    }
+
     pub fn camera_action(&mut self, action: u32, start: bool) {
         let subject = self
             .player

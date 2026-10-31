@@ -294,6 +294,12 @@ impl SkeletonGroup {
         self.parents.len()
     }
 
+    /// The parent group and the bone of it the group hangs from (`m_parentBoneIndex`); `None`
+    /// for the root group.
+    pub fn parent_bone(&self) -> Option<(usize, Option<usize>)> {
+        self.attachment.map(|(group, bone, _)| (group, bone))
+    }
+
     /// `CPartArray::UpdateBones` over `locals` (`m_boneTransforms`).
     fn update_bones(&self, locals: &[Ac2Transform]) -> GroupPose {
         let count = self.parents.len();

@@ -12,6 +12,13 @@
 //! are all weighted most to bones of covered AC1 parts (`Retarget::bone_parts`: the neck goes
 //! with the head, a clavicle with its upper arm; a tail is no part's). The AC2 head, neck and
 //! hands stay AC2's, except on the races in `WHOLE_AC1_BODY`, drawn as the whole AC1 body.
+//!
+//! `--ac2-armor` adds AC2 armour: each appearance table joins the player's global appearance
+//! keys (`m_global_app_mods`, as a worn item's do) at `ARMOR_KEY`, so its mesh atoms swap the
+//! AC2 body's meshes (`MeshReplacementAtom`). The armour meshes are skinned to the AC2 bones
+//! the AC1 pieces hang from, so on a whole AC1 body only they are kept of the AC2 model, and
+//! the AC1 parts under them (those most of their vertices are weighted to) give way to them,
+//! as do the AC1 pieces there.
 
 use std::collections::{BTreeSet, HashMap};
 use std::path::Path;
@@ -24,7 +31,7 @@ use ac2_db::ResourceStore;
 use ac2_math::Vec3;
 use ac2_physics::HoldPoint;
 use ac2_render::object::{ObjectModel, RenderSettings};
-use ac2_weenie::Appearance;
+use ac2_weenie::{Appearance, PartGroupAppearance};
 
 use crate::ac1_motion::{ac1_body, Ac1Motion};
 
@@ -41,6 +48,10 @@ const FIRST_LOCATION: u32 = 0x100;
 const WHOLE_AC1_BODY: [u32; 1] = [0x2];
 /// The AC1 player body's drawn parts (`HUMAN`'s 0 abdomen to 16 head).
 const AC1_PLAYER_PARTS: usize = 17;
+/// The appearance key AC2's armour tables hold their mesh swap under, at its full scalar.
+const ARMOR_KEY: u32 = 0x10;
+/// The share of an AC1 part's AC2 body vertices the AC2 armour must replace to cover it.
+const ARMOR_COVER: f32 = 0.5;
 
 /// A built piece: the AC1 body part it covers and the visual it is drawn under.
 #[derive(Debug, Clone, Copy)]
@@ -65,20 +76,25 @@ pub struct Ac1Worn {
 
 impl Ac1Worn {
     /// Builds every weenie in `dir` for each AC2 player body `players` lists (visual, race,
-    /// sex), adding the pieces and the dressed bodies to `models`.
+    /// sex), with the AC2 armour tables `ac2_armor` over them, adding the pieces and the dressed
+    /// bodies to `models`.
     pub fn load(
         dats: &Ac1Dats,
-        dir: &Path,
+        dir: Option<&Path>,
+        ac2_armor: &[u32],
         players: &[(DataId, u32, u32)],
         store: &ResourceStore,
         motion: &mut Ac1Motion,
         models: &mut Ac1Models,
     ) -> Result<Self, String> {
-        let mut paths: Vec<_> = std::fs::read_dir(dir)
-            .map_err(|e| format!("{}: {e}", dir.display()))?
-            .filter_map(|entry| entry.ok().map(|entry| entry.path()))
-            .filter(|path| path.extension().is_some_and(|ext| ext == "sql"))
-            .collect();
+        let mut paths: Vec<_> = match dir {
+            Some(dir) => std::fs::read_dir(dir)
+                .map_err(|e| format!("{}: {e}", dir.display()))?
+                .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+                .filter(|path| path.extension().is_some_and(|ext| ext == "sql"))
+                .collect(),
+            None => Vec::new(),
+        };
         paths.sort();
         let items: Vec<AceWeenie> = paths
             .iter()
@@ -105,11 +121,26 @@ impl Ac1Worn {
                     }
                 }
             }
-            if pieces.is_empty() {
+            if pieces.is_empty() && ac2_armor.is_empty() {
                 continue;
             }
+            let Some(retarget) = motion.retarget(visual.raw(), race, sex) else {
+                continue;
+            };
+            let owners = retarget.bone_parts();
+            let Some(model) = armored_model(store, visual, ac2_armor) else {
+                eprintln!(
+                    "world-viewer: no AC2 body for visual {:#010x}",
+                    visual.raw()
+                );
+                continue;
+            };
+            let (armor, under_armor) = armor_cover(store, visual, ac2_armor, &model, &owners);
+            pieces.retain(|piece| !under_armor.contains(&piece.part));
             let mut covered: BTreeSet<usize> = pieces.iter().map(|p| p.part).collect();
-            if WHOLE_AC1_BODY.contains(&race) {
+            covered.extend(&under_armor);
+            let whole = WHOLE_AC1_BODY.contains(&race);
+            if whole {
                 // The rest of the AC1 body is drawn bare, and the AC2 body under all of it goes.
                 let bare: Vec<usize> = (0..AC1_PLAYER_PARTS)
                     .filter(|p| !covered.contains(p))
@@ -120,32 +151,28 @@ impl Ac1Worn {
                 }
                 covered.extend(0..AC1_PLAYER_PARTS);
             }
-            let Some(retarget) = motion.retarget(visual.raw(), race, sex) else {
-                continue;
-            };
-            let owners = retarget.bone_parts();
-            let Some(model) =
-                ac2_render::object::load_object_model(store, visual, &RenderSettings::default())
-                    .ok()
-                    .flatten()
-            else {
-                eprintln!(
-                    "world-viewer: no AC2 body for visual {:#010x}",
-                    visual.raw()
-                );
-                continue;
-            };
             let body = undressed_body(
                 store,
                 visual,
                 model,
-                &owners,
-                &covered,
+                (&owners, &covered),
+                (&armor, whole),
                 DataId::new(next_body),
                 models,
             );
             next_body += 1;
             dressed.insert(visual.raw(), Dressed { body, pieces });
+        }
+        if !ac2_armor.is_empty() {
+            println!(
+                "ac2 armour: {} on {} bodies",
+                ac2_armor
+                    .iter()
+                    .map(|t| format!("{t:#010x}"))
+                    .collect::<Vec<_>>()
+                    .join(", "),
+                dressed.len()
+            );
         }
         if !items.is_empty() {
             println!(
@@ -252,19 +279,142 @@ fn add(
     }
 }
 
+/// The player's local appearance with the AC2 armour tables `tables` as worn items add them:
+/// global appearance keys on the AC2 visual.
+fn armor_appearance(visual: DataId, tables: &[u32]) -> Appearance {
+    let mut appearance = Appearance {
+        parent: visual.raw(),
+        ..Appearance::default()
+    };
+    appearance.global = PartGroupAppearance {
+        appearance: tables
+            .iter()
+            .map(|&table| (table, vec![(ARMOR_KEY, 1.0)]))
+            .collect(),
+        ..appearance.global
+    };
+    appearance
+}
+
+/// AC2 player visual `visual`'s model with the armour tables `tables` worn.
+fn armored_model(store: &ResourceStore, visual: DataId, tables: &[u32]) -> Option<ObjectModel> {
+    let local = ac2_physics::local_visual_desc(&armor_appearance(visual, tables));
+    ac2_render::object::load_object_model_with(
+        store,
+        visual,
+        Some(&local),
+        &RenderSettings::default(),
+    )
+    .ok()
+    .flatten()
+}
+
+/// The armour tables' meshes (`tables`' mesh atoms at `ARMOR_KEY`) and the AC1 parts they cover:
+/// those at least `ARMOR_COVER` of whose bare AC2 body vertices (in `visual`'s model, each
+/// counted for the AC1 part its strongest bone belongs to, `owners`) the armour replaced, by
+/// the vertices of `model`'s armour meshes.
+fn armor_cover(
+    store: &ResourceStore,
+    visual: DataId,
+    tables: &[u32],
+    model: &ObjectModel,
+    owners: &[Option<usize>],
+) -> (BTreeSet<DataId>, BTreeSet<usize>) {
+    let mut atoms = ac2_assets::Ac2Atoms::default();
+    for &table in tables {
+        if let Err(error) = ac2_assets::ac2_appearance_atoms(
+            store,
+            DataId::new(table),
+            ARMOR_KEY,
+            1.0,
+            false,
+            &mut atoms,
+        ) {
+            eprintln!("world-viewer: AC2 armour {table:#010x}: {error}");
+        }
+    }
+    let meshes: BTreeSet<DataId> = atoms.meshes.iter().map(|atom| atom.mesh).collect();
+    let replaced: BTreeSet<u32> = model
+        .parts
+        .iter()
+        .filter(|part| meshes.contains(&part.mesh))
+        .map(|part| part.mesh_type)
+        .collect();
+    let Some(bare) =
+        ac2_render::object::load_object_model(store, visual, &RenderSettings::default())
+            .ok()
+            .flatten()
+    else {
+        return (meshes, BTreeSet::new());
+    };
+    // The root bone each group hangs from, through its parents (the head is a group of its own).
+    let groups = bare
+        .skeleton
+        .as_ref()
+        .map_or(&[][..], |skeleton| &skeleton.groups[..]);
+    let root_bone = |mut group: usize| {
+        for _ in 0..groups.len() {
+            match groups.get(group)?.parent_bone()? {
+                (0, bone) => return bone,
+                (parent, _) => group = parent,
+            }
+        }
+        None
+    };
+    // Each AC1 part's bare vertices: all of them, and those of the replaced meshes. A root group
+    // vertex counts for its strongest bone's part, another group's for the part of its bone.
+    let mut counts: HashMap<usize, (usize, usize)> = HashMap::new();
+    for part in &bare.parts {
+        let gone = usize::from(replaced.contains(&part.mesh_type));
+        let mut add = |owner: Option<usize>, vertices: usize| {
+            if let Some(owner) = owner {
+                let count = counts.entry(owner).or_default();
+                count.0 += vertices;
+                count.1 += gone * vertices;
+            }
+        };
+        let owner_of = |bone: usize| owners.get(bone).copied().flatten();
+        match (&part.skin, part.slot.0) {
+            (Some(skin), 0) => {
+                for influences in skin.iter() {
+                    let strongest = influences.iter().max_by(|a, b| a.1.total_cmp(&b.1));
+                    add(strongest.and_then(|(bone, _)| owner_of(*bone as usize)), 1);
+                }
+            }
+            (_, 0) => {}
+            (_, group) => add(root_bone(group).and_then(owner_of), part.vertices.len()),
+        }
+    }
+    let covered = counts
+        .into_iter()
+        .filter(|(_, (all, gone))| *gone as f32 >= ARMOR_COVER * *all as f32)
+        .map(|(part, _)| part)
+        .collect();
+    (meshes, covered)
+}
+
 /// AC2 player visual `visual`'s model (`model`) without the root group's triangles under the
-/// armour: those whose three vertices are each weighted most to a bone whose AC1 part
-/// (`owners`) is in `covered`. Added to `models` under `body` at the visual's scale; its DID.
+/// AC1 pieces: those whose three vertices are each weighted most to a bone whose AC1 part
+/// (`owners`) is in `covered`. The AC2 armour's meshes (`armor`) stay; on a whole AC1 body
+/// (`whole`) they are all that stays. Added to `models` under `body` at the visual's scale;
+/// its DID.
 fn undressed_body(
     store: &ResourceStore,
     visual: DataId,
     mut model: ObjectModel,
-    owners: &[Option<usize>],
-    covered: &BTreeSet<usize>,
+    (owners, covered): (&[Option<usize>], &BTreeSet<usize>),
+    (armor, whole): (&BTreeSet<DataId>, bool),
     body: DataId,
     models: &mut Ac1Models,
 ) -> u32 {
-    for part in model.parts.iter_mut().filter(|part| part.slot.0 == 0) {
+    if whole {
+        model.parts.retain(|part| armor.contains(&part.mesh));
+    }
+    for part in model
+        .parts
+        .iter_mut()
+        .filter(|part| part.slot.0 == 0 && !armor.contains(&part.mesh))
+    {
         let Some(skin) = part.skin.clone() else {
             continue;
         };

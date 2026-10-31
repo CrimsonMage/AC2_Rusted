@@ -21,7 +21,7 @@ use crate::walk::WalkInput;
 /// AC1 `MotionCommand`s the walker's movement maps to.
 mod motion {
     pub const READY: u32 = 0x4100_0003;
-    pub const WALK_BACKWARD: u32 = 0x4500_0006;
+    pub const WALK_FORWARD: u32 = 0x4500_0005;
     pub const RUN_FORWARD: u32 = 0x4400_0007;
     pub const TURN_RIGHT: u32 = 0x6500_000D;
     pub const SIDE_STEP_RIGHT: u32 = 0x6500_000F;
@@ -144,14 +144,15 @@ impl Ac1Motion {
     }
 
     /// The AC1 cycle the walker's movement plays, and whether it runs backwards (AC1 plays the
-    /// left turns and side steps as the right ones at negative speed).
+    /// left turns and side steps as the right ones at negative speed, and walking backwards as
+    /// walking forwards: `CMotionInterp::adjust_motion`).
     fn pick(input: &WalkInput, contact: bool) -> (u32, bool) {
         if !contact {
             (motion::FALLING, false)
         } else if input.forward > 0.0 {
             (motion::RUN_FORWARD, false)
         } else if input.forward < 0.0 {
-            (motion::WALK_BACKWARD, false)
+            (motion::WALK_FORWARD, true)
         } else if input.strafe != 0.0 {
             (motion::SIDE_STEP_RIGHT, input.strafe < 0.0)
         } else if input.turn != 0.0 {

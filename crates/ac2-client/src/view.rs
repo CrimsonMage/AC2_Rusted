@@ -562,6 +562,25 @@ impl ClientView {
             self.portal.drawn().then_some(draw_portal),
         );
     }
+
+    /// [`ClientView::render`] of the world alone: no HUD layers over it.
+    pub fn render_world(&self, gpu: &Gpu, color: &wgpu::TextureView, depth: &wgpu::TextureView) {
+        let (overlay, _) = self.hud.layers_for_scenes();
+        let draw_portal: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.portal.draw(pass);
+        crate::ui_scene::render_with_scenes(
+            gpu,
+            &self.presenter,
+            color,
+            depth,
+            &self.hud.scale,
+            [0.0; 3],
+            overlay,
+            &[],
+            &[],
+            self.world_drawn.then_some(&self.renderer),
+            self.portal.drawn().then_some(draw_portal),
+        );
+    }
 }
 
 /// A drawn object's model key, model-to-world matrix and pose (`CPartArray::UpdateBones`),

@@ -95,6 +95,7 @@ impl Ac1Showcase {
         weenies: Option<&Path>,
         weapons: Option<&Path>,
         armor: Option<&Path>,
+        ac2_armor: &[u32],
         players: &[(DataId, u32, u32)],
         held_scale: Option<f32>,
         store: Arc<ac2_db::ResourceStore>,
@@ -110,11 +111,12 @@ impl Ac1Showcase {
             None => Vec::new(),
         };
         let mut motion = crate::ac1_motion::Ac1Motion::new(dats.clone(), Arc::clone(&store));
-        let worn = armor
-            .map(|dir| {
+        let worn = (armor.is_some() || !ac2_armor.is_empty())
+            .then(|| {
                 crate::ac1_worn::Ac1Worn::load(
                     &dats,
-                    dir,
+                    armor,
+                    ac2_armor,
                     players,
                     &store,
                     &mut motion,

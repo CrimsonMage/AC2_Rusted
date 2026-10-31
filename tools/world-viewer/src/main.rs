@@ -8,7 +8,7 @@
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR] [--ac1-heartbeat SECONDS] [--ac1-lineup]
 //! world-viewer ... --ac1-weapons DIR [--ac1-weapon N] [--ac1-weapon-placement P] [--ac1-weapon-scale S] [--orbit SECONDS]
-//! world-viewer ... --ac1-armor DIR
+//! world-viewer ... --ac1-armor DIR [--ac2-armor TABLE,...]
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
@@ -55,11 +55,17 @@
 //! the primary hand as the paper doll does (the session's server wields it).
 //! `--ac1-armor DIR` dresses the player in the ACE armour of DIR (`ac1_worn.rs`): each part its
 //! ClothingBase gives the race's AC1 body hangs from the AC2 bone that part is paired with.
+//! `--ac2-armor TABLE,...` adds AC2 armour appearance tables (hex DIDs: the Lugian's
+//! `av_lgm_malok_breastplate.apr` is 0x2000002D) over it, the Lugian's AC1 body included.
 //! `--ac1-motion MOVE` (`ready`, `run`, `back`, `strafe`, `turn`) poses the snapshot's player
 //! with that movement's AC1 cycle, retargeted (`ac1_motion.rs`; the window's panel toggle), at
 //! `--ac1-motion-time` seconds (default 0.3).
 //! `--orbit SECONDS` turns the snapshot's player camera about the player that long after the walk
-//! (the camera's rotate-left action), to see the player from the side.
+//! (the camera's rotate-left action), to see the player from the side; `--zoom SECONDS` then
+//! zooms the camera in that long. `--no-hud` draws the snapshot's world alone (no HUD, no panel).
+//! `--ac2-action MODE[:BEHAVIOR]` puts the snapshot's player in an AC2 mode and plays a behaviour
+//! there (`ac2_action.rs`), `--ac2-action-time` seconds before the frame (default 0.5);
+//! `--ac2-actions` lists the DAT's mode and behaviour names.
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -78,6 +84,7 @@ mod ac1_fx;
 mod ac1_held;
 mod ac1_motion;
 mod ac1_worn;
+mod ac2_action;
 mod bench;
 mod crowd;
 mod fly;
@@ -160,6 +167,8 @@ struct Args {
     ac1_weapons: Option<PathBuf>,
     /// `--ac1-armor DIR`: ACE armour weenies the player wears.
     ac1_armor: Option<PathBuf>,
+    /// `--ac2-armor TABLE,...`: AC2 armour appearance tables the player wears.
+    ac2_armor: Vec<u32>,
     ac1_weapon: usize,
     ac1_weapon_placement: Option<u32>,
     /// `--ac1-weapon-scale S`: the held weapons' scale over their weenies' (default 0.75).
@@ -170,6 +179,15 @@ struct Args {
     ac1_motion_time: f64,
     /// `--orbit SECONDS`: the player camera turns about the player that long after the walk.
     orbit: f32,
+    /// `--zoom SECONDS`: the player camera zooms in that long after the orbit.
+    zoom: f32,
+    /// `--no-hud`: the snapshot draws the world without the HUD and the panel.
+    no_hud: bool,
+    /// `--ac2-action MODE[:BEHAVIOR]` and the seconds it plays before the frame.
+    ac2_action: Option<String>,
+    ac2_action_time: f32,
+    /// `--ac2-actions`: list the mode and behaviour names and exit.
+    list_ac2_actions: bool,
     /// `--hud-panel NAME`: the snapshot logs on to the HUD's session and opens that toolbar panel.
     hud_panel: Option<ac2_ui::ToolbarChild>,
     /// `--equip N`: with `--hud-panel`, the session equips AC1 weapon N in the primary hand.
@@ -213,12 +231,18 @@ fn parse_args() -> Result<Args, String> {
         ac1_lineup: false,
         ac1_weapons: None,
         ac1_armor: None,
+        ac2_armor: Vec::new(),
         ac1_weapon: 0,
         ac1_weapon_placement: None,
         ac1_weapon_scale: None,
         ac1_motion: None,
         ac1_motion_time: 0.3,
         orbit: 0.0,
+        zoom: 0.0,
+        no_hud: false,
+        ac2_action: None,
+        ac2_action_time: 0.5,
+        list_ac2_actions: false,
         hud_panel: None,
         equip: None,
     };
@@ -321,8 +345,24 @@ fn parse_args() -> Result<Args, String> {
             }
             "--equip" => args.equip = Some(value()?.parse().map_err(|e| format!("--equip: {e}"))?),
             "--orbit" => args.orbit = value()?.parse().map_err(|e| format!("--orbit: {e}"))?,
+            "--zoom" => args.zoom = value()?.parse().map_err(|e| format!("--zoom: {e}"))?,
+            "--no-hud" => args.no_hud = true,
+            "--ac2-action" => args.ac2_action = Some(value()?),
+            "--ac2-actions" => args.list_ac2_actions = true,
+            "--ac2-action-time" => {
+                args.ac2_action_time = value()?
+                    .parse()
+                    .map_err(|e| format!("--ac2-action-time: {e}"))?;
+            }
             "--ac1-weapons" => args.ac1_weapons = Some(value()?.into()),
             "--ac1-armor" => args.ac1_armor = Some(value()?.into()),
+            "--ac2-armor" => {
+                args.ac2_armor = value()?
+                    .split(',')
+                    .map(|table| u32::from_str_radix(table.trim().trim_start_matches("0x"), 16))
+                    .collect::<Result<_, _>>()
+                    .map_err(|e| format!("--ac2-armor: {e}"))?;
+            }
             "--ac1-weapon" => {
                 args.ac1_weapon = value()?.parse().map_err(|e| format!("--ac1-weapon: {e}"))?;
             }
@@ -402,11 +442,13 @@ fn parse_args() -> Result<Args, String> {
     if args.crowd > 0 && args.snapshot.is_none() && args.bench == 0 {
         return Err("--crowd needs --snapshot or --bench".into());
     }
-    let ac1_wanted =
-        args.ace_weenies.is_some() || args.ac1_weapons.is_some() || args.ac1_armor.is_some();
+    let ac1_wanted = args.ace_weenies.is_some()
+        || args.ac1_weapons.is_some()
+        || args.ac1_armor.is_some()
+        || !args.ac2_armor.is_empty();
     if ac1_wanted && args.ac1_dat_dir.is_none() {
         return Err(
-            "--ace-weenies, --ac1-weapons and --ac1-armor need --ac1-dat-dir or AC1_DAT_DIR".into(),
+            "--ace-weenies, --ac1-weapons, --ac1-armor and --ac2-armor need --ac1-dat-dir or AC1_DAT_DIR".into(),
         );
     }
     Ok(args)
@@ -423,6 +465,10 @@ fn main() {
     };
     let dataset = DatDataset::open(DatOpenOptions::new(&args.dat_dir)).expect("AC2 DATs mount");
     let store = Arc::new(ResourceStore::new(dataset));
+    if args.list_ac2_actions {
+        ac2_action::list(&store);
+        return;
+    }
     let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("AC2 landscape vocabulary decodes")
         .expect("the DAT directory holds an AC2 dataset");
@@ -430,14 +476,17 @@ fn main() {
         Ok(models) => (models, None),
         Err(error) => (Vec::new(), Some(error)),
     };
-    let wanted =
-        args.ace_weenies.is_some() || args.ac1_weapons.is_some() || args.ac1_armor.is_some();
+    let wanted = args.ace_weenies.is_some()
+        || args.ac1_weapons.is_some()
+        || args.ac1_armor.is_some()
+        || !args.ac2_armor.is_empty();
     let ac1 = match (&args.ac1_dat_dir, wanted) {
         (Some(dats), true) => match ac1::Ac1Showcase::load(
             dats,
             args.ace_weenies.as_deref(),
             args.ac1_weapons.as_deref(),
             args.ac1_armor.as_deref(),
+            &args.ac2_armor,
             &models
                 .iter()
                 .map(|m| (m.visual, m.race, m.sex))
@@ -570,6 +619,12 @@ fn snapshot(
     args: &Args,
 ) {
     let (width, height) = args.size;
+    let ac2_action = args.ac2_action.as_deref().map(|spec| {
+        ac2_action::Ac2Action::parse(&store, spec).unwrap_or_else(|e| {
+            eprintln!("world-viewer: --ac2-action: {e}");
+            std::process::exit(2);
+        })
+    });
     // Only `--gpu-times` asks the device for timestamp queries.
     let gpu = if args.gpu_times {
         Gpu::headless_timed()
@@ -638,8 +693,20 @@ fn snapshot(
         });
         walk.speed = args.speed;
         let walked = walk_for(&mut view, &mut walk, &gpu, args.walk_seconds, model.visual);
+        let mut now = walked;
         if args.orbit > 0.0 {
-            orbit(&mut walk, args.orbit, walked);
+            now = hold_camera(&mut walk, walk::actions::ROTATE_LEFT, args.orbit, now);
+        }
+        if args.zoom > 0.0 {
+            now = hold_camera(&mut walk, walk::actions::ZOOM_IN, args.zoom, now);
+        }
+        if let Some(action) = ac2_action {
+            let started = walk.act(action.mode, action.behavior);
+            println!(
+                "ac2 action: {action:x?} {}",
+                if started { "started" } else { "refused" }
+            );
+            stand(&mut walk, args.ac2_action_time, now);
         }
         if let Some(message) = &walk.message {
             println!("walk: {message}");
@@ -743,7 +810,11 @@ fn snapshot(
         );
         println!("{}", report.line());
     }
-    view.render(&gpu, &target.color_view, &target.depth_view, true);
+    if args.no_hud {
+        view.render_world(&gpu, &target.color_view, &target.depth_view);
+    } else {
+        view.render(&gpu, &target.color_view, &target.depth_view, true);
+    }
     // The control panel over it, as the window draws it.
     let mut gui = gui::Gui::headless(&gpu, COLOR_FORMAT);
     let mut panel = panel::Panel::new(
@@ -760,6 +831,9 @@ fn snapshot(
     let mut day = time_of_day;
     let status = walk.status();
     gui.headless_frame(&gpu, &target.color_view, [width, height], |ui| {
+        if args.no_hud {
+            return;
+        }
         panel.show(
             ui,
             panel::PanelView {
@@ -850,18 +924,32 @@ fn hud_session(
     *frame = merged;
 }
 
-/// Holds the camera's `ROTATE_LEFT` action for `seconds` of simulated 60 Hz time, turning the
-/// player camera about the standing player (`--orbit`: the snapshot sees the player's side).
-fn orbit(walk: &mut walk::Walk, seconds: f32, mut now: f64) {
+/// Holds the camera action `action` for `seconds` of simulated 60 Hz time from `now` about the
+/// standing player (`--orbit` turns it to the player's side, `--zoom` closes in). Returns the
+/// simulated time reached.
+fn hold_camera(walk: &mut walk::Walk, action: u32, seconds: f32, mut now: f64) -> f64 {
     const STEP: f32 = 1.0 / 60.0;
-    walk.camera_action(walk::actions::ROTATE_LEFT, true);
+    walk.camera_action(action, true);
     let mut turned = 0.0;
     while turned < seconds {
         now += f64::from(STEP);
         turned += STEP;
         walk.update(STEP, now, walk::WalkInput::default());
     }
-    walk.camera_action(walk::actions::ROTATE_LEFT, false);
+    walk.camera_action(action, false);
+    now
+}
+
+/// Lets the standing player animate for `seconds` of simulated 60 Hz time from `now`.
+fn stand(walk: &mut walk::Walk, seconds: f32, mut now: f64) -> f64 {
+    const STEP: f32 = 1.0 / 60.0;
+    let mut stood = 0.0;
+    while stood < seconds {
+        now += f64::from(STEP);
+        stood += STEP;
+        walk.update(STEP, now, walk::WalkInput::default());
+    }
+    now
 }
 
 /// Runs the player in simulated 60 Hz time: until it is in the world (the cells load on their
