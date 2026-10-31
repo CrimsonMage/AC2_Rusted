@@ -2613,7 +2613,7 @@ key	status	note
 0047e400	-	DBO cache grabber (DBOCache exception, AGENTS.md)
 0047e520	x	ac2-physics los (Terrain::los_check)
 0047e570	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047e670	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+0047e670	~	Legions 0x004786B0 (unnamed in the export; same body, calls handle_move_restriction 0x004782E0). ac2-physics cells.rs find_env_collisions: terrain polygon under the low point, validate_walkable as landscape. Not ported: the impassable-landblock branch (CLandBlockData::m_bPassable == 0 -> CLandCell::handle_move_restriction)
 0047e7d0	x	ac2-physics los (Terrain::los_check)
 0047ecb0	-	SmartArray container operation (Vec replaces it)
 0047ed10	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
@@ -10418,7 +10418,7 @@ key	status	note
 00601210	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601310	-	destructor: Rust drop
 00601390	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-006013a0	~	ac2-physics motion_interp.rs set_velocity_scale / set_acceleration_scale (reached from the server and script events); the collision impact minimum CPhysicsObj::SetVelocityScale also sets is not modelled
+006013a0	x	ac2-physics motion_interp.rs set_velocity_scale stores mVelScale, the whole retail body (Legions 005c2230 identical). The collision impact minimum is CPhysicsObj::SetVelocityScale's (004e22f0), ported in body.rs set_velocity_scale, which calls this and collision_impact.rs set_velocity_scale
 006013b0	x	ac2-script glue/chargen.rs SetStartingPosition efun (start_pos)
 006013d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601470	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)

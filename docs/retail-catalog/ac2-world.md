@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 352 done, 34 partial, 19 to do, 584 skipped.
+989 retail functions: 352 done, 35 partial, 19 to do, 583 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (38/140)
@@ -572,7 +572,7 @@ Legend and workflow: [README](README.md).
 
 ### CLandCell
 - [x] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [-] `CLandCell::find_env_collisions` · 0047e670 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [~] `CLandCell::find_env_collisions` · 0047e670 — Legions 0x004786B0 (unnamed in the export; same body, calls handle_move_restriction 0x004782E0). ac2-physics cells.rs find_env_collisions: terrain polygon under the low point, validate_walkable as landscape. Not ported: the impassable-landblock branch (CLandBlockData::m_bPassable == 0 -> CLandCell::handle_move_restriction)
 - [x] `CLandCell::TraceRay` · 0047e7d0 · legions 00478810 — ac2-physics los (Terrain::los_check)
 
 ### SmartArray<Plane>
