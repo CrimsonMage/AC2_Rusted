@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 352 done, 35 partial, 19 to do, 583 skipped.
+989 retail functions: 354 done, 33 partial, 19 to do, 583 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (38/140)
+## `portal/shared/src/cell/envcell.cpp.c` (39/140)
 
 ### PackObj
 - [-] `PackObj::Pack` · 0047f1a0 — write path (client reads DATs only)
@@ -174,7 +174,7 @@ Legend and workflow: [README](README.md).
 - [-] `FileNodeName_PString::UnPack` · 00483440 · legions 0047d2e0 — FileNode name wrapper (Rust strings)
 
 ### CEnvCell
-- [~] `CEnvCell::CreatePhysicsObj` · 00483460 · legions 0047d300 — ac2-world env_cell_markers: drawn placement only (no physics object, no collision)
+- [x] `CEnvCell::CreatePhysicsObj` · 00483460 · legions 0047d300 — ac2-physics loader.rs load_block_interiors: each env-cell entity of type 0x40000001/0x40000007 (CEnvCell::InitStaticObjects filter, ac2-world env_cell_entities) becomes a StaticObject in that cell with shape, scale, blocking mask, at the entity offset; tested in loader_static_objects_tests.rs.
 - [-] `CEnvCell::CreateLightSource` · 004834f0 · legions 0047d390 — entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 - [x] `CEnvCell::CheckVisibility` · 00483680 · legions 0047d520 — ac2-render interior_cull.rs check_visibility (frustum vs cell box, then the portals that face the viewer's side against Frustum::check_polygon); WorkerPolygon/Frustum polygon clip in worker_polygon.rs and frustum.rs; wired by scene/mod.rs visible_interior_cells for every outside-stab cell that touches outside; unit tested
 - [ ] `CEnvCell::GatherInsideObjects` · 00483970 · legions 0047d810 — needs port: indoor env cell: visibility, lights, portals, rendering
@@ -249,7 +249,7 @@ Legend and workflow: [README](README.md).
 - [-] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0 — frees the global group table; the groups live in BlockCull and drop with the block
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
-## `portal/shared/src/cell/landblock.cpp.c` (36/72)
+## `portal/shared/src/cell/landblock.cpp.c` (37/72)
 
 ### LandDefs
 - [x] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970 — ac2-physics los (Terrain::los_check)
@@ -346,7 +346,7 @@ Legend and workflow: [README](README.md).
 - [x] `CLandBlock::AddEntityToClearList` · 0048abb0 · legions 00484460
 - [x] `CLandBlock::StartSceneGroup` · 0048ace0 · legions 00484590
 - [x] `CLandBlock::ProcEntity` · 0048ad70 · legions 00484620
-- [~] `CLandBlock::CreateStaticObjects` · 0048ae10 · legions 004846c0 — ac2-physics loader: each landblock entity's blocking mask from its ethereal properties (ac2_db::ac2_ethereal_mask). Retail's SetProperty(0x40000038) is a no-op (bit 0x40000038 is past 63) and the SetCollisionState rewrite of the same mask is the identity. Not ported: the ObjectClearance group/weenie filter and the scene/lbi object split
+- [x] `CLandBlock::CreateStaticObjects` · 0048ae10 · legions 004846c0 — ac2-physics loader.rs load_block_objects + ac2-world ac2_landblock_info.rs ac2_entity_markers: only CLandBlockInfo types 0x40000001/0x40000007 (GenerateLBIObjectList non-weenie) plus generated scenery collide; 0x40000002 weenies and other types never become static objects; unplaceable (no land cell after adjust_to_outside) skipped. Scene vs LBI owner lists (m_scene_objects/m_lbi_objects) not modelled; no consumer needs them.
 - [x] `CLandBlock::AddDynamicObject` · 0048afe0 · legions 00484890 — ac2-smartbox membership.rs inq_objects, add_dynamic_object, remove_dynamic_object (swap-remove, DynamicObjectInfo timestamp)
 - [ ] `CLandBlock::AddToBrushList` · 0048b010 · legions 004848c0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
 - [ ] `CLandBlock::GetAmbientSoundPoints` · 0048b170 · legions 00484a20 — needs port: landblock streaming: scenery, objects, cells, water, sound points

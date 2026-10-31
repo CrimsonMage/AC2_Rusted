@@ -158,7 +158,7 @@ impl Ac2WorldSource {
         Ok(None)
     }
 
-    /// The cell's static entities resolved to visuals; instances name a template `EntityDesc`
+    /// The cell's static-object entities (`CEnvCell::InitStaticObjects`) resolved to visuals; instances name a template `EntityDesc`
     /// whose data is the `VisualDesc`, and scale composes instance over template.
     pub fn env_cell_entities(
         &self,
@@ -166,7 +166,11 @@ impl Ac2WorldSource {
     ) -> ResourceResult<Vec<Ac2CellEntityPlacement>> {
         let origin = self.ac2_block_origin(cell.cell_id);
         let mut placements = Vec::with_capacity(cell.entities.len());
-        for entity in cell.entities.iter() {
+        for entity in cell
+            .entities
+            .iter()
+            .filter(|entity| crate::ac2_landblock_info::is_static_object_type(entity.entity_type))
+        {
             let Some(data) = entity.data else {
                 continue;
             };

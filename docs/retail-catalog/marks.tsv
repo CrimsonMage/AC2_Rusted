@@ -2712,7 +2712,7 @@ key	status	note
 00483410	-	write path (client reads DATs only)
 00483430	-	write path (client reads DATs only)
 00483440	-	FileNode name wrapper (Rust strings)
-00483460	~	ac2-world env_cell_markers: drawn placement only (no physics object, no collision)
+00483460	x	ac2-physics loader.rs load_block_interiors: each env-cell entity of type 0x40000001/0x40000007 (CEnvCell::InitStaticObjects filter, ac2-world env_cell_entities) becomes a StaticObject in that cell with shape, scale, blocking mask, at the entity offset; tested in loader_static_objects_tests.rs.
 004834f0	-	entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 00483680	x	ac2-render interior_cull.rs check_visibility (frustum vs cell box, then the portals that face the viewer's side against Frustum::check_polygon); WorkerPolygon/Frustum polygon clip in worker_polygon.rs and frustum.rs; wired by scene/mod.rs visible_interior_cells for every outside-stab cell that touches outside; unit tested
 00483970	_	needs port: indoor env cell: visibility, lights, portals, rendering
@@ -2813,7 +2813,7 @@ key	status	note
 0048abb0	x	
 0048ace0	x	
 0048ad70	x	
-0048ae10	~	ac2-physics loader: each landblock entity's blocking mask from its ethereal properties (ac2_db::ac2_ethereal_mask). Retail's SetProperty(0x40000038) is a no-op (bit 0x40000038 is past 63) and the SetCollisionState rewrite of the same mask is the identity. Not ported: the ObjectClearance group/weenie filter and the scene/lbi object split
+0048ae10	x	ac2-physics loader.rs load_block_objects + ac2-world ac2_landblock_info.rs ac2_entity_markers: only CLandBlockInfo types 0x40000001/0x40000007 (GenerateLBIObjectList non-weenie) plus generated scenery collide; 0x40000002 weenies and other types never become static objects; unplaceable (no land cell after adjust_to_outside) skipped. Scene vs LBI owner lists (m_scene_objects/m_lbi_objects) not modelled; no consumer needs them.
 0048afe0	x	ac2-smartbox membership.rs inq_objects, add_dynamic_object, remove_dynamic_object (swap-remove, DynamicObjectInfo timestamp)
 0048b010	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 0048b170	_	needs port: landblock streaming: scenery, objects, cells, water, sound points

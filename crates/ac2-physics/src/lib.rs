@@ -48,6 +48,8 @@ mod interp;
 pub mod landdefs;
 mod loader;
 mod loader_anim;
+#[cfg(test)]
+mod loader_static_objects_tests;
 mod look_at;
 mod los;
 mod missile;

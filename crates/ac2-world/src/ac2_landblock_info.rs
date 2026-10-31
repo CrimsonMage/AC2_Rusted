@@ -45,8 +45,8 @@ impl Ac2OutdoorEntityMarker {
         self.scale
     }
 
-    /// Whether the entity takes part in static collision: `CLandBlockInfo` entities and procedural
-    /// scenery do, client-only grass frills do not (`CObjCell::AddFrill`).
+    /// Whether the entity takes part in static collision: `CLandBlockInfo` entities of the static
+    /// object types ([`is_static_object_type`]) and procedural scenery do (`CLandBlock::CreateStaticObjects`), client-only grass frills do not (`CObjCell::AddFrill`).
     pub fn collides(&self) -> bool {
         self.collides
     }
@@ -130,6 +130,16 @@ fn decode(
     Ok(Ac2LandBlockEntities { entities })
 }
 
+/// Whether an entity of `entity_type` becomes a static physics object: the types
+/// `CLandBlock::GenerateLBIObjectList` queues as non-weenie clearance entries (`0x40000001`,
+/// `0x40000007`), which `CLandBlock::CreateStaticObjects` then makes objects of, and the types
+/// `CEnvCell::InitStaticObjects` passes to `CEnvCell::CreatePhysicsObj`. Type `0x40000002` is
+/// queued only as a weenie (`_include_weenie`), which `CreateStaticObjects` skips; every other
+/// type is never queued.
+pub(crate) fn is_static_object_type(entity_type: u32) -> bool {
+    matches!(entity_type, 0x4000_0001 | 0x4000_0007)
+}
+
 /// Placed entities of one AC2 landblock, in world AC axes for blocks of `block_size` metres. Instance entities name a template `EntityDesc` whose
 /// data is the `VisualDesc`; scale composes instance over template.
 pub(crate) fn ac2_entity_markers(
@@ -160,7 +170,7 @@ pub(crate) fn ac2_entity_markers(
             visual,
             world_frame: Frame::new(block_origin + entity.origin, entity.rotation),
             scale: entity.scale * template_scale,
-            collides: true,
+            collides: is_static_object_type(entity.entity_type),
             frill: false,
             ethereal: entity_ethereal_mask(store, entity),
         });
@@ -294,7 +304,7 @@ pub(crate) fn ac2_env_cell_markers(
 ) -> Vec<Ac2OutdoorEntityMarker> {
     entities
         .iter()
-        .filter(|entity| matches!(entity.entity_type, 0x4000_0001 | 0x4000_0007))
+        .filter(|entity| is_static_object_type(entity.entity_type))
         .filter_map(|entity| {
             let (visual, template_scale) = resolve_entity_visual(store, entity)?;
             Some(Ac2OutdoorEntityMarker {
