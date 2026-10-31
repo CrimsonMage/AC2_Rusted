@@ -4,6 +4,7 @@
 //! ```text
 //! world-viewer [--dat-dir DIR] [--block 7F7F] [--radius 2] [--fly]
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
+//! world-viewer ... --snapshot out.png --map-view   (the walk camera's map view, `CameraManager::SetMapView`)
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
@@ -108,6 +109,8 @@ struct Args {
     /// Decode DXT textures to RGBA8 even on a BC-capable GPU (compares the two upload paths).
     rgba_textures: bool,
     fly: bool,
+    /// Snapshot the walk camera in its map view (`CameraManager::SetMapView`).
+    map_view: bool,
     model: usize,
     walk_seconds: f32,
     speed: u32,
@@ -165,6 +168,7 @@ fn parse_args() -> Result<Args, String> {
         gpu_times: false,
         rgba_textures: false,
         fly: false,
+        map_view: false,
         model: 0,
         walk_seconds: 4.0,
         speed: 1,
@@ -218,6 +222,7 @@ fn parse_args() -> Result<Args, String> {
             "--bench" => args.bench = value()?.parse().map_err(|e| format!("--bench: {e}"))?,
             "--gpu-times" => args.gpu_times = true,
             "--fly" => args.fly = true,
+            "--map-view" => args.map_view = true,
             "--rgba-textures" => args.rgba_textures = true,
             "--model" => args.model = value()?.parse().map_err(|e| format!("--model: {e}"))?,
             "--walk" => {
@@ -542,6 +547,10 @@ fn snapshot(
         });
         walk.speed = args.speed;
         walk_for(&mut view, &mut walk, &gpu, args.walk_seconds, model.visual);
+        if args.map_view {
+            walk.camera_action(walk::actions::MAP_VIEW, true);
+            walk_for(&mut view, &mut walk, &gpu, 2.0, model.visual);
+        }
         if let Some(message) = &walk.message {
             println!("walk: {message}");
         }
