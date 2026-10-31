@@ -22,7 +22,7 @@ pub const DETAIL_PX: usize = 4;
 pub const DETAIL_SIDE: usize = POLYS * DETAIL_PX;
 
 pub const OCEAN: [u8; 3] = [38, 78, 128];
-const WATER: [u8; 3] = [44, 88, 138];
+pub const WATER: [u8; 3] = [44, 88, 138];
 const ROAD: [f32; 3] = [0.62, 0.53, 0.40];
 /// The light the shading assumes: from the north-west, 45 degrees up.
 const LIGHT: [f32; 3] = [-0.5, 0.5, std::f32::consts::FRAC_1_SQRT_2];

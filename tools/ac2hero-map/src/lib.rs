@@ -3,10 +3,12 @@
 //! the standalone tool and the world viewer show.
 
 mod canvas;
+mod export;
 mod map;
 mod notes;
 mod panel;
 mod tiles;
 
 pub use canvas::{colour, Player};
+pub use export::export;
 pub use map::{open_world, player_at, world_metres, MapAction, WorldMap};

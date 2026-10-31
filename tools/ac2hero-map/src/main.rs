@@ -4,13 +4,15 @@
 //!
 //! `ac2hero-map [--mirror DIR] [--dat-dir DIR] [--snapshot OUT.png]
 //! [--screenshot OUT.png [--at COORD] [--zoom PX_PER_CELL]] [--size WxH] [--bare 1]
-//! [--player "COORD@HEADING"]`: `--mirror` reads a mirror
+//! [--player "COORD@HEADING"] [--export DIR]`: `--mirror` reads a mirror
 //! at run time instead of the baked guide; `--dat-dir` (or `AC2_DAT_DIR`) draws the world from
 //! its landscape behind the markers, adding detail as you zoom; `--snapshot` writes the whole
 //! world with every marker dotted on it to a PNG and exits (an alignment check); `--screenshot`
 //! opens the window at `--at` (a map coordinate) and `--zoom`, waits for the terrain, saves the
 //! window to a PNG and exits; `--size` sets the window, `--bare 1` shows the map alone (the
-//! panel-sized preview) and `--player` puts the player's arrow on it.
+//! panel-sized preview) and `--player` puts the player's arrow on it. `--export` writes the
+//! terrain overview, every land block's tile and the map notes to `DIR` for other tools (the
+//! AC2e content editor) and exits.
 
 use ac2_guide::atlas::{self, Marker};
 use ac2_guide::html;
@@ -19,8 +21,8 @@ use ac2hero_map::WorldMap;
 use eframe::egui;
 
 fn main() -> eframe::Result {
-    let (mut mirror, mut snapshot, mut screenshot, mut at, mut zoom) =
-        (None, None, None, None, None);
+    let (mut mirror, mut snapshot, mut screenshot, mut at, mut zoom, mut export) =
+        (None, None, None, None, None, None);
     let (mut size, mut bare, mut player) = ([1400.0, 900.0], false, None);
     let mut dat_dir = std::env::var_os("AC2_DAT_DIR").map(std::path::PathBuf::from);
     let mut args = std::env::args().skip(1);
@@ -29,6 +31,7 @@ fn main() -> eframe::Result {
             ("--mirror", Some(v)) => mirror = Some(v),
             ("--dat-dir", Some(v)) => dat_dir = Some(v.into()),
             ("--snapshot", Some(v)) => snapshot = Some(v),
+            ("--export", Some(v)) => export = Some(std::path::PathBuf::from(v)),
             ("--screenshot", Some(v)) => screenshot = Some(std::path::PathBuf::from(v)),
             ("--at", Some(v)) => at = ac2_guide::coord::find(&v).first().map(|(_, c)| *c),
             ("--zoom", Some(v)) => zoom = v.parse::<f32>().ok(),
@@ -55,6 +58,26 @@ fn main() -> eframe::Result {
                 std::process::exit(2);
             }
         }
+    }
+    if let Some(dir) = export {
+        let Some(world) = dat_dir
+            .as_ref()
+            .and_then(|d| ac2hero_map::open_world(d).ok().flatten())
+        else {
+            eprintln!("--export needs the landscape: set AC2_DAT_DIR or pass --dat-dir");
+            std::process::exit(2);
+        };
+        match ac2hero_map::export(&world, &dir, 4) {
+            Ok(blocks) => println!(
+                "exported the map to {} ({blocks} land block tiles)",
+                dir.display()
+            ),
+            Err(e) => {
+                eprintln!("{}: {e}", dir.display());
+                std::process::exit(1);
+            }
+        }
+        return Ok(());
     }
     let guide = match mirror {
         Some(dir) => html::read_mirror(dir.as_ref()).unwrap_or_else(|e| {
