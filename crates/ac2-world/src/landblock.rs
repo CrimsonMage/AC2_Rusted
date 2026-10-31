@@ -12,11 +12,26 @@ use crate::LAND_BLOCK_CELLS_PER_SIDE;
 pub struct LandBlockDesc {
     qdid: QualifiedDataId,
     samples: Arc<Ac2TerrainSamples>,
+    passable: bool,
 }
 
 impl LandBlockDesc {
-    pub(crate) fn new(qdid: QualifiedDataId, samples: Arc<Ac2TerrainSamples>) -> Self {
-        Self { qdid, samples }
+    pub(crate) fn new(
+        qdid: QualifiedDataId,
+        samples: Arc<Ac2TerrainSamples>,
+        passable: bool,
+    ) -> Self {
+        Self {
+            qdid,
+            samples,
+            passable,
+        }
+    }
+
+    /// `CLandBlockData::m_bPassable`: whether the block can be entered. An impassable block
+    /// turns movers back at its cells (`CLandCell::find_env_collisions`).
+    pub fn is_passable(&self) -> bool {
+        self.passable
     }
 
     pub fn qdid(&self) -> QualifiedDataId {

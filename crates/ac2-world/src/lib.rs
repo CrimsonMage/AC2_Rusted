@@ -20,6 +20,7 @@ mod ac2_motion_interp;
 #[cfg(test)]
 mod ac2_particle_source_tests;
 mod ac2_particle_sources;
+mod ac2_passability;
 #[cfg(test)]
 mod ac2_real_data_tests;
 mod ac2_scene;

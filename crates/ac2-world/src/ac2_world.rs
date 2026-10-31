@@ -93,6 +93,8 @@ pub struct Ac2WorldSource {
     cell_info: crate::cell_info::CellInfoLayout,
     region: Option<Arc<crate::RegionDesc>>,
     water: Option<crate::ac2_water::Ac2WaterSource>,
+    /// The region's property description, which decides each block's passability.
+    passability: Option<crate::ac2_passability::Ac2Passability>,
     /// The region's fog areas (`LScapeLighting::GetFogCorners`).
     fog: Option<crate::RegionFog>,
 }
@@ -127,6 +129,7 @@ impl Ac2WorldSource {
             Some(desc) => crate::ac2_water::Ac2WaterSource::load(&store, desc)?,
             None => None,
         };
+        let passability = crate::ac2_passability::Ac2Passability::load(&store)?;
         Ok(Some(Arc::new(Self {
             height_table: land.height_table().to_vec(),
             vertex_spacing,
@@ -141,6 +144,7 @@ impl Ac2WorldSource {
             surfaces,
             region,
             water,
+            passability,
             fog,
         })))
     }
@@ -278,9 +282,18 @@ impl Ac2WorldSource {
             return Ok(None);
         };
         let samples = self.samples(&record, block_cell_id);
+        // `CLandBlockData::CacheNearValues`: `m_bPassable` comes from the region's property
+        // description when it has one, else keeps the constructor's value.
+        let passable = self
+            .passability
+            .as_ref()
+            .map_or(crate::ac2_passability::DEFAULT_PASSABLE, |passability| {
+                passability.block_passable(&self.store, block_cell_id)
+            });
         Ok(Some(Arc::new(LandBlockDesc::new(
             QualifiedDataId::new(land_block_did(block_cell_id), 0),
             Arc::new(samples),
+            passable,
         ))))
     }
 
@@ -442,6 +455,7 @@ mod hole_tests {
         LandBlockDesc::new(
             QualifiedDataId::new(DataId::new(0x4592_FFFF), 0),
             Arc::new(samples),
+            true,
         )
     }
 

@@ -2609,11 +2609,11 @@ key	status	note
 0047df80	-	retail free-object pool (DBOCache exception, AGENTS.md)
 0047dfe0	x	ac2-world ac2_scene/generate.rs check_radius re-read against Legions 0x00478000: slope band with the 0.0002 slack, circle-in-polygon, downhill heading (7.8539816 - atan2, degrees) against the low/high heading window, same early outs
 0047e160	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047e2c0	_	needs port: landscape cell (terrain polygon) queries and visibility
+0047e2c0	x	CLandCell::handle_move_restriction (Legions 0x004782E0): ac2-physics cells.rs LandCell::handle_move_restriction. Offset cell centre->curr_pos picks side (y vs +-half_square_length, then x), negates that path-offset component, add_offset_to_check_pos (cell_array_valid=0, check_pos origin, cache_global_sphere), set_collision_normal; returns true
 0047e400	-	DBO cache grabber (DBOCache exception, AGENTS.md)
 0047e520	x	ac2-physics los (Terrain::los_check)
 0047e570	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047e670	~	Legions 0x004786B0 (unnamed in the export; same body, calls handle_move_restriction 0x004782E0). ac2-physics cells.rs find_env_collisions: terrain polygon under the low point, validate_walkable as landscape. Not ported: the impassable-landblock branch (CLandBlockData::m_bPassable == 0 -> CLandCell::handle_move_restriction)
+0047e670	x	Legions 0x004786B0 (unnamed in the export; same body, confirmed by objdump). ac2-physics cells.rs find_env_collisions: grabs CLandBlockData first; m_bPassable == 0 -> handle_move_restriction, release, return ADJUSTED_TS (terrain test skipped); else terrain polygon under the low point, validate_walkable as landscape
 0047e7d0	x	ac2-physics los (Terrain::los_check)
 0047ecb0	-	SmartArray container operation (Vec replaces it)
 0047ed10	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
@@ -2900,7 +2900,7 @@ key	status	note
 0048fe10	~	vertex normals and terrain SurfaceInfo; not far colours or water
 00490770	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00490780	-	retail free-object pool (DBOCache exception, AGENTS.md)
-004907a0	~	road SurfaceInfo; not physics materials or scene DIDs
+004907a0	~	road SurfaceInfo; m_bPassable now ported (ac2-world ac2_passability.rs: PropertyDesc::GetPassiblity from the current property info, default 1; LandBlockDesc::is_passable -> Terrain::set_block_passable); not physics materials or scene DIDs
 004913b0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 00491430	x	crates/ac2-world/src/ac2_landblock_interior.rs interior properties (CLandBlockInfo::ApplyProperty)
 00491530	-	constructor (struct init; Rust builds it directly)

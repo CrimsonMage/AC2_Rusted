@@ -77,6 +77,18 @@ impl Terrain {
             .map(|(x, y)| desc.physics_material(x, y).map(|did| u64::from(did.raw())))
             .collect();
         self.set_block_materials(block_cell_id.raw(), grid);
+        self.set_block_passable(block_cell_id.raw(), desc.is_passable());
+    }
+
+    /// Sets `CLandBlockData::m_bPassable` on every land cell of a resident block: movers are
+    /// turned back at an impassable block (`CLandCell::find_env_collisions`).
+    pub fn set_block_passable(&mut self, block_cell_id: u32, passable: bool) {
+        let block = block_cell_id & 0xFFFF_0000;
+        for cell in self.cells.values_mut() {
+            if cell.cell_id & 0xFFFF_0000 == block {
+                cell.passable = passable;
+            }
+        }
     }
 
     /// Makes a landblock resident from a 17 x 17 x-major vertex height grid (metres) and a
@@ -136,6 +148,7 @@ impl Terrain {
                     cell_id,
                     LandCell {
                         cell_id,
+                        passable: true,
                         polygons,
                         objects,
                         touching: Vec::new(),

@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 360 done, 27 partial, 19 to do, 583 skipped.
+989 retail functions: 362 done, 26 partial, 18 to do, 583 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (40/140)
@@ -420,7 +420,7 @@ Legend and workflow: [README](README.md).
 - [~] `CLandBlockData::CacheFarValues` · 0048fe10 · legions 00488c30 — vertex normals and terrain SurfaceInfo; not far colours or water
 - [-] `CLandBlockData::Allocate` · 00490770 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CLandBlockData::Allocator` · 00490780 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [~] `CLandBlockData::CacheNearValues` · 004907a0 · legions 00489500 — road SurfaceInfo; not physics materials or scene DIDs
+- [~] `CLandBlockData::CacheNearValues` · 004907a0 · legions 00489500 — road SurfaceInfo; m_bPassable now ported (ac2-world ac2_passability.rs: PropertyDesc::GetPassiblity from the current property info, default 1; LandBlockDesc::is_passable -> Terrain::set_block_passable); not physics materials or scene DIDs
 
 ## `portal/shared/src/cell/landblockinfo.cpp.c` (4/13)
 
@@ -512,7 +512,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlockQuadTree
 - [x] `CLandBlockQuadTree::Generate` · 00492b60 · legions 0048b510 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
-## `portal/shared/src/cell/landcell.cpp.c` (23/38)
+## `portal/shared/src/cell/landcell.cpp.c` (25/38)
 
 ### (free functions)
 - [-] `AreFloatEqual` · 0047d8e0 · legions 00477910 — inline |a - b| < epsilon
@@ -562,7 +562,7 @@ Legend and workflow: [README](README.md).
 - [-] `CLandCell::Allocate` · 0047df80 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [x] `CLandCell::CheckRadius` · 0047dfe0 · legions 00478000 — ac2-world ac2_scene/generate.rs check_radius re-read against Legions 0x00478000: slope band with the 0.0002 slack, circle-in-polygon, downhill heading (7.8539816 - atan2, degrees) against the low/high heading window, same early outs
 - [x] `CLandCell::AddOutsideCell` · 0047e160 · legions 00478180 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [ ] `CLandCell::handle_move_restriction` · 0047e2c0 · legions 004782e0 — needs port: landscape cell (terrain polygon) queries and visibility
+- [x] `CLandCell::handle_move_restriction` · 0047e2c0 · legions 004782e0 — CLandCell::handle_move_restriction (Legions 0x004782E0): ac2-physics cells.rs LandCell::handle_move_restriction. Offset cell centre->curr_pos picks side (y vs +-half_square_length, then x), negates that path-offset component, add_offset_to_check_pos (cell_array_valid=0, check_pos origin, cache_global_sphere), set_collision_normal; returns true
 
 ### DBObjGrabber<CLandBlockData>
 - [-] `DBObjGrabber<CLandBlockData>::DBObjGrabber<CLandBlockData>` · 0047e400 · legions 00478420 — DBO cache grabber (DBOCache exception, AGENTS.md)
@@ -572,7 +572,7 @@ Legend and workflow: [README](README.md).
 
 ### CLandCell
 - [x] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [~] `CLandCell::find_env_collisions` · 0047e670 — Legions 0x004786B0 (unnamed in the export; same body, calls handle_move_restriction 0x004782E0). ac2-physics cells.rs find_env_collisions: terrain polygon under the low point, validate_walkable as landscape. Not ported: the impassable-landblock branch (CLandBlockData::m_bPassable == 0 -> CLandCell::handle_move_restriction)
+- [x] `CLandCell::find_env_collisions` · 0047e670 — Legions 0x004786B0 (unnamed in the export; same body, confirmed by objdump). ac2-physics cells.rs find_env_collisions: grabs CLandBlockData first; m_bPassable == 0 -> handle_move_restriction, release, return ADJUSTED_TS (terrain test skipped); else terrain polygon under the low point, validate_walkable as landscape
 - [x] `CLandCell::TraceRay` · 0047e7d0 · legions 00478810 — ac2-physics los (Terrain::los_check)
 
 ### SmartArray<Plane>
