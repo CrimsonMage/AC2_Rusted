@@ -29,10 +29,10 @@ pub(crate) struct DrawUniform {
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 pub(crate) struct InstanceData {
-    model: [[f32; 4]; 4],
+    pub(crate) model: [[f32; 4]; 4],
     /// The part's origin relative to the eye (`model`'s, minus the eye, built before the part's
     /// own offset is added), so the clip position never sums world-sized numbers.
-    rel: [f32; 4],
+    pub(crate) rel: [f32; 4],
     /// A frill's normal for every vertex (xyz) when w is 1 (`RefreshFrillMesh`).
     pub(crate) frill: [f32; 4],
     /// x: the part's first matrix in the bone buffer, y: 1 when its vertices blend.
@@ -40,6 +40,11 @@ pub(crate) struct InstanceData {
     /// x: the landscape self shadow under a merged frill's origin (1 when unshadowed); y, z, w:
     /// its growth ring (near and far radius, random value; zero far radius: drawn as authored).
     pub(crate) frill_shade: [f32; 4],
+    /// The part's mesh-to-world matrix on the previous frame, its translation relative to the
+    /// previous eye in `prev_rel` (w is 1 when there is one; 0 draws no motion vector). The
+    /// previous bone matrices start at `skin.z`.
+    pub(crate) prev_model: [[f32; 4]; 4],
+    pub(crate) prev_rel: [f32; 4],
 }
 
 /// Bytes of one [`InstanceData`] in the instance storage buffer.
@@ -53,6 +58,8 @@ pub(crate) fn instance_data(model: Mat4, rel: Vec4) -> InstanceData {
         frill: [0.0; 4],
         skin: [0; 4],
         frill_shade: [1.0, 0.0, 0.0, 0.0],
+        prev_model: [[0.0; 4]; 4],
+        prev_rel: [0.0; 4],
     }
 }
 

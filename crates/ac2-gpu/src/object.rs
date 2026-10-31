@@ -38,6 +38,9 @@ mod shadow;
 mod sun_casters;
 pub(crate) use sun_casters::bounds as bounding_sphere;
 
+#[path = "object_motion.rs"]
+mod motion;
+pub use motion::Previous;
 #[path = "object_prepare.rs"]
 mod prepare;
 #[path = "object_record.rs"]
@@ -50,6 +53,9 @@ mod upload;
 #[cfg(test)]
 #[path = "object_stream_tests.rs"]
 mod stream_tests;
+#[cfg(test)]
+#[path = "object_velocity_tests.rs"]
+mod velocity_tests;
 
 #[cfg(test)]
 #[path = "decal_draw_tests.rs"]
@@ -94,11 +100,16 @@ struct FrameUniform {
     /// their count in `push_count.x`.
     pushers: [[f32; 4]; GRASS_PUSHERS],
     push_count: [f32; 4],
+    /// The previous frame's unjittered eye-relative view-projection, for the motion vectors.
+    prev_view_proj: [[f32; 4]; 4],
+    /// xy: this frame's clip-space jitter (taken off the clip position to get the unjittered
+    /// one), z: the previous frame's client time (the grass wind), wrapped like `to_viewer.w`.
+    motion: [f32; 4],
 }
 
 /// Byte stride of one draw group's frame uniform (the dynamic-offset alignment; the frame
-/// uniform is 416 bytes).
-const FRAME_STRIDE: u64 = 512;
+/// uniform is 560 bytes).
+const FRAME_STRIDE: u64 = 768;
 /// Draw groups one `prepare` lays out.
 const MAX_GROUPS: usize = 16;
 /// Bytes of one bone matrix in the storage buffer.
@@ -242,6 +253,8 @@ pub struct ObjectInstance<'a> {
     pub pose: Option<&'a ObjectPose>,
     /// The degrade each part draws (`CBaseMesh::DrawMesh`) and the forced alpha test.
     pub detail: DrawDetail,
+    /// Where it stood on the previous frame, for the temporal resolve's motion vectors.
+    pub previous: Previous<'a>,
 }
 
 impl<'a> ObjectInstance<'a> {
@@ -257,6 +270,7 @@ impl<'a> ObjectInstance<'a> {
             point_lights: &[],
             pose: None,
             detail: DrawDetail::FULL,
+            previous: Previous::Static,
         }
     }
 }
@@ -283,6 +297,10 @@ pub struct ObjectRenderer {
     stream_pipelines: bool,
     /// The frame's clip-space jitter for the temporal anti-aliasing (`crate::taa`), zero off.
     jitter: [f32; 2],
+    /// Whether the draws write motion vectors: the temporal resolve will read them.
+    motion: bool,
+    /// The last `prepare`'s camera (kept only while `motion`): the previous frame of the next.
+    previous_camera: Option<motion::CameraHistory>,
     frame_buffer: wgpu::Buffer,
     frame_group: wgpu::BindGroup,
     frame_layout: wgpu::BindGroupLayout,

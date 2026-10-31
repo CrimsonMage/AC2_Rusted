@@ -136,6 +136,8 @@ impl ObjectRenderer {
             pipelines,
             stream_pipelines: false,
             jitter: [0.0; 2],
+            motion: false,
+            previous_camera: None,
             frame_buffer,
             frame_group,
             frame_layout,

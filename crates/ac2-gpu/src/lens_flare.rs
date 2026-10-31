@@ -216,11 +216,14 @@ impl LensFlares {
                 module: &module,
                 entry_point: Some("fs_sprite"),
                 compilation_options: Default::default(),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format,
-                    blend: Some(additive),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
+                targets: &crate::velocity::scene_targets(
+                    wgpu::ColorTargetState {
+                        format,
+                        blend: Some(additive),
+                        write_mask: wgpu::ColorWrites::ALL,
+                    },
+                    false,
+                ),
             }),
             primitive: wgpu::PrimitiveState {
                 topology: wgpu::PrimitiveTopology::TriangleStrip,

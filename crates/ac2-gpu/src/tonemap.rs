@@ -23,6 +23,12 @@ pub struct HdrTarget {
     pub depth_view: wgpu::TextureView,
     /// The colour texture, for the temporal resolve's copy back (`taa.rs`).
     pub(crate) color: wgpu::Texture,
+    /// The world pass's second attachment (`velocity.rs`), read by the temporal resolve.
+    pub(crate) velocity_view: wgpu::TextureView,
+    #[cfg(test)]
+    pub(crate) velocity: wgpu::Texture,
+    /// Whether the passes keep the velocity (the temporal resolve will read it) or discard it.
+    keep_velocity: std::cell::Cell<bool>,
     group: wgpu::BindGroup,
 }
 
@@ -58,6 +64,13 @@ impl HdrTarget {
             wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
             "ac2 hdr scene depth",
         );
+        let velocity = texture(
+            crate::VELOCITY_FORMAT,
+            wgpu::TextureUsages::RENDER_ATTACHMENT
+                | wgpu::TextureUsages::TEXTURE_BINDING
+                | wgpu::TextureUsages::COPY_SRC,
+            "ac2 hdr scene velocity",
+        );
         let color_view = color.create_view(&Default::default());
         let depth_view = depth.create_view(&Default::default());
         let group = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
@@ -80,8 +93,17 @@ impl HdrTarget {
             color_view,
             depth_view,
             color,
+            velocity_view: velocity.create_view(&Default::default()),
+            #[cfg(test)]
+            velocity,
+            keep_velocity: std::cell::Cell::new(false),
             group,
         }
+    }
+
+    /// Whether the passes store the velocity the objects wrote (the temporal anti-aliasing is on).
+    pub(crate) fn set_keep_velocity(&self, keep: bool) {
+        self.keep_velocity.set(keep);
     }
 
     /// Whether the target matches an output of `width` x `height`.
@@ -108,13 +130,7 @@ impl HdrTarget {
             b: f64::from(b),
             a: f64::from(a),
         });
-        let mut pass = begin(
-            encoder,
-            &self.color_view,
-            &self.depth_view,
-            load,
-            timestamps,
-        );
+        let mut pass = begin(encoder, self, load, true, timestamps);
         if let Some([x, y, w, h]) = viewport {
             pass.set_viewport(x as f32, y as f32, w as f32, h as f32, 0.0, 1.0);
             pass.set_scissor_rect(x, y, w, h);
@@ -132,37 +148,58 @@ impl HdrTarget {
         record: impl FnOnce(&mut wgpu::RenderPass<'_>),
     ) {
         let timestamps = gpu.pass_timestamps("scene");
-        let mut pass = begin(
-            encoder,
-            &self.color_view,
-            &self.depth_view,
-            wgpu::LoadOp::Load,
-            timestamps,
-        );
+        let mut pass = begin(encoder, self, wgpu::LoadOp::Load, false, timestamps);
         record(&mut pass);
     }
 }
 
+/// A pass over `target`'s colour, its velocity (cleared to [`crate::NO_VELOCITY`] when
+/// `clear_velocity`, else kept) and a depth cleared to far.
 fn begin<'a>(
     encoder: &'a mut wgpu::CommandEncoder,
-    color: &'a wgpu::TextureView,
-    depth: &'a wgpu::TextureView,
+    target: &'a HdrTarget,
     color_load: wgpu::LoadOp<wgpu::Color>,
+    clear_velocity: bool,
     timestamp_writes: Option<wgpu::RenderPassTimestampWrites<'a>>,
 ) -> wgpu::RenderPass<'a> {
+    let none = f64::from(crate::NO_VELOCITY);
     encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
         label: Some("ac2 hdr scene"),
-        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-            view: color,
-            depth_slice: None,
-            resolve_target: None,
-            ops: wgpu::Operations {
-                load: color_load,
-                store: wgpu::StoreOp::Store,
-            },
-        })],
+        color_attachments: &[
+            Some(wgpu::RenderPassColorAttachment {
+                view: &target.color_view,
+                depth_slice: None,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: color_load,
+                    store: wgpu::StoreOp::Store,
+                },
+            }),
+            Some(wgpu::RenderPassColorAttachment {
+                view: &target.velocity_view,
+                depth_slice: None,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: if clear_velocity {
+                        wgpu::LoadOp::Clear(wgpu::Color {
+                            r: none,
+                            g: none,
+                            b: 0.0,
+                            a: 0.0,
+                        })
+                    } else {
+                        wgpu::LoadOp::Load
+                    },
+                    store: if target.keep_velocity.get() {
+                        wgpu::StoreOp::Store
+                    } else {
+                        wgpu::StoreOp::Discard
+                    },
+                },
+            }),
+        ],
         depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
-            view: depth,
+            view: &target.depth_view,
             depth_ops: Some(wgpu::Operations {
                 load: wgpu::LoadOp::Clear(1.0),
                 store: wgpu::StoreOp::Store,
@@ -619,7 +656,9 @@ impl ScenePresenter {
         self.taa
             .borrow_mut()
             .set_size((width.max(1), height.max(1)));
-        std::cell::Ref::map(self.target.borrow(), |t| t.as_ref().expect("made above"))
+        let hdr = std::cell::Ref::map(self.target.borrow(), |t| t.as_ref().expect("made above"));
+        hdr.set_keep_velocity(self.taa.borrow().enabled());
+        hdr
     }
 }
 

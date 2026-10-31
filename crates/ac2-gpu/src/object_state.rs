@@ -89,20 +89,24 @@ impl PipelineKey {
                 module,
                 entry_point: Some("fs"),
                 compilation_options: Default::default(),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format,
-                    // The alpha channel keeps the scene's coverage for a UI viewport's composite
-                    // (`ToneMap::draw`): the most opaque layer drawn at each pixel.
-                    blend: blending.then_some(wgpu::BlendState {
-                        color: component,
-                        alpha: wgpu::BlendComponent {
-                            src_factor: wgpu::BlendFactor::One,
-                            dst_factor: wgpu::BlendFactor::One,
-                            operation: wgpu::BlendOperation::Max,
-                        },
-                    }),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
+                // A layer that writes depth owns its pixels, so it writes their velocity too.
+                targets: &crate::velocity::scene_targets(
+                    wgpu::ColorTargetState {
+                        format,
+                        // The alpha channel keeps the scene's coverage for a UI viewport's
+                        // composite (`ToneMap::draw`): the most opaque layer drawn at each pixel.
+                        blend: blending.then_some(wgpu::BlendState {
+                            color: component,
+                            alpha: wgpu::BlendComponent {
+                                src_factor: wgpu::BlendFactor::One,
+                                dst_factor: wgpu::BlendFactor::One,
+                                operation: wgpu::BlendOperation::Max,
+                            },
+                        }),
+                        write_mask: wgpu::ColorWrites::ALL,
+                    },
+                    self.depth_write,
+                ),
             }),
             primitive: wgpu::PrimitiveState {
                 // The retail view (AC to D3D axes, left-handed camera) shows the same screen winding

@@ -3,8 +3,9 @@
 //! `RenderDeviceD3D::SetMultiSampleAntialias` set `D3DRS_MULTISAMPLEANTIALIAS` on a multisampled
 //! back buffer; here the scene targets stay single-sampled and every world draw is shifted by an
 //! 8-phase Halton(2,3) sub-pixel jitter ([`jitter_pixels`]), which a resolve pass after the world
-//! accumulates into a history, reprojected from the depth buffer with the camera's motion. The
-//! tone map sharpens the result (`tonemap.wgsl`).
+//! accumulates into a history, reprojected from the depth buffer with the camera's motion, or
+//! with the object's own screen step where the world pass's velocity target holds one
+//! (`velocity.rs`, `object.wgsl`). The tone map sharpens the result (`tonemap.wgsl`).
 //!
 //! The draws are eye-relative (`crate::sky::camera_at_origin`), so the reprojection is as well:
 //! the CPU supplies the current frame's unjittered inverse view-projection, the previous frame's
@@ -153,6 +154,7 @@ impl TaaPipelines {
                     },
                     count: None,
                 },
+                texture(5, wgpu::TextureSampleType::Float { filterable: false }),
             ],
         });
         let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -381,6 +383,10 @@ impl Temporal {
                 wgpu::BindGroupEntry {
                     binding: 4,
                     resource: targets.uniform.as_entire_binding(),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 5,
+                    resource: wgpu::BindingResource::TextureView(&hdr.velocity_view),
                 },
             ],
         });

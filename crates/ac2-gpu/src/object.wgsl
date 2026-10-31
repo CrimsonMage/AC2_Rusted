@@ -29,6 +29,10 @@ struct Frame {
     // is how many.
     pushers: array<vec4<f32>, 8>,
     push_count: vec4<f32>,
+    // The previous frame's unjittered eye-relative view-projection, for the motion vectors.
+    prev_view_proj: mat4x4<f32>,
+    // xy: this frame's clip-space jitter, z: the previous frame's client time.
+    motion: vec4<f32>,
 };
 
 // What the instances of one draw share: the layer's material, stages and the point lights.
@@ -65,6 +69,10 @@ struct Instance {
     // x: the landscape self shadow under a merged frill's origin (`GetShadowColor`'s self term);
     // y, z, w: its growth ring (near and far radius, random value; `grass_scale`).
     frill_shade: vec4<f32>,
+    // The part's matrix on the previous frame, and its origin relative to the previous eye
+    // (w = 1 when there is a previous placement). The previous deform matrices start at skin.z.
+    prev_model: mat4x4<f32>,
+    prev_rel: vec4<f32>,
 };
 
 // How much of a frill stands at `distance` metres (`ac2_render::frill`): whole inside the near
@@ -85,8 +93,12 @@ fn grass_scale(ring: vec3<f32>, distance: f32) -> f32 {
 // vertex's height above its origin, so the base stays planted. A slow gust sweeps across the
 // world and each frill flutters on its own phase. `frame.to_viewer.w` is the client time.
 fn grass_wind(origin: vec3<f32>, z: f32) -> vec3<f32> {
+    return grass_wind_at(frame.to_viewer.w, origin, z);
+}
+
+// The wind at client time `t`.
+fn grass_wind_at(t: f32, origin: vec3<f32>, z: f32) -> vec3<f32> {
     let h = max(z - origin.z, 0.0);
-    let t = frame.to_viewer.w;
     let gust = 0.6 + 0.4 * sin(t * 0.35 + dot(origin.xy, vec2(0.021, 0.013)));
     let phase = dot(origin.xy, vec2(0.73, 1.31));
     let flutter = sin(t * 1.9 + phase) + 0.35 * sin(t * 4.3 + phase * 1.7);
@@ -214,6 +226,18 @@ struct VsOut {
     @location(10) landscape_shade: vec3<f32>,
     // The alpha a frill's fragment must pass to draw (`GRASS_ALPHA_CUT`); 0 elsewhere.
     @location(11) @interpolate(flat) alpha_cut: f32,
+    // The unjittered clip position (x, y, w) now and on the previous frame, for the fragment's
+    // motion vector. A previous w of 0 means there is none.
+    @location(12) cur_clip: vec3<f32>,
+    @location(13) prev_clip: vec3<f32>,
+};
+
+// What the velocity target holds where an object has no previous placement (`velocity.rs`).
+const NO_VELOCITY: f32 = 1000.0;
+
+struct FsOut {
+    @location(0) color: vec4<f32>,
+    @location(1) velocity: vec2<f32>,
 };
 
 // The client's grass discards its faint fringes (`AGENTS.md`): the DAT's grass layers blend with
@@ -392,6 +416,35 @@ fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
     }
     // `frame.view_proj` and `frame.view` are eye-relative.
     out.clip = frame.view_proj * vec4(world_rel, 1.0);
+    out.cur_clip = vec3(out.clip.xy - frame.motion.xy * out.clip.w, out.clip.w);
+    out.prev_clip = vec3(0.0);
+    if inst.prev_rel.w > 0.5 {
+        // The same vertex on the previous frame: its deform matrices, its placement relative to
+        // the previous eye and (for grass) the wind of the previous time. The grass push keeps
+        // this frame's pushers.
+        var before = input.position;
+        if inst.skin.y != 0u {
+            before = vec3(0.0);
+            for (var k = 0u; k < 4u; k = k + 1u) {
+                let weight = input.weights[k];
+                if weight != 0.0 {
+                    let h = bones[inst.skin.z + input.bone_index[k]] * vec4(input.position, 1.0);
+                    before = before + h.xyz * (weight / h.w);
+                }
+            }
+        }
+        if inst.frill.w > 0.5 {
+            let origin = inst.prev_model[3].xyz;
+            before = before * grass_scale(inst.frill_shade.yzw, distance(inst.model[3].xyz, frame.eye.xyz));
+            let world = (inst.prev_model * vec4(before, 1.0)).xyz;
+            let bent = grass_push(origin, world + grass_wind_at(frame.motion.z, origin, world.z));
+            before = (inst.prev_model * vec4(before, 0.0)).xyz + (bent - world);
+        } else {
+            before = (inst.prev_model * vec4(before, 0.0)).xyz;
+        }
+        let prev = frame.prev_view_proj * vec4(before + inst.prev_rel.xyz, 1.0);
+        out.prev_clip = vec3(prev.xy, prev.w);
+    }
     let view_pos = (frame.view * vec4(world_rel, 1.0)).xyz;
     var basis: Basis;
     // `f_TransformModel*ToView*`: the model matrix itself, then normalise.
@@ -563,8 +616,18 @@ fn sample_stage_sharp(stage: u32, input: VsOut) -> vec4<f32> {
     }
 }
 
+// Where this pixel's surface stood on the previous frame minus where it is, in uv units
+// (`taa.wgsl`'s `velocity`); `NO_VELOCITY` when the object has no previous placement.
+fn screen_velocity(input: VsOut) -> vec2<f32> {
+    if input.prev_clip.z <= 1.0e-6 || input.cur_clip.z <= 1.0e-6 {
+        return vec2(NO_VELOCITY);
+    }
+    let d = input.prev_clip.xy / input.prev_clip.z - input.cur_clip.xy / input.cur_clip.z;
+    return vec2(d.x * 0.5, -d.y * 0.5);
+}
+
 @fragment
-fn fs(input: VsOut) -> @location(0) vec4<f32> {
+fn fs(input: VsOut) -> FsOut {
     // Sample every stage up front: texture sampling needs uniform control flow.
     var texels = array<vec4<f32>, 4>(
         sample_stage(0u, input),
@@ -582,5 +645,5 @@ fn fs(input: VsOut) -> @location(0) vec4<f32> {
     }
     // Stage 0 at a coarse mip: the backdrop's local average, against which its detail shows.
     let coarse = textureSampleLevel(tex0, samp0, input.t0.xy, 4.0);
-    return shade_modern(input, texels, coarse);
+    return FsOut(shade_modern(input, texels, coarse), screen_velocity(input));
 }

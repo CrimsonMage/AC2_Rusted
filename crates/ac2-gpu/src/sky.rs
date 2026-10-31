@@ -157,11 +157,14 @@ impl SkyRenderer {
                     module: &module,
                     entry_point: Some(entry_point),
                     compilation_options: Default::default(),
-                    targets: &[Some(wgpu::ColorTargetState {
-                        format,
-                        blend,
-                        write_mask: wgpu::ColorWrites::ALL,
-                    })],
+                    targets: &crate::velocity::scene_targets(
+                        wgpu::ColorTargetState {
+                            format,
+                            blend,
+                            write_mask: wgpu::ColorWrites::ALL,
+                        },
+                        false,
+                    ),
                 }),
                 primitive: wgpu::PrimitiveState::default(),
                 depth_stencil: Some(wgpu::DepthStencilState {

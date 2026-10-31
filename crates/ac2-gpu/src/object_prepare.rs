@@ -2,6 +2,20 @@
 
 use super::*;
 
+/// Where an instance stood on the previous frame, as laid out.
+#[derive(Clone, Copy)]
+enum Before<'a> {
+    /// As it stands now.
+    Same,
+    Moved {
+        eye: Vec3,
+        world: Mat4,
+        pose: Option<&'a ObjectPose>,
+        /// The first previous deform matrix in the bone buffer.
+        palette: u32,
+    },
+}
+
 /// How near the camera, in metres, frills draw back to front (`lay_out_group`).
 const FRILL_SORT_DISTANCE: f32 = 12.0;
 
@@ -33,10 +47,17 @@ impl ObjectRenderer {
         // SetViewerPosition`), and taking the eye off in f32 at AC2's world coordinates (tens of
         // kilometres) moved each vertex by millimetres that changed with every step of the eye.
         let sky_camera = crate::sky::camera_at_origin(camera);
+        // The motion vectors: this camera, unjittered, becomes the next frame's previous one.
+        let now = self.motion.then(|| motion::CameraHistory {
+            view_proj: sky_camera.view_projection(aspect),
+            eye: camera.eye,
+            time: (time % 3600.0) as f32,
+        });
+        let previous = std::mem::replace(&mut self.previous_camera, now).filter(|_| self.motion);
         for (index, group) in groups.iter().enumerate() {
             let environment = group.environment.unwrap_or(environment);
             let camera = if group.sky { &sky_camera } else { camera };
-            self.write_frame(&gpu.queue, index, camera, environment, aspect);
+            self.write_frame(&gpu.queue, index, camera, environment, aspect, previous);
         }
         self.scratch_entries.clear();
         self.scratch_bones.clear();
@@ -45,7 +66,9 @@ impl ObjectRenderer {
             let start = self.scratch_entries.len();
             // A sky group's instances are laid out with the eye taken off their origins.
             let shift = if group.sky { camera.eye } else { Vec3::ZERO };
-            self.lay_out_group(group, camera.eye - shift, shift, time);
+            // The sky draws no velocity: its layers write no depth.
+            let previous_eye = previous.filter(|_| !group.sky).map(|p| p.eye);
+            self.lay_out_group(group, camera.eye - shift, shift, previous_eye, time);
             self.groups.push(start..self.scratch_entries.len());
         }
         for entry in &self.scratch_entries {
@@ -66,7 +89,14 @@ impl ObjectRenderer {
     /// group in draw order) first, the rest back to front from `eye`.
     /// `shift` is taken off every instance's origin (the sky's camera-relative draw; zero
     /// otherwise), and `eye` is in the same shifted space.
-    fn lay_out_group(&mut self, group: &DrawGroup<'_>, eye: Vec3, shift: Vec3, time: f64) {
+    fn lay_out_group(
+        &mut self,
+        group: &DrawGroup<'_>,
+        eye: Vec3,
+        shift: Vec3,
+        previous_eye: Option<Vec3>,
+        time: f64,
+    ) {
         self.scratch_opaque.clear();
         self.scratch_frills.clear();
         self.scratch_translucent.clear();
@@ -81,11 +111,40 @@ impl ObjectRenderer {
             world_rel.w_axis -= eye.extend(0.0);
             let center = world.transform_point3(instance.model.center);
             let distance = center.distance_squared(eye);
+            // How far the eye moved since the previous frame, taken in f64.
+            let eye_step = previous_eye.map_or(Vec3::ZERO, |previous| {
+                (eye.as_dvec3() - previous.as_dvec3()).as_vec3()
+            });
             let base = self.scratch_bones.len() as u32;
             if let Some(pose) = instance.pose {
                 self.scratch_bones
                     .extend(pose.palette.iter().map(Mat4::to_cols_array_2d));
             }
+            // Where it stood on the previous frame, with its deform matrices after the current ones.
+            let previous = previous_eye.and_then(|eye| {
+                let (world, pose) =
+                    motion::previous_placement(instance.previous, instance.world, instance.pose)?;
+                // It stands as it did: the previous part matrices are this frame's, and its
+                // origin only moved by the eye's step.
+                if motion::same_placement((world, pose), (instance.world, instance.pose)) {
+                    return Some(Before::Same);
+                }
+                let palette = match (pose, instance.pose) {
+                    (Some(before), Some(_)) => {
+                        let first = self.scratch_bones.len() as u32;
+                        self.scratch_bones
+                            .extend(before.palette.iter().map(Mat4::to_cols_array_2d));
+                        first
+                    }
+                    _ => base,
+                };
+                Some(Before::Moved {
+                    eye,
+                    world,
+                    pose,
+                    palette,
+                })
+            });
             let model_address = std::ptr::from_ref(instance.model).addr();
             for (part_index, part) in instance.model.parts.iter().enumerate() {
                 let (transform, skin) = match instance.pose {
@@ -108,8 +167,30 @@ impl ObjectRenderer {
                     let [near, far, hash] = instance.grass;
                     data.frill_shade = [instance.frill_shade, near, far, hash];
                 }
+                match previous {
+                    Some(Before::Same) => {
+                        data.prev_model = data.model;
+                        data.prev_rel = motion::same_previous_rel(data.rel, eye_step);
+                        data.skin[2] = base;
+                    }
+                    Some(Before::Moved {
+                        eye,
+                        world,
+                        pose,
+                        palette,
+                    }) => {
+                        let before =
+                            motion::part_previous(&world, pose, part_index, part.transform, eye);
+                        data.prev_model = before.model.to_cols_array_2d();
+                        data.prev_rel = before.rel.to_array();
+                        data.skin[2] = palette;
+                    }
+                    None => {}
+                }
                 if let Some(first) = skin {
-                    data.skin = [base + first, 1, 0, 0];
+                    data.skin[0] = base + first;
+                    data.skin[1] = 1;
+                    data.skin[2] += first;
                 }
                 // `CBaseMesh::DrawMesh`: the degrade's batches only. Batch indices are the part's,
                 // so instances on different degrades never merge into one draw.
@@ -349,6 +430,12 @@ impl ObjectRenderer {
         self.jitter = jitter;
     }
 
+    /// Whether the next `prepare` lays out the previous placements the draws write motion vectors
+    /// from (the temporal resolve will read them). Off costs nothing per instance.
+    pub fn set_motion(&mut self, on: bool) {
+        self.motion = on;
+    }
+
     pub fn set_stream_pipelines(&mut self, stream: bool) {
         self.stream_pipelines = stream;
     }
@@ -370,6 +457,7 @@ impl ObjectRenderer {
         camera: &Camera,
         environment: &ObjectEnvironment,
         aspect: f32,
+        previous: Option<motion::CameraHistory>,
     ) {
         let lights = environment.lights;
         let (fog_color, (start, end), fog_on) = match environment.fog {
@@ -411,6 +499,15 @@ impl ObjectRenderer {
                 pushers
             },
             push_count: [self.grass_pushers.len() as f32, 0.0, 0.0, 0.0],
+            prev_view_proj: previous
+                .map_or(Mat4::IDENTITY, |p| p.view_proj)
+                .to_cols_array_2d(),
+            motion: [
+                self.jitter[0],
+                self.jitter[1],
+                previous.map_or(0.0, |p| p.time),
+                0.0,
+            ],
         };
         queue.write_buffer(
             &self.frame_buffer,

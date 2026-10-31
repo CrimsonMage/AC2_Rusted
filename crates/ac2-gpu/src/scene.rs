@@ -19,6 +19,7 @@ use ac2_render::sky::SkyPlacement;
 use ac2_render::{Camera, Image, TextureKey};
 
 use crate::lens_flare::{FlareOrigin, FlareSource, LensFlares};
+use crate::scene_motion::PreviousObjects;
 use crate::sky::{SkyLook, SkyRenderer};
 use crate::sun_shadow::{fit_cascades, fit_viewport_cascade, SunShadowTier, SunShadows};
 use crate::water_reflection::WaterReflection;
@@ -84,6 +85,8 @@ pub struct SceneRenderer {
     world_visible: Vec<bool>,
     /// The clip-space jitter of the frame's world draws (the temporal anti-aliasing), zero off.
     jitter: [f32; 2],
+    /// The previous frame's objects, for the motion vectors.
+    previous_objects: PreviousObjects,
 }
 
 impl SceneRenderer {
@@ -244,6 +247,7 @@ impl SceneRenderer {
             frame: SceneFrame::default(),
             world_visible: Vec::new(),
             jitter: [0.0; 2],
+            previous_objects: PreviousObjects::default(),
         }
     }
 
@@ -361,7 +365,11 @@ impl SceneRenderer {
         objects: Vec<SceneObject>,
     ) {
         self.frame = frame;
-        self.frame_objects = objects;
+        // A non-zero jitter means the temporal resolve runs, so the draws write motion vectors.
+        let motion = self.jitter != [0.0; 2];
+        let last = std::mem::replace(&mut self.frame_objects, objects);
+        self.previous_objects.advance(last, motion);
+        self.objects.set_motion(motion);
         self.objects.set_jitter(self.jitter);
         self.terrain.set_jitter(self.jitter);
         self.water.set_jitter(self.jitter);
@@ -394,7 +402,11 @@ impl SceneRenderer {
         let sky_environment = ObjectEnvironment::sky(&lighting);
         let sky_group_environment = Some(&sky_environment);
         let (models, blocks, far, frame) = (&self.models, &self.blocks, &self.far, &self.frame);
-        let placed = (&self.world_objects, self.frame_objects.as_slice());
+        let placed = (
+            &self.world_objects,
+            self.frame_objects.as_slice(),
+            &self.previous_objects,
+        );
         let before = sky_instances(models, &frame.sky.before);
         let look = SkyLook {
             backdrop: crate::sky_backdrop(&before).map(|index| before[index].tint),
@@ -606,7 +618,11 @@ impl SceneRenderer {
     /// `SceneTool::backgroundColor` (black).
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         let (models, blocks, far, frame) = (&self.models, &self.blocks, &self.far, &self.frame);
-        let placed = (&self.world_objects, self.frame_objects.as_slice());
+        let placed = (
+            &self.world_objects,
+            self.frame_objects.as_slice(),
+            &self.previous_objects,
+        );
         // The sky under `LScapeSky`'s objects, only where there is a landscape sky (not in a
         // dungeon or a UI viewport's scene, which clear to black).
         if landscape_sky(&frame.sky) {
@@ -780,7 +796,11 @@ fn visible<'a>(instances: &[ObjectInstance<'a>], mask: &[bool]) -> Vec<ObjectIns
 /// the order matches.
 fn world_instances<'a>(
     models: &'a HashMap<DataId, GpuObjectModel>,
-    (world_objects, objects): (&'a HashMap<u64, GpuObjectModel>, &'a [SceneObject]),
+    (world_objects, objects, previous): (
+        &'a HashMap<u64, GpuObjectModel>,
+        &'a [SceneObject],
+        &'a PreviousObjects,
+    ),
     blocks: &'a HashMap<BlockKey, GpuBlock>,
     far: &'a Option<(GpuFarTerrain, Option<GpuObjectModel>)>,
     frame: &SceneFrame,
@@ -805,6 +825,7 @@ fn world_instances<'a>(
                 pose: o.pose.as_ref(),
                 point_lights: &o.point_lights,
                 detail: o.detail,
+                previous: previous.of(o.key),
                 ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
             })
         }))

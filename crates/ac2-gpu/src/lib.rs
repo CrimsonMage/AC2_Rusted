@@ -20,6 +20,7 @@ mod portal_tunnel;
 mod post;
 mod quality;
 mod scene;
+mod scene_motion;
 mod screen_quad;
 pub mod screenshot;
 mod shading;
@@ -33,13 +34,16 @@ mod timing;
 mod tonemap;
 mod ui;
 mod ui_scenes;
+mod velocity;
 mod water_reflection;
 
 pub use ac2_render::scene::SceneObject;
 pub use ao::AoCamera;
 pub use filtering::{TextureFiltering, MAX_ANISOTROPY};
 pub use frame::{acquire_frame, render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
-pub use object::{sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
+pub use object::{
+    sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer, Previous,
+};
 pub use portal_space::PortalDraw;
 pub use portal_tunnel::{PortalTunnel, TUNNEL_VERTICES};
 pub use quality::{quality_level_for, suggested_quality_level};
@@ -55,6 +59,7 @@ pub use texture::{uploaded_texture_bytes, TextureCache, TextureKey};
 pub use tonemap::{HdrTarget, ScenePresenter, ToneMap, HDR_FORMAT};
 pub use ui::{UiLayer, UiOverlay};
 pub use ui_scenes::UiSceneRenderers;
+pub use velocity::{NO_VELOCITY, VELOCITY_FORMAT};
 
 /// The device and queue every other object is created on.
 pub struct Gpu {

@@ -6,8 +6,10 @@
 // view-projection puts the pixel's depth back in space, the eye's step (previous minus current,
 // taken in f64 on the CPU) moves it into the previous frame's eye-relative space, and the
 // previous unjittered view-projection puts it on the previous screen. A pixel at the far depth
-// (the sky) moves as a direction (rotation only). A velocity texture for moving objects would
-// replace `motion` below.
+// (the sky) moves as a direction (rotation only). A pixel an object drew carries the object's own
+// screen-space velocity (`velocity`, written by `object.wgsl` from the previous placement), which
+// replaces that reprojection; where the object had no previous placement it holds a sentinel and
+// the camera's motion stands.
 
 struct Params {
     inv_view_proj: mat4x4<f32>,
@@ -24,6 +26,11 @@ struct Params {
 @group(0) @binding(2) var history: texture_2d<f32>;
 @group(0) @binding(3) var history_sampler: sampler;
 @group(0) @binding(4) var<uniform> params: Params;
+// The previous minus the current screen position of the object at each pixel, in uv units;
+// past `NO_VELOCITY_ABOVE` where no object drew (`velocity.rs`).
+@group(0) @binding(5) var velocity: texture_2d<f32>;
+
+const NO_VELOCITY_ABOVE: f32 = 100.0;
 
 @vertex
 fn vs(@builtin(vertex_index) index: u32) -> @builtin(position) vec4<f32> {
@@ -157,17 +164,27 @@ fn fs(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
     let box_low = max(mean - 1.25 * sigma, low);
     let box_high = min(mean + 1.25 * sigma, high);
 
-    // The nearest neighbour's motion moves the pixel, so a foreground edge keeps its own.
-    let m = motion(nearest_at, size, nearest);
+    // The nearest neighbour's motion moves the pixel, so a foreground edge keeps its own: the
+    // object's when it drew there, else the camera's.
     let uv = (vec2<f32>(at) + 0.5) / size;
-    let velocity = m.prev_uv - (vec2<f32>(nearest_at) + 0.5) / size;
-    let prev_uv = uv + velocity;
-    if !m.valid || any(prev_uv < vec2(0.0)) || any(prev_uv > vec2(1.0)) {
+    let object = textureLoad(velocity, nearest_at, 0).xy;
+    var step: vec2<f32>;
+    if object.x < NO_VELOCITY_ABOVE {
+        step = object;
+    } else {
+        let m = motion(nearest_at, size, nearest);
+        if !m.valid {
+            return raw;
+        }
+        step = m.prev_uv - (vec2<f32>(nearest_at) + 0.5) / size;
+    }
+    let prev_uv = uv + step;
+    if any(prev_uv < vec2(0.0)) || any(prev_uv > vec2(1.0)) {
         return raw;
     }
     let past = to_ycocg(history_catmull_rom(prev_uv, size));
     let clipped = clip_to_box(box_low, box_high, past);
-    let speed = length(velocity * size);
+    let speed = length(step * size);
     let alpha = mix(params.blend.y, params.blend.z, clamp(speed / params.blend.w, 0.0, 1.0));
     let blended = mix(clipped, to_ycocg(weigh(raw.rgb)), alpha);
     return vec4(unweigh(max(from_ycocg(blended), vec3(0.0))), raw.a);

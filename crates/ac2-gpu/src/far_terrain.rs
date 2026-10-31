@@ -89,7 +89,7 @@ impl FarPipeline {
                 module: &module,
                 entry_point: Some("fs"),
                 compilation_options: Default::default(),
-                targets: &[Some(color_format.into())],
+                targets: &crate::velocity::scene_targets(color_format.into(), false),
             }),
             primitive: wgpu::PrimitiveState::default(),
             depth_stencil: Some(wgpu::DepthStencilState {

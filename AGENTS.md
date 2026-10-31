@@ -126,8 +126,19 @@ game rules and server-visible behaviour exactly retail.
   off and on. A contrast adaptive sharpen (CAS, strength 0.25) in the tone map runs only while it
   is on. Off draws exactly as before: no jitter, no resolve, no sharpen. UI viewport scenes, the
   sun shadow cascades, the landscape shadow map and the lens flares are not jittered. Moving
-  objects have no velocity yet (depth reprojection only), so the variance clip alone limits their
-  ghosting.
+  objects and bodies carry motion vectors: the world pass has a second colour attachment
+  (`Rg16Float`, cleared to a "no object" sentinel) that the depth-writing object layers (objects,
+  bodies, frills) fill with the screen step of the surface from its previous placement to its
+  current one, both unjittered. The vertex stage takes the previous placement from the instance
+  (the part's previous matrix relative to the previous eye, taken off in f64 on the CPU), the
+  previous frame's bone matrices and the previous eye-relative view-projection, and the grass wind
+  at the previous time; `SceneRenderer` keeps the previous frame's object list for it, so an object
+  not drawn on the previous frame, one that jumped over 10 m, or whose rig changed has no record and
+  writes the sentinel. The resolve reads the nearest-depth neighbour's velocity and falls back to
+  the depth reprojection where it holds the sentinel. Terrain, sky and the other pipelines declare
+  the target with an empty write mask. With the anti-aliasing off no previous placement is laid out
+  and the velocity is discarded. Known gaps: the grass push and the pose blend use this frame's
+  inputs for the previous position.
 - Exception: a particle repulsor acts in the space of the system's particles. Retail's
   `ParticleEmitter::DoRepulse` subtracted the repulsor's `Position` origin (the object's frame
   origin) from each particle's origin as they stood, which only agrees for a world-space system;
