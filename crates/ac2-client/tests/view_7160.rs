@@ -244,11 +244,12 @@ fn the_client_walks_with_w_and_draws_its_character() {
         "the player's character model loads"
     );
     // The floating arrow's two overlays (`guide_arrow`: copies of the reticle's own indicator and
-    // name) compose with the reticle's objects.
+    // name) compose with the reticle's objects, and the modern style's card behind the
+    // selection's name (`modern_target`).
     assert_eq!(
         view.hud_layers(),
-        18,
-        "every HUD root (and the reticle's and the floating arrow's objects, the shortcut bar and the first chat window) is drawn"
+        19,
+        "every HUD root (and the reticle's, its card's and the floating arrow's objects, the shortcut bar and the first chat window) is drawn"
     );
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
@@ -313,11 +314,12 @@ fn the_client_walks_with_w_and_draws_its_character() {
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let shown = view.hud_shown_layers();
     // `UpdateReticleInternal` shows the corners only with a name to show above them: the
-    // double's character is named, so its five layers show.
+    // double's character is named, so its five layers show, and the modern style's card behind
+    // the name (`modern_target`).
     assert_eq!(selection.name.as_deref(), Some("Explorer"));
     assert_eq!(
         shown,
-        shown_before + 5,
+        shown_before + 6,
         "the reticle follows the name ({:?})",
         selection.name
     );

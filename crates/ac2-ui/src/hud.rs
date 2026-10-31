@@ -232,7 +232,9 @@ pub fn build_styled_hud(
         HudStyle::Modern => gameplay.map(|g| {
             // The windows' parts, then the fellow mini panel's taller rows.
             Arc::new(crate::modern_fellow_rows::restyle(
-                &crate::modern_windows::restyle(&crate::modern_radar::restyle(&g)),
+                &crate::modern_windows::restyle(&crate::modern_target::restyle(
+                    &crate::modern_radar::restyle(&g),
+                )),
             ))
         }),
         HudStyle::Classic => gameplay,
@@ -243,6 +245,8 @@ pub fn build_styled_hud(
     // The modern style's off-screen arrow is the drawn chevron disc (`modern_art_pointer`).
     if let (HudStyle::Modern, Some(reticle)) = (style, reticle.as_mut()) {
         reticle.set_pointer_art(crate::modern_art_pointer::DISC_POINTER);
+        // The brackets and the name's card (`modern_target`).
+        reticle.set_modern_marks(&mut tree);
     }
     let names = match (&gameplay, &reticle) {
         (Some(layout), Some(reticle)) => {

@@ -386,6 +386,14 @@ game rules and server-visible behaviour exactly retail.
   floating arrow (the Tracker's match, a map coordinate) a notched gold delta with a short
   fading trail (`GuideArrow::set_pointer_art`). Where they stand and which way they point stay
   as before.
+  The selection's marks are the design's fine brackets (`ac2_ui::modern_target`,
+  `modern_art_target`): retail turned one diagonal gem (`0x410016EB`) for each of the reticle's
+  four corners and drew the name and its 5-pixel health and vigor meters bare over the scene.
+  Here each corner shows its own drawn gold L bracket unturned, the name and meters sit in a dark
+  glass card (`ModernSelectionCard`, the client's own root behind them; it counts in the box the
+  name plates keep clear of), the meters are 134 pixels wide with an 8-pixel health bar over a
+  2-pixel vigor line, and every other object's name plate is a smaller glass pill. Where they
+  stand, what shows when and the names' look colours are retail's.
   The fellow mini panel's rows (`ac2_ui::modern_fellow_rows`) are 24 pixels tall with 10-pixel
   health and vigor bars (retail's: 15 tall, 5-pixel bars), their numbers shown from the start
   (retail's mini panel started them hidden until the page's number button), and a fine light rule

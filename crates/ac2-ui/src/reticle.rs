@@ -69,6 +69,10 @@ pub struct Reticle {
     /// The modern style's drawn arrow for the indicator (`modern_art_pointer`), the first of its
     /// steps; `None` turns retail's art.
     pointer_art: Option<u32>,
+    /// The modern style's selection marks (`modern_target`): the drawn brackets, the first of the
+    /// four, shown unturned, and the glass card behind the name and meters.
+    corner_art: Option<u32>,
+    card: Option<usize>,
 }
 
 fn int_attribute(tree: &UiTree, index: usize, name: &str) -> Option<i32> {
@@ -186,6 +190,8 @@ impl Reticle {
             precluded_top: 0,
             precluded_bottom: 0,
             pointer_art: None,
+            corner_art: None,
+            card: None,
         };
         for root in reticle.objects() {
             tree.show_object(root, false);
@@ -199,12 +205,20 @@ impl Reticle {
         self.pointer_art = Some(base);
     }
 
+    /// The modern style: the corners show the drawn brackets (`modern_art_target::BRACKETS`)
+    /// unturned, and the name and meters sit in a glass card (`modern_target`).
+    pub fn set_modern_marks(&mut self, tree: &mut UiTree) {
+        self.corner_art = Some(crate::modern_art_target::BRACKETS);
+        self.card = crate::modern_target::make_card(tree, self.corners[0]);
+    }
+
     fn objects(&self) -> impl Iterator<Item = usize> + '_ {
         self.corners
             .iter()
             .copied()
             .chain(self.off_screen)
             .chain([self.name, self.stuff])
+            .chain(self.card)
     }
 
     /// `gm3DTextUI::RecvNotice_SelectionChanged`: the new selection, its name (`CheckName`); the
@@ -388,7 +402,13 @@ impl Reticle {
         let (stuff_w, stuff_h) = size(tree, self.stuff)?;
         let max_x = display_w - w;
         let bottom_limit = display_h - self.precluded_bottom - h;
+        let card_top = if self.card.is_some() {
+            crate::modern_target::CARD_PAD.1
+        } else {
+            0
+        };
         let top_limit = self.precluded_top
+            + card_top
             + if self.has_name { name_h } else { 0 }
             + if self.has_info { stuff_h } else { 0 };
         let mut xs = [x0 - w, x0 - w, x1, x1];
@@ -405,7 +425,21 @@ impl Reticle {
                 ys[i]
             };
             tree.show_object(self.corners[i], true);
-            tree.set_object_rotation(self.corners[i], 90 * i as i32);
+            match self.corner_art {
+                Some(base) => {
+                    tree.set_object_rotation(self.corners[i], 0);
+                    let file = base + i as u32;
+                    if tree
+                        .get(self.corners[i])
+                        .and_then(|e| e.image())
+                        .map(|m| m.file)
+                        != Some(file)
+                    {
+                        tree.set_image(self.corners[i], file, crate::compose::DRAW_OVER);
+                    }
+                }
+                None => tree.set_object_rotation(self.corners[i], 90 * i as i32),
+            }
             tree.set_object_position(self.corners[i], xs[i], ys[i]);
         }
         // `m_lastSelectionRect`: the corners' box (with the name, below, when it shows).
@@ -417,11 +451,13 @@ impl Reticle {
         let half = (xs[2] - xs[0] + w) / 2;
         let name_x = xs[0] - name_w / 2 + half;
         let mut name_y = ys[0] - name_h;
+        let mut meters = None;
         if self.has_info {
             name_y -= stuff_h;
             let stuff_x = xs[0] - stuff_w / 2 + half;
             tree.set_object_position(self.stuff, stuff_x, name_y + name_h);
             tree.show_object(self.stuff, true);
+            meters = Some((stuff_x, name_y + name_h, stuff_w, stuff_h));
         } else {
             tree.show_object(self.stuff, false);
         }
@@ -431,6 +467,17 @@ impl Reticle {
             rect[0] = rect[0].min(name_x);
             rect[1] = rect[1].min(name_y);
             rect[2] = rect[2].max(name_x + name_w - 1);
+            if let Some(card) = self.card {
+                let at = crate::modern_target::place_card(
+                    tree,
+                    card,
+                    (name_x, name_y, name_w, name_h),
+                    meters,
+                );
+                rect[0] = rect[0].min(at[0]);
+                rect[1] = rect[1].min(at[1]);
+                rect[2] = rect[2].max(at[2]);
+            }
         }
         if let Some(off_screen) = self.off_screen {
             tree.show_object(off_screen, false);
@@ -509,6 +556,9 @@ impl Reticle {
         }
         tree.show_object(self.name, false);
         tree.show_object(self.stuff, false);
+        if let Some(card) = self.card {
+            tree.show_object(card, false);
+        }
         tree.show_object(indicator, true);
         match self.pointer_art {
             Some(base) => crate::modern_art_pointer::point(tree, indicator, base, rotation + turn),

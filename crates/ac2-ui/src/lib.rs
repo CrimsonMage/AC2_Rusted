@@ -276,6 +276,7 @@ mod modern_art_drawer;
 mod modern_art_loot;
 pub mod modern_art_pointer;
 mod modern_art_radar;
+pub mod modern_art_target;
 mod modern_art_windows;
 pub mod modern_banner;
 mod modern_chat;
@@ -302,6 +303,9 @@ mod modern_pets;
 mod modern_radar;
 mod modern_stack;
 mod modern_strip;
+mod modern_target;
+#[cfg(test)]
+mod modern_target_tests;
 mod modern_toolbar;
 #[cfg(test)]
 mod modern_toolbar_tests;
