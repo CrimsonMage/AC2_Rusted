@@ -82,11 +82,6 @@ fn pose_group(
     ctx: &mut PoseContext<'_>,
     refresh: bool,
 ) -> Option<Vec<Ac2BoneTransform>> {
-    modes.visit_tracks_mut(|_, t| {
-        if animators.contains_key(&t.anim_key) && setup.bones.len() == 8 {
-            eprintln!("ZZ track {:x} w {} layer", t.anim_key, t.weight)
-        }
-    });
     let fresh = refresh.then(|| {
         let rest: Vec<Ac2BoneTransform> = setup
             .rest_locals()
