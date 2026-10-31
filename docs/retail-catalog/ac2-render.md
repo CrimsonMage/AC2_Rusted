@@ -992,7 +992,7 @@ Legend and workflow: [README](README.md).
 ### LScapeMaterialInfo
 - [-] `LScapeMaterialInfo::~LScapeMaterialInfo` · 00590c60 · legions 005602b0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [x] `LScapeMaterialInfo::CornerMatch` · 00590c80 · legions 005602d0
-- [x] `LScapeMaterialInfo::GetCombineMaterials` · 00590cb0 · legions 00560300
+- [x] `LScapeMaterialInfo::GetCombineMaterials` · 00590cb0 · legions 00560300 — base, alpha and detail materials; the detail one, unused by CombineMaterials, is drawn near the eye (AGENTS.md)
 - [x] `LScapeMaterialInfo::GetAlphaTexture` · 00590d80 · legions 005603d0
 - [x] `LScapeMaterialInfo::CalcUVInfo` · 00590de0 · legions 00560410
 - [x] `LScapeMaterialInfo::Match` · 00590ea0 · legions 005604d0

@@ -30,18 +30,30 @@ impl AlphaRotation {
 }
 
 /// One drawn layer: the base `RenderMaterial`, its tile width in metres and, above layer 0, the
-/// alpha mask texture blending it over the layers beneath.
+/// alpha mask texture blending it over the layers beneath. `detail` is the surface's detail
+/// `RenderMaterial` with its tile width (`SurfaceInfo::detail_texture`, `detail_tiling`), which
+/// `LScapeMaterialInfo::GetCombineMaterials` gathered into `MaterialCombiner::detailMaterials`
+/// and `CombineMaterials` never drew; the client draws it near the eye (`terrain.wgsl`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct TerrainLayer {
     pub material: DataId,
     /// `SurfaceInfo::base_tiling` bits (metres per texture repeat).
     tiling_bits: u32,
     pub alpha: Option<(DataId, AlphaRotation)>,
+    /// The detail material and its `SurfaceInfo::detail_tiling` bits.
+    detail: Option<(DataId, u32)>,
 }
 
 impl TerrainLayer {
     pub fn tiling(&self) -> f32 {
         f32::from_bits(self.tiling_bits)
+    }
+
+    /// The detail material and the metres one repeat of it covers, when the surface has one.
+    pub fn detail(&self) -> Option<(DataId, f32)> {
+        self.detail
+            .map(|(did, bits)| (did, f32::from_bits(bits)))
+            .filter(|(_, tiling)| *tiling > 0.0)
     }
 }
 
@@ -91,6 +103,9 @@ pub fn terrain_layers(corners: Corners<'_>, roads: Corners<'_>) -> Option<Terrai
             material,
             tiling_bits: surface.base_tiling.to_bits(),
             alpha,
+            detail: surface
+                .detail_material
+                .map(|did| (did, surface.detail_tiling.to_bits())),
         });
     }
     Some(TerrainLayers(layers))

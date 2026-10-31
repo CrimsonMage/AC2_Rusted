@@ -29,6 +29,8 @@ struct Batch {
     scale: vec4<f32>,
     // Mask rotation (`rot_types`, 1..4) of layers 1 and 2, then the layer count.
     rot: vec4<u32>,
+    // UV scale of each layer's detail texture (vertex spacing / `detail_tiling`); 0 for none.
+    detail: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> frame: Frame;
@@ -48,6 +50,10 @@ struct Batch {
 @group(1) @binding(5) var mask2: texture_2d<f32>;
 @group(1) @binding(6) var wrap_sampler: sampler;
 @group(1) @binding(7) var clamp_sampler: sampler;
+// Each layer's `SurfaceInfo::detail_texture` (mid grey where it has none).
+@group(1) @binding(8) var detail0: texture_2d<f32>;
+@group(1) @binding(9) var detail1: texture_2d<f32>;
+@group(1) @binding(10) var detail2: texture_2d<f32>;
 
 struct VsIn {
     @location(0) position: vec3<f32>,
@@ -124,6 +130,18 @@ fn terrain_light(normal: vec3<f32>, c: vec4<f32>, sun: f32) -> vec3<f32> {
     return saturate((direct * frame.dir_color.rgb + ambient) * c.rgb);
 }
 
+// The detail textures (a grey around 0.5 the DATs author per surface, tiled every few metres)
+// modulate their layer by twice their texel, a D3D MODULATE2X stage over the combined layer, so
+// mid grey leaves it unchanged. Retail gathered them (`LScapeMaterialInfo::GetCombineMaterials`)
+// and never drew them; here they add the close ground's grain, fading out between these
+// distances (metres) where their mips settle to grey and their repeat would show.
+const DETAIL_FADE: vec2<f32> = vec2<f32>(25.0, 60.0);
+
+fn with_detail(layer: vec3<f32>, detail: texture_2d<f32>, scale: f32, grid: vec2<f32>, near: f32) -> vec3<f32> {
+    let texel = textureSample(detail, wrap_sampler, grid * scale).rgb;
+    return saturate(layer * mix(vec3(1.0), 2.0 * texel, select(0.0, near, scale > 0.0)));
+}
+
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
     // In a body's or object's sun shadow the direct light is gone, and the light keeps at most
@@ -136,10 +154,14 @@ fn fs(input: VsOut) -> @location(0) vec4<f32> {
     let layer0 = saturate(2.0 * textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb * diffuse);
     let layer1 = saturate(2.0 * textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb * diffuse);
     let layer2 = saturate(2.0 * textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb * diffuse);
+    let near = 1.0 - smoothstep(DETAIL_FADE.x, DETAIL_FADE.y, input.distance);
+    let detailed0 = with_detail(layer0, detail0, batch.detail.x, input.grid, near);
+    let detailed1 = with_detail(layer1, detail1, batch.detail.y, input.grid, near);
+    let detailed2 = with_detail(layer2, detail2, batch.detail.z, input.grid, near);
     let alpha1 = textureSample(mask1, clamp_sampler, input.mask1_uv).a;
     let alpha2 = textureSample(mask2, clamp_sampler, input.mask2_uv).a;
-    var color = mix(layer0, layer1, select(0.0, alpha1, batch.rot.z > 1u));
-    color = mix(color, layer2, select(0.0, alpha2, batch.rot.z > 2u));
+    var color = mix(detailed0, detailed1, select(0.0, alpha1, batch.rot.z > 1u));
+    color = mix(color, detailed2, select(0.0, alpha2, batch.rot.z > 2u));
     // D3DTOP_MODULATE by the shadow map (clamped) and the cloud shadows (wrapped). Where the sun
     // shadow cascades cover the landscape they hold the same casters, sharper, so the map fades
     // out there instead of darkening them twice.

@@ -117,3 +117,42 @@ fn rotations_put_the_mask_origin_on_each_corner() {
     assert_eq!(origin(AlphaRotation::Rot180), 1);
     assert_eq!(origin(AlphaRotation::Rot270), 0);
 }
+
+#[test]
+fn each_layer_carries_its_surfaces_detail_material() {
+    let detailed = |material: u32, tiling: f32| Ac2SurfaceInfo {
+        detail_material: Some(DataId::new(0x2B00_0700 | material)),
+        detail_tiling: tiling,
+        ..surface(material)
+    };
+    let corners = [
+        detailed(1, 3.0),
+        detailed(1, 3.0),
+        detailed(1, 3.0),
+        surface(2),
+    ];
+    let none = Ac2SurfaceInfo::default();
+    let layers = terrain_layers(
+        [&corners[0], &corners[1], &corners[2], &corners[3]],
+        [&none, &none, &none, &none],
+    )
+    .expect("layers");
+    let details: Vec<_> = layers
+        .0
+        .iter()
+        .map(|layer| layer.detail().map(|(did, tiling)| (did.raw(), tiling)))
+        .collect();
+    // The SW base keeps its detail; the NE corner's surface has none.
+    assert_eq!(details, vec![Some((0x2B00_0701, 3.0)), None]);
+}
+
+#[test]
+fn a_detail_without_a_tiling_is_not_drawn() {
+    let corner = Ac2SurfaceInfo {
+        detail_material: Some(DataId::new(0x2B00_0707)),
+        detail_tiling: 0.0,
+        ..surface(1)
+    };
+    let layers = terrain_layers([&corner; 4], [&Ac2SurfaceInfo::default(); 4]).expect("layers");
+    assert_eq!(layers.0[0].detail(), None);
+}

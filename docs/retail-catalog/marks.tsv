@@ -8494,7 +8494,7 @@ key	status	note
 00590c10	_	needs port: render texture global-or-local lookup
 00590c60	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 00590c80	x	
-00590cb0	x	
+00590cb0	x	base, alpha and detail materials; the detail one, unused by CombineMaterials, is drawn near the eye (AGENTS.md)
 00590d80	x	
 00590de0	x	
 00590ea0	x	

@@ -40,12 +40,18 @@ pub struct TerrainMesh {
 }
 
 impl TerrainMesh {
-    /// Every layer material and alpha mask the mesh blends, once each.
+    /// Every layer material, alpha mask and detail material the mesh blends, once each.
     pub fn texture_keys(&self) -> Vec<crate::TextureKey> {
         let mut keys = Vec::new();
         for layer in self.batches.iter().flat_map(|batch| &batch.layers.0) {
             let mask = layer.alpha.map(|(mask, _)| crate::TextureKey::Mask(mask));
-            for key in std::iter::once(crate::TextureKey::Material(layer.material)).chain(mask) {
+            let detail = layer
+                .detail()
+                .map(|(did, _)| crate::TextureKey::Material(did));
+            let keys_of = std::iter::once(crate::TextureKey::Material(layer.material))
+                .chain(mask)
+                .chain(detail);
+            for key in keys_of {
                 if !keys.contains(&key) {
                     keys.push(key);
                 }

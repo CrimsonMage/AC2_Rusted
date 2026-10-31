@@ -50,6 +50,8 @@ struct FrameUniform {
 struct BatchUniform {
     scale: [f32; 4],
     rot: [u32; 4],
+    /// UV scale of each layer's detail texture (vertex spacing / `detail_tiling`); 0 for none.
+    detail: [f32; 4],
 }
 
 /// One draw of a block: its index range and bind group, with the parts the group is made of so it
@@ -58,6 +60,7 @@ struct TerrainBatch {
     range: Range<u32>,
     group: wgpu::BindGroup,
     uniform: wgpu::Buffer,
+    /// Layers 0..3, then their detail textures (mid grey where a layer has none).
     bases: Vec<wgpu::TextureView>,
     masks: Vec<wgpu::TextureView>,
 }
@@ -169,6 +172,9 @@ impl TerrainRenderer {
                 texture(5),
                 sampler(6),
                 sampler(7),
+                texture(8),
+                texture(9),
+                texture(10),
             ],
         });
         let frame_buffer = device.create_buffer(&wgpu::BufferDescriptor {
@@ -392,9 +398,11 @@ impl TerrainRenderer {
         load: &mut dyn FnMut(TextureKey) -> Option<Image>,
     ) -> (wgpu::Buffer, Vec<wgpu::TextureView>, Vec<wgpu::TextureView>) {
         let mut scale = [0.0; 4];
+        let mut detail = [0.0; 4];
         let mut rot = [1, 1, layers.len() as u32, 0];
         let mut bases = Vec::new();
         let mut masks = Vec::new();
+        let mut details = vec![self.textures.neutral().clone(); 3];
         for (index, layer) in layers.iter().take(3).enumerate() {
             // `LScapeMaterialInfo::CalcUVInfo`: block_length / ((side_vertex_count - 1) * tiling).
             scale[index] = if layer.tiling() > 0.0 {
@@ -404,6 +412,11 @@ impl TerrainRenderer {
             };
             let key = TextureKey::Material(layer.material);
             bases.push(self.textures.get(&gpu.device, &gpu.queue, key, load));
+            if let Some((did, tiling)) = layer.detail() {
+                detail[index] = spacing / tiling;
+                let key = TextureKey::Material(did);
+                details[index] = self.textures.get(&gpu.device, &gpu.queue, key, load);
+            }
             if let Some((mask, rotation)) = layer.alpha {
                 rot[index - 1] = rotation as u32;
                 let key = TextureKey::Mask(mask);
@@ -412,12 +425,13 @@ impl TerrainRenderer {
         }
         let white = self.textures.white().clone();
         bases.resize(3, white.clone());
+        bases.extend(details);
         masks.resize(2, white);
         let uniform = gpu
             .device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("ac2 terrain batch uniform"),
-                contents: bytemuck::bytes_of(&BatchUniform { scale, rot }),
+                contents: bytemuck::bytes_of(&BatchUniform { scale, rot, detail }),
                 usage: wgpu::BufferUsages::UNIFORM,
             });
         (uniform, bases, masks)
@@ -457,6 +471,9 @@ impl TerrainRenderer {
                     binding: 7,
                     resource: wgpu::BindingResource::Sampler(&self.clamp),
                 },
+                view(8, &bases[3]),
+                view(9, &bases[4]),
+                view(10, &bases[5]),
             ],
         })
     }

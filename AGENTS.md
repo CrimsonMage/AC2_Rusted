@@ -434,6 +434,15 @@ game rules and server-visible behaviour exactly retail.
   `ANISOTROPIC_FILTERING` (retail's caps check). wgpu allows a clamp above 1 only with min, mag
   and mip all linear, so a stage is anisotropic only when both its min and mag filters are linear
   (retail needed either), and an anisotropic stage takes a linear mip even with trilinear off.
+- Exception: the near landscape draws its surfaces' detail textures. Every terrain `SurfaceInfo`
+  names a detail `RenderMaterial` and its tile width (`detail_texture`, `detail_tiling`; a grey
+  around 0.5, e.g. `0x2B000007`, 128 x 128 every 3 m), which `LScapeMaterialInfo::GetCombineMaterials`
+  gathered into `MaterialCombiner::detailMaterials` and `CombineMaterials` never drew, so close
+  ground showed only its base texture (512 x 512 every 20 m) magnified into a smear. Here each
+  layer is modulated by twice its detail texel (a MODULATE2X stage over the layer, so mid grey
+  leaves it unchanged), fading out between 25 and 60 m from the eye (`terrain.wgsl`
+  `DETAIL_FADE`); a layer whose surface has none binds mid grey. The detail is part of the layer
+  set (`TerrainLayer::detail`), as `LScapeMaterialInfo::CornerMatch` already compared it.
 - Exception: grass frills reach past retail's ring. Retail merged the frills within
   `(m_current_lscape_radius + 1) * square_length` of the camera cell (`FrillRender::RefreshFrillMesh`,
   still done) and faded them out between `radius * square_length - 8` and `radius * square_length`
