@@ -478,6 +478,11 @@ game rules and server-visible behaviour exactly retail.
   within 60 m (`frill::grass_pushers`, `grass_push` in `object.wgsl`): the part of a blade within
   0.75 m (times the body's scale) of a body's feet is carried out to that reach and sinks as it
   bends, its base planted. Retail's frills stood still and the bodies walked through them.
+  Frills keep retail's lit vertex program for their light (`object_modern.wgsl`
+  `frill_retail_colour`): the sun's N.L, the point lights and the ambient summed and clamped in
+  display space, times the stage's MODULATE2X albedo, decoded once, where other lit objects sum
+  decoded lights in linear light, which left the meadows a quarter darker than retail and the AC2e
+  remake drew them.
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).

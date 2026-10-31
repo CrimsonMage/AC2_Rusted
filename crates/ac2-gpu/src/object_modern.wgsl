@@ -107,6 +107,24 @@ fn modern_light(rel: vec3<f32>, n: vec3<f32>) -> ModernLight {
     return light;
 }
 
+// A frill's colour under retail's lit vertex program with the sun's share scaled by `lit`
+// (`f_ApplyDiffuseDirLightToColor0`, the point lights, then `c_AmbientColor`), in linear light.
+fn frill_retail_colour(albedo: vec3<f32>, input: VsOut, lit: f32) -> vec3<f32> {
+    let n = normalize(input.normal);
+    var light = min(frame.ambient.rgb * draw.ambient.rgb, vec3(1.0));
+    if sun_on() {
+        let n_dot_l = max(dot(n, normalize(frame.sun_inv_dir.xyz)), 0.0);
+        light = light + frame.sun_diffuse.rgb * n_dot_l * lit;
+    }
+    for (var i = 0u; i < point_count(); i = i + 1u) {
+        let to_light = (draw.points[i * 4u].xyz - frame.eye.xyz) - input.rel;
+        let distance_sq = dot(to_light, to_light);
+        let n_dot_l = max(dot(n, to_light * inverseSqrt(max(distance_sq, 1e-30))), 0.0);
+        light = light + draw.points[i * 4u + 1u].rgb * point_attenuation(i, distance_sq) * n_dot_l;
+    }
+    return srgb_to_linear(clamp(albedo * min(light, vec3(1.0)), vec3(0.0), vec3(1.0)));
+}
+
 // The modern fragment. The cascade runs on the authored gamma values, exactly as retail does:
 // its ops (ADDSIGNED, SUBTRACT, DOTPRODUCT3 ...) assume the 0.5 neutral point of encoded texels,
 // so decoding the inputs first garbles them. The cascade's output is then decoded to linear light
@@ -132,7 +150,16 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
         return vec4(mix(vec3(1.0), tint_filter, clamp(shaded.a, 0.0, 1.0)), shaded.a);
     }
     var radiance = srgb_to_linear(clamp(shaded.rgb, vec3(0.0), vec3(1.0)));
-    if !pixel_program && program == 1u {
+    if program == 1u && input.alpha_cut > 0.0 {
+        // Grass frills keep retail's lit vertex program: the sun's N.L and the point lights plus
+        // the ambient, summed and clamped in display space, modulate the stage's MODULATE2X
+        // albedo there, and the product is decoded once (as the AC2e remake lights its grass).
+        // Summing the decoded lights in linear light instead left the meadows a quarter darker.
+        let lit = select(1.0, sun_lit(input.rel, input.normal), sun_on());
+        let lit_colour = frill_retail_colour(shaded.rgb, input, lit);
+        let full_colour = frill_retail_colour(shaded.rgb, input, 1.0);
+        radiance = min(lit_colour, full_colour * sun_shadow_keep(lit));
+    } else if !pixel_program && program == 1u {
         let light = modern_light(input.rel, normalize(input.normal));
         // Retail clamps the specular colour to [0, 1] (`out.color1`); the modern highlights keep
         // the tone curve's roll-off above that. In the sun's shadow the sun's share is gone, and
