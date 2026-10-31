@@ -76,8 +76,8 @@ pub const WIN_ARROW: [u32; 8] = [
 pub const WIN_ROW: u32 = 0x7E01_0132;
 pub const WIN_ROW_SEL: u32 = 0x7E01_0133;
 pub const WIN_ROW_BORDER: i32 = 5;
-/// The fellows' meters (the design's `.meter`): health, vigor and focus at the panel's size
-/// (277 by 14), then at the mini panel's (215 by 5).
+/// The fellows' meters (the design's `.meter`): health, vigor and the meter's empty well at the
+/// panel's size (277 by 14), then at the mini panel's (215 by 5).
 pub const WIN_METER: [u32; 6] = [
     0x7E01_0134,
     0x7E01_0135,
@@ -574,6 +574,16 @@ fn meter(w: usize, h: usize, top: u32, bottom: u32) -> UiPixels {
     c.finish()
 }
 
+/// A meter's empty well `w` by `h`: near black (`#000b`) in the line colour (the design's
+/// `.meter` backing).
+fn meter_well(w: usize, h: usize) -> UiPixels {
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 1.5);
+    c.paint(&shape, |_, _, d| (rgb(0x000000, 0.73), inside(d)));
+    c.paint(&shape, |_, _, d| (rgb(LINE, 1.0), band(d, -1.0, 0.0)));
+    c.finish()
+}
+
 /// The secure trade's title strip: the header's stone shaded down, a black line at its foot.
 fn strip() -> UiPixels {
     let (w, h) = (271usize, 18usize);
@@ -647,10 +657,10 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (WIN_PANEL, panel()),
         (WIN_METER[0], meter(277, 14, 0xE0504A, 0x7A1A16)),
         (WIN_METER[1], meter(277, 14, 0x4A62E8, 0x16207A)),
-        (WIN_METER[2], meter(277, 14, 0xE8D9A0, 0x8A7A40)),
+        (WIN_METER[2], meter_well(277, 14)),
         (WIN_METER[3], meter(215, 5, 0xE0504A, 0x7A1A16)),
         (WIN_METER[4], meter(215, 5, 0x4A62E8, 0x16207A)),
-        (WIN_METER[5], meter(215, 5, 0xE8D9A0, 0x8A7A40)),
+        (WIN_METER[5], meter_well(215, 5)),
         (WIN_STRIP, strip()),
         (
             WIN_TRADE,

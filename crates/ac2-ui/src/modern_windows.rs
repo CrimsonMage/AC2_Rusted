@@ -173,7 +173,8 @@ fn swaps() -> Vec<Swap> {
         (0x4100_8781, a[3], STRETCH),
         (0x4100_8782, a[3], STRETCH),
         (0x4100_8783, a[2], STRETCH),
-        // The fellows' meters (health, vigor, focus; the panel's and the mini panel's).
+        // The fellows' meters (health, vigor and the empty well; the panel's and the mini
+        // panel's).
         (0x4100_0978, art::WIN_METER[0], None),
         (0x4100_0977, art::WIN_METER[1], None),
         (0x4100_7FEA, art::WIN_METER[2], None),
