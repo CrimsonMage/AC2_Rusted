@@ -11,13 +11,13 @@ const ADAPT_STRENGTH: f64 = 0.5;
 
 /// `tonemap.wgsl`'s Khronos PBR Neutral curve on a grey channel, then the sRGB encode, as 0-255.
 fn display(x: f64) -> f64 {
-    let offset = if x < 0.08 { x - 6.25 * x * x } else { 0.04 };
-    let c = x - offset;
-    let c = if c < 0.76 {
-        c
+    // `tonemap.wgsl`'s PBR Neutral without its toe: the shoulder starts at 0.76 + 0.04.
+    let start = 0.76 + 0.04;
+    let c = if x < start {
+        x
     } else {
-        let d = 1.0 - 0.76;
-        1.0 - d * d / (c + d - 0.76)
+        let d = 1.0 - start;
+        1.0 - d * d / (x + d - start)
     };
     let s = if c <= 0.003_130_8 {
         c * 12.92

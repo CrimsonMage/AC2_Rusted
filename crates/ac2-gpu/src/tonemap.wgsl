@@ -41,18 +41,22 @@ fn linear_to_srgb(c: vec3<f32>) -> vec3<f32> {
     return select(high, low, c <= vec3(0.0031308));
 }
 
-// Khronos PBR Neutral (glTF sample viewer).
+// The offset the Khronos curve subtracts above its toe; it now only moves the shoulder.
+const NEUTRAL_OFFSET: f32 = 0.04;
+
+// Khronos PBR Neutral (glTF sample viewer) without its toe: the curve's 0.04 offset, which
+// took up to 0.04 off dark and mid tones and crushed small channels (the grass's blue) to black,
+// is left out, so values under the shoulder pass unchanged as an untone-mapped image's do; the
+// shoulder starts at its original 0.76 plus the offset, so highlights roll off as before.
 fn pbr_neutral(input: vec3<f32>) -> vec3<f32> {
     var color = input;
-    let x = min(color.r, min(color.g, color.b));
-    let offset = select(0.04, x - 6.25 * x * x, x < 0.08);
-    color -= offset;
+    let start = START_COMPRESSION + NEUTRAL_OFFSET;
     let peak = max(color.r, max(color.g, color.b));
-    if peak < START_COMPRESSION {
+    if peak < start {
         return color;
     }
-    let d = 1.0 - START_COMPRESSION;
-    let new_peak = 1.0 - d * d / (peak + d - START_COMPRESSION);
+    let d = 1.0 - start;
+    let new_peak = 1.0 - d * d / (peak + d - start);
     color *= new_peak / peak;
     let g = 1.0 - 1.0 / (DESATURATION * (peak - new_peak) + 1.0);
     return mix(color, vec3(new_peak), g);

@@ -675,21 +675,22 @@ impl ScenePresenter {
 
 #[cfg(test)]
 mod tests {
-    /// `tonemap.wgsl`'s Khronos PBR Neutral curve on one grey channel.
+    /// `tonemap.wgsl`'s Khronos PBR Neutral curve, without its toe, on one grey channel.
     fn neutral(x: f32) -> f32 {
-        let offset = if x < 0.08 { x - 6.25 * x * x } else { 0.04 };
-        let c = x - offset;
-        if c < 0.76 {
-            return c;
+        let start = 0.76 + 0.04;
+        if x < start {
+            return x;
         }
-        let d = 1.0 - 0.76;
-        1.0 - d * d / (c + d - 0.76)
+        let d = 1.0 - start;
+        1.0 - d * d / (x + d - start)
     }
 
     #[test]
     fn neutral_keeps_black_and_mid_tones_and_rolls_highlights_off_below_one() {
         assert_eq!(neutral(0.0), 0.0);
-        assert!((neutral(0.18) - 0.14).abs() < 1e-3, "{}", neutral(0.18));
+        // Dark and mid tones pass unchanged: no toe crushes the grass's small blue channel.
+        assert_eq!(neutral(0.18), 0.18);
+        assert_eq!(neutral(0.003), 0.003);
         assert!(neutral(1.0) < 0.95 && neutral(1.0) > 0.85);
         // Two stacked additive layers at 1.0 each stay distinguishable from one.
         assert!(neutral(2.0) - neutral(1.0) > 0.03);

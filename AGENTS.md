@@ -65,6 +65,8 @@ game rules and server-visible behaviour exactly retail.
   `CPartArray` colours, `CEnvCell` vertex light); the shading turns that into linear light.
   It covers lighting (GGX for lit objects), sky, clouds, weather and the tone map.
   Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one Khronos PBR Neutral tone map
+  without its toe (values under the shoulder pass unchanged, so dark tones and small channels keep
+  their level as an untone-mapped image does; the shoulder starts at 0.80)
   (`ac2_gpu::ToneMap`) reaches the window, and the UI draws after it. Before it, the world alone
   takes a post chain (`ac2_gpu` `post.rs`, `ao.rs`): ambient occlusion from depth (GTAO, Jimenez et al. 2016, at half size with a depth-aware blur,
   temporally accumulated under the TAA's camera reprojection; a client deviation, retail had no
