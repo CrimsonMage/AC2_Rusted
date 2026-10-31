@@ -12,7 +12,9 @@
 //!     --account ACCOUNT --glsticketdirect PASSWORD --version 1802
 //! ```
 //!
-//! The Pyrealium launcher runs this program as its client executable, as it runs retail's:
+//! A local AC2e server (`scripts/ac2e-server.sh`) takes `--server 127.0.0.1:9000 --account local
+//! --version 7148`. A launcher can also run this program as its client executable, as it runs
+//! retail's:
 //!
 //! ```text
 //! ac2 --dat-dir DIR --account NAME --host H --port P --rodat --width 1024 --height 768 /glsticket

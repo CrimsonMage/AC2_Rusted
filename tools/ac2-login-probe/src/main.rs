@@ -18,8 +18,8 @@ OPTIONS
   --account NAME          account name (lowercased, as retail does)
   --glsticketdirect PASS  password logon (auth type 0x40000002); omit for a plain account logon
   --version V             data version in the logon (default 7160, the Legions DVD client;
-                          1802 for the 2012-2017 relaunch client). Pyrealium accepts only
-                          7148 or 7230. The RSA session key is never sent.
+                          1802 for the 2012-2017 relaunch client). The AC2e server accepts
+                          7148 (and experimental 7230). The RSA session key is never sent.
   --dat-dir DIR           DAT directory for the interrogation response (default AC2_DAT_DIR)
   --timeout SECS          wait for the character set this long (default 45)
   -h, --help              this text

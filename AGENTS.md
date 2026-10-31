@@ -36,7 +36,7 @@ game rules and server-visible behaviour exactly retail.
   channel fed by the workers. Verified (Legions 0x0065AE60): `AsyncCache::UseTime` is only that
   pump, a 25 ms `GetTickCount` budget over `LFQueue::Consume` of the pending callbacks, each run
   then released by refcount. Not yet verified: whether `AddToDataGraph` matters outside tools,
-  and whether the Pyrealium server ever pushes updated portal objects (the retail on-disk
+  and whether the AC2e server ever pushes updated portal objects (the retail on-disk
   `AsyncCache` / `CMissingIteration` path exists for that). Read those before deleting the
   related code, and record the findings here.
 - Exception: the window resizes freely (a modern client). Retail drew its UI pixel for pixel on a
@@ -575,6 +575,11 @@ game rules and server-visible behaviour exactly retail.
   hard fail (`scripts/check_file_sizes.sh` fails the gate).
 - Keep public APIs small: plain data and narrow entry points.
 - Tests that need game data read `AC2_DAT_DIR` and are skipped when it is unset.
+- Live server testing is against the AC2e server (github.com/Thwargle/AC2e, run on the Legions
+  DATs). `scripts/ac2e-login-test.sh` (with `AC2_DAT_DIR`) starts one, logs on through
+  `ac2-login-probe` to the character set and stops it; `scripts/ac2e-server.sh` keeps one running
+  for the client (`ac2 --server 127.0.0.1:9000 --account local --version 7148`). The in-process
+  `legions-server-double` stays the 7160 path's test peer.
 - `crates/` is the client. `tools/` holds test tooling only; the world viewer is an offline
   harness and never connects to a server.
 - Close-out reports list `Retail Behavior traced:`, `Verification:` and `Known Gaps:`.

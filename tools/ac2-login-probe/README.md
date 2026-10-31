@@ -15,7 +15,7 @@ cargo run -p ac2-login-probe -- --host HOST --port PORT --account NAME [options]
 | `--port N` | the server's logon port |
 | `--account NAME` | lowercased first, as retail does (`_strlwr`, `EvaluateCommandLineArg`) |
 | `--glsticketdirect PASS` | password logon, auth type `0x40000002` (`gmClient::InitAuth`); omit for a plain account logon (auth type 1) |
-| `--version V` | data version in the logon, default `7160` (Legions DVD). `1802` for the 2012-2017 relaunch client (build 0930, `ClientNet::SendLoginRequest` client0930 0x004D3B70). Pyrealium accepts only `7148` or `7230`. |
+| `--version V` | data version in the logon, default `7160` (Legions DVD). `1802` for the 2012-2017 relaunch client (build 0930, `ClientNet::SendLoginRequest` client0930 0x004D3B70). The AC2e server accepts `7148` (and experimental `7230`). |
 | `--dat-dir DIR` | DATs for the interrogation response, default `AC2_DAT_DIR`; without it the response lists no files |
 | `--timeout SECS` | wait for the character set, default 45 (the client gives up on the logon after 20 tries, 2 s apart) |
 
@@ -42,19 +42,28 @@ Legions does (auth type `0x40000002`). The probe never sends the RSA session key
 messages the 7160 decoder does not know; the probe reports each as `undecodable server message`
 with its opcode and length and keeps going.
 
-## Local Pyrealium (admin 7148 emulator)
+## Local AC2e server
 
-Pyrealium listens on `127.0.0.1:9000` (and 9001 for the connect-ack) by default, or on the
-`--bind` address it was started with. It speaks only the admin 7148 layouts:
+The client is tested against the AC2e server (github.com/Thwargle/AC2e), run on the Legions DATs.
+`scripts/ac2e-login-test.sh` is the live logon test: it starts a server on `127.0.0.1:19380`,
+runs this probe against it and stops the server, exiting with the probe's code.
 
 ```
+AC2_DAT_DIR=DIR scripts/ac2e-login-test.sh
+```
+
+To keep a server running for the client or the probe, `scripts/ac2e-server.sh` starts one on
+`127.0.0.1:9000` (the client's default `--server`). It builds AC2e from `AC2E_DIR` (default
+`../third_party/ac2e-src/repo`) when needed, keeps only the placements these DATs hold, and runs
+`ac2e serve` with AC2e's launcher options:
+
+```
+AC2_DAT_DIR=DIR scripts/ac2e-server.sh
 ac2-login-probe --host 127.0.0.1 --port 9000 --version 7148 --account local
 ```
 
-Its auth rules (`Login::supports_developer_auth`, `Login::native_ticket`): version `7148` or
-`7230`; a plain account logon (auth type 1, no password) must carry the configured account name;
-a `--glsticketdirect` logon is accepted only when the value is a 64-character lowercase hex
-token (the client's `/glsticket` form).
+AC2e speaks the admin 7148 layouts (7230 is experimental). Without `--auth-data` it takes a plain
+account logon (auth type 1, no password) for its developer account, `local`.
 
 ## What it does not do
 
