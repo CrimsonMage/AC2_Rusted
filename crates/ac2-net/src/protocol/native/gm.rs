@@ -160,6 +160,7 @@ impl GmSceneInfo {
 
 /// `SkillUINode::StreamPack` (Legions 0x005C8870): the skill, its texts, icon and place in the
 /// skill tree, its parents and dependencies (`BaseList<unsigned long>`: a count, then each).
+/// The 7230 release's node has one more word after the untrainable flag (`perk`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct SkillUiNode {
     pub skill_enum: u32,
@@ -173,6 +174,12 @@ pub struct SkillUiNode {
     pub dependencies: Vec<u32>,
     pub is_passive: u32,
     pub untrainable: u32,
+    /// The 7230 release's word at `SkillUINode+0xA0`, packed after `mUntrainable` (absent in
+    /// Legions 7160, whose node ends at +0x9C): non-zero marks a perk, whose untrain question
+    /// is `ID_Skill_Perk_UntrainText` (7230 `gmSkillTreeUI::MakeUntrainDialog`, 0x00449DE0).
+    /// The efuns 0x00AE0019 / 0x00AE001A set and read it; `SkillUINode::Clear` zeroes it
+    /// (client0930 0x005D5850). `None` for the Legions layout.
+    pub perk: Option<u32>,
 }
 
 impl SkillUiNode {
@@ -193,6 +200,10 @@ impl SkillUiNode {
             dependencies: words(r)?,
             is_passive: r.u32()?,
             untrainable: r.u32()?,
+            perk: match ac2_core::data_release() {
+                ac2_core::DataRelease::Release7230 => Some(r.u32()?),
+                ac2_core::DataRelease::Legions => None,
+            },
         })
     }
 
@@ -208,6 +219,9 @@ impl SkillUiNode {
             }
         }
         w.u32(self.is_passive).u32(self.untrainable);
+        if let Some(word) = self.perk {
+            w.u32(word);
+        }
     }
 }
 
@@ -424,9 +438,10 @@ mod tests {
             dependencies: vec![],
             is_passive: 1,
             untrainable: 0,
+            perk: Some(9),
         };
         let mut expected = words(&[0x41, 2, 0, 0, 0, 0, 0, 0, 0x0600_0001, u32::MAX, 3]);
-        expected.extend(words(&[1, 0x40, 0, 1, 0]));
+        expected.extend(words(&[1, 0x40, 0, 1, 0, 9]));
         assert_eq!(
             round_trip(NativeObject::SkillUiNode(Box::new(node))),
             expected

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1690 done, 32 partial, 335 to do, 411 skipped.
+2468 retail functions: 1693 done, 32 partial, 332 to do, 411 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -366,17 +366,17 @@ Legend and workflow: [README](README.md).
 - [x] `ggmSceneInfoList::CallEFun_push_tail` · 00471810 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmSceneInfoList::CallEFun_insert_sort` · 004718d0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 
-## `ac2/shared/src/interp/glue/gingredientadaptor.cpp.c` (5/8)
+## `ac2/shared/src/interp/glue/gingredientadaptor.cpp.c` (8/8)
 
 ### gIngredientAdaptor
-- [ ] `gIngredientAdaptor::CallEFun_SetAutoPopulate` · 00471310 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [x] `gIngredientAdaptor::CallEFun_SetAutoPopulate` · 00471310 — ac2-script glue::craft_natives (Legions ids 0x00A5000A/1/5 from GetEFunAddress; the 7230 library calls them: craft_script_7160 on 7230)
 - [x] `gIngredientAdaptor::CallEFun_SetDescription` · 00471370 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gIngredientAdaptor::CallEFun_SetID` · 004713d0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `gIngredientAdaptor::CallEFun_SetRecipeDID` · 00471430 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gIngredientAdaptor::CallEFun_GetAutoPopulate` · 00471490 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-- [ ] `gIngredientAdaptor::CallEFun_GetID` · 00471500 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [x] `gIngredientAdaptor::CallEFun_GetID` · 00471500 — ac2-script glue::craft_natives (Legions ids 0x00A5000A/1/5 from GetEFunAddress; the 7230 library calls them: craft_script_7160 on 7230)
 - [x] `gIngredientAdaptor::CallEFun_GetRecipeDID` · 00471570 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-- [ ] `gIngredientAdaptor::CallEFun_GetDescription` · 004715e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [x] `gIngredientAdaptor::CallEFun_GetDescription` · 004715e0 — ac2-script glue::craft_natives (Legions ids 0x00A5000A/1/5 from GetEFunAddress; the 7230 library calls them: craft_script_7160 on 7230)
 
 ## `ac2/shared/src/interp/glue/ginventoryglobals.cpp.c` (1/1)
 

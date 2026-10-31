@@ -1,4 +1,5 @@
-//! The region's ambient music on the real DATs (`AC2_DAT_DIR`), end to end and headless: the
+//! The region's ambient music on the Legions DVD's DATs (`AC2_DAT_DIR`; skipped on 7230, whose
+//! town block's land points name another environment), end to end and headless: the
 //! player enters the world at the double's spawn, the frames run, and the sound manager's
 //! `SinkCommand`s go to a tee that records them and mixes into a [`MixingSink`] (no device).
 //! Standing outdoors in the town block the land points' environment dominates and its music is
@@ -66,7 +67,7 @@ struct Harness {
 }
 
 fn town_spawn() -> Option<legions_server_double::Spawn> {
-    let dataset = ac2_dat::test_support::env_dataset()?;
+    let dataset = ac2_dat::test_support::env_legions_dataset()?;
     let store = ac2_db::ResourceStore::new(dataset);
     let world = ac2_client::DatWorld::new(Arc::new(store)).ok()?;
     let top = world
@@ -85,7 +86,7 @@ fn town_spawn() -> Option<legions_server_double::Spawn> {
 
 impl Harness {
     fn enter(spawn: legions_server_double::Spawn) -> Option<Self> {
-        let dataset = ac2_dat::test_support::env_dataset()?;
+        let dataset = ac2_dat::test_support::env_legions_dataset()?;
         let store = Arc::new(ac2_db::ResourceStore::new(dataset));
         let world = ac2_client::DatWorld::new(Arc::clone(&store)).ok()?;
         let (transport, server) = legions_server_double::double(spawn);
@@ -454,7 +455,7 @@ fn the_town_ambient_emitters_are_the_region_records_continuous_sounds() {
     let Some(spawn) = town_spawn() else {
         return;
     };
-    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+    let Some(dataset) = ac2_dat::test_support::env_legions_dataset() else {
         return;
     };
     let store = ac2_db::ResourceStore::new(dataset);

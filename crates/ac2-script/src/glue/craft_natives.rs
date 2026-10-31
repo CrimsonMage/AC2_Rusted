@@ -159,8 +159,16 @@ pub(super) fn register(efuns: &mut EFuns) {
     // gIngredientAdaptor.
     // `gIngredientAdaptor::CallEFun_SetID` (admin 0x4713D0: this at fp-4, the value at fp-8). The
     // Legions `CheckIngredient` calls it as 0x00A50002; the efun table lists only 6..9.
+    // 0x00A50001, 0x00A50005 and 0x00A5000A are in Legions' dispatcher but not the admin
+    // table: `GetID` (Legions 0x0046FA40, returns `m_id`), `GetDescription` (0x0046FCE0, a
+    // copy of `m_description`) and `SetAutoPopulate` (0x0046FC60: `m_autoPopulate = 1`, no
+    // argument), which the 7230 library calls.
+    efuns.register(0x00A5_0001, |vm, c| get(vm, c, |i: &Ingredient| i.id));
     efuns.register(0x00A5_0002, |vm, c| {
         set(vm, c, |i: &mut Ingredient, v| i.id = v)
+    });
+    efuns.register(0x00A5_0005, |vm, c| {
+        text_out(vm, c, |i: &Ingredient| &i.description)
     });
     efuns.register(0x00A5_0006, |vm, c| {
         text_into(vm, c, |i: &mut Ingredient| &mut i.description)
@@ -173,6 +181,9 @@ pub(super) fn register(efuns: &mut EFuns) {
     });
     efuns.register(0x00A5_0009, |vm, c| {
         get(vm, c, |i: &Ingredient| u32::from(i.auto_populate))
+    });
+    efuns.register(0x00A5_000A, |vm, c| {
+        with(vm, c, |i: &mut Ingredient, _| i.auto_populate = true)
     });
 }
 

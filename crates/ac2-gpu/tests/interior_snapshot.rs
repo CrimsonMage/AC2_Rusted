@@ -55,12 +55,16 @@ fn dungeon_cells_render_with_baked_light() {
             load_texture_image(&store, did).ok().flatten()
         }
     };
-    // `AC2_SNAPSHOT_BLOCK`: the dungeon block (hex), 005D by default.
+    // `AC2_SNAPSHOT_BLOCK`: the dungeon block (hex); by default the DVD's 005D, which 7230
+    // removed, or 7230's 03D7.
+    let default_block = ac2_dat::test_support::pinned(0x005D_u32, 0x03D7);
     let block = CellId::new(
         std::env::var("AC2_SNAPSHOT_BLOCK")
             .ok()
             .and_then(|v| u32::from_str_radix(&v, 16).ok())
-            .map_or(0x005D_0001, |b| (b << 16) | 1),
+            .map_or(default_block, |b| b)
+            << 16
+            | 1,
     );
     let interior = world
         .landblock_interior(block)

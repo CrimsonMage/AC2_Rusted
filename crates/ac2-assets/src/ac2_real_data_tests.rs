@@ -49,11 +49,11 @@ fn every_legions_material_record_decodes_to_its_exact_length() {
     );
     assert_eq!(
         decode_all::<Ac2MaterialModifier>(&dataset, &store, 0x3000_0000),
-        4035
+        ac2_dat::test_support::pinned(4035, 4205)
     );
     assert_eq!(
         decode_all::<Ac2MaterialInstance>(&dataset, &store, 0x3100_0000),
-        2401
+        ac2_dat::test_support::pinned(2401, 2457)
     );
 }
 
@@ -97,7 +97,7 @@ fn every_legions_texture_chain_loads() {
             .unwrap_or_else(|error| panic!("texture {did:08X}: {error}"))
             .unwrap_or_else(|| panic!("texture {did:08X} has no level"));
     }
-    assert_eq!(chains.len(), 4395);
+    assert_eq!(chains.len(), ac2_dat::test_support::pinned(4395, 4528));
 }
 
 #[test]
@@ -107,11 +107,11 @@ fn every_legions_mesh_setup_and_visual_desc_decodes() {
     };
     assert_eq!(
         decode_all::<crate::Ac2Mesh>(&dataset, &store, 0x0600_0000),
-        4501
+        ac2_dat::test_support::pinned(4501, 4556)
     );
     assert_eq!(
         decode_all::<ac2_anim::Ac2Setup>(&dataset, &store, 0x0400_0000),
-        2465
+        ac2_dat::test_support::pinned(2465, 2497)
     );
     let descs = dataset
         .ids_in_range(DatFileKind::Portal, 0x1F00_0000, 0x1FFF_FFFF)
@@ -128,7 +128,7 @@ fn every_legions_mesh_setup_and_visual_desc_decodes() {
                     .map(|error| format!("{did:08X}: {error}"))
             })
             .collect::<Vec<_>>();
-    assert_eq!(descs.len(), 6504);
+    assert_eq!(descs.len(), ac2_dat::test_support::pinned(6504, 6682));
     assert!(
         failures.is_empty(),
         "{} VisualDescs failed: {:?}",
@@ -151,7 +151,7 @@ fn every_legions_mesh_setup_and_visual_desc_decodes() {
                 .is_err()
         })
         .count();
-    assert_eq!(entities.len(), 15029);
+    assert_eq!(entities.len(), ac2_dat::test_support::pinned(15029, 16066));
     assert!(entity_failures <= 5, "{entity_failures} EntityDescs failed");
 }
 

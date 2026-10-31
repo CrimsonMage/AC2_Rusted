@@ -575,8 +575,15 @@ game rules and server-visible behaviour exactly retail.
   hard fail (`scripts/check_file_sizes.sh` fails the gate).
 - Keep public APIs small: plain data and narrow entry points.
 - Tests that need game data read `AC2_DAT_DIR` and are skipped when it is unset.
-- Live server testing is against the AC2e server (github.com/Thwargle/AC2e, run on the Legions
-  DATs). `scripts/ac2e-login-test.sh` (with `AC2_DAT_DIR`) starts one, logs on through
+- The DAT set is the 7230 release (newer than the Legions DVD's 7160 data): `AC2_DAT_DIR` is
+  `../dataset-7230` in the analysis workspace. Tests that pin record counts pin 7230's. Porting
+  still follows the Legions 7160 code (below); where 7230 changed a packed layout or added script
+  calls, follow the 7230 executable (02.00.20.7230, from the archive's 2012 client package; no
+  symbols, so cite its addresses). The layouts that differ (so far `SkillUINode`'s perk word)
+  follow `ac2_core::data_release`, which `DatDataset::open` sets from the portal iteration
+  (7230 is 5064; the DVD's 4862), so the DVD set still reads.
+- Live server testing is against the AC2e server (github.com/Thwargle/AC2e, run on the 7230
+  DATs with its `AC2E_UNCONVERTED_7230_DATA` opt-in). `scripts/ac2e-login-test.sh` starts one, logs on through
   `ac2-login-probe` to the character set and stops it; `scripts/ac2e-server.sh` keeps one running
   for the client (`ac2 --server 127.0.0.1:9000 --account local --version 7148`). The in-process
   `legions-server-double` stays the 7160 path's test peer.

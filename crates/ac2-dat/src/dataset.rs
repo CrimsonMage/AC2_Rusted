@@ -23,7 +23,7 @@ impl DatDataset {
             file_kinds.push(DatFileKind::HighRes);
         }
 
-        let files = std::thread::scope(|scope| {
+        let mut files = std::thread::scope(|scope| {
             let mut tasks = Vec::with_capacity(file_kinds.len());
             for kind in file_kinds.iter().copied() {
                 let path = options.path_for(kind);
@@ -54,6 +54,18 @@ impl DatDataset {
             first_error.map_or(Ok(files), Err)
         })?;
 
+        // The packed layouts that changed in 7230 follow the mounted set's release; the read
+        // of the iteration list is the mount's own, so it leaves no telemetry behind.
+        if let Some(portal) = files.get_mut(&DatFileKind::Portal) {
+            if let Ok(Some(list)) = portal.ddd_iteration() {
+                if let Some(iteration) = list.latest_iteration() {
+                    ac2_core::set_data_release(ac2_core::DataRelease::from_portal_iteration(
+                        iteration,
+                    ));
+                }
+            }
+            portal.reset_telemetry();
+        }
         Ok(Arc::new(Self { files }))
     }
 

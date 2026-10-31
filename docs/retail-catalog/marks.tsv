@@ -1230,7 +1230,7 @@ key	status	note
 00448110	x	ac2-ui skill_tree.rs
 00448250	x	ac2-ui skill_tree.rs
 00448310	x	ac2-ui skill_tree.rs
-00448430	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+00448430	x	ac2-ui skill_tree.rs: confirmation dialog naming the skill; 7230 (0x00449DE0) asks a perk with ID_Skill_Perk_UntrainText
 004484c0	x	ac2-ui skill_tree.rs
 00448630	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 00448810	x	ac2-ui skill_tree.rs
@@ -2267,14 +2267,14 @@ key	status	note
 00471130	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 004711b0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00471260	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-00471310	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00471310	x	ac2-script glue::craft_natives (Legions ids 0x00A5000A/1/5 from GetEFunAddress; the 7230 library calls them: craft_script_7160 on 7230)
 00471370	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 004713d0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00471430	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00471490	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-00471500	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00471500	x	ac2-script glue::craft_natives (Legions ids 0x00A5000A/1/5 from GetEFunAddress; the 7230 library calls them: craft_script_7160 on 7230)
 00471570	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-004715e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+004715e0	x	ac2-script glue::craft_natives (Legions ids 0x00A5000A/1/5 from GetEFunAddress; the 7230 library calls them: craft_script_7160 on 7230)
 00471720	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00471790	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00471810	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -10569,7 +10569,7 @@ key	status	note
 006078b0	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
 00607930	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
 006079a0	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-006079d0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+006079d0	x	ac2-net protocol::native pack+unpack (Legions layout; 7230's perk word after mUntrainable by ac2_core::data_release; WState graphs round-trip byte-exact on both)
 00607a90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607ae0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607b10	x	ac2-script glue::skill_node over ac2-net's SkillUiNode

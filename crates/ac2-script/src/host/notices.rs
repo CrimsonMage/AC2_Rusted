@@ -41,7 +41,7 @@ pub enum NoticeArg {
 
 /// Each notice efun with its arguments after `obj`: `o` the object, `i` one word, `L` a 64-bit
 /// id, `f` a float, `w` a wide string, `s` a `StringInfo`, `n` another native.
-const NOTICES: [(u32, &str, &str); 100] = [
+const NOTICES: [(u32, &str, &str); 102] = [
     (
         0x0084_0001,
         "CM_Allegiance::SendNotice_UpdateAllegianceProfile",
@@ -131,6 +131,14 @@ const NOTICES: [(u32, &str, &str); 100] = [
         0x0085_0020,
         "CM_Character::SendNotice_PetIsUnderAttack",
         "oL",
+    ),
+    // 7230 only, notice 0x4A3 (7230 0x006A6120): `gmSkillTreeUI` keeps the 64-bit value and
+    // the two words and refreshes every node (7230 0x00449C30). The name is the client's; the
+    // 7230 build has no symbols.
+    (
+        0x0085_0021,
+        "CM_Character::SendNotice_UpdateSkillTreeState",
+        "oLii",
     ),
     (0x0086_0001, "CM_Combat::SendNotice_UpdateAttackState", "oi"),
     (
@@ -290,6 +298,10 @@ const NOTICES: [(u32, &str, &str); 100] = [
         "oi",
     ),
     (0x0092_0002, "CM_Usage::SendNotice_UseBook", "oiiwwi"),
+    // 7230 only, notice 0x4A4 (7230 0x006A66E0): `gmGamePlayUI` asks the `StringInfo` as a
+    // confirmation (7230 0x00408190) and on yes calls the interface's 0x00B4014F with the two
+    // ids and the word (7230 0x00408493, 0x00452240). The name is the client's.
+    (0x0092_0003, "CM_Usage::SendNotice_ConfirmUse", "oLLis"),
     (
         0x23AC_0004,
         "CM_Friends::SendNotice_GUNResult_GetFriendsList",

@@ -102,8 +102,8 @@ fn every_legions_mesh_record_decodes_its_physics_data() {
             .expect("listed record exists");
         with_tree += usize::from(mesh.bsp().is_some());
     }
-    assert_eq!(ids.len(), 4501);
-    assert_eq!(with_tree, 1377);
+    assert_eq!(ids.len(), ac2_dat::test_support::pinned(4501, 4556));
+    assert_eq!(with_tree, ac2_dat::test_support::pinned(1377, 1389));
 }
 
 /// Every Legions `CSetup` parses through its collision primitives to its fixed tail.

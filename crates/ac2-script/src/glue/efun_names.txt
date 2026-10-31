@@ -1534,6 +1534,7 @@
 0085001e gCM_Character::CallEFun_SendNotice_AddPet
 0085001f gCM_Character::CallEFun_SendNotice_UpdatePetName
 00850020 gCM_Character::CallEFun_SendNotice_PetIsUnderAttack
+00850021 gCM_Character::CallEFun_SendNotice_UpdateSkillTreeState
 00860001 gCM_Combat::CallEFun_SendNotice_UpdateAttackState
 00860002 gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack
 00860003 gCM_Combat::CallEFun_SendNotice_StartSpecialAttack
@@ -1588,6 +1589,7 @@
 00910005 gCM_UI::CallEFun_SendNotice_PortalScene
 00920001 gCM_Usage::CallEFun_SendNotice_SetTargetingPointer
 00920002 gCM_Usage::CallEFun_SendNotice_UseBook
+00920003 gCM_Usage::CallEFun_SendNotice_ConfirmUse
 00930001 gFellowAdaptor::CallEFun_SetName
 00930002 gFellowAdaptor::CallEFun_SetLevel
 00930003 gFellowAdaptor::CallEFun_SetHealth
@@ -1728,6 +1730,8 @@
 009b0052 gGameplayOptionsProfile::CallEFun_GetShortcutHeight
 009b0055 gGameplayOptionsProfile::CallEFun_SetShowPetUI
 009b0056 gGameplayOptionsProfile::CallEFun_GetShowPetUI
+009b0057 gGameplayOptionsProfile::CallEFun_SetClassicExamination
+009b0058 gGameplayOptionsProfile::CallEFun_GetClassicExamination
 009c0001 ggmActInfo::CallEFun_Init
 009c0002 ggmActInfo::CallEFun_AddScene
 009c0003 ggmActInfo::CallEFun_GetActID
@@ -1823,10 +1827,13 @@
 00a40002 ggmSceneInfoList::CallEFun_push_tail
 00a40003 ggmSceneInfoList::CallEFun_pop_front
 00a40004 ggmSceneInfoList::CallEFun_insert_sort
+00a50001 gIngredientAdaptor::CallEFun_GetID
+00a50005 gIngredientAdaptor::CallEFun_GetDescription
 00a50006 gIngredientAdaptor::CallEFun_SetDescription
 00a50007 gIngredientAdaptor::CallEFun_SetRecipeDID
 00a50008 gIngredientAdaptor::CallEFun_GetRecipeDID
 00a50009 gIngredientAdaptor::CallEFun_GetAutoPopulate
+00a5000a gIngredientAdaptor::CallEFun_SetAutoPopulate
 00aa0003 gRecipeAdaptor::CallEFun_GetName
 00aa0004 gRecipeAdaptor::CallEFun_SetName
 00aa0005 gRecipeAdaptor::CallEFun_GetDescription
@@ -1907,6 +1914,8 @@
 00ae0016 gSkillUINode::CallEFun_IsUntrainable
 00ae0017 gSkillUINode::CallEFun_Clear
 00ae0018 gSkillUINode::CallEFun_Set
+00ae0019 gSkillUINode::CallEFun_SetPerk
+00ae001a gSkillUINode::CallEFun_IsPerk
 00af0001 gTurbineUserStatus::CallEFun_InqName
 00af0002 gTurbineUserStatus::CallEFun_InqLocation
 00af0003 gTurbineUserStatus::CallEFun_InqMode

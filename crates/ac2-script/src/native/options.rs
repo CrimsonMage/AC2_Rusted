@@ -185,6 +185,9 @@ pub mod bits {
     pub const HIDE_FELLOWS_ON_MAP: u32 = 0x8000;
     /// Set means hidden (`Get/SetShowPetUI` invert it).
     pub const HIDE_PET_UI: u32 = 0x10000;
+    /// The 7230 release's "Classic Examination" option (`ID_Option_ClassicExamination`):
+    /// `Get/SetClassicExamination` (7230 0x004739E0, 0x00472BC0) read and set it as it is.
+    pub const CLASSIC_EXAMINATION: u32 = 0x20000;
     /// The profile carries `m_version` and the versioned tables.
     pub const VERSIONED: u32 = 0x8000_0000;
 }

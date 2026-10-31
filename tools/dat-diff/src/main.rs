@@ -33,11 +33,7 @@ fn open(dir: &Path) -> Result<Arc<DatDataset>, String> {
 
 /// The highest iteration in the file's DDD history (`0xFFFF0001`), as the client reports it.
 fn latest_iteration(dataset: &DatDataset, kind: DatFileKind) -> Option<i32> {
-    let list = dataset.ddd_iteration(kind).ok()??;
-    list.pairs
-        .iter()
-        .map(|p| p.starting_iteration + p.consecutive_iterations.abs().max(1) - 1)
-        .max()
+    dataset.ddd_iteration(kind).ok()??.latest_iteration()
 }
 
 fn digest(dataset: &DatDataset, kind: DatFileKind, did: u32) -> Option<u64> {
@@ -56,7 +52,10 @@ fn main() {
             std::process::exit(2);
         }
     };
-    let tsv_path = args.iter().position(|a| a == "--tsv").and_then(|i| args.get(i + 1));
+    let tsv_path = args
+        .iter()
+        .position(|a| a == "--tsv")
+        .and_then(|i| args.get(i + 1));
     let (old, new) = match (open(&old_dir), open(&new_dir)) {
         (Ok(a), Ok(b)) => (a, b),
         (Err(e), _) | (_, Err(e)) => {
@@ -66,7 +65,11 @@ fn main() {
     };
     let mut tsv = tsv_path.map(|p| {
         let mut f = std::io::BufWriter::new(std::fs::File::create(p).expect("create tsv"));
-        writeln!(f, "file\tdid\tstatus\told_size\tnew_size\told_iteration\tnew_iteration").unwrap();
+        writeln!(
+            f,
+            "file\tdid\tstatus\told_size\tnew_size\told_iteration\tnew_iteration"
+        )
+        .unwrap();
         f
     });
     for kind in DatFileKind::ALL {
@@ -78,32 +81,50 @@ fn main() {
         let b: BTreeMap<u32, DatEntryMeta> = new.iter_entries(kind).map(|e| (e.did, e)).collect();
         let mut total = Counts::default();
         let mut by_type: BTreeMap<u8, Counts> = BTreeMap::new();
-        let mut record = |did: u32, status: &str, x: Option<&DatEntryMeta>, y: Option<&DatEntryMeta>| {
-            let counts = by_type.entry((did >> 24) as u8).or_default();
-            for c in [&mut total, counts] {
-                match status {
-                    "added" => c.added += 1,
-                    "removed" => c.removed += 1,
-                    "changed" => c.changed += 1,
-                    _ => c.same += 1,
+        let mut record =
+            |did: u32, status: &str, x: Option<&DatEntryMeta>, y: Option<&DatEntryMeta>| {
+                let counts = by_type.entry((did >> 24) as u8).or_default();
+                for c in [&mut total, counts] {
+                    match status {
+                        "added" => c.added += 1,
+                        "removed" => c.removed += 1,
+                        "changed" => c.changed += 1,
+                        _ => c.same += 1,
+                    }
                 }
-            }
-            if status != "same" {
-                if let Some(f) = tsv.as_mut() {
-                    let size = |m: Option<&DatEntryMeta>| m.map_or(String::from("-"), |m| m.packed_len.to_string());
-                    let iter = |m: Option<&DatEntryMeta>| m.map_or(String::from("-"), |m| m.iteration.to_string());
-                    writeln!(f, "{}\t{did:08x}\t{status}\t{}\t{}\t{}\t{}", kind.default_file_name(),
-                        size(x), size(y), iter(x), iter(y)).unwrap();
+                if status != "same" {
+                    if let Some(f) = tsv.as_mut() {
+                        let size = |m: Option<&DatEntryMeta>| {
+                            m.map_or(String::from("-"), |m| m.packed_len.to_string())
+                        };
+                        let iter = |m: Option<&DatEntryMeta>| {
+                            m.map_or(String::from("-"), |m| m.iteration.to_string())
+                        };
+                        writeln!(
+                            f,
+                            "{}\t{did:08x}\t{status}\t{}\t{}\t{}\t{}",
+                            kind.default_file_name(),
+                            size(x),
+                            size(y),
+                            iter(x),
+                            iter(y)
+                        )
+                        .unwrap();
+                    }
                 }
-            }
-        };
+            };
         for (did, x) in &a {
             match b.get(did) {
                 None => record(*did, "removed", Some(x), None),
                 Some(y) => {
                     let same = x.packed_len == y.packed_len
                         && digest(&old, kind, *did) == digest(&new, kind, *did);
-                    record(*did, if same { "same" } else { "changed" }, Some(x), Some(y));
+                    record(
+                        *did,
+                        if same { "same" } else { "changed" },
+                        Some(x),
+                        Some(y),
+                    );
                 }
             }
         }
@@ -112,16 +133,23 @@ fn main() {
                 record(*did, "added", None, Some(y));
             }
         }
-        let iteration = |d: &DatDataset| latest_iteration(d, kind).map_or("?".into(), |i| i.to_string());
+        let iteration =
+            |d: &DatDataset| latest_iteration(d, kind).map_or("?".into(), |i| i.to_string());
         println!(
             "{}: iteration {} -> {}; {} -> {} records; +{} added, -{} removed, ~{} changed, {} unchanged",
             kind.default_file_name(), iteration(&old), iteration(&new), a.len(), b.len(),
             total.added, total.removed, total.changed, total.same
         );
-        let mut rows: Vec<_> = by_type.into_iter().filter(|(_, c)| c.added + c.removed + c.changed > 0).collect();
+        let mut rows: Vec<_> = by_type
+            .into_iter()
+            .filter(|(_, c)| c.added + c.removed + c.changed > 0)
+            .collect();
         rows.sort_by_key(|(_, c)| std::cmp::Reverse(c.added + c.removed + c.changed));
         for (ty, c) in rows {
-            println!("    type 0x{ty:02x}xxxxxx: +{} -{} ~{} ={}", c.added, c.removed, c.changed, c.same);
+            println!(
+                "    type 0x{ty:02x}xxxxxx: +{} -{} ~{} ={}",
+                c.added, c.removed, c.changed, c.same
+            );
         }
     }
 }

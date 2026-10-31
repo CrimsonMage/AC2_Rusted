@@ -13,7 +13,7 @@ use crate::native::{
 use crate::vm::{tag, Context, EFunFn, EFuns, InterpStatus, Vm};
 
 /// The bit efuns: (get id, set id, mask, how the set efun reads its flag).
-const BITS: [(u32, u32, u32, Flag); 16] = [
+const BITS: [(u32, u32, u32, Flag); 17] = [
     (0x10, 0x0F, b::SHOW_SHORTCUT_NUMBERS, Flag::Int),
     (0x12, 0x11, b::SHOW_DAMAGE_TEXT, Flag::Int),
     (0x14, 0x13, b::SHOW_DAMAGE_TEXT_OTHER, Flag::Int),
@@ -30,6 +30,8 @@ const BITS: [(u32, u32, u32, Flag); 16] = [
     (0x4C, 0x4B, b::LATENCY_INDICATOR_GRAPH, Flag::Byte),
     (0x50, 0x4F, b::HIDE_FELLOWS_ON_MAP, Flag::InvertedByte),
     (0x56, 0x55, b::HIDE_PET_UI, Flag::InvertedByte),
+    // 7230 only (its library calls them; 7230 0x004739E0, 0x00472BC0).
+    (0x58, 0x57, b::CLASSIC_EXAMINATION, Flag::Byte),
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq)]

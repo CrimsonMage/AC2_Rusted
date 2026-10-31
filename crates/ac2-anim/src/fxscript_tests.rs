@@ -85,7 +85,11 @@ fn every_fx_script_in_the_dat_decodes() {
             FX_SCRIPT_PREFIX | 0x00FF_FFFF,
         )
         .collect();
-    assert_eq!(ids.len(), 22, "FX script records in portal.dat");
+    assert_eq!(
+        ids.len(),
+        ac2_dat::test_support::pinned(22, 23),
+        "FX script records in portal.dat"
+    );
     let mut effects = 0;
     let mut impulses = 0;
     for did in &ids {

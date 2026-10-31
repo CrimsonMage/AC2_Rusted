@@ -44,7 +44,10 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
         .clone()
         .expect("the human has FX particles");
     // The DAT's FX scripts all read (the library the client attaches at start).
-    assert_eq!(ac2_anim::load_fx_scripts(&store).len(), 22);
+    assert_eq!(
+        ac2_anim::load_fx_scripts(&store).len(),
+        ac2_dat::test_support::pinned(22, 23)
+    );
 
     // A timeline that starts the footstep FX at its first period.
     let script = Arc::new(Ac2FxScript {

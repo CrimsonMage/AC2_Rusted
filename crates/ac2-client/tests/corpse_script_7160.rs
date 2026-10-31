@@ -152,7 +152,12 @@ fn loot_all_takes_every_item_of_a_corpse() {
     // Loot All: the IFun's stub sends the take-all descriptor (the wlib's bytes); the double
     // answers it, moving the skin and the item into the pack.
     run(&mut client, &server, Some(Command::LootAll(CORPSE)));
-    assert_eq!(sent(&server, LOOT_ALL), vec![STUB_TAKE_ALL.to_vec()]);
+    // Bytes 8..10 are the library's state id for the descriptor's package (DVD 0x6702, 7230
+    // 0x67E9).
+    let mut take_all = STUB_TAKE_ALL.to_vec();
+    let state: u16 = ac2_dat::test_support::pinned(0x6702, 0x67E9);
+    take_all[8..10].copy_from_slice(&state.to_le_bytes());
+    assert_eq!(sent(&server, LOOT_ALL), vec![take_all]);
     let asked = server.borrow().script_requests.clone();
     let Some(ScriptRequest::LootAll(taken)) = asked
         .iter()

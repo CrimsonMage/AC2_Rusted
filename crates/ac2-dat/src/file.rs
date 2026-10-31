@@ -54,6 +54,11 @@ impl DatFile {
         self.meta
     }
 
+    /// Clears the read counters (the mount's own reads are not a caller's).
+    pub(crate) fn reset_telemetry(&mut self) {
+        self.telemetry = DatReadTelemetry::default();
+    }
+
     pub(crate) fn read_telemetry(&self) -> DatReadTelemetrySummary {
         self.telemetry.summary()
     }

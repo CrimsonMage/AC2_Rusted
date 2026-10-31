@@ -160,6 +160,7 @@ impl SkillSource for ClientPlayer<'_> {
                 y: node.y,
                 passive: node.is_passive != 0,
                 untrainable: node.untrainable != 0,
+                perk: node.perk.is_some_and(|v| v != 0),
             })
             .collect();
         Some(SkillPanel {

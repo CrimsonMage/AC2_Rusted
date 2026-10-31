@@ -1492,7 +1492,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSkillTreeUI::HandleElement` · 00448110 · legions 00448ca0 — ac2-ui skill_tree.rs
 - [x] `gmSkillTreeUI::RecvNotice_UpdateSkillPanel` · 00448250 — ac2-ui skill_tree.rs
 - [x] `gmSkillTreeUI::SelectSkill` · 00448310 · legions 00448eb0 — ac2-ui skill_tree.rs
-- [x] `gmSkillTreeUI::MakeUntrainDialog` · 00448430 · legions 00448fd0 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+- [x] `gmSkillTreeUI::MakeUntrainDialog` · 00448430 · legions 00448fd0 — ac2-ui skill_tree.rs: confirmation dialog naming the skill; 7230 (0x00449DE0) asks a perk with ID_Skill_Perk_UntrainText
 - [x] `gmSkillTreeUI::ClearSelectedInfo` · 004484c0 · legions 00449060 — ac2-ui skill_tree.rs
 - [x] `gmSkillTreeUI::ListenToMessage` · 00448630 · legions 00449230 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 - [x] `gmSkillTreeUI::InitElements` · 00448810 · legions 004496b0 — ac2-ui skill_tree.rs

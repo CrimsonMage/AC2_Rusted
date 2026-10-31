@@ -39,6 +39,10 @@ pub(crate) fn empty_node() -> SkillUiNode {
         dependencies: Vec::new(),
         is_passive: 0,
         untrainable: 0,
+        perk: match ac2_core::data_release() {
+            ac2_core::DataRelease::Release7230 => Some(0),
+            ac2_core::DataRelease::Legions => None,
+        },
     }
 }
 
@@ -154,6 +158,9 @@ fn method(m: &str) -> Option<EFunFn> {
         "SetIcon" => |vm, c| edit(vm, c, |n, c| n.icon = word(c, 2)),
         "SetPassive" => |vm, c| edit(vm, c, |n, c| n.is_passive = word(c, 2)),
         "SetUntrainable" => |vm, c| edit(vm, c, |n, c| n.untrainable = word(c, 2)),
+        // 7230: the word at +0xA0 (7230 0x00470820 sets it, 0x00522740 reads it).
+        "IsPerk" => |vm, c| get(vm, c, |n| n.perk.unwrap_or(0)),
+        "SetPerk" => |vm, c| edit(vm, c, |n, c| n.perk = Some(word(c, 2))),
         "SetCoordinates" => |vm, c| {
             edit(vm, c, |n, c| {
                 n.x = word(c, 2) as i32;

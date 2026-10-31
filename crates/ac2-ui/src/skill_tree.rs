@@ -62,6 +62,8 @@ pub struct SkillNode {
     pub y: i32,
     pub passive: bool,
     pub untrainable: bool,
+    /// 7230: the node is a perk (`SkillUINode+0xA0`), untrained with its own question.
+    pub perk: bool,
 }
 
 /// A skill panel (`InqNodeHash`, `InqName`, `InqIcon`).
@@ -600,7 +602,8 @@ impl SkillTreeUi {
         self.train = Confirm { context, skill };
     }
 
-    /// `gmSkillTreeUI::MakeUntrainDialog`: asked for a node the panel holds, naming the skill.
+    /// `gmSkillTreeUI::MakeUntrainDialog`: asked for a node the panel holds, naming the skill;
+    /// 7230 (0x00449DE0) asks a perk with `ID_Skill_Perk_UntrainText`.
     fn make_untrain_dialog(
         &mut self,
         tree: &mut UiTree,
@@ -614,8 +617,13 @@ impl SkillTreeUi {
         if self.untrain.context != 0 {
             return;
         }
+        let question = if node.perk {
+            "ID_Skill_Perk_UntrainText"
+        } else {
+            "ID_Skill_UntrainText"
+        };
         let text = source.render(
-            id("ID_Skill_UntrainText"),
+            id(question),
             &[(id("value"), SkillVar::Text(node.name.clone()))],
         );
         let context = dialogs.make_dialog(tree, &text, DIALOG_CONFIRMATION, false);

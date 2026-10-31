@@ -113,8 +113,8 @@ fn chat_and_ui_strings_render_with_their_variables() {
 }
 
 /// Every entry of every table, each variable a literal `1`: the meta-language accepts every
-/// shipped string. The 1779 entries that name a private table name tables the DVD does not
-/// ship, so they fail as retail's do (`gsMissingPrivateTable`).
+/// shipped string. The entries that name a private table the DATs do not ship (the DVD's 1779,
+/// 7230's 1539) fail as retail's do (`gsMissingPrivateTable`); those whose table ships render.
 #[test]
 fn every_table_entry_renders() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
@@ -124,7 +124,7 @@ fn every_table_entry_renders() {
         .ids_in_range(DatFileKind::Local, STRING_TABLE_FIRST, STRING_TABLE_LAST)
         .collect();
     let tables = StoreStringTables::new(ResourceStore::new(dataset.clone()), STRING_STATE);
-    let (mut rendered, mut private) = (0, 0);
+    let (mut rendered, mut private, mut shipped) = (0, 0, 0);
     for did in ids {
         let table = tables.table(did).expect("table");
         for (&key, entry) in &table.strings {
@@ -142,12 +142,22 @@ fn every_table_entry_renders() {
                     "{did:08x}/{key:08x}: {outcome:?} {entry:?}"
                 );
                 rendered += 1;
+            } else if dataset.contains(DatFileKind::Local, entry.table) {
+                // 7230 ships some of the private tables the DVD lacks.
+                assert!(
+                    outcome.is_ok(),
+                    "{did:08x}/{key:08x} in {:08x}: {outcome:?}",
+                    entry.table
+                );
+                shipped += 1;
             } else {
-                assert!(!dataset.contains(DatFileKind::Local, entry.table));
                 assert_eq!(outcome, Err(GetStringError::MissingPrivateTable));
                 private += 1;
             }
         }
     }
-    assert_eq!((rendered, private), (47_423, 1779));
+    assert_eq!(
+        (rendered, private, shipped),
+        ac2_dat::test_support::pinned((47_423, 1779, 0), (53_329, 1539, 332))
+    );
 }

@@ -148,7 +148,12 @@ fn the_name_table_covers_the_dispatchers() {
         efun_name(0x0074_0001),
         Some("gwccinternal::CallEFun__WCC_strcat_str")
     );
-    assert_eq!(efun_ids().count(), 2113);
+    // Legions 7160's 2113, three Legions ingredient efuns the admin table lacks, six 7230 adds.
+    assert_eq!(efun_ids().count(), 2122);
+    assert_eq!(
+        efun_name(0x0092_0003),
+        Some("gCM_Usage::CallEFun_SendNotice_ConfirmUse")
+    );
 }
 
 #[test]

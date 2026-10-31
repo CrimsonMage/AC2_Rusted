@@ -161,7 +161,8 @@ fn ingredient_and_raise_queries_answer_from_the_script() {
     assert!(client.can_craft_skill_be_raised(SKILL).is_some());
     assert!(client.is_craft_skill_raiseable(SKILL).is_some());
     assert!(client.available_craft_experience().is_some());
-    assert!(client.take_script_problems().is_empty());
+    let problems = client.take_script_problems();
+    assert!(problems.is_empty(), "{problems:?}");
 }
 
 #[test]

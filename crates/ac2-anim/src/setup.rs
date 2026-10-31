@@ -366,7 +366,9 @@ fn retail_setups_decode_ordered_degrade_distances() {
         for level in levels {
             let d = [level.visible, level.near, level.ideal, level.far];
             assert!(d.iter().all(|v| v.is_finite() && *v >= 0.0), "{did:08X}");
-            assert!(level.visible > 0.0, "{did:08X}: {level:?}");
+            // 7230's 0x0400096B authors a level with no visible, near or ideal distance.
+            let unset = level.visible == 0.0 && level.near == 0.0 && level.ideal == 0.0;
+            assert!(level.visible > 0.0 || unset, "{did:08X}: {level:?}");
             assert!(
                 level.near <= level.ideal && level.ideal <= level.far,
                 "{did:08X}: {level:?}"

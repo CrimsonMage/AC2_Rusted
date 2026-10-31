@@ -9,6 +9,7 @@
 
 mod color;
 mod constants;
+mod data_release;
 mod enums;
 mod fast_hash;
 mod ids;
@@ -19,6 +20,7 @@ mod timer;
 mod turbine_guid;
 
 pub use color::{ColorArgb, ColorArgbByteReader};
+pub use data_release::{data_release, set_data_release, DataRelease};
 pub use enums::*;
 pub use fast_hash::{fast_hash_set_with_capacity, FastHashMap, FastHashSet, FastHasher};
 pub use ids::{CellId, DataId, InstanceId, ObjectId, QualifiedDataId, VersionHandle};

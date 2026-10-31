@@ -452,7 +452,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (4/7)
 
 ### SkillUINode
-- [x] `SkillUINode::StreamPack` · 006079d0 · legions 005c8870 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+- [x] `SkillUINode::StreamPack` · 006079d0 · legions 005c8870 — ac2-net protocol::native pack+unpack (Legions layout; 7230's perk word after mUntrainable by ac2_core::data_release; WState graphs round-trip byte-exact on both)
 - [x] `SkillUINode::Clear` · 00607a90 · legions 005c8930 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 - [x] `SkillUINode::AddParent` · 00607ae0 · legions 005c8980 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 - [x] `SkillUINode::AddDependency` · 00607b10 · legions 005c89b0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
