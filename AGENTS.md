@@ -466,7 +466,11 @@ game rules and server-visible behaviour exactly retail.
   Retail drew each DAT frill once. Every frill sways in a wind by the square of its height
   (`grass_wind`), and discards fragments whose alpha is at most 0.2 (`GRASS_ALPHA_CUT`): the
   DAT's grass layers blend with depth writes and an alpha test above 0, so overlapping copies'
-  faint fringes hid the blades behind them. The frills within 12 m of the camera draw back to
+  faint fringes hid the blades behind them. While the temporal anti-aliasing is on, a frill's
+  alpha between that cut and 0.6 becomes coverage instead (`object_modern.wgsl` `grass_dither`:
+  the fragment draws opaque where its alpha beats a per-pixel noise that moves with the jitter's
+  phase), so the resolve gives soft, crisp blade edges and distant blades keep their mean
+  coverage through the mips; off, the cut alone stands. The frills within 12 m of the camera draw back to
   front among themselves (`FRILL_SORT_DISTANCE`), so a near blade's soft edge no longer keeps
   out the blades and the body behind it. The grass parts around the nearest eight posed bodies
   within 60 m (`frill::grass_pushers`, `grass_push` in `object.wgsl`): the part of a blade within

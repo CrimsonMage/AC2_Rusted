@@ -162,9 +162,36 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
     if reference < 256u && !(round(clamp(shaded.a, 0.0, 1.0) * 255.0) > f32(reference)) {
         discard;
     }
-    if shaded.a <= input.alpha_cut {
-        discard;
+    var alpha = shaded.a;
+    if input.alpha_cut > 0.0 {
+        if any(frame.motion.xy != vec2(0.0)) {
+            // Under the temporal anti-aliasing a frill's alpha becomes coverage: the fragment
+            // draws opaque where its alpha beats a per-pixel noise that moves each frame, and the
+            // resolve averages the frames into soft, crisp blade edges with no sorting. Coverage
+            // equals the mean alpha, so the mips keep thin blades as thick as they look up close.
+            if alpha <= input.alpha_cut + GRASS_DITHER_BAND * grass_dither(input.clip.xy) {
+                discard;
+            }
+            alpha = 1.0;
+        } else if alpha <= input.alpha_cut {
+            discard;
+        }
     }
     // Linear light into the HDR scene; the scene's tone map follows.
-    return vec4(max(color, vec3(0.0)), shaded.a);
+    return vec4(max(color, vec3(0.0)), alpha);
+}
+
+// The alpha band above the frills' cut over which the dither spreads their edge.
+const GRASS_DITHER_BAND: f32 = 0.4;
+
+// Interleaved gradient noise (Jimenez 2014) at `pixel`, offset per frame by a hash of the frame's
+// jitter phase (`frame.motion.xy`), in [0, 1).
+fn grass_dither(pixel: vec2<f32>) -> f32 {
+    var h = bitcast<u32>(frame.motion.x) * 0x9E3779B1u ^ bitcast<u32>(frame.motion.y) * 0x85EBCA77u;
+    h ^= h >> 15u;
+    h *= 0x2C1B3C6Du;
+    h ^= h >> 12u;
+    let offset = f32(h >> 8u) / 16777216.0;
+    let ign = fract(52.9829189 * fract(dot(pixel, vec2(0.06711056, 0.00583715))));
+    return fract(ign + offset);
 }
