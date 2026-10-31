@@ -153,16 +153,19 @@ pub(crate) fn ac2_entity_markers(
         0.0,
     );
     let did = DataId::new((block_cell_id.raw() & 0xFFFF_0000) | 0xFFFE);
-    let Some(record) = store.load_cached_packed::<Ac2LandBlockEntities>(TypedResourceRef::new(
+    // A block without a `CLandBlockInfo` record has no authored entities, but
+    // `CLandBlock::InitStaticObjects` still runs `GenerateSceneObjectList` after
+    // `GenerateLBIObjectList`, so its procedural scenery and grass are placed all the same.
+    let record = store.load_cached_packed::<Ac2LandBlockEntities>(TypedResourceRef::new(
         DatFileKind::Cell,
         did,
         0,
-    ))?
-    else {
-        return Ok(Arc::from([]));
-    };
-    let mut markers = Vec::with_capacity(record.entities.len());
-    for entity in &record.entities {
+    ))?;
+    let entities = record
+        .as_ref()
+        .map_or(&[][..], |record| &record.entities[..]);
+    let mut markers = Vec::with_capacity(entities.len());
+    for entity in entities {
         let Some((visual, template_scale)) = resolve_entity_visual(store, entity) else {
             continue;
         };

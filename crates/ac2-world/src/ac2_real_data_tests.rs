@@ -293,3 +293,20 @@ fn a_landblock_record_is_read_once_for_terrain_scenery_and_sound() {
     );
     drop(terrain);
 }
+
+#[test]
+fn a_block_without_authored_entities_still_places_its_scenery_and_grass() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    // 0x7FBA (the lifestone at 46.5N, 0.3W) has no `CLandBlockInfo` record (0x7FBAFFFE), yet
+    // `CLandBlock::InitStaticObjects` generates its scene objects and frills regardless.
+    let block = ac2_core::CellId::new(0x7FBA_0001);
+    assert!(!store
+        .dataset()
+        .contains(ac2_dat::DatFileKind::Cell, 0x7FBA_FFFE));
+    let markers = crate::ac2_landblock_info::ac2_entity_markers(&store, 160.0, block).unwrap();
+    let frills = markers.iter().filter(|m| m.frill()).count();
+    assert!(frills > 1000, "{frills} frills");
+    assert!(markers.len() > frills, "scenery objects beside the grass");
+}

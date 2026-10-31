@@ -2828,7 +2828,7 @@ key	status	note
 0048bcd0	x	ac2-physics los (Terrain::los_check)
 0048bfe0	x	crates/ac2-world/src/ac2_scene/generate.rs procedural scenery and grass
 0048c180	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-0048c240	~	first-call chain runs on block load: GenerateLBIObjectList, GenerateSceneObjectList (ac2-world), CreateStaticObjects (ac2-physics load_block_objects); InitializeQuadtree is measured but left unwired and the already-initialized re-entry branch does not apply (blocks are rebuilt)
+0048c240	~	first-call chain runs on block load: GenerateLBIObjectList, then GenerateSceneObjectList even for a block without a CLandBlockInfo record (ac2-world ac2_entity_markers), CreateStaticObjects (ac2-physics load_block_objects); InitializeQuadtree is measured but left unwired and the already-initialized re-entry branch does not apply (blocks are rebuilt)
 0048c2f0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0048c320	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0048c390	-	constructor (struct init; Rust builds it directly)
