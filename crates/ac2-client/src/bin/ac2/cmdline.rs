@@ -13,6 +13,8 @@ pub(crate) struct Args {
     /// `Turbine::Client::EvaluateCommandLineArg` `account` (Legions 0x006A1EB0): stored in
     /// lower case (`_strlwr`).
     pub account: String,
+    /// `--version`: the logon's data version; empty for the mounted DATs' release's
+    /// (`ac2_net::default_version`: 7230's "7230", the DVD's "7160").
     pub version: String,
     /// `gmClient::m_startChar`: enter with this character, skipping character selection.
     pub character: Option<String>,
@@ -182,7 +184,7 @@ fn parse_from(
         dat_dir,
         server: "127.0.0.1:9000".into(),
         account: "local".into(),
-        version: ac2_net::LEGIONS_VERSION.into(),
+        version: String::new(),
         character: None,
         radius: None,
         prefs: None,

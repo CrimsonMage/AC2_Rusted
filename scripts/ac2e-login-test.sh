@@ -47,7 +47,7 @@ host=${AC2E_BIND%:*}
 port=${AC2E_BIND##*:}
 status=0
 rm -f "$state/data/gun-users.json"
-"$root/target/debug/ac2-login-probe" --host "$host" --port "$port" --version 7148 \
+"$root/target/debug/ac2-login-probe" --host "$host" --port "$port" --version 7230 \
   --account local --dat-dir "$AC2_DAT_DIR" --timeout 30 \
   --gunserver "${AC2E_GUN_BIND%:*}" --gunport "${AC2E_GUN_BIND##*:}" || status=$?
 if [ "$status" -ne 0 ]; then

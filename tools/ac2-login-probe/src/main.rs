@@ -4,7 +4,7 @@ use std::process::ExitCode;
 use std::time::Duration;
 
 use ac2_login_probe::{resolve_ipv4, retail_account, run_udp, Failure, FailureKind, ProbeConfig};
-use ac2_net::{Credential, LEGIONS_VERSION};
+use ac2_net::Credential;
 
 const HELP: &str = "\
 ac2-login-probe: log on to an AC2 server, report each stage, quit at character selection.
@@ -17,9 +17,10 @@ OPTIONS
   --port N                server logon port (retail icefire: 8610)
   --account NAME          account name (lowercased, as retail does)
   --glsticketdirect PASS  password logon (auth type 0x40000002); omit for a plain account logon
-  --version V             data version in the logon (default 7160, the Legions DVD client;
-                          1802 for the 2012-2017 relaunch client). The AC2e server accepts
-                          7148 (and experimental 7230). The RSA session key is never sent.
+  --version V             data version in the logon (default: the DATs' release, 7230 for the
+                          7230 data, 7160 for the Legions DVD's; 1802 for the 2012-2017
+                          relaunch client). AC2e serves 7230 data to 7230 and its converted
+                          7148 data to 7148. The RSA session key is never sent.
   --dat-dir DIR           DAT directory for the interrogation response (default AC2_DAT_DIR)
   --timeout SECS          wait for the character set this long (default 45)
   --gunserver HOST        first run the GUN stage (gmClient::StartupGUN) against this AC2e
@@ -55,7 +56,7 @@ fn parse(mut args: impl Iterator<Item = String>) -> Result<Option<Args>, String>
         port: 0,
         account: String::new(),
         password: None,
-        version: LEGIONS_VERSION.into(),
+        version: String::new(),
         dat_dir: std::env::var("AC2_DAT_DIR").ok().filter(|d| !d.is_empty()),
         timeout: 45,
         gun_server: None,
@@ -119,7 +120,11 @@ fn setup(args: &Args) -> Result<ProbeConfig, Failure> {
             Some(password) => Credential::Password(password.clone()),
             None => Credential::Account,
         },
-        version: args.version.clone(),
+        version: if args.version.is_empty() {
+            ac2_net::default_version().to_owned()
+        } else {
+            args.version.clone()
+        },
         dat_iterations,
         timeout: Duration::from_secs(args.timeout),
     })

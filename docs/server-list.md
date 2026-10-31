@@ -14,7 +14,7 @@ take it from a published list.
 
 | Type (`emu`) | For | The command line the launcher sends |
 |---|---|---|
-| `AC2E` | AC2e servers (the Legions-era protocol) | `--host HOST --port PORT --version 7148 --account ACCOUNT`, plus `--glsticket TICKETFILE` when the server has a login server |
+| `AC2E` | AC2e servers (on the 7230 data) | `--host HOST --port PORT --version 7230 --account ACCOUNT`, plus `--glsticket TICKETFILE` when the server has a login server |
 | `Relaunch` | relaunch servers (the 2012-2017 client) | `--host HOST --port PORT --version 1802 --account ACCOUNT --glsticket TICKETFILE --no-gun` |
 
 The command line also always carries `--dat-dir` with the DAT folder chosen in Settings.

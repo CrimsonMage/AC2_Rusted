@@ -663,9 +663,11 @@ game rules and server-visible behaviour exactly retail.
   follow `ac2_core::data_release`, which `DatDataset::open` sets from the portal iteration
   (7230 is 5064; the DVD's 4862), so the DVD set still reads.
 - Live server testing is against the AC2e server (github.com/Thwargle/AC2e, run on the 7230
-  DATs with its `AC2E_UNCONVERTED_7230_DATA` opt-in). `scripts/ac2e-login-test.sh` starts one, logs on through
+  DATs, which it serves as its 7230 profile). The client logs on as the 7230 client does (data
+  version `7230`, `ac2_net::RELEASE_7230_VERSION`; `ac2_net::default_version` follows the mounted
+  DATs, so the DVD's give `7160`). `scripts/ac2e-login-test.sh` starts a server, logs on through
   `ac2-login-probe` to the character set and stops it; `scripts/ac2e-server.sh` keeps one running
-  for the client (`ac2 --server 127.0.0.1:9000 --account local --version 7148`). The in-process
+  for the client (`ac2 --server 127.0.0.1:9000 --account local`). The in-process
   `legions-server-double` stays the 7160 path's test peer.
 - `crates/` is the client. `tools/` holds test tooling only; the world viewer is an offline
   harness and never connects to a server.

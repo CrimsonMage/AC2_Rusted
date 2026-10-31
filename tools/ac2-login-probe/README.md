@@ -15,7 +15,7 @@ cargo run -p ac2-login-probe -- --host HOST --port PORT --account NAME [options]
 | `--port N` | the server's logon port |
 | `--account NAME` | lowercased first, as retail does (`_strlwr`, `EvaluateCommandLineArg`) |
 | `--glsticketdirect PASS` | password logon, auth type `0x40000002` (`gmClient::InitAuth`); omit for a plain account logon (auth type 1) |
-| `--version V` | data version in the logon, default `7160` (Legions DVD). `1802` for the 2012-2017 relaunch client (build 0930, `ClientNet::SendLoginRequest` client0930 0x004D3B70). The AC2e server accepts `7148` (and experimental `7230`). |
+| `--version V` | data version in the logon; by default the DATs' release's: `7230` for the 7230 set (the 7230 client's string), `7160` for the Legions DVD's. `1802` for the 2012-2017 relaunch client (build 0930, `ClientNet::SendLoginRequest` client0930 0x004D3B70). AC2e serves its 7230 data to `7230` logons and converted 7148 data to `7148`. |
 | `--dat-dir DIR` | DATs for the interrogation response, default `AC2_DAT_DIR`; without it the response lists no files |
 | `--timeout SECS` | wait for the character set, default 45 (the client gives up on the logon after 20 tries, 2 s apart) |
 
@@ -60,7 +60,7 @@ To keep a server running for the client or the probe, `scripts/ac2e-server.sh` s
 
 ```
 scripts/ac2e-server.sh
-ac2-login-probe --host 127.0.0.1 --port 9000 --version 7148 --account local --dat-dir ../dataset-7230
+ac2-login-probe --host 127.0.0.1 --port 9000 --account local --dat-dir ../dataset-7230
 ```
 
 AC2e speaks the admin 7148 layouts (7230 is experimental). Without `--auth-data` it takes a plain

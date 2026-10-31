@@ -9,13 +9,14 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 
 /// The client data version a type of server takes (`--version`).
-pub const PROTOCOL_LEGIONS: &str = "7148";
+pub const PROTOCOL_7230: &str = ac2_net::RELEASE_7230_VERSION;
 pub const PROTOCOL_RELAUNCH: &str = ac2_net::RELAUNCH_VERSION;
 
 /// The kind of server, which decides the command line ([`crate::launch::args_for`]).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Emu {
-    /// An AC2e server: the Legions-era protocol (7148), an account service for its tickets when
+    /// An AC2e server: the 7230 protocol (7230; AC2e serves its 7230 data to it), an account
+    /// service for its tickets when
     /// it has one (`LoginServerUrlKey`), else the developer account, and its own GUN service.
     Ac2e,
     /// A relaunch server (2012-2017 client): protocol 1802, the password as the ticket
@@ -42,7 +43,7 @@ impl Emu {
 
     pub fn protocol(self) -> &'static str {
         match self {
-            Emu::Ac2e => PROTOCOL_LEGIONS,
+            Emu::Ac2e => PROTOCOL_7230,
             Emu::Relaunch => PROTOCOL_RELAUNCH,
         }
     }

@@ -3,7 +3,7 @@
 //! password, and starts the client with it; the player never writes it. The command lines
 //! (`docs/server-list.md`):
 //!
-//! - AC2E: `--host HOST --port PORT --version 7148 --account ACCOUNT`, with `--glsticket FILE`
+//! - AC2E: `--host HOST --port PORT --version 7230 --account ACCOUNT`, with `--glsticket FILE`
 //!   when the server has a login service (its ticket), and the server's own GUN service
 //!   (`ac2`'s default, with `--gunticketoverride ACCOUNT:TICKET` from the login service).
 //! - Relaunch: `--host HOST --port PORT --version 1802 --account ACCOUNT --glsticket FILE`
@@ -278,7 +278,7 @@ mod tests {
                 "--port",
                 "9000",
                 "--version",
-                "7148",
+                "7230",
                 "--account",
                 "local"
             ]

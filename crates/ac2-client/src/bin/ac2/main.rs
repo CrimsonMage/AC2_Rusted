@@ -872,7 +872,11 @@ fn run(args: Args) -> Result<(), String> {
         server: server_address,
         account: args.account,
         credential: Credential::from_ticket(&args.ticket),
-        version: args.version,
+        version: if args.version.is_empty() {
+            ac2_net::default_version().to_owned()
+        } else {
+            args.version
+        },
         // Without a start character the session waits at the character set for the
         // selection screen (`gmCharacterSelectionUI`).
         character: match &args.character {

@@ -62,7 +62,7 @@ gun_ticket=$2
 echo "signed in as $account; the service sends the client to $host:$port"
 
 status=0
-"$root/target/debug/ac2-login-probe" --host "$host" --port "$port" --version 7148 \
+"$root/target/debug/ac2-login-probe" --host "$host" --port "$port" --version 7230 \
   --account "$account" --glsticketdirect "$ticket" --dat-dir "$AC2_DAT_DIR" --timeout 30 \
   --gunserver "${AC2E_GUN_BIND%:*}" --gunport "${AC2E_GUN_BIND##*:}" \
   --gunticketoverride "$account:$gun_ticket" || status=$?

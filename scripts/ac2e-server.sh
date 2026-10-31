@@ -13,7 +13,8 @@
 #             starts with every server; default AC2e's own, the game address's IP at port 2310;
 #             `off` turns it off. The client finds it there by itself (`ac2 --no-gun` opts out).
 #
-# Connect with: ac2 --dat-dir DIR --server 127.0.0.1:9000 --account local --version 7148
+# Connect with: ac2 --dat-dir DIR --server 127.0.0.1:9000 --account local (the logon's data
+# version follows the DATs: 7230 for the 7230 set, which AC2e serves as its 7230 profile).
 # AC2e speaks the admin 7148 layouts (experimental 7230); its developer account is `local`.
 set -eu
 
@@ -53,7 +54,7 @@ fi
 # AC2e's opt-in for the release (bootstrap.rs). The Legions one also turns on gameplay checks
 # pinned to the DVD records, so it must not be set for 7230.
 case ${AC2E_DATA:-7230} in
-  7230) export AC2E_UNCONVERTED_7230_DATA=1 ;;
+  7230) ;; # AC2e serves the 7230 data as its 7230 profile (to version 7230 logons).
   legions) export PYREALIUM_UNREAL_LEGIONS_DATA=1 ;;
   *) echo "AC2E_DATA must be 7230 or legions" >&2; exit 1 ;;
 esac

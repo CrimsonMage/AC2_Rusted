@@ -14,6 +14,19 @@ use crate::NetError;
 /// 0x004BC780).
 pub const LEGIONS_VERSION: &str = "7160";
 
+/// The data version the 7230 client sends (its `ClientNet::SendLoginRequest`; the string "7230"
+/// where Legions has "7160"). AC2e serves its 7230 data to this version.
+pub const RELEASE_7230_VERSION: &str = "7230";
+
+/// The data version for the mounted DATs' release (`ac2_core::data_release`): 7230's, or the
+/// Legions DVD client's for the DVD data.
+pub fn default_version() -> &'static str {
+    match ac2_core::data_release() {
+        ac2_core::DataRelease::Release7230 => RELEASE_7230_VERSION,
+        ac2_core::DataRelease::Legions => LEGIONS_VERSION,
+    }
+}
+
 /// The data version the 2012-2017 relaunch client sends (`ClientNet::SendLoginRequest`, build
 /// 0930 at 0x004D3B70). Its `gmClient::InitAuth` (0x00435E95) packs the ticket as auth type
 /// `0x40000002` like Legions, and the rest of the logon is laid out the same.
