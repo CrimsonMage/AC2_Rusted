@@ -46,10 +46,15 @@ game rules and server-visible behaviour exactly retail.
   the `Request*` wrappers, `Rcv*Result` / `Rcv*Event`, `LocalToGlobalName` / `GlobalToLocalName`, and
   `gmClient::StartupGUN`'s connect-then-ticket order) in `ac2_net::gun` and `ac2_client::gun_service`,
   but the wire is AC2e's: a big-endian length and one XML element per frame, named as `GunDll.dll`
-  names its messages (AC2e's `docs/gun-protocol.md`). It is on only with `-gunserver`, as in retail;
-  `-gunticket` presents `-gunticketoverride`, else the account name (retail asked `GunDll.dll` for the
-  ticket). A GUN connect failure ends the start unless a `glsticketdirect` ticket was given, as in
-  build 0930's `StartupGUN`. GUN rooms and the other message families (accounts, news, personas,
+  names its messages (AC2e's `docs/gun-protocol.md`). AC2e starts its GUN service with every server
+  (port 2310 on the game address), so friends work for the players of a server; a shared GUN server
+  for several game servers is a client's `-gunserver`. With `-gunserver` the start is retail's:
+  `-gunticket` presents `-gunticketoverride`, else the account name (retail asked `GunDll.dll` for
+  the ticket), and a GUN connect failure ends the start unless a `glsticketdirect` ticket was given,
+  as in build 0930's `StartupGUN`. Without it the client does what a launcher does for its server's
+  own service (retail's `StartupGUN` returned at once without `-gunserver`): the game server's host
+  on `-gunport` with the account as the ticket, and a failure only leaves GUN off; `--no-gun` turns
+  that off (`Args::gun_config`). GUN rooms and the other message families (accounts, news, personas,
   support) are not served; room chat stays on Turbine chat.
 - Exception: the window resizes freely (a modern client). Retail drew its UI pixel for pixel on a
   fixed window authored at 1024 x 768; here `ac2_client::ui_scale::UiScale` lays the UI out on a

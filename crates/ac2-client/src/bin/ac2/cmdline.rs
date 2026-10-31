@@ -49,9 +49,40 @@ pub(crate) struct Args {
     /// `gunticketoverride` (`m_GunTicketOverride`): the ticket text to use. Without it retail
     /// asked `GunDll.dll`; here the account name is the ticket.
     pub gun_ticket_override: Option<String>,
+    /// `no-gun` (the client's own switch): no GUN unless `gunserver` names one. Without it and
+    /// without `gunserver`, the client does what a launcher does for its server's own GUN
+    /// service (AC2e starts one with every server): see [`Args::gun_config`].
+    pub no_gun: bool,
 }
 
 impl Args {
+    /// The GUN start (`gmClient::StartupGUN`'s arguments). With `gunserver` they are retail's:
+    /// that host, `gunport`, and a ticket only with `gunticket`, a failed start ending the
+    /// client. Without it (and without `no-gun`) the client takes what a launcher would pass
+    /// for the game server's own GUN service, which AC2e starts with every server: the game
+    /// server's host on `gunport` (2310) with the account as the ticket, so the players of a
+    /// server have friends there; a start that fails then only leaves GUN off. A shared GUN
+    /// server for players of several game servers is chosen with `gunserver`.
+    pub fn gun_config(&self, server: SocketAddr) -> (ac2_client::gun_service::GunConfig, bool) {
+        let explicit = !self.gun_server.is_empty();
+        let server_host = if explicit {
+            self.gun_server.clone()
+        } else if self.no_gun {
+            String::new()
+        } else {
+            server.ip().to_string()
+        };
+        let config = ac2_client::gun_service::GunConfig {
+            server: server_host,
+            port: self.gun_port,
+            use_ticket: self.gun_ticket || !explicit,
+            ticket_override: self.gun_ticket_override.clone(),
+            account: self.account.clone(),
+            direct_ticket: !self.ticket.is_empty(),
+        };
+        (config, explicit)
+    }
+
     /// The server to log on to: `--host` (resolved the way `ClientNet::InitAddresses` does) and
     /// `--port` when either is given, else `--server`.
     pub fn server_address(&self) -> Result<SocketAddr, String> {
@@ -131,7 +162,7 @@ const WITH_VALUE: [&str; 18] = [
 
 /// Whether `name` is an option this program knows.
 fn is_option(name: &str) -> bool {
-    WITH_VALUE.contains(&name) || matches!(name, "rodat" | "glsticket" | "gunticket")
+    WITH_VALUE.contains(&name) || matches!(name, "rodat" | "glsticket" | "gunticket" | "no-gun")
 }
 
 /// `width` / `height` are type 0x22: `strtol(text, 0, 0)`.
@@ -167,6 +198,7 @@ fn parse_from(
         gun_port: ac2_net::gun::DEFAULT_GUN_PORT,
         gun_ticket: false,
         gun_ticket_override: None,
+        no_gun: false,
     };
     let mut it = tokens.into_iter().peekable();
     while let Some(token) = it.next() {
@@ -178,6 +210,10 @@ fn parse_from(
             if it.peek().is_some_and(|next| argument_name(next).is_none()) {
                 it.next();
             }
+            continue;
+        }
+        if name == "no-gun" {
+            args.no_gun = true;
             continue;
         }
         if name == "gunticket" {
@@ -272,6 +308,37 @@ mod tests {
             (plain.gun_server.as_str(), plain.gun_port, plain.gun_ticket),
             ("", 2310, false)
         );
+    }
+
+    /// Without `gunserver` the client uses its game server's own GUN service with the account
+    /// as the ticket (a failure is not fatal); `gunserver` keeps retail's arguments; `no-gun`
+    /// turns the default off.
+    #[test]
+    fn gun_defaults_to_the_game_servers_service() {
+        let server: std::net::SocketAddr = "10.0.0.5:9000".parse().unwrap();
+        let (config, explicit) = parse("--account A").unwrap().gun_config(server);
+        assert!(!explicit);
+        assert_eq!(
+            (config.server.as_str(), config.port, config.use_ticket),
+            ("10.0.0.5", 2310, true)
+        );
+        assert_eq!(
+            config.account, "a",
+            "the account, lowercased as the logon takes it"
+        );
+
+        let (config, explicit) = parse("--account A --gunserver gun.test")
+            .unwrap()
+            .gun_config(server);
+        assert!(explicit);
+        assert_eq!(
+            (config.server.as_str(), config.use_ticket),
+            ("gun.test", false)
+        );
+
+        let (config, explicit) = parse("--account A --no-gun").unwrap().gun_config(server);
+        assert!(!explicit);
+        assert!(config.server.is_empty());
     }
 
     #[test]

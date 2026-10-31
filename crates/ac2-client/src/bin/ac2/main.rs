@@ -852,15 +852,16 @@ fn run(args: Args) -> Result<(), String> {
         .map_err(|e| e.to_string())?
         .ok_or("the DATs hold no action map")?;
     let server_address = args.server_address()?;
-    // `gmClient::StartupGUN`, before the logon.
-    let gun = ac2_client::gun_service::GunService::startup(&ac2_client::gun_service::GunConfig {
-        server: args.gun_server.clone(),
-        port: args.gun_port,
-        use_ticket: args.gun_ticket,
-        ticket_override: args.gun_ticket_override.clone(),
-        account: args.account.clone(),
-        direct_ticket: !args.ticket.is_empty(),
-    })?;
+    // `gmClient::StartupGUN`, before the logon (see `Args::gun_config` for the default).
+    let (gun_config, gun_explicit) = args.gun_config(server_address);
+    let gun = match ac2_client::gun_service::GunService::startup(&gun_config) {
+        Ok(gun) => gun,
+        Err(e) if !gun_explicit => {
+            eprintln!("ac2: the server's GUN service is not reachable ({e}); no friends list");
+            None
+        }
+        Err(e) => return Err(e),
+    };
     let server = (
         args.host
             .clone()

@@ -9,6 +9,9 @@
 # AC2E_DIR    AC2e checkout (the folder holding AC2E/); default ../third_party/ac2e-src/repo
 # AC2E_STATE  server data, prepared content and logs; default ~/.local/state/ac2e-test
 # AC2E_BIND   listen address; default 127.0.0.1:9000 (the client's default --server)
+# AC2E_GUN_BIND  the GUN service's address (friends, ignore list, presence, tells), which AC2e
+#             starts with every server; default AC2e's own, the game address's IP at port 2310;
+#             `off` turns it off. The client finds it there by itself (`ac2 --no-gun` opts out).
 #
 # Connect with: ac2 --dat-dir DIR --server 127.0.0.1:9000 --account local --version 7148
 # AC2e speaks the admin 7148 layouts (experimental 7230); its developer account is `local`.
@@ -61,6 +64,7 @@ if [ -f "$lock" ] && ! kill -0 "$(head -n 1 "$lock")" 2>/dev/null; then rm -f "$
 # A stop request left after a server exited would stop this one on its first pass.
 [ -f "$lock" ] || rm -f "$state/data/stop.request"
 
+if [ -n "${AC2E_GUN_BIND:-}" ]; then set -- --gun-bind "$AC2E_GUN_BIND" "$@"; fi
 exec "$bin" serve --bind "$bind" --data "$state/data" \
   --game-data "$dats" --content "$content" --initialize-ui true --training-kit false \
   --lifestones true --portals true --test-map-travel true "$@"
