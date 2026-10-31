@@ -200,3 +200,16 @@ impl Client {
         }
     }
 }
+
+#[cfg(feature = "test-support")]
+impl Client {
+    /// Restarts the client's shared `Random` and takes `draws` draws from it, so the next
+    /// tunnel's bend (`PortalSpace::Effect::StartNow`'s `RollDice(0, 10000)`) does not depend on
+    /// how many draws the DATs' scripts made before. For tests that draw the tunnel.
+    pub fn restart_random(&mut self, draws: usize) {
+        self.random = ac2_core::Random::default();
+        for _ in 0..draws {
+            self.random.rand();
+        }
+    }
+}

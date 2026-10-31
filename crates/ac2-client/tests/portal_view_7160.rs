@@ -150,6 +150,10 @@ fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
     let town_mean = mean_luminance(&town_rgba);
 
     // The teleport: the position with a newer teleport stamp; the client runs to the tunnel.
+    // The tunnel's bend is a random draw; restarting the generator keeps it the same whatever
+    // the DATs' scripts drew before. The stream's third draw bends it little, so the far
+    // portals and their clouds stay in view (most draws do; a sharp bend shows the wall).
+    client.restart_random(2);
     server
         .borrow_mut()
         .teleport_player(INTERIOR_CELL, INTERIOR_ORIGIN, 5, 6);
@@ -233,14 +237,10 @@ fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
         "the background mesh fills the view behind the rings ({background_pixels})"
     );
     // The clouds are a few particles near the tunnel's far end: some pixels, never the frame.
-    // Known gap: on the 7230 DATs the same cloud system and material (0x31000355) draw no
-    // pixels while the background covers less of the frame; not traced yet, so the DVD only.
-    if ac2_dat::test_support::env_legions_dataset().is_some() {
-        assert!(
-            cloud_pixels > 200 && cloud_pixels < total / 10,
-            "the cloud particles draw a part of the frame ({cloud_pixels})"
-        );
-    }
+    assert!(
+        cloud_pixels > 200 && cloud_pixels < total / 10,
+        "the cloud particles draw a part of the frame ({cloud_pixels})"
+    );
     eprintln!("town mean {town_mean:.1}, tunnel mean {tunnel_mean:.1}");
     // The world is not drawn (`world_drawn` above); the tunnel's brightness is its own, so the
     // town's is not a bound on it.
