@@ -72,7 +72,8 @@ impl PregameView {
             .expect("spawn the pregame loader");
         let scale = UiScale::fit(size);
         let mut overlay = UiOverlay::new(gpu, format);
-        overlay.set_smooth(!scale.is_identity());
+        // Composed at the window's scale, drawn pixel for pixel (`UiTree::set_render_scale`).
+        overlay.set_density(scale.scale as f32);
         Self {
             pending: Some(receive),
             ui: None,
@@ -228,11 +229,12 @@ impl PregameView {
     pub fn resize(&mut self, width: u32, height: u32) {
         self.size = (width.max(1), height.max(1));
         self.scale = UiScale::fit(self.size);
-        self.overlay.set_smooth(!self.scale.is_identity());
+        self.overlay.set_density(self.scale.scale as f32);
         let display = self.scale.display;
         if let Some(ui) = &mut self.ui {
             ui.tree_mut()
                 .set_display(display.0 as i32, display.1 as i32);
+            ui.tree_mut().set_render_scale(self.scale.scale);
         }
         self.dirty = true;
     }
@@ -272,6 +274,8 @@ impl PregameView {
                         self.scale.display.1 as i32,
                     );
                     ui.tree_mut().set_text_clipboard(crate::clipboard::shared());
+                    // The screens drawn at the window's size, not stretched from 1024 x 768.
+                    ui.tree_mut().set_render_scale(self.scale.scale);
                     if let Some(set) = self.resume.take() {
                         ui.resume_at_character_selection(set);
                     }

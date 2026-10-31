@@ -386,8 +386,26 @@ pub(crate) fn recalculate_lines(
 }
 
 /// `RGBAColor::GetColor32` as RGBA bytes: each channel `_ftol2(c * 255)`.
-fn color_bytes(color: [f32; 4]) -> [u8; 4] {
+pub(crate) fn color_bytes(color: [f32; 4]) -> [u8; 4] {
     color.map(|c| (f64::from(c) * 255.0) as i64 as u8)
+}
+
+/// `SurfaceWindow::DrawCharacter`'s blend of `color` by a glyph pixel's `coverage` into `dest`:
+/// in float, the alpha accumulated at 1.25x, clamped (`CapHigh`).
+pub(crate) fn blend_coverage(dest: &mut [u8], color: [f32; 4], coverage: u8) {
+    let a = f32::from(coverage) * 0.003_921_569;
+    let d = dest
+        .iter()
+        .map(|&v| f32::from(v) * 0.003_921_569)
+        .collect::<Vec<_>>();
+    let inv = 1.0 - a;
+    let mixed = [
+        color[0] * a + d[0] * inv,
+        color[1] * a + d[1] * inv,
+        color[2] * a + inv * d[2],
+        color[3] * a * 1.25 + d[3],
+    ];
+    dest.copy_from_slice(&color_bytes(mixed.map(|c| c.clamp(0.0, 1.0))));
 }
 
 /// The background of a selected run of glyphs (a modern highlight; retail's text drew none).
@@ -397,7 +415,7 @@ impl UiSurface {
     /// `SurfaceWindow::DrawCharacter` into `window` (surface coordinates, inclusive) at window
     /// position (`x`, `y`); returns the advance.
     #[allow(clippy::too_many_arguments)]
-    fn draw_character(
+    pub(crate) fn draw_character(
         &mut self,
         window: UiBox,
         x: i32,
@@ -445,20 +463,7 @@ impl UiSurface {
                     dest.copy_from_slice(&pixel);
                     continue;
                 }
-                // Coverage blend in float, alpha accumulated at 1.25x, clamped (`CapHigh`).
-                let a = f32::from(coverage) * 0.003_921_569;
-                let d = dest
-                    .iter()
-                    .map(|&v| f32::from(v) * 0.003_921_569)
-                    .collect::<Vec<_>>();
-                let inv = 1.0 - a;
-                let mixed = [
-                    color[0] * a + d[0] * inv,
-                    color[1] * a + d[1] * inv,
-                    color[2] * a + inv * d[2],
-                    color[3] * a * 1.25 + d[3],
-                ];
-                dest.copy_from_slice(&color_bytes(mixed.map(|c| c.clamp(0.0, 1.0))));
+                blend_coverage(dest, color, coverage);
             }
         }
         glyph_width
@@ -466,7 +471,15 @@ impl UiSurface {
 
     /// A `width` x `height` box at window position (`x`, `y`) filled with `pixel`, clipped to
     /// `window`.
-    fn fill_box(&mut self, window: UiBox, x: i32, y: i32, width: i32, height: i32, pixel: [u8; 4]) {
+    pub(crate) fn fill_box(
+        &mut self,
+        window: UiBox,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        pixel: [u8; 4],
+    ) {
         for dy in 0..height {
             for dx in 0..width {
                 let (tx, ty) = (window.x0 + x + dx, window.y0 + y + dy);
@@ -509,6 +522,10 @@ impl UiSurface {
             text.selection.0.min(text.selection.1)..text.selection.0.max(text.selection.1)
         });
         let highlight = color_bytes(SELECTION_COLOR);
+        // Drawn at a window's scale (`compose_scaled`): each glyph grown once for the text, and an
+        // outline's copies a scaled pixel apart.
+        let mut cache = crate::compose_scaled::GlyphCache::new();
+        let step = (self.scale.round() as i32).max(1);
         for (index, glyph) in text.glyphs.iter().enumerate() {
             if index == text.cursor {
                 cursor_at = Some((x, y));
@@ -529,27 +546,39 @@ impl UiSurface {
                 .as_ref()
                 .is_some_and(|range| range.contains(&index))
             {
-                self.fill_box(window, x, y, glyph.width, line_height, highlight);
+                self.fill(window, x, y, glyph.width, line_height, highlight);
             }
             if glyph.outline {
                 for dy in -1..2 {
                     for dx in -1..2 {
                         if dx != 0 || dy != 0 {
                             let black = [0.0, 0.0, 0.0, 1.0];
-                            self.draw_character(
+                            self.glyph(
                                 window,
-                                x + dx,
-                                y + dy,
+                                x,
+                                y,
+                                (dx * step, dy * step),
                                 font,
                                 glyph.ch,
                                 black,
                                 false,
+                                &mut cache,
                             );
                         }
                     }
                 }
             }
-            x += self.draw_character(window, x, y, font, glyph.ch, glyph.color, true);
+            x += self.glyph(
+                window,
+                x,
+                y,
+                (0, 0),
+                font,
+                glyph.ch,
+                glyph.color,
+                true,
+                &mut cache,
+            );
             if index + 1 < text.glyphs.len() {
                 x += text.tracking;
             }
@@ -560,19 +589,7 @@ impl UiSurface {
             let (cx, cy) = cursor_at.unwrap_or((x, y));
             let height = text.font.as_ref().map_or(0, |f| f.max_char_height as i32);
             let color = color_bytes(text.color);
-            for row in 0..height {
-                let (px, py) = (window.x0 + cx, window.y0 + cy + row);
-                if window.intersection(&UiBox::new(px, py, px, py)).is_none()
-                    || px < 0
-                    || py < 0
-                    || px >= self.width as i32
-                    || py >= self.height as i32
-                {
-                    continue;
-                }
-                let at = (py as usize * self.width as usize + px as usize) * 4;
-                self.rgba[at..at + 4].copy_from_slice(&color);
-            }
+            self.fill(window, cx, cy, 1, height, color);
         }
     }
 }

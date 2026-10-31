@@ -186,6 +186,18 @@ fn the_pregame_view_draws_character_selection() {
         column_lit(210) > 0 && column_lit(1390) > 0,
         "the screen's edges"
     );
+    // A large window: the screens composed at its scale (`UiTree::set_render_scale`), drawn
+    // pixel for pixel, not a 1024 x 768 picture stretched.
+    let large = (2560, 1440);
+    view.resize(large.0, large.1);
+    view.update(&gpu, t);
+    draw(
+        &gpu,
+        &mut view,
+        large,
+        t,
+        "pregame_view_selection_2560x1440.png",
+    );
     let small = (800, 600);
     view.resize(small.0, small.1);
     view.update(&gpu, t);

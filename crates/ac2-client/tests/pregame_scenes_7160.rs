@@ -188,6 +188,21 @@ impl Rig {
         (full, ui)
     }
 
+    /// The frame drawn on a window `size` (the screens composed at its scale, a deviation from
+    /// retail's 1024 x 768), then the window put back.
+    fn draw_sized(&mut self, size: (u32, u32)) -> Vec<u8> {
+        self.view.resize(size.0, size.1);
+        self.view.settle(&self.gpu, self.t);
+        self.view.prepare(&self.gpu, self.t);
+        let target = FrameTarget::new(&self.gpu.device, size.0, size.1);
+        self.view
+            .render(&self.gpu, &target.color_view, &target.depth_view);
+        let full = target.read_rgba(&self.gpu.device, &self.gpu.queue);
+        self.view.resize(SIZE.0, SIZE.1);
+        self.view.settle(&self.gpu, self.t);
+        full
+    }
+
     /// The pick answer at each point of a grid over `viewport`: the first hit of each answer.
     fn picks(&self, viewport: &SceneViewport) -> Vec<((i32, i32), usize)> {
         let scenes = self.view.scenes().unwrap();
@@ -207,11 +222,15 @@ impl Rig {
 }
 
 fn save(name: &str, rgba: &[u8]) {
+    save_sized(name, rgba, SIZE);
+}
+
+fn save_sized(name: &str, rgba: &[u8], size: (u32, u32)) {
     let dir =
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/ac2-snapshots");
     std::fs::create_dir_all(&dir).unwrap();
     let file = std::fs::File::create(dir.join(name)).unwrap();
-    let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), SIZE.0, SIZE.1);
+    let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), size.0, size.1);
     encoder.set_color(png::ColorType::Rgba);
     encoder.set_depth(png::BitDepth::Eight);
     encoder
@@ -331,6 +350,12 @@ fn character_generation_shows_the_avatars_and_the_chosen_one() {
     eprintln!("modification camera: {camera:?}");
     let (full, ui) = rig.draw();
     save("pregame_scene_avatar_modification.png", &full);
+    let large = rig.draw_sized((2560, 1440));
+    save_sized(
+        "pregame_scene_avatar_modification_2560x1440.png",
+        &large,
+        (2560, 1440),
+    );
     let race = rig
         .view
         .ui()

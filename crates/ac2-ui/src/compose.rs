@@ -48,13 +48,16 @@ pub struct UiSurface {
     pub shown: bool,
     /// The surface object's material opacity.
     pub opacity: f32,
+    /// Surface pixels per UI pixel (`UiTree::set_render_scale`): 1 draws the UI pixel for pixel;
+    /// otherwise `width` and `height` are the scaled size and everything is drawn at it.
+    pub scale: f64,
     pub rgba: Vec<u8>,
 }
 
 impl UiSurface {
     /// `full_src` of `image` drawn over `full_dst`, filtered (`compose_filter`), the part inside
     /// `clip` only; blended as `blit` blends `op`.
-    fn blit_filtered(
+    pub(crate) fn blit_filtered(
         &mut self,
         image: &UiPixels,
         full_src: UiBox,
@@ -74,12 +77,15 @@ impl UiSurface {
         if full_src.x0 < 0 || full_src.y0 < 0 || full_src.x1 >= iw || full_src.y1 >= ih {
             return;
         }
+        // Drawn at a window's scale, grown art is interpolated cubically (sharper edges).
+        let cubic = self.scale != 1.0;
         let xs = crate::compose_filter::taps(
             full_src.x0,
             src_w,
             dst_w,
             clip.x0 - full_dst.x0,
             clip.width(),
+            cubic,
         );
         let ys = crate::compose_filter::taps(
             full_src.y0,
@@ -87,6 +93,7 @@ impl UiSurface {
             dst_h,
             clip.y0 - full_dst.y0,
             clip.height(),
+            cubic,
         );
         for (row, y_taps) in ys.iter().enumerate() {
             let ty = clip.y0 + row as i32;
@@ -99,7 +106,7 @@ impl UiSurface {
         }
     }
 
-    fn bounds(&self) -> UiBox {
+    pub(crate) fn bounds(&self) -> UiBox {
         UiBox::new(0, 0, self.width as i32 - 1, self.height as i32 - 1)
     }
 
@@ -136,7 +143,7 @@ impl UiSurface {
     /// mode 0 copies. The image goes 1:1 when the sizes match, stretched when `scale`
     /// (`size_image_to_owner`), and tiled from the element's corner otherwise (`SetImage` never
     /// sets `m_centerImage`).
-    fn draw_graphic(
+    pub(crate) fn draw_graphic(
         &mut self,
         image: &UiPixels,
         mode: UiImage,
@@ -151,13 +158,7 @@ impl UiSurface {
             return;
         }
         let (iw, ih) = (image.width as i32, image.height as i32);
-        let op = match mode.draw_mode {
-            1 | 2 => BlitOp::Channel,
-            3 => BlitOp::Value(alpha_value),
-            DRAW_OVER => BlitOp::Over(1.0),
-            DRAW_OVER_FADE => BlitOp::Over(over_alpha(alpha_value)),
-            _ => BlitOp::Copy,
-        };
+        let op = blit_op(mode, alpha_value);
         let local = dirty.offset(-me.x0, -me.y0);
         if w == iw && h == ih {
             self.blit(image, local, dirty, op);
@@ -239,13 +240,7 @@ impl UiSurface {
         if iw <= 0 || ih <= 0 || me.width() <= 0 || me.height() <= 0 {
             return;
         }
-        let op = match mode.draw_mode {
-            1 | 2 => BlitOp::Channel,
-            3 => BlitOp::Value(alpha_value),
-            DRAW_OVER => BlitOp::Over(1.0),
-            DRAW_OVER_FADE => BlitOp::Over(over_alpha(alpha_value)),
-            _ => BlitOp::Copy,
-        };
+        let op = blit_op(mode, alpha_value);
         // Source and destination cuts along each axis: [start, border, far border, end).
         let sx = [0, bl, iw - br, iw];
         let sy = [0, bt, ih - bb, ih];
@@ -262,6 +257,15 @@ impl UiSurface {
                 let Some(clip) = dirty.intersection(&piece) else {
                     continue;
                 };
+                if self.scale != 1.0 {
+                    // At a window's scale: the piece's scaled box, filtered from its source.
+                    let full = UiBox::new(s0x, s0y, s1x - 1, s1y - 1);
+                    let piece = self.scaled_box(piece);
+                    if let Some(clip) = self.scaled_box(clip).intersection(&piece) {
+                        self.blit_filtered(image, full, piece, clip, op);
+                    }
+                    continue;
+                }
                 // The clipped part's source, in proportion to where it sits in the piece.
                 let map = |v: i32, d0: i32, d1: i32, s0: i32, s1: i32| {
                     s0 + ((i64::from(v - d0) * i64::from(s1 - s0)) / i64::from(d1 - d0)) as i32
@@ -339,9 +343,20 @@ fn blend(dest: &mut [u8], source: &[u8], op: BlitOp) {
     }
 }
 
+/// The blit an image's draw mode asks for (`UIElement::SetImage`'s flags).
+pub(crate) fn blit_op(mode: UiImage, alpha_value: f32) -> BlitOp {
+    match mode.draw_mode {
+        1 | 2 => BlitOp::Channel,
+        3 => BlitOp::Value(alpha_value),
+        DRAW_OVER => BlitOp::Over(1.0),
+        DRAW_OVER_FADE => BlitOp::Over(over_alpha(alpha_value)),
+        _ => BlitOp::Copy,
+    }
+}
+
 /// `SurfaceWindow::Blit`'s flags as `Graphic::Draw` sets them.
 #[derive(Debug, Clone, Copy, PartialEq)]
-enum BlitOp {
+pub(crate) enum BlitOp {
     Copy,
     /// 0x10: blended by the source alpha; the surface keeps its alpha.
     Channel,
@@ -379,7 +394,7 @@ impl UiTree {
             );
             if let Some(layers) = &el.icon_layers {
                 if let Some(icon) = crate::icon_desc::composite(layers, images) {
-                    surface.draw_graphic(&icon, mode, scale, smooth, el.alpha_value, me, clip);
+                    surface.draw_image(&icon, mode, scale, smooth, el.alpha_value, me, clip);
                 }
             } else if let Some(image) = images.get(&mode.file) {
                 // Per-side borders travel as the packed edges' complement (negative).
@@ -395,7 +410,7 @@ impl UiTree {
                     Some(border) => {
                         surface.draw_nine(image, mode, border, smooth, el.alpha_value, me, clip)
                     }
-                    _ => surface.draw_graphic(image, mode, scale, smooth, el.alpha_value, me, clip),
+                    _ => surface.draw_image(image, mode, scale, smooth, el.alpha_value, me, clip),
                 }
             }
         }
@@ -409,16 +424,14 @@ impl UiTree {
         if el.tree.is_some() {
             let (segments, color) = self.tree_segments(index);
             for (from, to) in segments {
-                let at = |p: (i32, i32)| (p.0 + me.x0, p.1 + me.y0);
+                let at = |p: (i32, i32)| {
+                    let (x, y) = (p.0 + me.x0, p.1 + me.y0);
+                    (surface.scaled(x), surface.scaled(y))
+                };
+                let (from, to) = (at(from), at(to));
                 let width = surface.width as usize;
-                crate::tree_view::draw_line(
-                    &mut surface.rgba,
-                    width,
-                    clip,
-                    at(from),
-                    at(to),
-                    color,
-                );
+                let clip = surface.scaled_box(clip);
+                crate::tree_view::draw_line(&mut surface.rgba, width, clip, from, to, color);
             }
         }
     }
@@ -426,6 +439,21 @@ impl UiTree {
     /// Whether scaled images are filtered (the modern style) or take the nearest pixel (retail).
     pub fn set_smooth_scaling(&mut self, smooth: bool) {
         self.smooth_scaling = smooth;
+    }
+
+    /// Draws every surface at `scale` surface pixels per UI pixel from the next compose on: the
+    /// layout stays the UI's, and the art, the text and the lines are drawn at the window's own
+    /// size (a modern client's scaled window, `compose_scaled`). 1 draws pixel for pixel.
+    pub fn set_render_scale(&mut self, scale: f64) {
+        let scale = if scale.is_finite() && scale > 0.0 {
+            scale
+        } else {
+            1.0
+        };
+        if self.render_scale != scale {
+            self.render_scale = scale;
+            self.changed = true;
+        }
     }
 
     /// Every visible root drawn into its own surface, in the order they go over the scene
@@ -450,18 +478,29 @@ impl UiTree {
         let el = self.el(root);
         let (width, height) = (el.rect.width(), el.rect.height());
         let (x, y) = el.object.unwrap_or((0, 0));
+        let scale = self.render_scale;
+        let size = |side: i32| {
+            if scale == 1.0 {
+                side
+            } else {
+                (f64::from(side) * scale).round() as i32
+            }
+        };
+        let (pixels_w, pixels_h) = (size(width).max(0), size(height).max(0));
         let mut surface = UiSurface {
             root,
             x,
             y,
-            width: width as u32,
-            height: height as u32,
+            width: pixels_w as u32,
+            height: pixels_h as u32,
             rotation: el.rotation,
             shown: el.shown,
             opacity: el.opacity,
-            rgba: vec![0; width as usize * height as usize * 4],
+            scale,
+            rgba: vec![0; pixels_w as usize * pixels_h as usize * 4],
         };
-        let bounds = surface.bounds();
+        // The root's box in UI pixels (the surface's own, scaled, is `bounds`).
+        let bounds = UiBox::new(0, 0, width - 1, height - 1);
         self.draw_here(root, (0, 0), bounds, images, &mut surface);
         surface
     }

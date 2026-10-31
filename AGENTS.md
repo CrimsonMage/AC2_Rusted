@@ -64,7 +64,13 @@ game rules and server-visible behaviour exactly retail.
   monitor's modes the same way and sets the window's inner size, at start and when the player
   picks a mode (a window resized by hand keeps its size until then; FullScreen stays the
   borderless switch). The HUD fills the window and the pregame screens stay 1024 x 768,
-  centred. Layout and anchoring code stays retail.
+  centred. Layout and anchoring code stays retail. The pregame screens are composed at the
+  window's scale, not stretched from 1024 x 768 (`UiTree::set_render_scale`,
+  `ac2_ui::compose_scaled`, `UiOverlay::set_density`): each root's surface is its scaled size,
+  every image is filtered once from its source to its scaled box (Catmull-Rom where it grows),
+  each glyph is grown from the DAT font's coverage with its edge narrowed to a window pixel, and
+  the surfaces are drawn texel for texel. At 1024 x 768 nothing changes. The HUD is still
+  stretched (its radar and bandwidth graph draw into the surfaces in UI pixels).
 - Exception: one modern shading pass, no retail look beside it. What is drawn, its colours,
   order, blend, fog and baked light come from the DATs and the decompile (`LScapeSky::Draw`,
   `CPartArray` colours, `CEnvCell` vertex light); the shading turns that into linear light.

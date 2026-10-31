@@ -428,6 +428,7 @@ mod tests {
             rotation: 0,
             shown: true,
             opacity: 1.0,
+            scale: 1.0,
             rgba: vec![0; 32 * 4],
         }
     }

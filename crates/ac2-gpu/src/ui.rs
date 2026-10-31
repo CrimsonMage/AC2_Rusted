@@ -116,6 +116,8 @@ pub struct UiOverlay {
     /// Bilinear sampling for a UI drawn scaled (a deviation from retail: see [`UiOverlay::set_smooth`]).
     smooth_sampler: wgpu::Sampler,
     smooth: bool,
+    /// Texture pixels per UI pixel the layers were composed at (`set_density`).
+    density: f32,
     layers: Vec<Uploaded>,
     /// Textures created by [`UiOverlay::set_layers`] (tests check that a recompose reuses them).
     #[cfg(test)]
@@ -220,6 +222,7 @@ impl UiOverlay {
             sampler,
             smooth_sampler,
             smooth: false,
+            density: 1.0,
             layers: Vec::new(),
             #[cfg(test)]
             textures_created: 0,
@@ -231,6 +234,13 @@ impl UiOverlay {
     /// client's resizable window) samples it smoothly instead.
     pub fn set_smooth(&mut self, smooth: bool) {
         self.smooth = smooth;
+    }
+
+    /// The layers' textures hold `density` pixels per UI pixel (the UI composed at the window's
+    /// scale, `UiTree::set_render_scale`): [`UiOverlay::prepare_scaled`] at that scale then draws
+    /// each texture pixel for pixel at its scaled place. 1 (the default) stretches the textures.
+    pub fn set_density(&mut self, density: f32) {
+        self.density = density;
     }
 
     /// Replaces the drawn layers, in drawing order. Layer `i` keeps the texture and bind group of
@@ -392,12 +402,27 @@ impl UiOverlay {
         origin: (f32, f32),
     ) {
         let (width, height) = target;
+        // Composed at this scale: each texture whole, its corner on a window pixel.
+        let dense = self.density != 1.0 && self.density == scale;
         for layer in &self.layers {
-            let data = [
+            let size = layer.texture.size();
+            let (w, h) = if dense {
+                (size.width as f32, size.height as f32)
+            } else {
+                (layer.rect[2] * scale, layer.rect[3] * scale)
+            };
+            let (mut x, mut y) = (
                 origin.0 + layer.rect[0] * scale,
                 origin.1 + layer.rect[1] * scale,
-                layer.rect[2] * scale,
-                layer.rect[3] * scale,
+            );
+            if dense {
+                (x, y) = (x.round(), y.round());
+            }
+            let data = [
+                x,
+                y,
+                w,
+                h,
                 width as f32,
                 height as f32,
                 layer.rotation,

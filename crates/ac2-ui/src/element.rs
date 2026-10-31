@@ -242,6 +242,8 @@ pub struct UiTree {
     pub(crate) targeting: bool,
     /// Scaled images are filtered (the modern style, `compose_filter`); else nearest pixel.
     pub(crate) smooth_scaling: bool,
+    /// Surface pixels per UI pixel the roots are composed at (`set_render_scale`).
+    pub(crate) render_scale: f64,
     /// Fonts and strings for text elements.
     pub(crate) text_data: Option<Arc<dyn UiTextData>>,
     /// Messages broadcast and not yet taken.
@@ -348,6 +350,7 @@ impl UiTree {
             hud_locked: false,
             targeting: false,
             smooth_scaling: false,
+            render_scale: 1.0,
             text_data: None,
             messages: Vec::new(),
             pointer: (0, 0),

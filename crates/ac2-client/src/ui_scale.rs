@@ -10,7 +10,8 @@
 //! - [`UiScale::fill`] (the HUD): the logical display covers the window, so one axis is
 //!   1024 or 768 and the other is longer; the layouts' anchors spread the roots over it.
 //! - [`UiScale::fit`] (the pregame screens): the logical display is exactly 1024 x 768,
-//!   centred in the window with the rest left black.
+//!   centred in the window with the rest left black, and composed at `scale`
+//!   (`UiTree::set_render_scale`) rather than stretched, so it stays sharp.
 
 /// The display retail's layouts are authored for (`Client+0x60` / `Client+100` defaults).
 pub const BASE_DISPLAY: (u32, u32) = (1024, 768);
