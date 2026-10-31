@@ -21,6 +21,7 @@ use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 use ac2_math::Frame;
 use ac2_world::{Ac2EnvCell, Ac2LightInfo, Ac2LightKind, Ac2StaticLight};
 
+use super::degrade::DegradeLists;
 use super::model::{ObjectBatch, ObjectMaterial, ObjectModel, ObjectPart, ObjectVertex};
 use super::pass::{layer_drawn, RenderSettings};
 
@@ -56,7 +57,9 @@ pub fn load_cell_geometry(
 }
 
 /// Loads `cell` placed at `world_frame` (its landblock origin plus its own frame), with its
-/// baked vertex colours and the layers `settings` draws.
+/// baked vertex colours, the layers `settings` draws and the degrade `CEnvCell::DrawCellMesh`
+/// picks. The cell's dungeon appearance atoms are applied to its materials
+/// (`CEnvCell::ApplyAtomCollection`).
 pub fn load_cell_model(
     store: &ResourceStore,
     cell: &Ac2EnvCell,
@@ -78,7 +81,7 @@ pub fn load_cell_model(
         }
         _ => Vec::new(),
     };
-    let degrade = mesh.highest_detail_degrade();
+    let degrade = cell_degrade(&mesh, settings.detail);
     let mut batches = Vec::new();
     let mut materials = std::collections::HashMap::<DataId, Option<Arc<ObjectMaterial>>>::new();
     for fragment in mesh.fragments.iter().filter(|f| f.degrade == degrade) {
@@ -149,6 +152,30 @@ pub fn load_cell_model(
         degrade: None,
         skeleton: None,
     }))
+}
+
+/// The degrade `CEnvCell::DrawCellMesh` hands `CBaseMesh::DrawMesh`: its factor is 1 for the
+/// cell's `m_degradeLevel` (0x40000002), capped at 0.5 at the medium detail setting and 0 at the
+/// low one, and `DrawMesh` picks that level among the degrades the setting admits.
+pub(crate) fn cell_degrade(mesh: &Ac2Mesh, detail: u32) -> usize {
+    let factor = match detail {
+        0 => 0.0,
+        1 => 0.5,
+        _ => 1.0,
+    };
+    let count = mesh
+        .fragments
+        .iter()
+        .map(|f| f.degrade + 1)
+        .max()
+        .unwrap_or(0);
+    let mut levels = vec![0; count];
+    for fragment in mesh.fragments.iter() {
+        levels[fragment.degrade] = fragment.detail_levels;
+    }
+    DegradeLists::new(&levels)
+        .select(detail, factor)
+        .unwrap_or(0)
 }
 
 /// `CEnvCell::flush_cells`' diffuse bake followed by `CEnvCell::UpdateDynamicLights`' first run,

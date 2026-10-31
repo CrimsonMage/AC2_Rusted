@@ -2661,10 +2661,10 @@ key	status	note
 00480800	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00480860	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 00480890	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-00480900	~	cell mesh with appearance atoms at the cell frame, point lights cached at 1.5x bbox radius; degrade selection fixed at top
+00480900	x	ac2-render object/cell.rs load_cell_model: cell mesh with the dungeon appearance atoms at the cell frame, lights cached at 1.5x the bbox radius (scene/interiors.rs), and the degrade DrawMesh picks from factor 1 capped at 0.5 (medium detail) or 0 (low) via cell_degrade
 00480a80	~	ac2-render: the objects standing in a visible cell draw with it (scene/interiors.rs object_cells, ac2-gpu interior_instances); the per-object frustum test that sets m_nVisibleTimestamp is not ported
-00480bc0	~	interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
-00480c00	~	interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
+00480bc0	x	sm_staticLights / LinkStaticLights / LinkDynamicLights / AddStaticLights: the block CLightInfo lights live per block (BlockInteriors::scene_lights, cell_lights) and the visible cells bind their cached lights each frame; the per-frame global link into the scene list for moving objects belongs to SceneTool::GetLightsForPosition (rg-outlights)
+00480c00	x	sm_staticLights / LinkStaticLights / LinkDynamicLights / AddStaticLights: the block CLightInfo lights live per block (BlockInteriors::scene_lights, cell_lights) and the visible cells bind their cached lights each frame; the per-frame global link into the scene list for moving objects belongs to SceneTool::GetLightsForPosition (rg-outlights)
 00480c40	x	ac2-render scene frame_coronas: the coronas of the lights of the cells the cull draws (Legions calls it from CEnvCell::CullCellsInternal, 0x0047F034/0x0047F097); drawn by ac2-gpu lens_flare.rs
 00480cb0	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00480f30	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
@@ -2695,14 +2695,14 @@ key	status	note
 00482310	-	Re-read the Legions body: Drop covers it; the behaviour it forwards to is CEnvCell::Destroy (own row)
 00482450	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00482460	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
-004825c0	_	needs port: indoor env cell: visibility, lights, portals, rendering
-00482710	~	Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
+004825c0	x	CEnvCell::ApplyAtomCollection: load_cell_model applies the cell appearance atoms (ac2_appearance_material_atoms) to the mesh materials once at load; retail re-applies and clears the lighting flags, which a client that never re-applies atoms does not need
+00482710	~	range-animated lights ported (object/cell.rs light_animated_lights at the cell first light tick = load; retail later ticks return early on m_bDynamicLightingComputed; no shipped light animates its range). Sun time-of-day blend over GetSunLitIndices (force refresh path of DynamicLightVisibleCells) not ported: needs the sun colour and time-of-day indices at load and a GPU vertex-colour refresh
 00482a80	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 00482b40	-	SmartArray container operation (Vec replaces it)
 00482c10	-	FileNode text export (admin/editor tool); the client reads packed DATs
 00482c30	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00482c40	-	retail free-object pool (DBOCache exception, AGENTS.md)
-00482c80	~	Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
+00482c80	~	range-animated lights ported (object/cell.rs light_animated_lights at the cell first light tick = load; retail later ticks return early on m_bDynamicLightingComputed; no shipped light animates its range). Sun time-of-day blend over GetSunLitIndices (force refresh path of DynamicLightVisibleCells) not ported: needs the sun colour and time-of-day indices at load and a GPU vertex-colour refresh
 00482d00	x	ac2-render interior_cull.rs BlockCull::cell_at: the first cell in id order whose cell BSP holds the point; used to find the camera's cell in scene/mod.rs visible_interior_cells
 00482da0	x	crates/ac2-world/src/ac2_env_cell.rs module decode in CEnvCell::StreamPack order
 00483190	-	SmartArray container operation (Vec replaces it)
@@ -2715,12 +2715,12 @@ key	status	note
 00483460	x	ac2-physics loader.rs load_block_interiors: each env-cell entity of type 0x40000001/0x40000007 (CEnvCell::InitStaticObjects filter, ac2-world env_cell_entities) becomes a StaticObject in that cell with shape, scale, blocking mask, at the entity offset; the entity resolves through resolve_entity_visual, the same CPhysicsObj::makeObjectInternal(EntityDesc) chain and 0x4000006B no-object rule as the outdoor path (shared with env_cell_markers); tested in loader_static_objects_tests.rs and ac2_interior_tests.rs.
 004834f0	-	entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 00483680	x	ac2-render interior_cull.rs check_visibility (frustum vs cell box, then the portals that face the viewer's side against Frustum::check_polygon); WorkerPolygon/Frustum polygon clip in worker_polygon.rs and frustum.rs; wired by scene/mod.rs visible_interior_cells for every outside-stab cell that touches outside; unit tested
-00483970	_	needs port: indoor env cell: visibility, lights, portals, rendering
-00484090	~	interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
+00483970	~	static objects gather per visible cell (ac2-gpu scene.rs interior_instances); dynamic objects are not culled by their cell visibility (CEnvCell::CullObjects timestamp), the depth test hides them
+00484090	x	sm_staticLights / LinkStaticLights / LinkDynamicLights / AddStaticLights: the block CLightInfo lights live per block (BlockInteriors::scene_lights, cell_lights) and the visible cells bind their cached lights each frame; the per-frame global link into the scene list for moving objects belongs to SceneTool::GetLightsForPosition (rg-outlights)
 00484200	x	ac2-render scene/decals.rs dungeon_decal_ground + cell_geometry.rs nearby_geometry: the decal carries its cell (DecalSpec::cell); the block's resident CullCell (CObjCell::GetVisible) gives the cell mesh first degrade (CellGeometry, Arcs shared with the decoded mesh) and its portal polygons; triangles whose cell-local bounds overlap the box of the largest edge, plus one ring of portal neighbours whose portal bounds overlap, go through construct_decal. Not resident: no decal. Tests: nearby_geometry unit test, dungeon_decal_tests real data
 00484680	x	ac2-world env_cell_markers (same resolve_entity_visual as env_cell_entities, so drawn and collision entities agree); drawn by ac2-render scene interiors
 00484710	-	entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
-00484760	_	needs port: indoor env cell: visibility, lights, portals, rendering
+00484760	~	static objects gather per visible cell (ac2-gpu scene.rs interior_instances); dynamic objects are not culled by their cell visibility (CEnvCell::CullObjects timestamp), the depth test hides them
 00484800	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 004848a0	-	write path (client reads DATs only)
 004848e0	x	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
@@ -2758,7 +2758,7 @@ key	status	note
 00487270	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 004873b0	x	ac2-render interior_cull.rs compute_cell_groups: one EnvCellGroup per m_bNoCull cell (outside portals of its shared cells, exit cells that do not belong to a group); built when a block's interiors load
 004876a0	-	frees the global group table; the groups live in BlockCull and drop with the block
-00487750	~	static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
+00487750	x	object/cell.rs bake_static_colors: base colour then LightIndices of every light that does not animate its range, waveforms read at the bake time; SumBumpMapVectors/NormalizeBumpMapVectors vertex vectors are the shader point_to_light (object.wgsl) summed per pixel from the cell lights
 00488140	x	ac2-physics los (Terrain::los_check)
 00488270	x	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
 004882c0	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)

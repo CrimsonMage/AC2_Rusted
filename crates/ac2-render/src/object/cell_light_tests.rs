@@ -157,3 +157,24 @@ fn a_range_animated_light_joins_the_static_bake_at_the_first_light_tick() {
         }
     }
 }
+/// `CEnvCell::DrawCellMesh` draws the cell mesh's degrade for a factor of 1 (the cell's
+/// `m_degradeLevel`), capped at 0.5 by the medium detail setting and 0 by the low one.
+#[test]
+fn a_cell_mesh_draws_the_degrade_its_detail_setting_picks() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let mesh = store
+        .load_cached_packed::<Ac2Mesh>(TypedResourceRef::new(
+            DatFileKind::Portal,
+            ac2_core::DataId::new(0x0100_0022),
+            0,
+        ))
+        .unwrap()
+        .expect("a cell mesh with three degrades");
+    assert_eq!(mesh.fragments.iter().map(|f| f.degrade).max(), Some(2));
+    assert_eq!(super::cell::cell_degrade(&mesh, 2), 0);
+    assert_eq!(super::cell::cell_degrade(&mesh, 1), 1);
+    assert_eq!(super::cell::cell_degrade(&mesh, 0), 2);
+}
