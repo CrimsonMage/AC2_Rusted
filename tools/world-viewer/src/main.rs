@@ -664,9 +664,6 @@ fn snapshot(
         println!("player: {}", model.label());
         walk.set_model(model.visual);
         walk.set_appearance(dress);
-        for _ in 0..args.zoom_in {
-            walk.camera_action(walk::actions::ZOOM_IN, true);
-        }
         walk.teleport(walk::Landing {
             block: args.block,
             x,
@@ -677,6 +674,10 @@ fn snapshot(
         if args.map_view {
             walk.camera_action(walk::actions::MAP_VIEW, true);
             now = walk_for(&mut view, &mut walk, &gpu, 2.0, model.visual);
+        }
+        // After the entry, which resets the camera to its defaults.
+        for _ in 0..args.zoom_in {
+            walk.camera_action(walk::actions::ZOOM_IN, true);
         }
         if args.face_camera {
             face_camera(&mut view, &mut walk, &gpu, model.visual, now);
