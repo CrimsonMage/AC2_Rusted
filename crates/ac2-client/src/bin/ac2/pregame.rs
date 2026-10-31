@@ -48,6 +48,7 @@ impl App {
             }
         };
         show_world_names(&state.window, &events);
+        super::gun_world_names(&mut self.gun, &events);
         let notices = self.client.take_notices();
         match &mut state.pregame {
             Some(pregame) => {

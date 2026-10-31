@@ -39,6 +39,15 @@ pub(crate) struct Args {
     /// `content-dir <path>`: the folder of the help pages (`KeyStone`'s `content/`). Without it the
     /// `Content` folder beside the DATs, then `AC2_CONTENT_DIR` (`ac2_client::resolve_content_dir`).
     pub content_dir: Option<std::path::PathBuf>,
+    /// `gunserver` (`gmClient::m_gunServer`): the GUN service's host. Without it no GUN starts.
+    pub gun_server: String,
+    /// `gunport` (`m_gunPort`, a number, default 0x906 = 2310).
+    pub gun_port: u16,
+    /// `gunticket` (`m_fUseGunTicket`): log on to GUN with a ticket (needs `gunserver`).
+    pub gun_ticket: bool,
+    /// `gunticketoverride` (`m_GunTicketOverride`): the ticket text to use. Without it retail
+    /// asked `GunDll.dll`; here the account name is the ticket.
+    pub gun_ticket_override: Option<String>,
 }
 
 impl Args {
@@ -98,7 +107,7 @@ pub(crate) fn parse_args() -> Result<Args, String> {
 }
 
 /// The options with a value. `rodat` and `glsticket` take an optional one.
-const WITH_VALUE: [&str; 15] = [
+const WITH_VALUE: [&str; 18] = [
     "dat-dir",
     "server",
     "account",
@@ -114,11 +123,14 @@ const WITH_VALUE: [&str; 15] = [
     "height",
     "language",
     "content-dir",
+    "gunserver",
+    "gunport",
+    "gunticketoverride",
 ];
 
 /// Whether `name` is an option this program knows.
 fn is_option(name: &str) -> bool {
-    WITH_VALUE.contains(&name) || matches!(name, "rodat" | "glsticket")
+    WITH_VALUE.contains(&name) || matches!(name, "rodat" | "glsticket" | "gunticket")
 }
 
 /// `width` / `height` are type 0x22: `strtol(text, 0, 0)`.
@@ -150,6 +162,10 @@ fn parse_from(
         height: None,
         language: None,
         content_dir: None,
+        gun_server: String::new(),
+        gun_port: ac2_net::gun::DEFAULT_GUN_PORT,
+        gun_ticket: false,
+        gun_ticket_override: None,
     };
     let mut it = tokens.into_iter().peekable();
     while let Some(token) = it.next() {
@@ -161,6 +177,11 @@ fn parse_from(
             if it.peek().is_some_and(|next| argument_name(next).is_none()) {
                 it.next();
             }
+            continue;
+        }
+        if name == "gunticket" {
+            // `gunticket` is a switch with no value (type 1, `m_fUseGunTicket`).
+            args.gun_ticket = true;
             continue;
         }
         if name == "glsticket" {
@@ -198,6 +219,12 @@ fn parse_from(
             "content-dir" => args.content_dir = Some(value.into()),
             "host" => args.host = Some(value),
             "port" => args.port = Some(value),
+            "gunserver" => args.gun_server = value,
+            "gunport" => {
+                args.gun_port =
+                    ac2_net::parse_port(&value).map_err(|e| format!("--gunport: {e}"))?;
+            }
+            "gunticketoverride" => args.gun_ticket_override = Some(value),
             _ => args.ticket = value,
         }
     }
@@ -227,6 +254,23 @@ mod tests {
 
     fn parse(line: &str) -> Result<super::Args, String> {
         parse_with(line, Err(GlsTicketError::Missing))
+    }
+
+    #[test]
+    fn the_gun_arguments_are_read() {
+        let args = parse(
+            "--account A --gunserver gun.test --gunport 28000 --gunticket --gunticketoverride T0k",
+        )
+        .unwrap();
+        assert_eq!(args.gun_server, "gun.test");
+        assert_eq!(args.gun_port, 28000);
+        assert!(args.gun_ticket);
+        assert_eq!(args.gun_ticket_override.as_deref(), Some("T0k"));
+        let plain = parse("--account A").unwrap();
+        assert_eq!(
+            (plain.gun_server.as_str(), plain.gun_port, plain.gun_ticket),
+            ("", 2310, false)
+        );
     }
 
     #[test]

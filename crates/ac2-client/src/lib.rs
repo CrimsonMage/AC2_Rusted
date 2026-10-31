@@ -60,6 +60,7 @@ mod friends;
 mod hud_friends;
 pub use friends::{FriendEvent, FriendResult};
 mod gameplay;
+pub mod gun_service;
 mod hud_arrow;
 #[cfg(feature = "window")]
 #[cfg(feature = "window")]

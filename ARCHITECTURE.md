@@ -28,7 +28,7 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-math` | Math and geometry (04) | `Vector`, `Frame`, `Plane`, bounds, `Heading`, cell `Position` and its offset rules | math, world `coordinates` |
 | `ac2-dat` | Database access (06) | DAT mounting, B-tree lookup, record reads, the binary unpack cursor | dat, archive cursor |
 | `ac2-db` | Database objects (06) | typed `DBObj` decode cache, `MasterProperty`/`PropertyCollection`, `EnumIDMap` | resources (cache core only), render-codec `ac2_property`, `EnumIdMap` |
-| `ac2-net` | Network and protocol (07) | transport (`ProtoHeader`, checksums, ISAAC, fragments, flow, logon), event codecs | net, protocol |
+| `ac2-net` | Network and protocol (07) | transport (`ProtoHeader`, checksums, ISAAC, fragments, flow, logon), event codecs, the GUN client (`gun`: `TurbineGun` over AC2e's GUN transport) | net, protocol, gun |
 | `ac2-anim` | Animation (08 `animsys`) | `CSetup`, `AnimMap`, `DBAnimator`/`AnimCube`/`AMHuman`, locomotion sliders | render-codec `ac2_animation`/`ac2_animator`/`ac2_setup`, body locomotion |
 | `ac2-assets` | Render asset codecs (12) | `RenderSurface`/`RenderTexture`, materials and modifiers, `CDataMesh`, `VisualDesc`, `PSDesc`, `DBFXTable` | render-codec `ac2_*` decoders |
 | `ac2-world` | Regions, cells (08 `region`, `cell`) | `LandscapeDefs`, landblocks, terrain/surface descs, scenery and grass placement, `CEnvCell`/`CCellMesh`, lights, water, region sky and game time | world `ac2_*` modules |

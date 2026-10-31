@@ -68,5 +68,15 @@ account logon (auth type 1, no password) for its developer account, `local`.
 
 ## What it does not do
 
-It does not enter the world, send queue 7 traffic or run the GUN/MSN ticket exchange; the
-ticket goes through `--glsticketdirect` as retail's direct mode does.
+It does not enter the world or send queue 7 traffic; the ticket goes through `--glsticketdirect`
+as retail's direct mode does. The GUN stage is optional (below).
+
+## GUN stage
+
+With `--gunserver HOST` the probe first does what `gmClient::StartupGUN` does (`ac2_net::gun`):
+connect, present the ticket (`--gunticketoverride`, default the account name, which is AC2e's
+developer ticket), then a friends round trip (`--gunfriend`, default `gunprobe_friend`: add, list,
+set presence, delete), and then the normal logon. It needs a server with a GUN service
+(`ac2e serve --gun-bind 127.0.0.1:2310`, branch `gun-support` of AC2e; `--gunport` defaults to 2310).
+`scripts/ac2e-gun-test.sh` runs the whole thing against a local AC2e (`AC2E_DIR` must be a checkout
+with the GUN service).

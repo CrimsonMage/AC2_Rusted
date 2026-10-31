@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 127 done, 50 partial, 70 to do, 107 skipped.
+354 retail functions: 128 done, 52 partial, 67 to do, 107 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `WinMain` · 004013a0 · legions 00401370 — WinMain: Win32 entry point, Rust main
 
-## `ac2/client/src/main/gmclient.cpp.c` (26/92)
+## `ac2/client/src/main/gmclient.cpp.c` (27/92)
 
 ### PackObj
 - [x] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980 — crates/ac2-script/src/unpack.rs `align` cites PackObj::ALIGN_PTR (4-byte alignment)
@@ -134,7 +134,7 @@ Legend and workflow: [README](README.md).
 
 ### gmClient
 - [ ] `gmClient::RecvNotice_GunAuthenticated` · 004029d0 — needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
-- [ ] `gmClient::AuthenticateWithGUN` · 00402ae0 · legions 00402a30 — needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
+- [~] `gmClient::AuthenticateWithGUN` · 00402ae0 · legions 00402a30 — events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
 
 ### RefCountIUnknown<gmClient::gmChatInterfaceProvider>
 - [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::RefCountIUnknown<gmClient::gmChatInterfaceProvider>` · 00402d00 · legions 00402c50 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
@@ -156,7 +156,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ArgumentParser::CommandLineArgList::AddCmd` · 004032f0 · legions 00403260 — needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
 
 ### NSTurbineGun::TurbineGun
-- [ ] `NSTurbineGun::TurbineGun::SetWorldName` · 004033a0 · legions 00403310 — needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
+- [x] `NSTurbineGun::TurbineGun::SetWorldName` · 004033a0 · legions 00403310 — ported: ac2_net::gun::TurbineGun
 
 ### gmClient
 - [ ] `gmClient::gmClient` · 004034a0 · legions 00403410 — needs port (check): client construction and teardown (gmClient ctor/dtor); Client::new and Drop in crates/ac2-client/src/client.rs uncited
@@ -190,7 +190,7 @@ Legend and workflow: [README](README.md).
 
 ### gmClient
 - [~] `gmClient::Init` · 00404410 · legions 00404340 — gmClient::Init: same start-up as ac2 run(); see Turbine::Client::Init
-- [ ] `gmClient::StartupGUN` · 00404a40 · legions 00404820 — needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
+- [~] `gmClient::StartupGUN` · 00404a40 · legions 00404820 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
 - [~] `gmClient::InitAuth` · 00404e10 · legions 00404bb0 — ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
 - [~] `gmClient::Connect` · 00404f80 · legions 00404d20 — ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
 

@@ -39,6 +39,18 @@ game rules and server-visible behaviour exactly retail.
   and whether the AC2e server ever pushes updated portal objects (the retail on-disk
   `AsyncCache` / `CMissingIteration` path exists for that). Read those before deleting the
   related code, and record the findings here.
+- Exception: GUN (friends, ignore list, presence, tells) speaks AC2e's transport, not Microsoft's.
+  Retail never spoke GUN itself: `GunDll.dll` did, over WSOCK32 sockets and a CryptoAPI RSA key
+  exchange that is not decoded (`decompiled-pdb/gundll/README.md`), to servers that are gone. The
+  client program's side is ported (`NSTurbineGun::TurbineGun`: `RequestConnect`, the ticket,
+  the `Request*` wrappers, `Rcv*Result` / `Rcv*Event`, `LocalToGlobalName` / `GlobalToLocalName`, and
+  `gmClient::StartupGUN`'s connect-then-ticket order) in `ac2_net::gun` and `ac2_client::gun_service`,
+  but the wire is AC2e's: a big-endian length and one XML element per frame, named as `GunDll.dll`
+  names its messages (AC2e's `docs/gun-protocol.md`). It is on only with `-gunserver`, as in retail;
+  `-gunticket` presents `-gunticketoverride`, else the account name (retail asked `GunDll.dll` for the
+  ticket). A GUN connect failure ends the start unless a `glsticketdirect` ticket was given, as in
+  build 0930's `StartupGUN`. GUN rooms and the other message families (accounts, news, personas,
+  support) are not served; room chat stays on Turbine chat.
 - Exception: the window resizes freely (a modern client). Retail drew its UI pixel for pixel on a
   fixed window authored at 1024 x 768; here `ac2_client::ui_scale::UiScale` lays the UI out on a
   logical display and draws it scaled by `min(width / 1024, height / 768)`. Retail's

@@ -12,6 +12,8 @@
 
 mod reason;
 
+pub mod gun;
+
 use std::fmt;
 use std::net::{SocketAddr, ToSocketAddrs};
 use std::sync::mpsc::{channel, Sender};

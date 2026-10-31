@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 230 done, 20 partial, 82 to do, 224 skipped.
+556 retail functions: 234 done, 41 partial, 66 to do, 215 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -132,7 +132,7 @@ Legend and workflow: [README](README.md).
 - [-] `CTTicketResult::AdoptTicket` · 006074b0 · legions 005c8350 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
 - [-] `CTTicketResult::CopyTicket` · 00607500 · legions 005c83a0 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
 
-## `ac2/shared/src/gun/turbinegun.cpp.c` (0/49)
+## `ac2/shared/src/gun/turbinegun.cpp.c` (4/49)
 
 ### Gun::CGetListOfRoomsResult
 - [-] `Gun::CGetListOfRoomsResult::GetRoomList` · 006048d0 · legions 005c5840 — GUN result/event accessor (Gaming Zone)
@@ -151,8 +151,8 @@ Legend and workflow: [README](README.md).
 - [-] `Gun::CGetTicketResult::GetTicket` · 006049c0 · legions 005c57e0 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
 
 ### NSTurbineGun::TurbineGun
-- [-] `NSTurbineGun::TurbineGun::CheckForMessages` · 006049f0 · legions 005c58d0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::GetAuthenticationTicket` · 00604a20 · legions 005c5900 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
+- [~] `NSTurbineGun::TurbineGun::CheckForMessages` · 006049f0 · legions 005c58d0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [x] `NSTurbineGun::TurbineGun::GetAuthenticationTicket` · 00604a20 · legions 005c5900 — ported: ac2_net::gun::TurbineGun
 - [-] `NSTurbineGun::TurbineGun::Read` · 00604a80 · legions 005c5960 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 - [-] `NSTurbineGun::TurbineGun::RcvEvent` · 00604ad0 · legions 005c59b0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 - [-] `NSTurbineGun::TurbineGun::RcvAccountsEvent` · 00604b70 · legions 005c5a50 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
@@ -160,42 +160,42 @@ Legend and workflow: [README](README.md).
 - [-] `NSTurbineGun::TurbineGun::RcvAccountsResult` · 00604bb0 · legions 005c5a90 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 - [-] `NSTurbineGun::TurbineGun::RcvSupportResult` · 00604c10 · legions 005c5af0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 - [-] `NSTurbineGun::TurbineGun::RcvNewsResult` · 00604ca0 · legions 005c5b80 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [ ] `NSTurbineGun::TurbineGun::RcvChatResult` · 00604cf0 · legions 005c5bd0 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RcvFriendsResult` · 00605140 · legions 005c6020 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [~] `NSTurbineGun::TurbineGun::RcvChatResult` · 00604cf0 · legions 005c5bd0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RcvFriendsResult` · 00605140 · legions 005c6020 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
 - [-] `NSTurbineGun::TurbineGun::RcvMatchResult` · 00605440 · legions 005c6320 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvAuthenticateResult` · 006054d0 · legions 005c63b0 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RequestPresentAuthenticationTicket` · 00605640 · legions 005c6520 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RequestFinishWithTicket` · 006056a0 · legions 005c6580 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-- [ ] `NSTurbineGun::TurbineGun::RequestSendToRoomEx` · 006056f0 · legions 005c65d0 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RequestGetFriendsList` · 00605770 · legions 005c6650 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RequestGetIgnoredList` · 006057d0 · legions 005c66b0 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RequestFlags` · 00605830 · legions 005c6710 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RequestSetLocation` · 006058a0 · legions 005c6780 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [~] `NSTurbineGun::TurbineGun::RcvAuthenticateResult` · 006054d0 · legions 005c63b0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestPresentAuthenticationTicket` · 00605640 · legions 005c6520 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestFinishWithTicket` · 006056a0 · legions 005c6580 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [-] `NSTurbineGun::TurbineGun::RequestSendToRoomEx` · 006056f0 · legions 005c65d0 — GUN rooms are not served; room chat goes to Turbine chat
+- [~] `NSTurbineGun::TurbineGun::RequestGetFriendsList` · 00605770 · legions 005c6650 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestGetIgnoredList` · 006057d0 · legions 005c66b0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestFlags` · 00605830 · legions 005c6710 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestSetLocation` · 006058a0 · legions 005c6780 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
 - [-] `NSTurbineGun::TurbineGun::RcvResult` · 00605900 · legions 005c67e0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 - [-] `NSTurbineGun::TurbineGun::UnRegisterEvents` · 00605a10 · legions 005c68f0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RequestConnect` · 00605ac0 · legions 005c69a0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::SetAuthenticationTicket` · 00605ba0 · legions 005c6a80 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvConnectEvent` · 00605ca0 · legions 005c6b80 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
+- [~] `NSTurbineGun::TurbineGun::RequestConnect` · 00605ac0 · legions 005c69a0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [x] `NSTurbineGun::TurbineGun::SetAuthenticationTicket` · 00605ba0 · legions 005c6a80 — ported: ac2_net::gun::TurbineGun
+- [~] `NSTurbineGun::TurbineGun::RcvConnectEvent` · 00605ca0 · legions 005c6b80 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
 - [-] `NSTurbineGun::TurbineGun::RegisterForConnectEvents` · 00605e00 · legions 005c6ce0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [ ] `NSTurbineGun::TurbineGun::RegisterForChatEvents` · 00605e40 · legions 005c6d20 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RegisterForFriendsEvents` · 00605e80 · legions 005c6d60 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [~] `NSTurbineGun::TurbineGun::RegisterForChatEvents` · 00605e40 · legions 005c6d20 — events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
+- [~] `NSTurbineGun::TurbineGun::RegisterForFriendsEvents` · 00605e80 · legions 005c6d60 — events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
 - [-] `NSTurbineGun::TurbineGun::Init` · 00605f00 · legions 005c6da0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 - [-] `NSTurbineGun::TurbineGun::TurbineGun` · 00606250 · legions 005c70f0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [-] `NSTurbineGun::TurbineGun::~TurbineGun` · 00606330 · legions 005c71d0 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [-] `NSTurbineGun::TurbineGun::LocalToGlobalName` · 006064b0 · legions 005c7350 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::GlobalToLocalName` · 00606590 · legions 005c7430 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [ ] `NSTurbineGun::TurbineGun::RcvChatEvent` · 00606710 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RcvFriendsEvent` · 00606c20 · legions 005c7ac0 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [x] `NSTurbineGun::TurbineGun::LocalToGlobalName` · 006064b0 · legions 005c7350 — ported: ac2_net::gun::TurbineGun
+- [x] `NSTurbineGun::TurbineGun::GlobalToLocalName` · 00606590 · legions 005c7430 — ported: ac2_net::gun::TurbineGun
+- [~] `NSTurbineGun::TurbineGun::RcvChatEvent` · 00606710 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RcvFriendsEvent` · 00606c20 · legions 005c7ac0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
 
 ### PList<PStringBase<unsigned_short>_>
 - [-] `PList<PStringBase<unsigned_short>_>::PList<PStringBase<unsigned_short>_>` · 00606d50 · legions 005c7bf0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
 ### NSTurbineGun::TurbineGun
-- [ ] `NSTurbineGun::TurbineGun::RequestSendToUserEx` · 00606df0 · legions 005c7c90 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RequestFriendAdd` · 00606ec0 · legions 005c7d60 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RequestFriendDelete` · 00606f50 · legions 005c7df0 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RequestIgnoredAdd` · 00606fe0 · legions 005c7e80 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-- [ ] `NSTurbineGun::TurbineGun::RequestIgnoredDelete` · 00607070 · legions 005c7f10 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [~] `NSTurbineGun::TurbineGun::RequestSendToUserEx` · 00606df0 · legions 005c7c90 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestFriendAdd` · 00606ec0 · legions 005c7d60 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestFriendDelete` · 00606f50 · legions 005c7df0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestIgnoredAdd` · 00606fe0 · legions 005c7e80 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [~] `NSTurbineGun::TurbineGun::RequestIgnoredDelete` · 00607070 · legions 005c7f10 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
 - [-] `NSTurbineGun::TurbineGun::RequestCallCreate` · 00607100 · legions 005c7fa0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 - [-] `NSTurbineGun::TurbineGun::RcvPersonaResult` · 006071f0 · legions 005c8090 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 

@@ -159,6 +159,23 @@ struct App {
     /// The server's host (as given, `--host`, else its address) and port
     /// (`Turbine::Client`'s host and port strings, which a failed connection's text names).
     server: (String, u16),
+    /// `gmClient::m_pTurbineGun`: the GUN service, when `-gunserver` started one.
+    gun: Option<ac2_client::gun_service::GunService>,
+}
+
+/// `gmClient::RecvNotice_WorldName`: the world's name also names the GUN world
+/// (`TurbineGun::SetWorldName`).
+fn gun_world_names(gun: &mut Option<ac2_client::gun_service::GunService>, events: &[SessionEvent]) {
+    let Some(gun) = gun.as_mut() else {
+        return;
+    };
+    for event in events {
+        if let SessionEvent::WorldName(info) = event {
+            if let Some(name) = info.literal.as_deref().filter(|n| !n.is_empty()) {
+                gun.set_world_name(name);
+            }
+        }
+    }
 }
 
 impl State {
@@ -362,6 +379,11 @@ impl App {
             return;
         }
         show_world_names(&state.window, &events);
+        gun_world_names(&mut self.gun, &events);
+        if let Some(gun) = self.gun.as_mut() {
+            // `TurbineGun::CheckForMessages`, once a frame.
+            gun.pump(&mut self.client);
+        }
         for saved in screenshot::finished(&mut state.screenshots) {
             // Retail's SaveScreenshot shows no chat line, on success or failure.
             match saved {
@@ -824,6 +846,15 @@ fn run(args: Args) -> Result<(), String> {
         .map_err(|e| e.to_string())?
         .ok_or("the DATs hold no action map")?;
     let server_address = args.server_address()?;
+    // `gmClient::StartupGUN`, before the logon.
+    let gun = ac2_client::gun_service::GunService::startup(&ac2_client::gun_service::GunConfig {
+        server: args.gun_server.clone(),
+        port: args.gun_port,
+        use_ticket: args.gun_ticket,
+        ticket_override: args.gun_ticket_override.clone(),
+        account: args.account.clone(),
+        direct_ticket: !args.ticket.is_empty(),
+    })?;
     let server = (
         args.host
             .clone()
@@ -877,6 +908,8 @@ fn run(args: Args) -> Result<(), String> {
     let script_data_for_chargen = script_data.clone();
     let host = ac2_script::host::ScriptHost::new(Arc::clone(&program), Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
+    // `gmCWInterface::RequestGUN_*` work only with a `TurbineGun`.
+    client.set_gun_service(gun.is_some());
     // `SoundManager`: the speakers, or silence without an output device.
     client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), speakers()));
     client.set_portal_sound_ids(ac2_client::portal_sound_ids(&store));
@@ -913,6 +946,7 @@ fn run(args: Args) -> Result<(), String> {
             winit::dpi::PhysicalSize::new(args.width.unwrap_or(1024), args.height.unwrap_or(768))
         }),
         server,
+        gun,
     };
     event_loop.run_app(&mut app).map_err(|e| e.to_string())
 }
