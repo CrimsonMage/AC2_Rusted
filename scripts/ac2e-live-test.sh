@@ -40,6 +40,13 @@ case ${AC2E_LIVE_TEST:-} in
     AC2E_LIVE_SERVER_ARGS="--training-kit true ${AC2E_LIVE_SERVER_ARGS:-}"
     export AC2E_LIVE_TRAINING_KIT=1
     ;;
+  # The tradeskills file: the development kit plus AC2e's tradeskills profile (the DAT recipes,
+  # Surveying and Mining, the starter tools) and the dev XP knob that gives the new character
+  # levels to spend.
+  ac2e_live_tradeskills*)
+    AC2E_LIVE_SERVER_ARGS="--training-kit true ${AC2E_LIVE_SERVER_ARGS:-}"
+    export AC2E_LIVE_TRAINING_KIT=1 AC2E_DEV_TRADESKILLS=1
+    ;;
 esac
 # shellcheck disable=SC2086 # AC2E_LIVE_SERVER_ARGS is a list of options
 "$root/scripts/ac2e-server.sh" --account livetest ${AC2E_LIVE_SERVER_ARGS---training-kit true} > "$log" 2>&1 &
