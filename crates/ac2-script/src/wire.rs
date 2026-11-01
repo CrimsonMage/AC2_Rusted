@@ -55,6 +55,53 @@ pub fn from_net(packed: &net::PackedReference) -> PackedReference {
     }
 }
 
+/// The graph as it goes out in a client request: its reference ids counted from 1 in table
+/// order. `ReferenceTable::PackReference` writes the sender's own reference-table indices
+/// (`PackReferenceArray` packs the id array as it is), and the receiver only maps them to new
+/// references (`UnPackReferenceArray` then `UpdateReferences`). Retail's table (`ReferenceTable::
+/// FindNextReference` from `m_highWater`) hands out the lowest free index after each collection
+/// (`FinishGarbageCollection` resets `m_highWater` to 0 and searches from 1), so a request made
+/// soon after one is numbered from 1; this port never collects, so its indices only grow
+/// (thousands by the time the player acts) and the graph is renumbered here instead, with the
+/// slots and natives that name its references following.
+pub fn as_collected(packed: &PackedReference) -> PackedReference {
+    use crate::vm::refs::native_references;
+    let mut order: Vec<u32> = packed.ids.clone();
+    order.sort_unstable();
+    let map: std::collections::HashMap<u32, u32> = order
+        .iter()
+        .enumerate()
+        .map(|(i, id)| (*id, i as u32 + 1))
+        .collect();
+    let remap = |value: &mut u32| {
+        if let Some(new) = map.get(value) {
+            *value = *new;
+        }
+    };
+    let mut out = packed.clone();
+    for id in &mut out.ids {
+        remap(id);
+    }
+    for entry in &mut out.entries {
+        match entry {
+            PackedEntry::Heap { object, .. } => {
+                if let Some(native) = &mut object.native {
+                    native_references(object.native_type, native, &mut |r| remap(r));
+                } else {
+                    for (value, tag) in object.slots.iter_mut().zip(&object.tags) {
+                        if *tag != crate::vm::tag::UNINIT && tag & 0xF == crate::vm::tag::REF {
+                            remap(value);
+                        }
+                    }
+                }
+            }
+            PackedEntry::Value { value, .. } => remap(value),
+            PackedEntry::Relative { .. } | PackedEntry::Package { .. } => {}
+        }
+    }
+    out
+}
+
 /// A packed reference graph for the wire.
 pub fn to_net(packed: &PackedReference) -> Result<net::PackedReference, Unsupported> {
     let entries = packed
@@ -518,5 +565,49 @@ pub(crate) fn scene_to_net(scene: &ac2_weenie::SceneInfo) -> net::GmSceneInfo {
                 defined_tracks: k.defined_tracks,
             })
             .collect(),
+    }
+}
+
+#[cfg(test)]
+mod collected_tests {
+    use super::*;
+    use crate::reference::HeapObject;
+    use crate::vm::tag;
+
+    fn heap(slots: Vec<u32>, tags: Vec<u8>) -> PackedEntry {
+        PackedEntry::Heap {
+            flags: 0x4400_0100,
+            object: HeapObject {
+                pkg_state_id: 0,
+                pkg_id: 5,
+                native_type: 0,
+                native: None,
+                slots,
+                tags,
+            },
+        }
+    }
+
+    /// `ReferenceTable::PackReferenceArray` writes the sender's table indices; a request leaves
+    /// with them counted from 1 in table order, and the reference slots that name them follow.
+    #[test]
+    fn a_request_graph_is_numbered_from_one_in_table_order() {
+        let packed = PackedReference {
+            ids: vec![26_370, 26_366, 26_368],
+            entries: vec![
+                heap(vec![26_366, 26_368, 7], vec![tag::REF, tag::REF, tag::INT]),
+                heap(vec![9], vec![tag::INT]),
+                heap(vec![26_370], vec![tag::REF]),
+            ],
+        };
+        let out = as_collected(&packed);
+        assert_eq!(out.ids, vec![3, 1, 2]);
+        let slots = |i: usize| match &out.entries[i] {
+            PackedEntry::Heap { object, .. } => object.slots.clone(),
+            _ => panic!(),
+        };
+        assert_eq!(slots(0), vec![1, 2, 7]);
+        assert_eq!(slots(1), vec![9]);
+        assert_eq!(slots(2), vec![3]);
     }
 }

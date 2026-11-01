@@ -153,6 +153,16 @@ pub const IFUN_REQUEST_UNTRAIN_SKILL: u32 = 0x00B4_002C;
 pub const IFUN_REQUEST_UNTRAIN_SKILL_CANCEL: u32 = 0x00B4_002D;
 pub const IFUN_REQUEST_RAISE_SKILL: u32 = 0x00B4_002E;
 
+/// The inventory requests (`ggmCWInterface::CallIFun_*`, the same ids in Legions 7160):
+/// `MoveItem` (item, from, from slot, target, target slot, quantity), `EquipItem` (item,
+/// location), `UnEquipItem` (item, target slot), `UpdateOpen` (container, open) and
+/// `TransmuteAllFromContainer` (container). Their stubs send `WM_Inventory`.
+pub const IFUN_MOVE_ITEM: u32 = 0x00B4_000C;
+pub const IFUN_EQUIP_ITEM: u32 = 0x00B4_000D;
+pub const IFUN_UNEQUIP_ITEM: u32 = 0x00B4_000E;
+pub const IFUN_UPDATE_OPEN: u32 = 0x00B4_006C;
+pub const IFUN_TRANSMUTE_ALL_FROM_CONTAINER: u32 = 0x00B4_00EA;
+
 /// `gmCWInterface::LootAllFromContainer` (`ggmCWInterface::CallIFun_LootAllFromContainer`, the
 /// same id in Legions 7160): the container, an instance id (a long); its stub sends `WM_Inventory`
 /// 0x68 with the take-all descriptor.

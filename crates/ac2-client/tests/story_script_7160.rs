@@ -68,21 +68,13 @@ fn with_script() -> Option<(ac2_client::Client, Shared)> {
     Some((client, server))
 }
 
-/// The packed list with the library's state id for the list's package (bytes 8..10: the DVD
-/// library's 0x66E1, the 7230 one's 0x67C8).
-fn with_state_id(bytes: &[u8]) -> Vec<u8> {
-    let mut v = bytes.to_vec();
-    let id: u16 = ac2_dat::test_support::pinned(0x66E1, 0x67C8);
-    v[8..10].copy_from_slice(&id.to_le_bytes());
-    v
-}
-
 type Shared = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 
 /// The packed arguments of the server call the script makes for the played list (function
-/// 0x8213_0013): the `PList<gmSceneInfo>` the script hands back, one scene with one keyframe.
+/// 0x8213_0013): the `PList<gmSceneInfo>` the script hands back, one scene with one keyframe,
+/// its one reference numbered 1 (`ac2_script::wire::as_collected`).
 const PLAYED_LIST: &[u8] = &[
-    5, 0, 0, 0, 1, 0, 0, 0, 0xe1, 0x66, 0, 0, 0, 1, 0, 0x44, 0, 0, 0, 0, 0xa4, 0, 0xff, 0xff, 1, 0,
+    5, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0x44, 0, 0, 0, 0, 0xa4, 0, 0xff, 0xff, 1, 0,
     0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0xac, 0x92, 0x62, 0xe5, 0x3a, 0x76,
     0xa, 0xeb, 0xf6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 7, 0, 0, 0, 1,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0xf0, 0xbf, 1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -108,7 +100,7 @@ fn a_portal_scene_leave_reports_the_played_scene_to_the_script() {
     }
     assert_eq!(
         server.borrow().script_bytes[before..],
-        [(0x8213_0013, with_state_id(PLAYED_LIST))]
+        [(0x8213_0013, PLAYED_LIST.to_vec())]
     );
     assert!(client.take_script_problems().is_empty());
 }

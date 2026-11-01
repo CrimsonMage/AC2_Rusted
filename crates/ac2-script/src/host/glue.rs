@@ -131,7 +131,7 @@ fn to_wire(items: &VecDeque<PackItem>) -> Result<Vec<PackValue>, u32> {
                 PackItem::LongInt(v) => PackValue::LongInt(*v),
                 PackItem::Float(v) => PackValue::Float(f32::from_bits(*v)),
                 PackItem::LongFloat(v) => PackValue::LongFloat(f64::from_bits(*v)),
-                PackItem::Package(p) => PackValue::Reference(wire::to_net(p).map_err(|e| e.0)?),
+                PackItem::Package(p) => PackValue::Reference(wire::to_net(&wire::as_collected(p)).map_err(|e| e.0)?),
             })
         })
         .collect()

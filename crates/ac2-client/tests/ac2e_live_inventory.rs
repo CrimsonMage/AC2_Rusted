@@ -292,7 +292,9 @@ fn an_item_equips_and_unequips() {
     rig.drag(from, to);
     assert!(
         rig.until(5.0, |r| r.view.item_icons(MAIN).contains(&item.id)),
-        "unequipped"
+        "unequipped: {:?} {:?}",
+        rig.client.take_script_problems(),
+        asked(&rig)
     );
     assert!(!worn(&rig).contains(&item.id));
 }
@@ -459,4 +461,112 @@ fn half_of_a_stack_splits_off_a_new_stack() {
         stacks(&rig)
     );
     assert!(stacks(&rig).iter().all(|q| *q < quantity));
+}
+
+/// The pack's stacks (stackable items): their ids and quantities, in the pack list's order.
+fn stacks_in_pack(rig: &LiveRig) -> Vec<(u64, i32)> {
+    let pack = rig.view.item_icons(MAIN);
+    rig.client
+        .frame()
+        .inventory
+        .items
+        .iter()
+        .filter(|i| i.stats.stackable && pack.contains(&i.id))
+        .map(|i| (i.id, i.stats.quantity))
+        .collect()
+}
+
+/// Half of a stack dropped on a slot that holds another item lands on that slot, not at the end:
+/// the request names the slot under the pointer (`ContainerDisplay::GetNewIndex`).
+#[test]
+fn a_split_stack_lands_on_the_slot_it_is_dropped_on() {
+    let Some(mut rig) = rig("Invslot") else {
+        return;
+    };
+    let (stack, quantity) = stack_in_pack(&rig).expect("a stack in the pack");
+    let count = rig.view.item_icons(MAIN).len();
+    let from = rig.view.item_icon_center(MAIN, stack).unwrap();
+    // A slot of another item, in front of the stack's own.
+    let target = (0..count)
+        .find(|&i| i != slot_of(&rig, stack).unwrap())
+        .unwrap();
+    let to = rig.view.container_slot_center(MAIN, target).unwrap();
+    let before = rig.seen.len();
+    rig.drag(from, to);
+    let toggle = rig
+        .view
+        .ui_element_center("AmountToggleButton")
+        .expect("the stack dialog has its all / half toggle");
+    rig.click(toggle);
+    let ok = rig.view.ui_element_center("StackOkButton").unwrap();
+    rig.click(ok);
+    assert!(
+        rig.until(5.0, |r| r.view.item_icons(MAIN).len() == count + 1),
+        "a second stack appears: {:?} {:?}",
+        said_lines(&rig, before),
+        asked(&rig)
+    );
+    assert!(
+        rig.until(5.0, |r| stacks_in_pack(r).len() == 2),
+        "two stacks: {:?}",
+        stacks_in_pack(&rig)
+    );
+    let new_stack = stacks_in_pack(&rig)
+        .into_iter()
+        .map(|(id, _)| id)
+        .find(|id| *id != stack)
+        .expect("the new stack");
+    assert!(
+        rig.until(5.0, |r| slot_of(r, new_stack) == Some(target)),
+        "the new stack is on slot {target}, not {:?} (the original had {quantity})",
+        slot_of(&rig, new_stack)
+    );
+}
+
+/// A stack dropped on another stack of the same kind merges into it: one stack with both
+/// quantities stands where the target stood, and the dropped stack's slot closes.
+#[test]
+fn a_stack_dropped_on_another_stack_merges() {
+    let Some(mut rig) = rig("Invmerge") else {
+        return;
+    };
+    let (stack, quantity) = stack_in_pack(&rig).expect("a stack in the pack");
+    let count = rig.view.item_icons(MAIN).len();
+    // Split it first: half goes to a new stack at the end.
+    let from = rig.view.item_icon_center(MAIN, stack).unwrap();
+    let to = rig.view.container_slot_center(MAIN, count + 2).unwrap();
+    rig.drag(from, to);
+    let toggle = rig.view.ui_element_center("AmountToggleButton").unwrap();
+    rig.click(toggle);
+    let ok = rig.view.ui_element_center("StackOkButton").unwrap();
+    rig.click(ok);
+    assert!(
+        rig.until(5.0, |r| {
+            let s = stacks_in_pack(r);
+            s.len() == 2 && s.iter().map(|(_, q)| q).sum::<i32>() == quantity
+        }),
+        "two stacks of {quantity}: {:?}",
+        stacks_in_pack(&rig)
+    );
+    // The new stack onto the first one, all of it.
+    let two = stacks_in_pack(&rig);
+    let (target, moved) = (two[0].0, two[1].0);
+    let from = rig.view.item_icon_center(MAIN, moved).unwrap();
+    let to = rig.view.item_icon_center(MAIN, target).unwrap();
+    let before = rig.seen.len();
+    rig.drag(from, to);
+    let ok = rig
+        .view
+        .ui_element_center("StackOkButton")
+        .expect("the stack dialog asks how many");
+    rig.click(ok);
+    assert!(
+        rig.until(5.0, |r| stacks_in_pack(r).len() == 1),
+        "the stacks merged: {:?} {:?} {:?}",
+        stacks_in_pack(&rig),
+        said_lines(&rig, before),
+        asked(&rig)
+    );
+    assert_eq!(stacks_in_pack(&rig)[0].1, quantity);
+    assert_eq!(rig.view.item_icons(MAIN).len(), count);
 }

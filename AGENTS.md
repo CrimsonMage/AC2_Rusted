@@ -685,31 +685,46 @@ game rules and server-visible behaviour exactly retail.
   `legions-server-double` stays the 7160 path's test peer.
 - Exception: the inventory requests are composed natively, not by the player's script. Retail's
   `gmCWInterface` calls ran the player's scripts (`CContainer` / `CInventorySystem`), which build
-  the `InvMoveDesc` / `InvEquipDesc` / `UsageDesc` objects and send them. The player now has its
-  script process (a weenie with only an entity DID gets one), but the packets its VM builds are not
-  the retail client's: the VM numbers the graph with the reference table's indices (the library's
-  state id, not 1) and keeps the IFun glue's 0x84 tags where the retail packets AC2e checks them
-  against byte for byte (`loot::decode`, `inventory_request::TAGS`, `equipment.rs`) have 0x82 or 4,
-  2, and its `ReorganizeContents` / `MoveItem` IFuns (0xB4000C) sent from the VM were refused by
-  AC2e (`script request rejected ... InvalidValue`; Loot All's differed in the graph id and two
-  tags). So `OnlineSession` builds the objects itself with the tags the captured packets have
-  (0x84 / 4 on what the UI's natives gave, 2 / 0x82 on the script's own integers:
-  `InvMoveDesc::with_native_tags`, `InvEquipDesc`, `UsageDesc::to_reference`), and
-  `Command::LootAll` sends the take-all itself for a container the player has open and that lists
-  something (`CInventorySystem` 0x1C's check, 0x1E). A ground drop (`gm3DItemsUI::FinishItemDrop`,
-  target none) names the player's landblock with no slot (`OnlineSession::drop_item`); a move of an
-  item out of another container into the player (a body's loot) sends source slot 0 and target slot
-  -1. The server's `WM_Inventory` 0x58 (`CContainer::RecvCEvt_DiscreteDestroyContainedItem`)
-  removes the item from the pack list (`InventoryState::discrete_destroy`). A create of a new
-  instance of an object drops the old instance's pending deletion
-  (`CObjectMaint::FinishEntityCreation` -> `DestroyObjectInternal`), since AC2e re-creates a
-  wielded, put-away or re-counted item with the old instance's destroy ahead of it. The pack panel
-  shows the script's list (`gmCWInterface::GetContentsInfo`); on AC2e's logon (7148, 7230) it falls
-  back to the session's mirror of the server's messages when the script has lost an item the mirror
-  lists: a request sent natively sets
-  none of the request-side state `CInventorySystem` 0xE keeps, so after a reorganization the
-  script's list loses the item. Known gap: the VM's packets (packing ids, tags) are not yet byte
-  for byte the retail client's.
+  the `InvMoveDesc` / `InvEquipDesc` / `UsageDesc` objects and send them. The VM's packets for
+  them are what the 7230 wlib and the retail interpreter produce (checked against
+  `ggmCWInterface::CallIFun_MoveItem` / `CallIFun_LootAllFromContainer`, which push every id word
+  tagged 0x84 and every number tagged 4, and the interpreter's `HandleLoad_Long` /
+  `HandleStore_Long` / `HandleRStore_Long`, which this port reproduces), and they differ from the
+  packets AC2e checks (`loot::decode`, `inventory_request::TAGS`, `equipment.rs`) only where those
+  were captured from a client whose script differs: ids 0x84 where the capture has 0x82, icon,
+  definition and physical typed 2 where the capture has 4, a ground drop's move type 33 and slot 0
+  where the capture has 0 and -1. The reference ids are the one place the port differs from the
+  retail code, and it differs on purpose: retail wrote the sender's reference-table indices
+  (`ReferenceTable::PackReferenceArray` packs the id array as it is), and its table hands out the
+  lowest free index after each collection (`FinishGarbageCollection` resets `m_highWater` to 0,
+  `FindNextReference` searches from 1), so a request made soon after one is numbered from 1; this
+  port never collects, so its indices only grow (some 26,000 by the time the player acts). A
+  request leaves with its graph counted from 1 in table order (`ac2_script::wire::as_collected`);
+  the receiver only maps the ids to its own (`UnPackReferenceArray`, `UpdateReferences`).
+  AC2e compares tags up to the integer kind and takes a drop's type 33 and slot 0
+  (`inventory_request::tags_agree`).
+  The requests are still composed by `OnlineSession` (`InvMoveDesc::with_native_tags`,
+  `InvEquipDesc`, `UsageDesc::to_reference`, `Command::LootAll`) because the script path is not
+  usable against AC2e yet: its `CInventorySystem` keeps request-side state (0xE) and a list of
+  the pack that AC2e's answers do not keep in step (a reorganization leaves the item at the end
+  of the script's list; an item equipped through `EquipItem_Done` is not found by `UnEquipItem`;
+  a stack AC2e splits is not in the list, so a merge onto it is refused), and a `MoveItem` out of
+  a body is refused by the script's own checks. `gmCWInterface::UpdateOpen` goes to the
+  container's own process (`gmExternalContainerUI::ListenToMessage`), with the player as the
+  updater and a nonzero argument closing. The branch `inventory-script-routing-wip` holds the
+  routing (`ac2_client::inventory_commands`) with its findings. A ground drop
+  (`gm3DItemsUI::FinishItemDrop`, target none) names the player's landblock with no slot
+  (`OnlineSession::drop_item`); a move of an item out of another container into the player (a
+  body's loot) sends source slot 0 and target slot -1. The server's `WM_Inventory` 0x58
+  (`CContainer::RecvCEvt_DiscreteDestroyContainedItem`) removes the item from the pack list
+  (`InventoryState::discrete_destroy`). A create of a new instance of an object drops the old
+  instance's pending deletion (`CObjectMaint::FinishEntityCreation` -> `DestroyObjectInternal`),
+  since AC2e re-creates a wielded, put-away or re-counted item with the old instance's destroy
+  ahead of it. The pack panel shows the script's list (`gmCWInterface::GetContentsInfo`); on
+  AC2e's logon (7148, 7230) it falls back to the session's mirror of the server's messages when
+  the script has lost an item the mirror lists: a request sent natively sets none of the
+  request-side state `CInventorySystem` 0xE keeps, so after a reorganization the script's list
+  loses the item.
 - Exception: a craft query that waits for DAT data is asked again by its panel. Retail's
   `gmCWInterface::InqCraftSkillList` / `InqRecipeList` (and the other craft queries) ran the
   player's script, which read the craft records from the DATs synchronously. Here the frame thread
