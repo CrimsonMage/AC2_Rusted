@@ -11,12 +11,9 @@ use live::LiveRig;
 
 /// The skill panel opens on the player's skills: its tree lists nodes.
 ///
-/// Ignored: the rig attaches the script VM before the login, as `bin/ac2/main.rs` does (it used to
-/// attach after world entry, so session stand-ins answered the skill panel's calls instead). With
-/// the VM answering, `SkillPanelManager` returns an empty node hash for every panel against the
-/// 7230 DATs, so the window's panel would list nothing too (not checked outside the rig). Not part of the combat work.
+/// This failed because AC2e's player `CreateObject` named no script package, so the player had no
+/// script process to answer the panel's queries (fixed in AC2e: `PLAYER_PACKAGE`).
 #[test]
-#[ignore = "the VM's SkillPanelManager lists no nodes against AC2e's 7230 data (see the doc comment)"]
 fn the_skill_panel_lists_the_players_skills() {
     let Some(mut rig) = LiveRig::new("Skilltest") else {
         return;
