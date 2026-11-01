@@ -260,11 +260,11 @@ fn a_recipe_is_crafted_from_the_panel() {
     );
 }
 
-/// Auto-Populate (`gmIngredientUI::AutoPopulateIngredients`) fills the slots from the pack, and
-/// the craft goes through: the request's leading id (the player's selection, no ingredient as
-/// nothing was dragged) is taken by the server as the first ingredient.
+/// Auto-Populate (`gmIngredientUI::AutoPopulateIngredients`, which only adds ingredients and
+/// selects nothing) fills the slots from the pack, and the craft goes through: the request's
+/// leading id is the player's selection (`RequestExecuteCraft` reads CPlayer's selected object,
+/// 0 here, as retail's script sends it), which the server takes as the first ingredient.
 #[test]
-#[ignore = "the player script's RequestExecuteCraft crashes (BadReference) with nothing selected"]
 fn an_auto_populated_recipe_is_crafted() {
     let Some(mut rig) = rig_for("Craftauto") else {
         return;
