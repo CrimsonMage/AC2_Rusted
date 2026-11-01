@@ -6,7 +6,7 @@
 //! answers the port's hooks (the session's objects, the loader).
 
 use ac2_net::protocol::{unpack_values, ObjectAction, PackValue};
-use ac2_weenie::SessionEvent;
+use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use super::ifun::IFunArg;
 use super::outcome::outcome;
@@ -133,6 +133,14 @@ pub trait ScriptLifecycle: ScriptPort {
                 continue;
             };
             outcome(self, id, function, Ok(result), &mut events);
+        }
+        // A craft query that stopped for data had no answer for its panel: it asks again, as
+        // `CM_Craft::SendNotice_UpdateCraftPanel` makes `gmCraftUI` do (`RefreshCraftPanel`).
+        if let Some(scripts) = self.script_state() {
+            let waited = std::mem::take(&mut scripts.waited_queries);
+            if waited.iter().any(|&f| super::ifun_ids::is_craft_query(f)) {
+                events.push(SessionEvent::Notice(GameplayNotice::UpdateCraftPanel));
+            }
         }
         self.push_produced(events);
     }

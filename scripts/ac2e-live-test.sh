@@ -31,6 +31,11 @@ case ${AC2E_LIVE_TEST:-} in
     export AC2E_LIVE_TRAINING_KIT=1
     export AC2E_DEV_START_XP=${AC2E_DEV_START_XP:-3000} AC2E_DEV_START_DAMAGE=${AC2E_DEV_START_DAMAGE:-40}
     ;;
+  # The crafting file needs the development kit's craft registry and ingredients, nothing else.
+  ac2e_live_crafting*)
+    AC2E_LIVE_SERVER_ARGS="--training-kit true ${AC2E_LIVE_SERVER_ARGS:-}"
+    export AC2E_LIVE_TRAINING_KIT=1
+    ;;
 esac
 # shellcheck disable=SC2086 # AC2E_LIVE_SERVER_ARGS is a list of options
 "$root/scripts/ac2e-server.sh" --account livetest ${AC2E_LIVE_SERVER_ARGS:-} > "$log" 2>&1 &

@@ -698,6 +698,14 @@ game rules and server-visible behaviour exactly retail.
   (`InventoryState::discrete_destroy`). A create of a new instance of an object drops the old
   instance's pending deletion (`CObjectMaint::FinishEntityCreation` -> `DestroyObjectInternal`),
   since AC2e re-creates a wielded or put-away item with the old instance's destroy ahead of it.
+- Exception: a craft query that waits for DAT data is asked again by its panel. Retail's
+  `gmCWInterface::InqCraftSkillList` / `InqRecipeList` (and the other craft queries) ran the
+  player's script, which read the craft records from the DATs synchronously. Here the frame thread
+  never reads, so a query whose script stops for a record not yet resident (`DispatchOutcome::data_wait`)
+  answers nothing at first; the host notes it (`ScriptState::waited_queries`) and, once the reads
+  land and the waiting contexts have run, raises `CM_Craft::SendNotice_UpdateCraftPanel`
+  (`gmCraftUI::RecvNotice_UpdateCraftPanel` -> `RefreshCraftPanel`), so the craft panel lists its
+  rows as soon as the data is there (`script_data_loaded`).
 - `crates/` is the client. `tools/` holds test tooling only; the world viewer is an offline
   harness and never connects to a server.
 - Close-out reports list `Retail Behavior traced:`, `Verification:` and `Known Gaps:`.

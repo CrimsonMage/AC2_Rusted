@@ -41,6 +41,9 @@ pub struct ScriptState {
     /// A read of the current batch the world did not answer (`load_script_data` gave `false`):
     /// nothing waiting on the batch resumes, since the reads would only be asked again.
     pub data_unanswered: bool,
+    /// The UI queries that stopped for data the loader was reading (their values were not
+    /// read): when the reads land, a craft query among them makes the craft panel ask again.
+    pub waited_queries: BTreeSet<u32>,
     /// The `CM_*` notices ac2-weenie has no type for, since the last take.
     pub script_notices: Vec<ScriptNotice>,
     /// GUN requests for the GUN service (`ScriptPort::set_gun_service`).
@@ -65,6 +68,7 @@ impl ScriptState {
             data_pending: 0,
             state_retries: BTreeMap::new(),
             data_unanswered: false,
+            waited_queries: BTreeSet::new(),
             script_notices: Vec::new(),
             gun_requests: Vec::new(),
             gun_service: false,

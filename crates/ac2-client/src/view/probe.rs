@@ -85,6 +85,12 @@ impl ClientView {
         Some(self.window_center(tree, index))
     }
 
+    /// The window pixel at the centre of the HUD element at `index` of the tree.
+    pub fn ui_index_center(&self, index: usize) -> Option<(i32, i32)> {
+        let (tree, _) = self.hud.hud.as_ref()?;
+        Some(self.window_center(tree, index))
+    }
+
     /// The HUD's element tree, read-only.
     pub fn ui_tree(&self) -> Option<&UiTree> {
         self.hud.hud.as_ref().map(|(tree, _)| tree)

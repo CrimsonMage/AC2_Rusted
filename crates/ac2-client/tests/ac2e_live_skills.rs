@@ -9,9 +9,9 @@
 mod live;
 
 use ac2_client::Command;
-use ac2_net::protocol::ShortcutInfo;
+use ac2_net::protocol::{ObjectAction, ScriptMessage, ShortcutInfo};
 use ac2_ui::ToolbarChild;
-use ac2_weenie::SkillRequest;
+use ac2_weenie::{SessionEvent, SkillRequest};
 use live::LiveRig;
 
 /// A melee skill of level 2 that costs one credit and needs the starter skill 0xB0.
@@ -252,33 +252,87 @@ fn a_skill_is_used_and_its_vigor_is_spent_and_comes_back() {
             .is_some_and(|h| h.current > health.current)
     });
 
-    // The server gives vigor back at rest (its regeneration is for a player nothing fights); the
-    // start in the Menhir Vault has a creature that may be hitting the player by now, which
-    // keeps the regeneration off, so the test only insists on the vigor rising when none did.
+    // The server gives vigor back only to a player nothing fights (AC2e's regeneration skips a
+    // player a creature targets). The start in the Menhir Vault has creatures that come and hit
+    // the player, so the test kills each one that attacks (as the player would) until the vigor
+    // rises above where the skill left it; it fails when the vigor never comes back.
     let low = vitals(&rig).vigor.unwrap().current;
-    let mark = rig.seen.len();
+    let mut fought = Vec::new();
     let mut back = false;
-    for _ in 0..30 * 60 {
-        rig.frame(&[]);
-        if rig
-            .client
-            .frame()
-            .player_vitals
-            .vigor
-            .is_some_and(|v| v.current > low)
-        {
-            back = true;
+    for _ in 0..8 {
+        back = rig.until(20.0, |r| {
+            r.client
+                .frame()
+                .player_vitals
+                .vigor
+                .is_some_and(|v| v.current > low)
+        });
+        if back {
             break;
         }
+        // Not yet: a creature is still on the player.
+        if let Some(target) = attacker(&rig, &fought) {
+            fought.push(target);
+            kill(&mut rig, target);
+        }
     }
-    let attacked = rig.seen[..]
-        .iter()
-        .any(|e| format!("{e:?}").contains("hits you"));
+    let vigor = vitals(&rig).vigor.unwrap();
     eprintln!(
-        "vigor back: {back}, attacked: {attacked} ({} events)",
-        rig.seen.len() - mark
+        "vigor {} -> {}/{} after {} creatures were fought",
+        low,
+        vigor.current,
+        vigor.max,
+        fought.len()
     );
-    assert!(back || attacked, "the vigor never came back");
+    assert!(
+        back,
+        "the vigor never came back: {}/{} after {} creatures were fought",
+        vigor.current,
+        vigor.max,
+        fought.len()
+    );
+}
+
+/// A creature that has attacked the player and has not been fought yet (the monsters beside the
+/// start come to it).
+fn attacker(rig: &LiveRig, fought: &[u64]) -> Option<u64> {
+    rig.seen.iter().find_map(|e| match e {
+        SessionEvent::ObjectAction {
+            object,
+            action: ObjectAction::DoBehavior(_),
+        } if object >> 48 == 0x8140 && !fought.contains(object) => Some(*object),
+        _ => None,
+    })
+}
+
+/// Whether a chat line containing `text` arrived since event `from`.
+fn said(rig: &LiveRig, from: usize, text: &str) -> bool {
+    rig.seen[from..].iter().any(|e| match e {
+        SessionEvent::Interp {
+            function,
+            arguments,
+            ..
+        } => matches!(
+            ScriptMessage::decode(*function, arguments),
+            Some(Ok(ScriptMessage::DisplayStringInfo { text: t, .. }))
+                if t.literal.as_deref().is_some_and(|l| l.contains(text))
+        ),
+        _ => false,
+    })
+}
+
+/// Selects `target`, attacks until the server says it is defeated, and stops attacking.
+fn kill(rig: &mut LiveRig, target: u64) {
+    let before = rig.seen.len();
+    rig.command(Command::Select(Some(target)));
+    rig.run(0.5);
+    rig.command(Command::SetAttacking(true));
+    assert!(
+        rig.until(90.0, |r| said(r, before, "defeated")),
+        "the creature dies"
+    );
+    rig.command(Command::SetAttacking(false));
+    rig.run(0.5);
 }
 
 /// The development kit's craft skill and its two recipes (health and vigor potions), the items it

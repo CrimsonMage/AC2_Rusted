@@ -82,6 +82,11 @@ pub fn script_query<P: ScriptPort + ?Sized>(
     let mut produced = Vec::new();
     let result = ifun_return(port, function, args, ret, &mut produced).ok()?;
     if let Some(scripts) = port.script_state() {
+        // A context stopped for a DAT read answers nothing yet (retail read synchronously): the
+        // query is noted, and asked again by its panel when the read lands.
+        if result.outcome.data_wait {
+            scripts.waited_queries.insert(function);
+        }
         scripts.produced.extend(produced);
     }
     Some(result)

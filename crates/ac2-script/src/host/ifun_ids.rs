@@ -114,6 +114,28 @@ pub const IFUN_INQ_RECIPE_DIFFICULTY: u32 = 0x00B4_011D;
 pub const IFUN_INQ_RECIPE_INGREDIENTS: u32 = 0x00B4_0108;
 pub const IFUN_INQ_RECIPE_LIST: u32 = 0x00B4_009B;
 pub const IFUN_IS_CRAFT_SKILL_RAISEABLE: u32 = 0x00B4_0128;
+/// Whether `function` is one of the craft panels' queries (the `Inq*`, `Can*`, `Is*`, `Check*`,
+/// `Does*` and `Get*` IFuns above).
+pub fn is_craft_query(function: u32) -> bool {
+    [
+        IFUN_CAN_CRAFT_SKILL_BE_RAISED,
+        IFUN_CHECK_INGREDIENT,
+        IFUN_DOES_INGREDIENT_AUTO_POPULATE,
+        IFUN_GET_AVAILABLE_CRAFT_EXPERIENCE,
+        IFUN_INQ_CRAFT_SKILL_ADAPTOR,
+        IFUN_INQ_CRAFT_SKILL_CATEGORY_NAME,
+        IFUN_INQ_CRAFT_SKILL_LEVEL,
+        IFUN_INQ_CRAFT_SKILL_LIST,
+        IFUN_INQ_RECIPE_ADAPTOR,
+        IFUN_INQ_RECIPE_COST,
+        IFUN_INQ_RECIPE_DIFFICULTY,
+        IFUN_INQ_RECIPE_INGREDIENTS,
+        IFUN_INQ_RECIPE_LIST,
+        IFUN_IS_CRAFT_SKILL_RAISEABLE,
+    ]
+    .contains(&function)
+}
+
 /// `gmCWInterface::OpenRecipe` (`CPlayer` 0x1B7: raises `OpenIngredientPanel`, no request).
 pub const IFUN_OPEN_RECIPE: u32 = 0x00B4_0118;
 /// `gmCWInterface::RequestAddIngredient` (the stub sends `WM_Craft` 0x06).
