@@ -103,10 +103,10 @@ fn next_monster(rig: &LiveRig, fought: &[u64]) -> Option<u64> {
 /// Kills the next creature that can be attacked: select it, start the attack, wait for the
 /// defeat message.
 fn kill_a_creature(rig: &mut LiveRig, fought: &mut Vec<u64>) {
-    for _ in 0..16 {
+    for _ in 0..6 {
         assert!(
-            rig.until(60.0, |r| next_monster(r, fought).is_some()),
-            "no creature to fight"
+            rig.until(30.0, |r| next_monster(r, fought).is_some()),
+            "no creature to fight; fought {fought:x?}"
         );
         let target = next_monster(rig, fought).unwrap();
         fought.push(target);
@@ -114,10 +114,12 @@ fn kill_a_creature(rig: &mut LiveRig, fought: &mut Vec<u64>) {
         rig.command(Command::Select(Some(target)));
         rig.run(0.5);
         rig.command(Command::SetAttacking(true));
-        rig.until(90.0, |r| {
+        rig.until(40.0, |r| {
             said(r, before, "Creature defeated") || said(r, before, "not an attackable")
         });
         let dead = said(rig, before, "Creature defeated");
+        let lines = said_lines(rig, before);
+        eprintln!("ATTACK {target:x} dead {dead}: {:?}", &lines[lines.len().saturating_sub(3)..]);
         rig.command(Command::SetAttacking(false));
         rig.run(0.5);
         if dead {
@@ -163,31 +165,39 @@ fn the_training_quest_is_in_the_journal() {
     assert_eq!(finished, "");
 }
 
-/// The whole training chain: the kills count live in the journal, the mentor's turn-in pays the
-/// reward and moves the quest to Finished, the mentor then gives the next quest, and the
-/// journal, rewards and progress survive a relog.
+/// The training chain, played once (the server's three reachable training creatures have one
+/// lifetime each, so the kills cannot be shared by several tests):
+/// - a kill while the Quest panel is closed still reaches the journal; opening the panel shows
+///   the changed quest already opened (`gmJournalQuestsUI::Update` expands `m_updatedQuestID`);
+/// - the next kills count live, and the kills alone pay nothing and finish nothing;
+/// - the mentor's turn-in pays 120 experience and 10 gold and moves the quest to Finished;
+/// - the mentor then bestows Field Supplies, and hands it in (the pack's mushroom and tallow for
+///   a potion, 80 experience and 6 gold), the quest joining the Finished page;
+/// - a relog keeps the journal, the rewards and the pack.
 #[test]
 fn the_training_chain_is_played_through_and_survives_a_relog() {
-    let Some(mut rig) = rig("Questchain") else {
+    let Some(mut rig) = LiveRig::new("Questchain") else {
         return;
     };
+    rig.wait("the mentor", |r| mentor(r).is_some());
     rig.wait("the training quest", |r| {
         r.view
             .quest_ids()
             .is_some_and(|(underway, _)| underway == [TRAINING])
     });
-
     let mut fought = Vec::new();
     for kills in 1..=3 {
         kill_a_creature(&mut rig, &mut fought);
+        if kills == 1 {
+            rig.panel(ToolbarChild::Quest, true);
+        }
         let want = format!("Training creatures defeated: {kills}/3");
         let shown = rig.until(10.0, |r| journal(r).0.contains(&want));
         assert!(shown, "after kill {kills}: {:?}", journal(&rig));
     }
-    // The kills alone pay nothing and finish nothing.
     assert_eq!(rig.view.quest_ids().unwrap().1, Vec::<u32>::new());
 
-    // Turn in: the mentor speaks, pays 120 experience and 10 gold, and the quest is Finished.
+    // Turn in: the mentor speaks, pays, and the quest is Finished.
     let (gold0, xp0) = wealth(&rig);
     let from = speak(&mut rig);
     let lines = said_lines(&rig, from);
@@ -218,14 +228,40 @@ fn the_training_chain_is_played_through_and_survives_a_relog() {
     );
     assert!(journal(&rig).0.contains("Field Supplies"));
 
-    // A relog keeps the journal: the same quests, on the same pages, with the same texts.
+    // Handing in the supplies.
+    rig.panel(ToolbarChild::Inventory, true);
+    let pack_before = rig.view.item_icons("PackMainContainer").len();
+    let (gold0, xp0) = wealth(&rig);
+    let from = speak(&mut rig);
+    assert!(
+        rig.until(10.0, |r| r
+            .view
+            .quest_ids()
+            .is_some_and(|(u, f)| u.is_empty() && f.len() == 2)),
+        "{:?} {:?}",
+        rig.view.quest_ids(),
+        said_lines(&rig, from)
+    );
+    let (gold1, xp1) = wealth(&rig);
+    assert_eq!((gold1 - gold0, xp1 - xp0), (6, 80));
+    // The mushroom and the tallow left the pack and a potion came: one fewer.
+    assert!(
+        rig.until(5.0, |r| r.view.item_icons("PackMainContainer").len() + 1 == pack_before),
+        "{} -> {}",
+        pack_before,
+        rig.view.item_icons("PackMainContainer").len()
+    );
+    assert!(journal(&rig).1.contains("Field Supplies"));
+
+    // A relog keeps the journal, the rewards and the pack.
     let before = (rig.view.quest_ids(), wealth(&rig));
     rig.relog();
     rig.panel(ToolbarChild::Quest, true);
     rig.wait("the journal after the relog", |r| {
-        r.view.quest_ids().is_some_and(|(u, f)| !u.is_empty() && !f.is_empty())
+        r.view.quest_ids().is_some_and(|(u, f)| u.is_empty() && f.len() == 2)
     });
     assert_eq!(rig.view.quest_ids(), before.0);
     assert_eq!(wealth(&rig), before.1);
-    assert!(journal(&rig).1.contains("Training Grounds"));
+    let finished = journal(&rig).1;
+    assert!(finished.contains("Training Grounds") && finished.contains("Field Supplies"));
 }
