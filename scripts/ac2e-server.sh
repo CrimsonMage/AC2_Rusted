@@ -36,7 +36,7 @@ fi
 
 bin=$ac2e/AC2E/target/game/release/ac2e
 # Rebuild on request, when missing, or when the AC2e sources changed (another branch checked out).
-stale=$( [ -x "$bin" ] && find "$ac2e/AC2E/emulator/src" "$ac2e/AC2E/emulator/content" -newer "$bin" -print -quit )
+stale=$( [ -x "$bin" ] && find "$ac2e/AC2E/emulator/src" "$ac2e/AC2E/emulator/content" -newer "$bin" -print -quit || true )
 if [ "${1:-}" = "--rebuild" ] || [ ! -x "$bin" ] || [ -n "$stale" ]; then
   [ "${1:-}" = "--rebuild" ] && shift
   # AC2e's own build (Build-AC2E.ps1): the AGPL source archive it serves, then the server.
