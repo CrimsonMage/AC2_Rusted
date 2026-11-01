@@ -141,7 +141,7 @@ fn uses_go_out_as_usage_descs_and_their_outcomes_come_back() {
         ],
     );
     expected.extend([
-        1, 1, 0x82, 0xCD, 1, 2, 0x82, 0xCD, 3, 0x82, 0xCD, 2, 0x82, 0xCD, 2, 1, 2, 2, 2, 2,
+        1, 1, 0x84, 0xCD, 1, 2, 0x84, 0xCD, 3, 0x84, 0xCD, 2, 0x82, 0xCD, 2, 1, 2, 2, 2, 2,
     ]);
     // The message: a loaded native StringInfo, 0x4E1AEC40 of table 0x25000014, no variables,
     // no literal; no slots.

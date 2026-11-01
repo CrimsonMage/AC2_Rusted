@@ -25,6 +25,10 @@ const TAG_INT: u8 = 0x02;
 const TAG_FLOAT: u8 = 0x03;
 const TAG_LONG: u8 = 0x82;
 const TAG_UNSET: u8 = 0xCD;
+/// The tag of a 64-bit id a native wrote (`CWRepository::GetID`, the selection): the item and the
+/// user, and a chosen target, as the retail client's packets have them (AC2e checks them,
+/// `equipment::UseRequest`); a target of none is the script's own 0.
+const TAG_NATIVE_LONG: u8 = 0x84;
 /// A null reference slot.
 const NULL_REF: u32 = u32::MAX;
 /// The ids this client gives the graph's two entries (retail uses its reference-table
@@ -140,6 +144,12 @@ impl UsageDesc {
     /// `ReferenceTable::PackReference` of the instance: the instance, then its message.
     pub fn to_reference(&self) -> PackedReference {
         let flags = entry_flags::LOADED | entry_flags::RECURSE | entry_flags::KIND_HEAP;
+        let mut tags = LAYOUT;
+        tags[2] = TAG_NATIVE_LONG;
+        tags[6] = TAG_NATIVE_LONG;
+        if self.target != 0 {
+            tags[9] = TAG_NATIVE_LONG;
+        }
         PackedReference {
             ids: vec![ROOT_ID, MESSAGE_ID],
             entries: vec![
@@ -150,7 +160,7 @@ impl UsageDesc {
                         pkg_id: USAGE_DESC_PACKAGE,
                         native: None,
                         slots: self.slots().to_vec(),
-                        tags: LAYOUT.to_vec(),
+                        tags: tags.to_vec(),
                     },
                 },
                 PackedEntry::Heap {
@@ -250,7 +260,7 @@ mod tests {
             0,
         ]));
         expected.extend([
-            1, 1, 0x82, 0xCD, 1, 2, 0x82, 0xCD, 3, 0x82, 0xCD, 2, 0x82, 0xCD, 2, 1, 2, 2, 2, 2,
+            1, 1, 0x84, 0xCD, 1, 2, 0x84, 0xCD, 3, 0x82, 0xCD, 2, 0x82, 0xCD, 2, 1, 2, 2, 2, 2,
         ]);
         // Then the message: a loaded native StringInfo (type 0x6A) and no slots.
         expected.extend(words(&[0x4400_0100, 0, 0xFFFF_006A]));

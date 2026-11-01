@@ -85,6 +85,8 @@ pub enum ScriptMessage {
     },
     /// [`function::CLOSE_CONTAINER_DONE`].
     CloseContainerDone { error: u32, container: u64 },
+    /// [`function::DISCRETE_DESTROY_CONTAINED_ITEM`]: the item left the player's containers.
+    DiscreteDestroyContainedItem(u64),
 }
 
 impl ScriptMessage {
@@ -108,6 +110,7 @@ impl ScriptMessage {
             Self::TransmuteAllDone(_) => function::TRANSMUTE_ALL_DONE,
             Self::OpenContainerDone { .. } => function::OPEN_CONTAINER_DONE,
             Self::CloseContainerDone { .. } => function::CLOSE_CONTAINER_DONE,
+            Self::DiscreteDestroyContainedItem(_) => function::DISCRETE_DESTROY_CONTAINED_ITEM,
         }
     }
 
@@ -200,6 +203,7 @@ impl ScriptMessage {
             Self::CloseContainerDone { error, container } => {
                 vec![PackValue::Int(*error), PackValue::LongInt(*container)]
             }
+            Self::DiscreteDestroyContainedItem(item) => vec![PackValue::LongInt(*item)],
         }
     }
 
@@ -345,6 +349,9 @@ impl ScriptMessage {
                     container: a.long()?,
                 })
             }),
+            function::DISCRETE_DESTROY_CONTAINED_ITEM => {
+                decode(&|a| Ok(Self::DiscreteDestroyContainedItem(a.long()?)))
+            }
             _ => return None,
         })
     }

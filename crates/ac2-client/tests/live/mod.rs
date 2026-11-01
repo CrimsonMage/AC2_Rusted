@@ -116,7 +116,9 @@ impl LiveRig {
             server,
             account: account.clone(),
             credential: Credential::Account,
-            version: ac2_net::default_version().into(),
+            // The logon's data version; the DVD DATs log on as 7230 (AC2e takes 7148 / 7230 only).
+            version: std::env::var("AC2E_LIVE_VERSION")
+                .unwrap_or_else(|_| ac2_net::default_version().into()),
             character: CharacterChoice::Wait,
             server_key: None,
             language: 0,
@@ -311,6 +313,36 @@ impl LiveRig {
         self.frame(&[(LEFT, 1.0, true)]);
         self.frame(&[(LEFT, 1.0, false)]);
         self.run(0.1);
+    }
+}
+
+impl LiveRig {
+    /// A pointer move to `at` (window pixels), in one frame.
+    pub fn point(&mut self, at: (i32, i32)) {
+        self.frame(&[
+            (UI_POINTER_X, at.0 as f32, true),
+            (UI_POINTER_Y, at.1 as f32, true),
+        ]);
+    }
+
+    /// The left button down or up.
+    pub fn button(&mut self, down: bool) {
+        self.frame(&[(LEFT, 1.0, down)]);
+    }
+
+    /// Presses at `from`, moves in steps to `to` and releases there, then runs frames for the
+    /// server's answer (a drag and drop through the HUD, as the player does it).
+    pub fn drag(&mut self, from: (i32, i32), to: (i32, i32)) {
+        self.point(from);
+        self.button(true);
+        for step in 1..=4 {
+            let t = step as f32 / 4.0;
+            let x = from.0 as f32 + (to.0 - from.0) as f32 * t;
+            let y = from.1 as f32 + (to.1 - from.1) as f32 * t;
+            self.point((x.round() as i32, y.round() as i32));
+        }
+        self.button(false);
+        self.run(0.5);
     }
 }
 

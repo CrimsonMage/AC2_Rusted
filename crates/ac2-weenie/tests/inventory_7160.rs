@@ -196,7 +196,9 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
         s.script_requests,
         vec![
             ScriptRequest::MoveItem(InvMoveDesc::new(B, PLAYER, 1, PACK, 0, 1)),
-            ScriptRequest::ReorganizeContents(InvMoveDesc::new(A, PLAYER, 0, PLAYER, 1, 1)),
+            ScriptRequest::ReorganizeContents(
+                InvMoveDesc::new(A, PLAYER, 0, PLAYER, 1, 1).with_native_tags()
+            ),
             ScriptRequest::MoveItem(InvMoveDesc::new(C, PLAYER, 0, LANDBLOCK, -1, 1)),
             ScriptRequest::EquipItem(InvEquipDesc::equip(A, PLAYER, 0x20, PLAYER, 0)),
             ScriptRequest::UnequipItem(InvEquipDesc::unequip(E, PLAYER, 0x10, 0)),

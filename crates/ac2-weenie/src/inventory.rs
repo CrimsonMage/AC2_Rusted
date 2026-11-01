@@ -245,6 +245,16 @@ impl InventoryState {
         out
     }
 
+    /// `CContainer` 0x2 (`RecvCEvt_DiscreteDestroyContainedItem`): the item is gone from the
+    /// container it was in (a sale, a crafting input, a drop to the ground), which lists the
+    /// rest again.
+    pub fn discrete_destroy(&mut self, item: u64) -> Vec<GameplayNotice> {
+        self.remove(item)
+            .map(refresh_container)
+            .into_iter()
+            .collect()
+    }
+
     /// `CInventorySystem` 0xC (`EquipItem_Done`): the item leaves its container and takes its
     /// location.
     pub fn equip_done(&mut self, d: &InvEquipDesc) -> Vec<GameplayNotice> {

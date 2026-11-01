@@ -32,17 +32,45 @@ impl OnlineSession {
         target_slot: i32,
         quantity: i32,
     ) {
+        // An item taken out of another container into the player (a body's loot): the player is
+        // the target, not a slot of it, so the packet has the source slot 0 and no target slot
+        // (-1), where it lands in the first free slot, as the retail client's packets do (AC2e
+        // checks them, `loot::decode`).
+        let into_player = Some(target) == self.world.player() && target != from;
+        let (from_slot, target_slot) = if into_player && from != 0 {
+            (0, -1)
+        } else {
+            (from_slot, target_slot)
+        };
         let desc = InvMoveDesc::new(item, from, from_slot, target, target_slot, quantity);
         let own_pack = Some(target) == self.world.player() && target == from;
         let request = if own_pack {
             if from_slot == target_slot {
                 return;
             }
-            ScriptRequest::ReorganizeContents(desc)
+            ScriptRequest::ReorganizeContents(desc.with_native_tags())
         } else {
             ScriptRequest::MoveItem(desc)
         };
         self.send(request.to_event());
+    }
+
+    /// `gm3DItemsUI::FinishItemDrop` -> `gmCWInterface::MoveItem` with no target (the ground):
+    /// the player's scripts name the landblock `landblock_cell` is in as the target, with no
+    /// slot (-1), as the retail client's packets do (the ids and numbers typed like a
+    /// reorganization's, [`InvMoveDesc::with_native_tags`]).
+    pub fn drop_item(
+        &mut self,
+        item: u64,
+        from: u64,
+        from_slot: i32,
+        landblock_cell: u32,
+        quantity: i32,
+    ) {
+        let landblock = u64::from(landblock_cell & 0xFFFF_0000);
+        let desc =
+            InvMoveDesc::new(item, from, from_slot, landblock, -1, quantity).with_native_tags();
+        self.send(ScriptRequest::MoveItem(desc).to_event());
     }
 
     /// `gmCWInterface::EquipItem` -> `Inventory` 0x21 -> `CInventorySystem` 0x16: wield `item`
@@ -158,6 +186,7 @@ impl OnlineSession {
                 | function::TRANSMUTE_ALL_DONE
                 | function::OPEN_CONTAINER_DONE
                 | function::CLOSE_CONTAINER_DONE
+                | function::DISCRETE_DESTROY_CONTAINED_ITEM
         );
         if !known || (!player && func != function::CONTAINER_CONTENTS) {
             return None;
@@ -197,6 +226,7 @@ impl OnlineSession {
             ScriptMessage::CloseContainerDone { error, container } => {
                 inv.close_done(error, container)
             }
+            ScriptMessage::DiscreteDestroyContainedItem(item) => inv.discrete_destroy(item),
             _ => return None,
         };
         Some(notices.into_iter().map(SessionEvent::Notice).collect())

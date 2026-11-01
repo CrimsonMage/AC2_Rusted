@@ -566,7 +566,19 @@ impl World {
                 return false;
             }
         }
-        // `StartEntityCreation` / `FinishEntityCreation`: a new instance replaces the old.
+        // `StartEntityCreation` / `FinishEntityCreation`: a new instance replaces the old, which
+        // `FinishEntityCreation` takes through `DestroyObjectInternal` first. That drops the old
+        // instance's pending deletion with it (a `DestroyObject` for the old instance that is
+        // still queued would otherwise delete the new one at the next `UseTime`), as the server
+        // does to re-create an item that is wielded or put away.
+        // The events held for the new instance stay (they wait under the id).
+        if Some(object.id) != self.player && self.objects.get(object.id).is_some() {
+            let held = self.waiting.remove(&object.id);
+            self.destroy_object_internal(object.id);
+            if let Some(held) = held {
+                self.waiting.insert(object.id, held);
+            }
+        }
         self.bookies.insert(
             object.id,
             Bookie {

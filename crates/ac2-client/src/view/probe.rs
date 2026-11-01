@@ -180,6 +180,39 @@ impl ClientView {
         Some(self.window_center(tree, index))
     }
 
+    /// The items shown by the `ItemIcon`s inside the shown element called `within`, in tree order.
+    pub fn item_icons(&self, within: &str) -> Vec<u64> {
+        fn collect(tree: &UiTree, index: usize, icon: u32, data: u32, out: &mut Vec<u64>) {
+            let Some(element) = tree.get(index) else {
+                return;
+            };
+            if !element.visible() {
+                return;
+            }
+            // An emptied slot keeps its token but loses its image (`ContainerDisplay::RemoveItem`).
+            if element.id() == icon && element.image().is_some() {
+                if let Some(AttributeValue::InstanceId(item)) = element.attribute(data) {
+                    out.push(*item);
+                }
+            }
+            for &child in tree.children(index) {
+                collect(tree, child, icon, data, out);
+            }
+        }
+        let Some((tree, _)) = self.hud.hud.as_ref() else {
+            return Vec::new();
+        };
+        let data = tokenize("Token_ShortcutData");
+        let icon = tokenize("ItemIcon");
+        let mut out = Vec::new();
+        for &root in tree.roots() {
+            if let Some(outer) = find(tree, root, tokenize(within), &|_, _| true) {
+                collect(tree, outer, icon, data, &mut out);
+            }
+        }
+        out
+    }
+
     /// The window pixel at the centre of slot `index` of the `ContainerListBox` inside the shown
     /// element called `within` (`PackMainContainer`, `ExternalContainer`).
     pub fn container_slot_center(&self, within: &str, index: usize) -> Option<(i32, i32)> {

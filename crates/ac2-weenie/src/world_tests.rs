@@ -57,6 +57,7 @@ fn opcodes(events: &[WorldEvent]) -> Vec<u32> {
             WorldEvent::Dispatched(ServerEvent::CreateObject(_)) => 0x10058,
             WorldEvent::Dispatched(ServerEvent::Object(_)) => 0x100A9,
             WorldEvent::Dispatched(ServerEvent::CharacterSet(_)) => 0x10055,
+            WorldEvent::Destroyed(_) => 0x100C2,
             other => panic!("unexpected {other:?}"),
         })
         .collect()
@@ -141,7 +142,8 @@ fn events_for_unknown_objects_wait_and_visual_order_is_kept() {
         .receive(blob(0x0200_0000, 13, set_mode(npc, 5, 1, 0x55)), 0.0)
         .is_empty());
     let events = world.receive(blob(0x0300_0004, 4, create_object(npc, 5, 0)), 0.0);
-    assert_eq!(opcodes(&events), [0x10058, 0x100A9]);
+    // The newer instance replaces the old (`FinishEntityCreation` destroys it first).
+    assert_eq!(opcodes(&events), [0x100C2, 0x10058, 0x100A9]);
     assert_eq!(world.objects.get(npc).unwrap().mode, Some(0x55));
 }
 
@@ -248,6 +250,23 @@ fn a_destroyed_object_goes_at_the_next_object_maintenance() {
         11.0,
     );
     assert!(world.use_time(11.0).is_empty());
+}
+
+/// `CObjectMaint::FinishEntityCreation` takes the old instance through `DestroyObjectInternal`,
+/// which drops its pending deletion: a server that destroys an item and creates its next
+/// instance in one batch (AC2e's equip) keeps the new one.
+#[test]
+fn a_new_instance_keeps_the_pending_deletion_of_the_old_one_from_destroying_it() {
+    let npc = 0x7000_0000_0000_0042;
+    let mut world = world_with(npc);
+    world.receive(
+        blob(0x0300_0004, 4, object_event(0x0001_00C2, npc, 4, &[])),
+        10.0,
+    );
+    let events = world.receive(blob(0x0300_0005, 5, create_object(npc, 5, 0)), 10.0);
+    assert!(events.contains(&WorldEvent::Destroyed(npc)));
+    assert!(world.use_time(10.5).is_empty());
+    assert!(world.objects.get(npc).is_some());
 }
 
 /// `CObjectMaint::FadeAndDestroyObject`: the object is a pending deletion due `destruction`

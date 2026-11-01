@@ -344,7 +344,8 @@ impl PlayerScript {
             | ScriptMessage::LootAllDone(_)
             | ScriptMessage::TransmuteAllDone(_)
             | ScriptMessage::OpenContainerDone { .. }
-            | ScriptMessage::CloseContainerDone { .. } => {}
+            | ScriptMessage::CloseContainerDone { .. }
+            | ScriptMessage::DiscreteDestroyContainedItem(_) => {}
             // `CExaminationSystem` 0x2: kept on the examined object's weenie, then shown.
             ScriptMessage::ExaminationProfile(profile) => {
                 if matches!(

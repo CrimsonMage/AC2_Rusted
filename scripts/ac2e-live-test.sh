@@ -8,7 +8,9 @@
 #   scripts/ac2e-live-test.sh [cargo test filter and options]
 #
 # AC2E_LIVE_PROFILE picks the cargo profile (default release; `dev` builds much faster).
-# AC2E_LIVE_TEST names the test target (a file in crates/ac2-client/tests; default ac2e_live).
+# AC2E_LIVE_TEST picks the test target (default ac2e_live; ac2e_live_inventory needs the Legions
+# profile: AC2_DAT_DIR on the DVD DATs, AC2E_DATA=legions for the server and AC2E_LIVE_VERSION=7148
+# for the client's logon, which is what that profile accepts; see tests/ac2e_live_inventory.rs).
 #
 # Needs AC2_DAT_DIR (the 7230 DATs) and the AC2e checkout scripts/ac2e-server.sh uses (AC2E_DIR).
 set -euo pipefail

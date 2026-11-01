@@ -107,6 +107,12 @@ impl Instance {
         root.tags[slot] = I;
     }
 
+    /// Overrides the tag byte of `slot` (the script's type tag: 4 an unsigned value and 0x84 an
+    /// unsigned 64-bit one, which natives write, against 2 and 0x82 of the script's own integers).
+    pub(super) fn set_tag(&mut self, slot: usize, tag: u8) {
+        self.root_mut().tags[slot] = tag;
+    }
+
     /// `rstore_L`: both words, the first word's tag only (the second keeps its own).
     pub(super) fn set_long(&mut self, slot: usize, value: u64) {
         let root = self.root_mut();
@@ -160,6 +166,30 @@ impl InvMoveDesc {
         i.set_long(28, item);
         i.set_word(25, quantity as u32);
         d
+    }
+
+    /// The tags a drag in the pack and a drop onto the ground carry: the ids and slot numbers the
+    /// drag takes from the UI's natives are typed (0x84 on a 64-bit id, 4 on a number), where
+    /// the script's own integers are 0x82 and 2. A reorganization or drop is the one request
+    /// whose graph has them (a move out of a container, `LootAll` and the rest keep the
+    /// script's); AC2e checks them against the retail client's packets
+    /// (`inventory_request::TAGS`). The source slot and the quantity are typed only when they are
+    /// not the zero and one of the script's constants.
+    pub fn with_native_tags(mut self) -> Self {
+        let i = &mut self.0;
+        for slot in [2, 8, 16, 28, 32, 36, 44] {
+            i.set_tag(slot, 0x84);
+        }
+        for slot in [6, 11, 22, 24, 26, 38, 39, 50] {
+            i.set_tag(slot, 4);
+        }
+        if i.word(1) != 0 {
+            i.set_tag(1, 4);
+        }
+        if i.word(25) > 1 {
+            i.set_tag(25, 4);
+        }
+        self
     }
 
     pub fn from_reference(reference: &PackedReference) -> Result<Self, ProtocolError> {
@@ -245,6 +275,20 @@ impl Default for InvEquipDesc {
 }
 
 impl InvEquipDesc {
+    /// The tags of an equip or unequip request: the item, the user, the location and the slot
+    /// come from natives, typed 0x84 and 4 (AC2e checks them against the retail client's packets,
+    /// `equipment::EquipRequest`).
+    fn native_tags(mut self) -> Self {
+        let i = &mut self.0;
+        for slot in [3, 8, 10] {
+            i.set_tag(slot, 0x84);
+        }
+        for slot in [7, 15, 18] {
+            i.set_tag(slot, 4);
+        }
+        self
+    }
+
     /// `InvEquipDesc` 0x2B: `user` equips `item` at `location`.
     fn base(item: u64, user: u64, location: u32) -> Self {
         let mut d = Self::default();
@@ -267,7 +311,7 @@ impl InvEquipDesc {
         let mut d = Self::base(item, user, location);
         d.0.set_long(10, from);
         d.0.set_word(18, from_slot as u32);
-        d
+        d.native_tags()
     }
 
     /// `gmCWInterface::UnEquipItem` -> `Inventory` 0x9: take `item` off `location` into slot
@@ -277,7 +321,8 @@ impl InvEquipDesc {
         d.0.set_word(6, target_slot as u32);
         d.0.set_word(18, target_slot as u32);
         d.0.set_long(10, user);
-        d
+        d.0.set_tag(6, 4);
+        d.native_tags()
     }
 
     pub fn from_reference(reference: &PackedReference) -> Result<Self, ProtocolError> {
@@ -464,6 +509,52 @@ impl Equipment {
 mod tests {
     use super::*;
     use crate::protocol::pack::{pack_values, unpack_values, PackValue};
+
+    fn tags(reference: &PackedReference) -> Vec<u8> {
+        let PackedEntry::Heap { object, .. } = &reference.entries[0] else {
+            panic!()
+        };
+        object.tags.clone()
+    }
+
+    /// The tags AC2e checks a reorganization against (its `inventory_request::TAGS`, from the
+    /// retail client's packets): 0x84 on the ids, 4 on the numbers the UI's natives give.
+    #[test]
+    fn a_reorganization_carries_the_native_tags() {
+        let tagged = |from_slot, quantity| {
+            tags(
+                &InvMoveDesc::new(0x42, 0x7, from_slot, 0x7, 0, quantity)
+                    .with_native_tags()
+                    .to_reference(),
+            )
+        };
+        let expected: [u8; 51] = [
+            2, 2, 0x84, 0xcd, 2, 2, 4, 2, 0x84, 0xcd, 2, 4, 2, 2, 2, 2, 0x84, 0xcd, 0x82, 0xcd, 2,
+            2, 4, 2, 4, 2, 4, 2, 0x84, 0xcd, 1, 2, 0x84, 0xcd, 2, 2, 0x84, 0xcd, 4, 4, 2, 2, 2, 2,
+            0x84, 0xcd, 2, 2, 2, 2, 4,
+        ];
+        assert_eq!(tagged(0, 1), expected);
+        // A source slot that is not 0 and a stack are typed as numbers too.
+        let mut moved = expected;
+        moved[1] = 4;
+        moved[25] = 4;
+        assert_eq!(tagged(3, 5), moved);
+    }
+
+    /// The tags of an equip and an unequip request (AC2e's `equipment::EquipRequest`).
+    #[test]
+    fn an_equip_carries_the_native_tags() {
+        let equip = InvEquipDesc::equip(0x42, 0x7, 0x40, 0x7, 3);
+        assert_eq!(
+            tags(&equip.to_reference()),
+            [2, 1, 2, 0x84, 0xcd, 2, 2, 4, 0x84, 0xcd, 0x84, 0xcd, 2, 2, 2, 4, 0x82, 0xcd, 4]
+        );
+        let unequip = InvEquipDesc::unequip(0x42, 0x7, 0x40, 2);
+        assert_eq!(
+            tags(&unequip.to_reference()),
+            [2, 1, 2, 0x84, 0xcd, 2, 4, 4, 0x84, 0xcd, 0x84, 0xcd, 2, 2, 2, 4, 0x82, 0xcd, 4]
+        );
+    }
 
     #[test]
     fn a_move_fills_the_constructors_slots_and_round_trips() {

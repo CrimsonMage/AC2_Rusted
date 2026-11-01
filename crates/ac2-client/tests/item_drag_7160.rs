@@ -63,8 +63,9 @@ fn an_item_dragged_to_another_slot_of_the_pack_reorganizes_it() {
     rig.drag(from, to);
     // The sword from slot 1 to slot 0 of the player's own pack: `ReorganizeContents`.
     let sent = requests(&rig, before);
-    let expected =
-        ScriptRequest::ReorganizeContents(InvMoveDesc::new(SWORD, PLAYER, 1, PLAYER, 0, 1));
+    let expected = ScriptRequest::ReorganizeContents(
+        InvMoveDesc::new(SWORD, PLAYER, 1, PLAYER, 0, 1).with_native_tags(),
+    );
     assert_eq!(sent, std::slice::from_ref(&expected));
     assert_eq!(wire(&sent[0]), wire(&expected));
 }
@@ -167,7 +168,7 @@ fn an_item_from_a_side_pack_dropped_on_the_doll_only_comes_into_the_pack() {
     assert_eq!(
         sent,
         [ScriptRequest::MoveItem(InvMoveDesc::new(
-            RATIONS, PACK, 0, PLAYER, 0, 1
+            RATIONS, PACK, 0, PLAYER, -1, 1
         ))]
     );
 }

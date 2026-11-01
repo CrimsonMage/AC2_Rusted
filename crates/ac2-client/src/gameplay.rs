@@ -661,14 +661,26 @@ impl Client {
                     target_slot,
                     quantity,
                 } => {
-                    self.session.move_item(
-                        *item,
-                        *from,
-                        *from_slot,
-                        *target,
-                        *target_slot,
-                        *quantity,
-                    );
+                    let cell = self
+                        .player
+                        .as_ref()
+                        .and_then(|p| p.body.as_ref())
+                        .map(|b| b.physics.movement_state().cell_id);
+                    match cell {
+                        // No target: a drop on the ground, which names the landblock.
+                        Some(cell) if *target == 0 => {
+                            self.session
+                                .drop_item(*item, *from, *from_slot, cell, *quantity);
+                        }
+                        _ => self.session.move_item(
+                            *item,
+                            *from,
+                            *from_slot,
+                            *target,
+                            *target_slot,
+                            *quantity,
+                        ),
+                    }
                     Vec::new()
                 }
                 Command::EquipItem { item, location } => {
@@ -681,10 +693,20 @@ impl Client {
                     self.session.set_container_open(*container, *open);
                     Vec::new()
                 }
-                Command::LootAll(container) => self.script_request(
-                    crate::scripts::IFUN_LOOT_ALL_FROM_CONTAINER,
-                    &[IFunArg::Long(*container)],
-                ),
+                Command::LootAll(container) => {
+                    // The player's script (`CPlayer` 0x157 -> `CInventorySystem` 0x1C) when it
+                    // runs one; a server that gives the player no script package (AC2e) gets
+                    // the request the script would send.
+                    if self.scripts_own(crate::scripts::IFUN_LOOT_ALL_FROM_CONTAINER) {
+                        self.script_request(
+                            crate::scripts::IFUN_LOOT_ALL_FROM_CONTAINER,
+                            &[IFunArg::Long(*container)],
+                        )
+                    } else {
+                        self.session.loot_all(*container);
+                        Vec::new()
+                    }
+                }
                 Command::TransmuteAll(container) => {
                     self.session.transmute_all(*container);
                     Vec::new()

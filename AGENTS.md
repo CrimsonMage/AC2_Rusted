@@ -672,6 +672,21 @@ game rules and server-visible behaviour exactly retail.
   `ac2-login-probe` to the character set and stops it; `scripts/ac2e-server.sh` keeps one running
   for the client (`ac2 --server 127.0.0.1:9000 --account local`). The in-process
   `legions-server-double` stays the 7160 path's test peer.
+- Exception: the inventory requests are composed natively where AC2e gives the player no script
+  process. Retail's `gmCWInterface` calls ran the player's scripts (`CContainer` / `CInventorySystem`),
+  which build the `InvMoveDesc` / `InvEquipDesc` / `UsageDesc` objects and send them; AC2e does not
+  send the player's script package, so `OnlineSession` builds the same objects itself, and
+  AC2e checks them against the retail client's packets byte for byte, so they carry the tags
+  those packets have (0x84 / 4 on what the UI's natives gave, 2 / 0x82 on the script's own
+  integers: `InvMoveDesc::with_native_tags`, `InvEquipDesc`, `UsageDesc::to_reference`). A ground
+  drop (`gm3DItemsUI::FinishItemDrop`, target none) names the player's landblock with no slot
+  (`OnlineSession::drop_item`); a move of an item out of another container into the player (a
+  body's loot) sends source slot 0 and target slot -1; Loot All is sent natively when the player
+  has no script process (`Command::LootAll`). The server's `WM_Inventory` 0x58
+  (`CContainer::RecvCEvt_DiscreteDestroyContainedItem`) removes the item from the pack list
+  (`InventoryState::discrete_destroy`). A create of a new instance of an object drops the old
+  instance's pending deletion (`CObjectMaint::FinishEntityCreation` -> `DestroyObjectInternal`),
+  since AC2e re-creates a wielded or put-away item with the old instance's destroy ahead of it.
 - `crates/` is the client. `tools/` holds test tooling only; the world viewer is an offline
   harness and never connects to a server.
 - Close-out reports list `Retail Behavior traced:`, `Verification:` and `Known Gaps:`.

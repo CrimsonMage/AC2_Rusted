@@ -137,6 +137,9 @@ pub mod function {
     /// S->C, `WM_Inventory` 0x56 -> `CPlayer` 0x7B -> `CInventorySystem` 0x14
     /// (`UnEquipItem_Done`).
     pub const UNEQUIP_ITEM_DONE: u32 = 0x820E_0056;
+    /// S->C, `WM_Inventory` 0x58 -> `CContainer` 0x2 (`RecvCEvt_DiscreteDestroyContainedItem`): an
+    /// item (long int) left the container.
+    pub const DISCRETE_DESTROY_CONTAINED_ITEM: u32 = 0x820E_0058;
     /// S->C, `WM_Player` 0x2C -> `CPlayer` 0x34: `SelectionInfo`, then the object (long int).
     pub const UPDATE_SELECTION_INFO: u32 = 0x8212_002C;
     /// S->C, `WM_Examination` 0x9 -> `CPlayer` 0xDA -> `CExaminationSystem` 0x2:
