@@ -37,7 +37,25 @@ fn wait(rig: &mut LiveRig, what: &str, mut ready: impl FnMut(&mut LiveRig) -> bo
         }
         rig.frame(&[]);
     }
-    panic!("{what}");
+    panic!("{what}; the server said: {:?}", lines(rig));
+}
+
+/// The server's chat lines so far (its `DisplayStringInfo` literals).
+fn lines(rig: &LiveRig) -> Vec<String> {
+    rig.seen
+        .iter()
+        .filter_map(|e| match e {
+            SessionEvent::Interp {
+                function,
+                arguments,
+                ..
+            } => match ScriptMessage::decode(*function, arguments) {
+                Some(Ok(ScriptMessage::DisplayStringInfo { text, .. })) => text.literal,
+                _ => None,
+            },
+            _ => None,
+        })
+        .collect()
 }
 
 /// The player's script process answers (the skill queries need it), and experience is there.
@@ -223,6 +241,30 @@ fn a_skill_is_used_and_its_vigor_is_spent_and_comes_back() {
             .shortcut_array()
             .is_ok_and(|bar| matches!(bar[slot as usize], ShortcutInfo::Enum { value: HEAL, .. }))
     });
+    // The skill wants an item in the right hand (its skill record's hand requirement, which the
+    // server checks): the starter weapon is wielded first, as the player must.
+    const PRIMARY_HAND: u32 = 0x40;
+    let weapon = rig
+        .client
+        .frame()
+        .inventory
+        .items
+        .iter()
+        .find(|i| i.stats.preferred_location & PRIMARY_HAND != 0)
+        .map(|i| i.id)
+        .expect("a weapon in the starter gear");
+    rig.command(ac2_client::Command::EquipItem {
+        item: weapon,
+        location: PRIMARY_HAND,
+    });
+    wait(&mut rig, "the weapon wielded", |r| {
+        r.client
+            .frame()
+            .inventory
+            .equipped
+            .iter()
+            .any(|&(location, _)| location == PRIMARY_HAND)
+    });
     let vitals = |rig: &LiveRig| rig.client.frame().player_vitals;
     let before = vitals(&rig);
     let (health, vigor) = (before.health.unwrap(), before.vigor.unwrap());
@@ -242,7 +284,8 @@ fn a_skill_is_used_and_its_vigor_is_spent_and_comes_back() {
     });
     let after = vitals(&rig);
     let spent = vigor.current - after.vigor.unwrap().current;
-    assert_eq!(spent, 10, "the skill's vigor cost");
+    // Ease Suffering's vigor cost in the skill data (`skill-effects.tsv`: 100).
+    assert_eq!(spent, 100, "the skill's vigor cost");
     // The skill healed.
     wait(&mut rig, "the health healed", |r| {
         r.client

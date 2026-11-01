@@ -53,9 +53,12 @@ fi
 
 # AC2e's opt-in for the release (bootstrap.rs). The Legions one also turns on gameplay checks
 # pinned to the DVD records, so it must not be set for 7230.
+# The development training kit (starter gear, crafting, training supplies, the active-skill
+# rules) runs on the 7230 data; the Legions profile's gameplay checks are pinned to the DVD
+# records and run without it. Later `--training-kit` options win.
 case ${AC2E_DATA:-7230} in
-  7230) ;; # AC2e serves the 7230 data as its 7230 profile (to version 7230 logons).
-  legions) export PYREALIUM_UNREAL_LEGIONS_DATA=1 ;;
+  7230) training_kit=true ;; # AC2e serves the 7230 data as its 7230 profile (to version 7230 logons).
+  legions) export PYREALIUM_UNREAL_LEGIONS_DATA=1; training_kit=false ;;
   *) echo "AC2E_DATA must be 7230 or legions" >&2; exit 1 ;;
 esac
 
@@ -67,5 +70,5 @@ if [ -f "$lock" ] && ! kill -0 "$(head -n 1 "$lock")" 2>/dev/null; then rm -f "$
 
 if [ -n "${AC2E_GUN_BIND:-}" ]; then set -- --gun-bind "$AC2E_GUN_BIND" "$@"; fi
 exec "$bin" serve --bind "$bind" --data "$state/data" \
-  --game-data "$dats" --content "$content" --initialize-ui true --training-kit false \
+  --game-data "$dats" --content "$content" --initialize-ui true --training-kit "$training_kit" \
   --lifestones true --portals true --test-map-travel true "$@"
