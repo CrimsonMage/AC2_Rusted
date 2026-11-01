@@ -337,7 +337,7 @@ fn examining_an_object_after_opening_the_skill_panel_shows_its_profile() {
         ac2_net::protocol::ExaminationRequest::object(target),
     ));
     rig.view.open_examination();
-    let shown = rig.until(20.0, |r| r.view.examination_texts().iter().any(|t| *t == name));
+    let shown = rig.until(20.0, |r| r.view.examination_texts().contains(&name));
     assert!(
         shown,
         "the examination shows no profile: {:?}",
