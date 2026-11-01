@@ -33,7 +33,8 @@ AC2 class has one home. A crate may depend only on crates above it.
 
 | Crate | Owns |
 |---|---|
-| `ac2-core` | ids (`DataId`, `CellId`), `Random`, shared enums and flags, timers |
+| `ac2-core` | ids (`DataId`, `CellId`), `Random`, shared enums and flags, timers, the data release |
+| `ac2-prefs` | `Preferences.ini` and `PreferenceBank`: the preferences, their sections and defaults |
 | `ac2-math` | `Vector`, `Frame`, `Waveform`, bounds, cell `Position` offset rules |
 | `ac2-dat` | DAT mounting: B-tree lookup, positioned record reads, the binary unpack cursor |
 | `ac2-db` | typed `DBObj` decode cache, `MasterProperty`, enum id maps, string tables |
@@ -49,10 +50,11 @@ AC2 class has one home. A crate may depend only on crates above it.
 | `ac2-ui` | input maps, UI elements and layouts from the DATs, the game panels |
 | `ac2-script` | the WSL script VM and its native glue (much of the UI and gameplay runs on it) |
 | `ac2-audio` | sound records, `SoundManager`, the music queue, the DLS synthesizer, mixer and output |
+| `ac2-gameplay` | the rules for the quests, characters, crafting and conversations the client receives |
+| `ac2-guide` | the in-client quest guide: the AC2Hero site baked in at build time (a modern addition) |
+| `ac2-macro` | player automation (the Tracker), as pure policy (a modern addition) |
 | `ac2-client` | the program: window, input, login and character screens, the world loop, `ClientView` |
-
-`ac2-gameplay` (characters, quests, fellowships, crafting) is planned and has no crate yet; the
-catalog already lists its functions.
+| `ac2-launcher` | the `ac2-launcher` program: servers, sign-in and the client's start (a modern addition) |
 
 `tools/` is test tooling only:
 
@@ -61,6 +63,10 @@ catalog already lists its functions.
 | `world-viewer` | the offline world viewer (below); never connects, changes no client crate |
 | `race-table` | runs the `CharacterGenSystem` script once and writes the playable race and sex models the viewer reads |
 | `legions-server-double` | an in-process Legions 7160 server for the client's tests |
+| `ac2-login-probe` | the network logon alone against a real or local server, stage by stage |
+| `dat-diff` | compares two DAT sets record by record |
+| `ac2hero-guide` | the quest guide as a standalone egui window |
+| `ac2hero-map` | the quest guide's places on a zoomable world map; exports the map for AC2e |
 
 ## Commands
 
@@ -83,23 +89,80 @@ Building many crates at once is heavy; on a small machine use `-j 6` and cap mem
 ### The client
 
 ```bash
-# The windowed client: log on, pick a character (or --character NAME), play
+# Build the client and the launcher (both land in target/release/)
+cargo build --release -p ac2-client --bin ac2 -p ac2-launcher
+
+# The windowed client: log on, pick or create a character, play
 cargo run --release -p ac2-client --bin ac2 -- --dat-dir "$AC2_DAT_DIR" \
-    --server 127.0.0.1:9000 --account local [--version 7160] [--client-exe PATH] [--radius 1]
+    --host 127.0.0.1 --port 9000 --account local
+```
+
+| Option | Meaning |
+|---|---|
+| `--dat-dir DIR` | the DATs (else `AC2_DAT_DIR`) |
+| `--host NAME`, `--port N` | the server (retail's `-h` / `-p`); `--server HOST:PORT` gives both |
+| `--account NAME` | the account (lower-cased, as retail) |
+| `--glsticketdirect PASS` | password logon; `--glsticket FILE` reads the ticket from a file and deletes it (the launcher's way) |
+| `--version V` | the logon's data version: by default the DATs' release (`7230` for the 7230 data, `7160` for the DVD's); `7148` for servers that take only the admin build, `1802` for the relaunch servers |
+| `--character NAME` | enter with this character, skipping character selection |
+| `--intro` | show the intro's pictures before the connecting screen (skipped by default) |
+| `--width N`, `--height N` | the window's first size |
+| `--radius N` | the resident ring of landblocks (by the graphics quality without it) |
+| `--prefs FILE` | `Preferences.ini` (default: the AC2 configuration directory) |
+| `--language NAME` | the language, mounting its `local_NAME.dat` |
+| `--content-dir DIR` | the help pages (else `Content` beside the DATs, then `AC2_CONTENT_DIR`) |
+| `--chargen FILE` | also capture every created character to FILE |
+| `--gunserver HOST`, `--gunport N`, `--gunticket`, `--gunticketoverride T` | a shared GUN server, retail's arguments |
+| `--no-gun` | no GUN; without it the client uses the game server's own GUN service (port 2310) |
+
+### The launcher
+
+The launcher stores the player's servers and starts the client with the right command line for
+each, as ThwargLauncher does (`docs/server-list.md`). With no arguments it opens its window.
+
+```bash
+cargo run --release -p ac2-launcher                       # the window
+target/release/ac2-launcher set dat-dir "$AC2_DAT_DIR"    # also: set client PATH, set list ADDRESS
+target/release/ac2-launcher add "AC2e Test Server" 127.0.0.1:9000 AC2E [--login-server URL]
+target/release/ac2-launcher list
+target/release/ac2-launcher play "AC2e Test Server" [--account NAME]   # a password on stdin
+```
+
+The launcher finds `ac2` beside itself unless `set client` names it.
+
+### Probes and test servers
+
+```bash
+# Log on alone and report each stage, quitting at character selection
+cargo run --release -p ac2-login-probe -- --host 127.0.0.1 --port 9000 --account local \
+    [--version 7230] [--glsticketdirect PASS] [--dat-dir DIR] [--timeout 45] \
+    [--gunserver HOST [--gunport 2310] [--gunticketoverride T] [--gunfriend NAME]]
 
 # Headless: log on, enter, walk forward over the DATs' terrain, print the frames, log off
 cargo run -p ac2-client --example headless_probe -- --dat-dir "$AC2_DAT_DIR" \
-    [--server 127.0.0.1:9000] [--account local] [--seconds 4] [--walk 0.5] [--character NAME]
+    [--server 127.0.0.1:9000] [--account local] [--version V] [--client-exe PATH] \
+    [--seconds 4] [--walk 0.5] [--character NAME]
 
 # Headless log-on and protocol check, with optional lossy-network simulation
 cargo run -p ac2-weenie --example online_probe -- --server 127.0.0.1:9000 --account local \
-    [--password PW] [--character NAME] [--seconds 10] [--walk 2.0] [--version 7160] \
-    [--client-exe PATH] [--dat-dir PATH] [--loss DROP,DUPLICATE,HOLD,MAX_HOLD] [--seed N]
+    [--password PW] [--character NAME] [--seconds 10] [--walk 2.0] [--version V] \
+    [--client-exe PATH] [--dat-dir PATH] [--language NAME] \
+    [--loss DROP,DUPLICATE,HOLD,MAX_HOLD] [--seed N]
+
+# Sign in at an AC2e account service with the launcher's code (password on stdin)
+cargo run -p ac2-launcher --example sign_in -- URL ACCOUNT
 ```
 
-The Legions DVD client logs on as `7160`; servers that only take the admin build need
-`--version 7148`. `--client-exe` reads the RSA key a retail `ac2client.exe` carries, as retail
-does.
+`--client-exe` reads the RSA key a retail `ac2client.exe` carries, as retail does.
+
+Live testing is against a local AC2e server on the 7230 DATs. `AC2E_DIR` names the AC2e checkout
+(default `../third_party/ac2e-src/repo`); `AC2E_BIND` and `AC2E_GUN_BIND` move its ports:
+
+```bash
+scripts/ac2e-server.sh                 # keep a server running on 127.0.0.1:9000 (GUN on 2310)
+scripts/ac2e-login-test.sh             # start one, log on to the character set (and GUN), stop it
+scripts/ac2e-launcher-test.sh          # the launcher's sign-in and start against AC2e accounts
+```
 
 The HUD is the client's modern style by default: the retail frameworks over the DAT layouts,
 restyled (glass windows, the shortcut strip and dock, the inventory drawer, chat tabs) with the
@@ -163,6 +226,24 @@ target/release/race-table --dat-dir "$AC2_DAT_DIR" --out ~/.cache/ac2-world-view
 The HUD's vitals, skills and shortcut panels stay empty offline: they wait on the online
 client's `frameworks` pass. The viewer links the client's libraries but never opens a socket and
 takes no `--server` flag.
+
+### Other tools
+
+```bash
+# Compare two DAT sets: records added, removed or changed, per file and record type
+cargo run --release -p dat-diff -- OLD_DIR NEW_DIR [--tsv OUT.tsv]
+
+# The quest guide (needs AC2HERO_DIR at build time, or --mirror at run time)
+cargo run --release -p ac2hero-guide -- [--mirror DIR] [--page TITLE] [--stats]
+cargo run --release -p ac2hero-map -- [--mirror DIR] [--dat-dir DIR] [--snapshot OUT.png] \
+    [--screenshot OUT.png [--at COORD] [--zoom PX_PER_CELL]] [--size WxH] [--bare 1] \
+    [--player "COORD@HEADING"] [--export DIR]
+
+# Redraw the modern HUD's panel icons from AC2's and AC1's DATs
+cargo run -p ac2-ui --example bake_panel_icons -- AC2_DAT_DIR AC1_DAT_DIR [OUT_DIR]
+
+scripts/check_file_sizes.sh            # the 1000 / 1500 line gate
+```
 
 ### The retail catalog
 
