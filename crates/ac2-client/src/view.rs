@@ -100,21 +100,14 @@ pub struct ClientView {
     world_drawn: bool,
 }
 
-/// The portal space's draws, with the tunnel's materials (`PortalSpace::Effect::Initialize`'s
-/// `0x40000013` and `0x40000014`), the background mesh and the clouds' material decoded and
-/// uploaded here, at setup, not on the frame thread.
+/// The portal space's draws, with the tunnels' material instances
+/// (`PortalSpace::Effect::Initialize`'s `0x40000013` and `0x40000014`), the background mesh and
+/// the clouds' material decoded and uploaded here, at setup, not on the frame thread.
 fn portal_draw(gpu: &Gpu, store: &ac2_db::ResourceStore) -> ac2_gpu::PortalDraw {
     let mut portal = ac2_gpu::PortalDraw::new(gpu);
-    let materials = crate::portal_materials(store);
     let models = ac2_render::portal::load_portal_models(store);
     let mut load = |key| ac2_render::load_image(store, key).ok().flatten();
-    portal.preload(
-        gpu,
-        DataId::new(materials.inner),
-        DataId::new(materials.outer),
-        &models,
-        &mut load,
-    );
+    portal.preload(gpu, &models, &mut load);
     portal
 }
 

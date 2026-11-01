@@ -92,8 +92,8 @@ fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
     let mut client = Client::new(session, Arc::new(dat_world));
     // `PortalSpace::Effect::Initialize`'s cloud system, as the binary sets it at startup.
     client.set_portal_clouds(ac2_render::portal::load_clouds_desc(&store));
-    // The tunnel's materials, from the DAT's enum map (the view uploads them itself).
-    let portal_mats = ac2_client::portal_materials(&store);
+    // The tunnels' material instances, from the DAT's enum map (the view uploads them itself).
+    let portal_models = ac2_render::portal::load_portal_models(&store);
     let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
         .unwrap()
         .expect("the script library");
@@ -244,19 +244,13 @@ fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
     eprintln!("town mean {town_mean:.1}, tunnel mean {tunnel_mean:.1}");
     // The world is not drawn (`world_drawn` above); the tunnel's brightness is its own, so the
     // town's is not a bound on it.
-    // The rings are textured with the DAT's materials (0x40000013 inner, 0x40000014 outer): both
-    // resolve to an image, and the tunnel's pixels vary (a flat fill would not).
+    // The rings draw through the DAT's material instances (0x40000013 inner, 0x40000014
+    // outer), as `RenderIndexedUsingMaterial` does: both load with their layers, and the
+    // tunnel's pixels vary (a flat fill would not).
     assert!(
-        portal_mats.inner != 0 && portal_mats.outer != 0,
+        portal_models.inner_tunnel.is_some() && portal_models.outer_tunnel.is_some(),
         "the tunnel materials"
     );
-    for material in [portal_mats.inner, portal_mats.outer] {
-        let image = ac2_render::load_material_image(&store, ac2_core::DataId::new(material));
-        assert!(
-            matches!(image, Ok(Some(_))),
-            "material {material:#x} has no texture"
-        );
-    }
     let colours: std::collections::HashSet<[u8; 3]> = tunnel_rgba
         .chunks_exact(4)
         .map(|px| [px[0], px[1], px[2]])

@@ -16,7 +16,6 @@ mod object_pipelines;
 mod object_state;
 mod pixel_program;
 mod portal_space;
-mod portal_tunnel;
 mod post;
 mod quality;
 mod scene;
@@ -45,7 +44,6 @@ pub use object::{
     sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer, Previous,
 };
 pub use portal_space::PortalDraw;
-pub use portal_tunnel::{PortalTunnel, TUNNEL_VERTICES};
 pub use quality::{quality_level_for, suggested_quality_level};
 pub use scene::SceneRenderer;
 pub use screen_quad::ScreenQuad;

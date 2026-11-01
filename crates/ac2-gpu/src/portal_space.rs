@@ -2,44 +2,46 @@
 //! camera over a cleared depth, in retail's order: the full-screen fader (`DrawScreenQuad` of
 //! `m_cFaderColor`, SRCALPHA over INVSRCALPHA) first when it covers only the world
 //! (`m_bFadeOnlyWorld`), the background mesh at the eye (`CBaseMesh::DrawMesh` with the
-//! background opacity as its alpha), the tunnel rings (the outer, then the inner, textured with
-//! their materials from the DAT), the clouds' particles (`ParticleSystem::Render`), and the fader
-//! last otherwise. The mesh and the particles draw through the object renderer with no lights,
+//! background opacity as its alpha), the tunnel rings (the outer, then the inner, each through its
+//! DAT material instance as `RenderIndexedUsingMaterial` draws it), the clouds' particles
+//! (`ParticleSystem::Render`), and the fader last otherwise. The mesh, the tunnels and the
+//! particles draw through the object renderer with no lights,
 //! sun or fog: `Render` calls `UnlinkAllLights` (no scene lights), `DisableSunlight` (the sun's
 //! direction zeroed and the device ambient set to black, `RenderDevice` vtable `+0x4c`, the same
 //! slot `SetAmbientLight` calls) and `SetFogProperties(FOGMODE_NONE)`.
 //!
-//! The models, their images and the ring textures are uploaded by [`PortalDraw::preload`] at
-//! setup, never on the frame thread: a frame only uses what was uploaded.
+//! The models and their images are uploaded by [`PortalDraw::preload`] at setup, never on the
+//! frame thread: a frame only uses what was uploaded (and the tunnels' rewritten vertices).
 
-use ac2_core::DataId;
 use ac2_math::Mat4;
 use ac2_render::object::{ObjectEnvironment, ObjectLights};
 use ac2_render::particles::ParticleGeometry;
 use ac2_render::portal::{
-    camera_fov_y, Draw, PortalCamera, PortalModels, Tunnel, TunnelFrame, CAMERA_FAR, CAMERA_NEAR,
+    camera_fov_y, tunnel_object_vertices, Draw, PortalCamera, PortalModels, Tunnel, TunnelFrame,
+    CAMERA_FAR, CAMERA_NEAR,
 };
 use ac2_render::Image;
 
 use crate::{
-    DrawGroup, Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, PortalTunnel, ScreenQuad,
-    TextureCache, TextureKey, HDR_FORMAT,
+    DrawGroup, Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad, TextureKey,
+    HDR_FORMAT,
 };
 
-/// The portal space's draws: the fader, the background mesh, the tunnel with its textures and the
-/// clouds.
+/// The portal space's draws: the fader, the background mesh, the tunnels and the clouds.
 pub struct PortalDraw {
     fader: ScreenQuad,
     fader_drawn: bool,
     /// `m_bFadeOnlyWorld`: the fader is drawn before the tunnels (the startup fade), else after.
     fader_first: bool,
-    tunnel: PortalTunnel,
     tunnel_drawn: bool,
-    /// The tunnel's material textures (inner, outer), uploaded by [`PortalDraw::preload`].
-    materials: Option<(wgpu::TextureView, wgpu::TextureView)>,
-    /// The background mesh and the clouds' material model, drawn by `objects`.
+    /// The tunnels' shared index list (`Initialize`'s index buffer), widened for the renderer.
+    tunnel_indices: Vec<u32>,
+    /// The background mesh, the outer and inner tunnels' and the clouds' material models, drawn
+    /// by `objects`.
     objects: ObjectRenderer,
     background: Option<GpuObjectModel>,
+    outer_tunnel: Option<GpuObjectModel>,
+    inner_tunnel: Option<GpuObjectModel>,
     clouds: Option<GpuObjectModel>,
     /// The mesh's place (translated to the eye) and colour (white at the background opacity).
     background_world: Mat4,
@@ -82,16 +84,21 @@ impl PortalDraw {
     /// The draws into the scene target; the tunnel's index buffer is the effect's, built from a
     /// fresh [`Tunnel`].
     pub fn new(gpu: &Gpu) -> Self {
-        let indices = Tunnel::new().index_buffer();
+        let tunnel_indices = Tunnel::new()
+            .index_buffer()
+            .into_iter()
+            .map(u32::from)
+            .collect();
         Self {
             fader: ScreenQuad::new(gpu, HDR_FORMAT),
             fader_drawn: false,
             fader_first: true,
-            tunnel: PortalTunnel::new(gpu, HDR_FORMAT, &indices),
             tunnel_drawn: false,
-            materials: None,
+            tunnel_indices,
             objects: ObjectRenderer::new(gpu, HDR_FORMAT),
             background: None,
+            outer_tunnel: None,
+            inner_tunnel: None,
             clouds: None,
             background_world: Mat4::IDENTITY,
             background_tint: [1.0; 4],
@@ -100,23 +107,23 @@ impl PortalDraw {
         }
     }
 
-    /// Uploads the tunnel's material textures (`m_pTunnelMaterial`, `m_pOuterTunnelMaterial`) and
-    /// the background mesh's and clouds' models, with the images `load` decodes, and builds
+    /// Uploads the background mesh's, the tunnels' (`m_pTunnelMaterial`,
+    /// `m_pOuterTunnelMaterial`) and the clouds' models with the images `load` decodes, and builds
     /// their pipelines. Called at setup, not per frame.
     pub fn preload(
         &mut self,
         gpu: &Gpu,
-        inner: DataId,
-        outer: DataId,
         models: &PortalModels,
         load: &mut dyn FnMut(TextureKey) -> Option<Image>,
     ) {
-        let mut textures = TextureCache::new(&gpu.device, &gpu.queue);
-        let mut view =
-            |did: DataId| textures.get(&gpu.device, &gpu.queue, TextureKey::Material(did), load);
-        let inner = view(inner);
-        let outer = view(outer);
-        self.materials = Some((inner, outer));
+        self.outer_tunnel = models
+            .outer_tunnel
+            .as_ref()
+            .map(|model| self.objects.upload(gpu, model, load));
+        self.inner_tunnel = models
+            .inner_tunnel
+            .as_ref()
+            .map(|model| self.objects.upload(gpu, model, load));
         self.background = models
             .background
             .as_ref()
@@ -129,6 +136,7 @@ impl PortalDraw {
         // frame of a teleport.
         self.background_drawn = true;
         self.clouds_drawn = true;
+        self.tunnel_drawn = true;
         let camera = ac2_render::Camera {
             eye: ac2_math::Vec3::ZERO,
             target: ac2_math::Vec3::Y,
@@ -139,6 +147,7 @@ impl PortalDraw {
         self.prepare_objects(gpu, &camera, 1.0, 0.0);
         self.background_drawn = false;
         self.clouds_drawn = false;
+        self.tunnel_drawn = false;
     }
 
     /// Objects appear once their pipelines are compiled rather than stalling the frame that first
@@ -152,13 +161,27 @@ impl PortalDraw {
         self.fader_drawn || self.tunnel_drawn || self.background_drawn
     }
 
-    /// Lays out the background mesh (group 0) and the clouds (group 1) for `camera`.
+    /// Lays out the background mesh (group 0), the outer and inner tunnels (groups 1 and 2) and
+    /// the clouds (group 3) for `camera`.
     fn prepare_objects(&mut self, gpu: &Gpu, camera: &ac2_render::Camera, aspect: f32, time: f64) {
         let background = placed(
             &self.background,
             self.background_world,
             self.background_tint,
             self.background_drawn,
+        );
+        // `RenderIndexedUsingMaterial` with an identity world transform and `RGBAColor_White`.
+        let outer = placed(
+            &self.outer_tunnel,
+            Mat4::IDENTITY,
+            [1.0; 4],
+            self.tunnel_drawn,
+        );
+        let inner = placed(
+            &self.inner_tunnel,
+            Mat4::IDENTITY,
+            [1.0; 4],
+            self.tunnel_drawn,
         );
         let clouds = placed(&self.clouds, Mat4::IDENTITY, [1.0; 4], self.clouds_drawn);
         let group = |instances| DrawGroup {
@@ -173,7 +196,12 @@ impl PortalDraw {
             &unlit(),
             aspect,
             time,
-            &[group(&background), group(&clouds)],
+            &[
+                group(&background),
+                group(&outer),
+                group(&inner),
+                group(&clouds),
+            ],
         );
     }
 
@@ -207,15 +235,19 @@ impl PortalDraw {
         // `SetFOV(mFOV * m_fCameraFOVScale)` on `SceneCamera`'s defaults.
         let camera =
             camera.to_render_camera(camera_fov_y(draw.camera_fov_scale), CAMERA_NEAR, CAMERA_FAR);
-        if let (Some(tunnel), Some((inner, outer))) = (tunnel, &self.materials) {
-            let view_proj = camera.view_projection(aspect).to_cols_array();
-            self.tunnel.update(
-                gpu,
-                &view_proj,
-                &tunnel.inner,
-                &tunnel.outer,
-                [inner, outer],
-            );
+        // `UpdateGeometry` rewrote both tunnels' vertex buffers; they draw through their
+        // materials over the shared index list.
+        if let (Some(tunnel), Some(outer), Some(inner)) = (
+            tunnel,
+            self.outer_tunnel.as_mut(),
+            self.inner_tunnel.as_mut(),
+        ) {
+            let outer_vertices = tunnel_object_vertices(&tunnel.outer);
+            let inner_vertices = tunnel_object_vertices(&tunnel.inner);
+            self.objects
+                .set_geometry(gpu, outer, &outer_vertices, &self.tunnel_indices);
+            self.objects
+                .set_geometry(gpu, inner, &inner_vertices, &self.tunnel_indices);
             self.tunnel_drawn = true;
         }
         // `DrawMesh` at the camera's position, its colour white with the background opacity.
@@ -243,11 +275,22 @@ impl PortalDraw {
             self.background_drawn,
         );
         self.objects.draw(pass, 0, &background);
-        if self.tunnel_drawn {
-            self.tunnel.draw(pass);
-        }
+        let outer = placed(
+            &self.outer_tunnel,
+            Mat4::IDENTITY,
+            [1.0; 4],
+            self.tunnel_drawn,
+        );
+        self.objects.draw(pass, 1, &outer);
+        let inner = placed(
+            &self.inner_tunnel,
+            Mat4::IDENTITY,
+            [1.0; 4],
+            self.tunnel_drawn,
+        );
+        self.objects.draw(pass, 2, &inner);
         let clouds = placed(&self.clouds, Mat4::IDENTITY, [1.0; 4], self.clouds_drawn);
-        self.objects.draw(pass, 1, &clouds);
+        self.objects.draw(pass, 3, &clouds);
         if self.fader_drawn && !self.fader_first {
             self.fader.draw(pass);
         }

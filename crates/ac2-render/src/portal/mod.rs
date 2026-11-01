@@ -13,7 +13,9 @@ pub mod tunnel;
 #[cfg(test)]
 mod tunnel_tests;
 
-pub use assets::{load_clouds_desc, load_portal_models, portal_settings, PortalModels};
+pub use assets::{
+    load_clouds_desc, load_portal_models, portal_settings, tunnel_object_vertices, PortalModels,
+};
 pub use camera::{
     camera_fov_y, portal_camera, PortalCamera, CAMERA_FAR, CAMERA_FOV_DEGREES, CAMERA_NEAR,
 };

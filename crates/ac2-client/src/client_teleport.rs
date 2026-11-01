@@ -24,36 +24,6 @@ use ac2_weenie::{GameplayNotice, SessionEvent, STAMP_TELEPORT};
 use crate::client::{Client, Notice};
 use crate::frame::PortalFrame;
 
-/// `FileArray::GetDIDFromEnum`'s group `PortalSpace::Effect::Initialize` reads its DIDs from
-/// (`0x40000002`).
-const DID_GROUP: u32 = 0x4000_0002;
-/// `Initialize`'s material enums: the inner (`m_pTunnelMaterial`) and the outer tunnel
-/// (`m_pOuterTunnelMaterial`), `DBObj::GetByEnum(enum, 0x40000002, 0x40000032)`.
-const INNER_MATERIAL_ENUM: u32 = 0x4000_0013;
-const OUTER_MATERIAL_ENUM: u32 = 0x4000_0014;
-
-/// The tunnel's material DIDs: the inner and the outer material.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct PortalMaterials {
-    pub inner: u32,
-    pub outer: u32,
-}
-
-/// Resolves `PortalSpace::Effect::Initialize`'s tunnel materials through the DAT's enum mapper
-/// (0 where the DAT has none).
-pub fn portal_materials(store: &ac2_db::ResourceStore) -> PortalMaterials {
-    let did = |value: u32| {
-        ac2_assets::ac2_enum_did(store, DID_GROUP, value)
-            .ok()
-            .flatten()
-            .map_or(0, |id| id.raw())
-    };
-    PortalMaterials {
-        inner: did(INNER_MATERIAL_ENUM),
-        outer: did(OUTER_MATERIAL_ENUM),
-    }
-}
-
 /// `gCWInterface::CallIFun_HandleTeleportStart`'s function id: no arguments, a zero return slot.
 pub(crate) const IFUN_HANDLE_TELEPORT_START: u32 = 0x007F_001A;
 /// `gCWInterface::CallIFun_HandleTeleportEnd`'s function id: `bSuccess`, a zero return slot.
