@@ -95,6 +95,7 @@ pub struct LiveRig {
     /// Every session event the frames saw, in order.
     pub seen: Vec<SessionEvent>,
     pub world: Arc<ac2_world::Ac2WorldSource>,
+    store: Arc<ac2_db::ResourceStore>,
     started: Instant,
 }
 
@@ -212,6 +213,7 @@ impl LiveRig {
             selection: SelectionUi::default(),
             seen: Vec::new(),
             world,
+            store,
             started: Instant::now(),
         };
         rig.wait("the HUD", |r| r.view.shortcut_slots() > 0);
@@ -321,6 +323,55 @@ impl LiveRig {
 }
 
 impl LiveRig {
+    /// Logs off to character selection and enters the world again with the same character, as
+    /// the player does (`gmGamePlayUI::EndSession`, then `gmCharacterSelectionUI`'s Enter on the
+    /// character the session kept in its list); the HUD is built anew, as after a relog.
+    pub fn relog(&mut self) {
+        self.command(Command::LogOffCharacter);
+        assert!(
+            self.until(20.0, |r| !r.client.frame().in_world),
+            "the log off never left the world"
+        );
+        let set = self
+            .client
+            .session()
+            .characters()
+            .cloned()
+            .expect("the character set");
+        let mut ui = PregameUi::new(load_pregame(&self.store).unwrap(), 1024, 768);
+        ui.skip_intro();
+        ui.resume_at_character_selection(set);
+        let mut t = 0.0;
+        let mut step = |rig: &mut Self, ui: &mut PregameUi| {
+            rig.client.settle_loads(Duration::from_secs(30)).unwrap();
+            for event in rig.client.use_time(&FrameInput::default()).unwrap() {
+                pregame_event(ui, &event);
+                rig.seen.push(event);
+            }
+            ui.use_time(t);
+            pregame_requests(ui, rig.client.session_mut());
+            t += FRAME.as_secs_f64();
+            std::thread::sleep(FRAME);
+        };
+        let deadline = Instant::now() + Duration::from_secs(60);
+        while ui.mode() != MODE_CHARACTER_SELECTION {
+            step(self, &mut ui);
+            assert!(Instant::now() < deadline, "no character selection");
+        }
+        for _ in 0..10 {
+            step(self, &mut ui);
+        }
+        pregame_click(&mut ui, "EnterButton");
+        let deadline = Instant::now() + Duration::from_secs(60);
+        while !self.client.frame().in_world || ui.mode() != MODE_GAMEPLAY {
+            step(self, &mut ui);
+            assert!(Instant::now() < deadline, "no world entry after the relog");
+        }
+        self.view = ClientView::new(Arc::clone(&self.world), &self.gpu, COLOR_FORMAT, 1, SIZE);
+        self.selection = SelectionUi::default();
+        self.wait("the HUD after the relog", |r| r.view.shortcut_slots() > 0);
+    }
+
     /// A pointer move to `at` (window pixels), in one frame.
     pub fn point(&mut self, at: (i32, i32)) {
         self.frame(&[

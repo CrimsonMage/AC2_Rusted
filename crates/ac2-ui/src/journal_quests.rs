@@ -128,6 +128,12 @@ impl JournalQuestsUi {
         std::mem::take(&mut self.tabs)
     }
 
+    /// The Underway and Finished pages' list boxes (`UnderwayQuestListBox`,
+    /// `FinishedQuestListBox`), for reading what the rows show.
+    pub fn list_boxes(&self) -> (Option<usize>, Option<usize>) {
+        (self.underway_list, self.finished_list)
+    }
+
     /// The underway quests' ids, newest bestowal first.
     pub fn underway_ids(&self) -> Vec<u32> {
         self.underway.iter().map(|q| q.quest.id).collect()

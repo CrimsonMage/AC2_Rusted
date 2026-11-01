@@ -129,6 +129,56 @@ impl HudView {
             .collect()
     }
 
+    /// The quest journal's rows as the player reads them: the Underway page's texts, then the
+    /// Finished page's (each quest's name and time, and the expanded quest's description,
+    /// journal entry and challenge level).
+    pub(crate) fn quest_journal_texts(&self) -> (Vec<String>, Vec<String>) {
+        fn walk(tree: &UiTree, index: usize, out: &mut Vec<String>) {
+            if let Some(text) = tree.get(index).and_then(|e| e.text()) {
+                if !text.is_empty() {
+                    out.push(text);
+                }
+            }
+            for &child in tree.children(index) {
+                walk(tree, child, out);
+            }
+        }
+        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.panels.quests) else {
+            return (Vec::new(), Vec::new());
+        };
+        let (underway, finished) = panel.journal().list_boxes();
+        let read = |list: Option<usize>| {
+            let mut out = Vec::new();
+            for &row in list.map(|l| tree.list_items(l)).unwrap_or_default() {
+                walk(tree, row, &mut out);
+            }
+            out
+        };
+        (read(underway), read(finished))
+    }
+
+    /// The centres of the quest rows (`QuestTemplate`) on the Underway page, then the Finished
+    /// page, top first: where the player presses to open or close a quest.
+    pub(crate) fn quest_row_centers(&self) -> (Vec<(i32, i32)>, Vec<(i32, i32)>) {
+        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.panels.quests) else {
+            return (Vec::new(), Vec::new());
+        };
+        let (underway, finished) = panel.journal().list_boxes();
+        let template = ac2_ui::tokenize("QuestTemplate");
+        let read = |list: Option<usize>| {
+            list.map(|l| tree.list_items(l))
+                .unwrap_or_default()
+                .iter()
+                .filter(|&&row| tree.get(row).is_some_and(|e| e.id() == template))
+                .map(|&row| {
+                    let b = tree.screen_box(row);
+                    ((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2)
+                })
+                .collect()
+        };
+        (read(underway), read(finished))
+    }
+
     pub(crate) fn examination_texts(&self) -> Vec<String> {
         let (Some((tree, _)), Some(panel)) = (&self.hud, &self.panels.examination) else {
             return Vec::new();

@@ -226,6 +226,16 @@ impl ClientView {
         Some((journal.underway_ids(), journal.finished_ids()))
     }
 
+    /// The quest journal's Underway and Finished page texts, row by row.
+    pub fn quest_journal_texts(&self) -> (Vec<String>, Vec<String>) {
+        self.hud.quest_journal_texts()
+    }
+
+    /// The Underway and Finished pages' quest rows' centres, top first (window pixels).
+    pub fn quest_row_centers(&self) -> (Vec<(i32, i32)>, Vec<(i32, i32)>) {
+        self.hud.quest_row_centers()
+    }
+
     /// The item the paper doll shows worn at an inventory location.
     pub fn paper_doll_item(&self, location: u32) -> Option<u64> {
         self.hud.panels.paper_doll.as_ref()?.item_at(location)
