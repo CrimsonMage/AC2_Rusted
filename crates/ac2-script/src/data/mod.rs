@@ -116,6 +116,12 @@ impl DatScriptData {
         self.shared.cache_only.load(Ordering::Relaxed)
     }
 
+    /// The class defaults at `did` when they are resident (read by [`DatScriptData::load`]);
+    /// never records a miss.
+    pub fn resident_defaults(&self, did: u32) -> Option<Arc<ac2_weenie::WeenieQualities>> {
+        self.resident().defaults.get(&did).cloned()
+    }
+
     fn resident(&self) -> std::sync::MutexGuard<'_, Resident> {
         self.shared
             .resident

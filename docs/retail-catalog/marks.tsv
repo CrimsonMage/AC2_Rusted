@@ -1641,7 +1641,7 @@ key	status	note
 00453de0	x	no timer: the question is held by GameplayDialogs popups until its answer (the awakener's keep-alive trigger has no Rust counterpart)
 00453e30	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 00453ed0	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
-00453f20	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+00453f20	~	the allocation condition (a package or an entity DID makes the weenie object; GetMyPackageID reads 0xFFFFFFFF without one) is ScriptLifecycle::request_script; the object itself is the script process
 00453f60	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 00453f80	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 00454010	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
@@ -6278,7 +6278,7 @@ key	status	note
 00530da0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530de0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530e20	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
-00530e70	-	singleton constructor: Rust builds the object directly
+00530e70	~	the defaults DID follows the package and entity DID (WeenieQualities::defaults_did, set at CreateObject) and CBaseQualities::InitDefaults lands as WeenieQualities::defaults, which every Inq* asks after the tables (Client loads them with the script state); the rest of the constructor is the direct build
 00530f10	-	destructor: Rust Drop replaces it
 00530f40	x	implemented: cited at crates/ac2-weenie/src/qualities.rs:39
 00530f70	x	implemented: cited at crates/ac2-weenie/src/session.rs:127

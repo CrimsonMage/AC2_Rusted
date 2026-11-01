@@ -57,7 +57,7 @@ pub(crate) enum Loaded {
     FarBlock(u32, Result<(), String>),
     Body(Option<u32>, Result<BodyData, String>),
     /// The script state is in the cache (or does not exist): object, package, DID.
-    ScriptState(u64, u32, u32),
+    ScriptState(u64, u32, u32, Option<Arc<ac2_weenie::WeenieQualities>>),
     /// The script data read is done: `true` when the world answered it (the record is resident
     /// or known absent), `false` when the world never answers (its reads are dropped).
     ScriptData(bool),
@@ -104,10 +104,13 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
             // `CBaseQualities::InitDefaults` read the class defaults when the qualities were
             // made; resident before the process starts, the script's reads find them as
             // retail's did instead of waiting on the loader mid-call.
-            if defaults != 0 {
-                data.load_script_data(ac2_script::vm::DataRequest::ClassDefaults(defaults));
-            }
-            Loaded::ScriptState(id, pid, did)
+            let defaults = (defaults != 0)
+                .then(|| {
+                    data.load_script_data(ac2_script::vm::DataRequest::ClassDefaults(defaults));
+                    data.class_defaults(defaults)
+                })
+                .flatten();
+            Loaded::ScriptState(id, pid, did, defaults)
         }
         Request::ScriptData(read) => Loaded::ScriptData(data.load_script_data(read)),
         Request::AmbientData => Loaded::Ambient(crate::client_ambient::AmbientLoaded::Data(

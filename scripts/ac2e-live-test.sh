@@ -8,6 +8,7 @@
 #   scripts/ac2e-live-test.sh [cargo test filter and options]
 #
 # AC2E_LIVE_PROFILE picks the cargo profile (default release; `dev` builds much faster).
+# AC2E_LIVE_TEST names the test target (a file in crates/ac2-client/tests; default ac2e_live).
 #
 # Needs AC2_DAT_DIR (the 7230 DATs) and the AC2e checkout scripts/ac2e-server.sh uses (AC2E_DIR).
 set -euo pipefail
@@ -35,4 +36,4 @@ done
 grep -q '^Listening on' "$log" || { echo "the server did not start"; cat "$log"; exit 1; }
 cd "$root"
 AC2E_LIVE=$AC2E_BIND AC2E_ACCOUNT=livetest \
-  cargo test --profile "${AC2E_LIVE_PROFILE:-release}" -p ac2-client --test ac2e_live -- --test-threads 1 --nocapture "$@"
+  cargo test --profile "${AC2E_LIVE_PROFILE:-release}" -p ac2-client --test "${AC2E_LIVE_TEST:-ac2e_live}" -- --test-threads 1 --nocapture "$@"

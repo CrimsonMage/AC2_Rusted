@@ -321,6 +321,16 @@ impl OnlineSession {
         self.world.objects.set_local_appearance(id, appearance)
     }
 
+    /// `CBaseQualities::InitDefaults` for object `id`: its qualities fall back on `defaults`
+    /// (the DAT record at its qualities DID). False without the object.
+    pub fn set_object_defaults(
+        &mut self,
+        id: u64,
+        defaults: std::sync::Arc<crate::WeenieQualities>,
+    ) -> bool {
+        self.world.objects.set_defaults(id, defaults)
+    }
+
     /// The player's object id once entering the world.
     pub fn player(&self) -> Option<u64> {
         self.world.player()

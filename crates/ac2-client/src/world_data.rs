@@ -58,6 +58,11 @@ pub trait WorldServices: Send + Sync {
     fn load_script_data(&self, _read: ac2_script::vm::DataRequest) -> bool {
         false
     }
+    /// `CBaseQualities::InitDefaults`: the class defaults at qualities DID `did`, once
+    /// [`WorldServices::load_script_data`] read them.
+    fn class_defaults(&self, _did: u32) -> Option<Arc<ac2_weenie::WeenieQualities>> {
+        None
+    }
     /// The region's ambient sound data, if it has any.
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {
         None
@@ -205,6 +210,10 @@ impl WorldServices for DatWorld {
         };
         data.load(read);
         true
+    }
+
+    fn class_defaults(&self, did: u32) -> Option<Arc<ac2_weenie::WeenieQualities>> {
+        self.script_data.as_ref()?.resident_defaults(did)
     }
 
     /// `ScriptHost::create_weenie`'s candidates: the class default `0x70000000 | pid` and, for

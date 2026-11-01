@@ -178,7 +178,14 @@ impl RemoteObject {
             contained: false,
             appearance: Arc::new(Appearance::from_delta(&object.visual)),
             update_times: object.physics.timestamps,
-            qualities: WeenieQualities::from_weenie_desc(object.weenie.clone()),
+            qualities: {
+                // `CWRepository::Construct`: the qualities' defaults DID follows the package and
+                // entity DID the object was made from.
+                let mut qualities = WeenieQualities::from_weenie_desc(object.weenie.clone());
+                qualities.did =
+                    WeenieQualities::defaults_did(object.weenie.package_id, object.entity_did());
+                qualities
+            },
         }
     }
 }
@@ -398,6 +405,17 @@ impl ObjectTable {
         object.visual = (appearance.parent != 0).then_some(appearance.parent);
         object.appearance = Arc::new(appearance);
         true
+    }
+
+    /// `CBaseQualities::InitDefaults` for the object: its class defaults.
+    pub(crate) fn set_defaults(&mut self, id: u64, defaults: Arc<WeenieQualities>) -> bool {
+        match self.objects.get_mut(&id) {
+            Some(object) => {
+                object.qualities.set_defaults(defaults);
+                true
+            }
+            None => false,
+        }
     }
 
     /// `CPhysicsObj::inc_update_time(stamp)`: the object's `ushort` stamp moves on by one.

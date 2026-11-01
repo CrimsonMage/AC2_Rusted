@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 976 done, 156 partial, 118 to do, 654 skipped.
+1904 retail functions: 976 done, 158 partial, 118 to do, 652 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -902,7 +902,7 @@ Legend and workflow: [README](README.md).
 
 ### gmCWAllocator
 - [-] `gmCWAllocator::Create` · 00453ed0 · legions 00454f70 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
-- [-] `gmCWAllocator::AllocateWeenieObject_Internal` · 00453f20 · legions 00454fc0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [~] `gmCWAllocator::AllocateWeenieObject_Internal` · 00453f20 · legions 00454fc0 — the allocation condition (a package or an entity DID makes the weenie object; GetMyPackageID reads 0xFFFFFFFF without one) is ScriptLifecycle::request_script; the object itself is the script process
 - [-] `gmCWAllocator::AllocateWeenieDesc_Internal` · 00453f60 · legions 00455000 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 - [-] `gmCWAllocator::AllocateWeenieDesc_Internal` · 00453f80 · legions 00455020 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 - [-] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
@@ -2702,7 +2702,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/weenie/repository/wrepository.cpp.c` (62/101)
 
 ### CWRepository
-- [-] `CWRepository::Construct` · 00530e70 · legions 00514e10 — singleton constructor: Rust builds the object directly
+- [~] `CWRepository::Construct` · 00530e70 · legions 00514e10 — the defaults DID follows the package and entity DID (WeenieQualities::defaults_did, set at CreateObject) and CBaseQualities::InitDefaults lands as WeenieQualities::defaults, which every Inq* asks after the tables (Client loads them with the script state); the rest of the constructor is the direct build
 - [-] `CWRepository::~CWRepository` · 00530f10 · legions 00514eb0 — destructor: Rust Drop replaces it
 - [x] `CWRepository::SetWeenieDesc` · 00530f40 · legions 00514ee0 — implemented: cited at crates/ac2-weenie/src/qualities.rs:39
 - [x] `CWRepository::SetQualities` · 00530f70 · legions 00514f10 — implemented: cited at crates/ac2-weenie/src/session.rs:127

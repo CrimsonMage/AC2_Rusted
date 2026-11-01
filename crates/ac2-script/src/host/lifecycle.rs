@@ -34,7 +34,7 @@ pub mod lifecycle_ifun {
 /// The script lifecycle, on any [`ScriptPort`] (the client implements the port).
 pub trait ScriptLifecycle: ScriptPort {
     /// Asks the loader for `id`'s script state (its weenie's package and entity DID). Nothing when
-    /// the object has no package or is already running or waiting.
+    /// the object has neither a package nor an entity DID, or is already running or waiting.
     fn request_script(&mut self, id: u64) {
         let Some(scripts) = self.script_state() else {
             return;
@@ -45,10 +45,15 @@ pub trait ScriptLifecycle: ScriptPort {
         let Some(identity) = self.script_identity(id) else {
             return;
         };
-        let Some(package) = identity.package else {
-            return;
-        };
+        // `gmCWAllocator::AllocateWeenieObject_Internal` makes the weenie object when it has a
+        // package or an entity DID (`gmWeenieDesc::GetMyPackageID` reads 0xFFFFFFFF without a
+        // package); `CWDistributor::Construct` then starts its process from the entity's WState.
         let did = identity.entity.unwrap_or(0);
+        let package = match identity.package {
+            Some(package) => package,
+            None if did != 0 => u32::MAX,
+            None => return,
+        };
         if let Some(scripts) = self.script_state() {
             scripts.waiting.insert(id, Vec::new());
         }

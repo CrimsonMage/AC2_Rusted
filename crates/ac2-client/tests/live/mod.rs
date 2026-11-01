@@ -26,7 +26,7 @@ use ac2_ui::pregame::{
     load_pregame, PregameUi, MODE_AVATAR_MODIFICATION, MODE_AVATAR_SELECTION,
     MODE_CHARACTER_SELECTION, MODE_GAMEPLAY,
 };
-use ac2_ui::{tokenize, Modifiers, ToolbarChild, UI_POINTER_X, UI_POINTER_Y};
+use ac2_ui::{tokenize, Modifiers, SelectionUi, ToolbarChild, UI_POINTER_X, UI_POINTER_Y};
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent};
 
 pub const SIZE: (u32, u32) = (1024, 768);
@@ -88,6 +88,8 @@ pub struct LiveRig {
     pub account: String,
     pub name: String,
     pending: Vec<Command>,
+    /// `gmSelectionUI`, fed the way `bin/ac2/main.rs` feeds it (a click in the world selects).
+    selection: SelectionUi,
     /// Every session event the frames saw, in order.
     pub seen: Vec<SessionEvent>,
     pub world: Arc<ac2_world::Ac2WorldSource>,
@@ -137,6 +139,12 @@ impl LiveRig {
         script_data.preload_skill_states(&program);
         script_data.set_cache_only(true);
         client.set_load_budget(Duration::from_secs(30));
+        // As `bin/ac2/main.rs` does, before the connection is used: the weenies' scripts must
+        // hear the login (`WM_Player` 0x27), or the vitals and the HUD never get their notices.
+        client.attach_scripts(
+            ac2_script::host::ScriptHost::new(Arc::clone(&program), Box::new(script_data.clone())),
+            ac2_client::SCRIPT_VM_FUNCTIONS,
+        );
 
         // Character creation on the real screens, against the server.
         let chargen =
@@ -188,10 +196,6 @@ impl LiveRig {
                 ui.mode()
             );
         }
-        client.attach_scripts(
-            ac2_script::host::ScriptHost::new(program, Box::new(script_data)),
-            ac2_client::SCRIPT_VM_FUNCTIONS,
-        );
         let view = ClientView::new(Arc::clone(&world), &gpu, COLOR_FORMAT, 1, SIZE);
         let mut rig = Self {
             client,
@@ -200,6 +204,7 @@ impl LiveRig {
             account,
             name: name.to_owned(),
             pending: Vec::new(),
+            selection: SelectionUi::default(),
             seen: Vec::new(),
             world,
             started: Instant::now(),
@@ -212,7 +217,9 @@ impl LiveRig {
     /// frameworks asked for last frame, then the frameworks and the view; the server answers in
     /// its own time.
     pub fn frame(&mut self, actions: &[(u32, f32, bool)]) -> Vec<SessionEvent> {
-        self.view.ui_input(actions, Modifiers::default());
+        for message in self.view.ui_input(actions, Modifiers::default()) {
+            self.selection.message(&message);
+        }
         let input = FrameInput {
             commands: std::mem::take(&mut self.pending),
             ..FrameInput::default()
@@ -225,11 +232,38 @@ impl LiveRig {
             .view
             .frameworks(&mut self.client, &frame, &events, &notices);
         self.pending.extend(asked);
+        // The selection render: the object under the pointer, selected by
+        // `gmSelectionUI::Finish3DSelection` (the window's `world_frame` does the same).
+        if self.selection.wants_pick() {
+            let potential = self.view.pick_list(&frame, SIZE, self.view.pointer());
+            let (targets, player_type, player_id) =
+                ac2_client::pick_targets(&self.client, &frame, &potential);
+            if let Some(outcome) = self.selection.finish(&targets, player_type, player_id) {
+                self.pending.push(Command::Select(outcome.select));
+                self.pending.push(Command::LookAtSelection(outcome.select));
+                if outcome.use_selection {
+                    self.pending.push(Command::UseSelection);
+                }
+                if outcome.open_examination {
+                    self.view.open_examination();
+                }
+            }
+        }
         self.view.update(&self.gpu, &frame, Duration::ZERO);
         self.gpu.flush_writes();
         self.seen.extend(events.iter().cloned());
         std::thread::sleep(FRAME);
         events
+    }
+
+    /// Loads the view's meshes now (the frames give it no load budget), so a pick can find the
+    /// objects drawn.
+    pub fn settle_view(&mut self) {
+        let frame = self.client.frame();
+        let aspect = SIZE.0 as f32 / SIZE.1 as f32;
+        self.view.settle(&self.gpu, &frame, aspect);
+        self.view.update(&self.gpu, &frame, Duration::from_secs(10));
+        self.view.settle(&self.gpu, &frame, aspect);
     }
 
     /// A gameplay command for the next frame.

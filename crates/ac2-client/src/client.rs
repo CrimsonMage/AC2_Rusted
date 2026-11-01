@@ -543,7 +543,14 @@ impl Client {
                     self.body_loaded(visual, body?);
                 }
             }
-            Loaded::ScriptState(id, pid, did) => self.script_state_loaded(id, pid, did),
+            Loaded::ScriptState(id, pid, did, defaults) => {
+                // `CBaseQualities::InitDefaults`: the object's qualities now answer from the
+                // class defaults too.
+                if let Some(defaults) = defaults {
+                    self.session.set_object_defaults(id, defaults);
+                }
+                self.script_state_loaded(id, pid, did)
+            }
             Loaded::MotionDesc(object, desc) => self.motion_desc_loaded(object, desc),
             Loaded::CameraFx(source, scalar, fx) => self.camera_fx_loaded(source, scalar, fx),
             Loaded::EntityMask(object, mask) => self.entity_mask_loaded(object, mask),

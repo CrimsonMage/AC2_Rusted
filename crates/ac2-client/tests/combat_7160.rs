@@ -697,14 +697,17 @@ fn dismount_runs_on_the_vm() {
 }
 
 /// `gmCWInterface::CanAutoAttackTarget` (IFun 0xB4000A) runs as a query on the VM and answers an
-/// int back with no problem. The double's creature gets "no" (the script reads qualities the double
-/// does not send); the foe keys of `gmSelectionUI::Select` ask it for each candidate.
+/// int back with no problem. The double's creature gets "yes": the qualities the double does not
+/// send are the class defaults of the creature's package (`CBaseQualities::m_defaults`, loaded
+/// once its script state is); the foe keys of `gmSelectionUI::Select` ask it for each candidate.
 #[test]
 fn can_auto_attack_target_queries_the_script() {
-    let Some((mut client, _server)) = with_script() else {
+    let Some((mut client, server)) = with_script() else {
         return;
     };
-    assert_eq!(client.can_auto_attack_target(CREATURE_ONE), Ok(false));
+    // The class defaults arrive with the creature's script state, a few frames after its creation.
+    advance(&mut client, &server, 1.0);
+    assert_eq!(client.can_auto_attack_target(CREATURE_ONE), Ok(true));
     assert!(client.take_script_problems().is_empty());
 }
 

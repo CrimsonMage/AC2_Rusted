@@ -9,6 +9,7 @@
 //! everything else into the quality's hash table.
 
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use ac2_net::protocol::{Position, Qualities, QualityValue, StringInfo, WeenieDesc};
 
@@ -29,6 +30,10 @@ pub struct WeenieQualities {
     pub string_infos: BTreeMap<u32, StringInfo>,
     pub package_ids: BTreeMap<u32, u32>,
     pub long_ints: BTreeMap<u32, i64>,
+    /// `CBaseQualities::m_defaults`: the class defaults, the DAT qualities at [`Self::did`]
+    /// (`CBaseQualities::InitDefaults`), which every `Inq*` asks after the tables. Set once
+    /// the client has read them ([`WeenieQualities::set_defaults`]).
+    pub defaults: Option<Arc<WeenieQualities>>,
 }
 
 /// The bool quality `CBaseQualities::IsMobile` asks for.
@@ -87,7 +92,28 @@ impl WeenieQualities {
             string_infos: table(&q.string_infos),
             package_ids: table(&q.package_ids),
             long_ints: table(&q.long_ints),
+            defaults: None,
         }
+    }
+
+    /// `CWRepository::Construct`'s defaults DID for a created object: the qualities record of its
+    /// package (`GetBaseDID(0x40000019) | pid & 0xFFFF`) when it has no entity DID, else of its
+    /// entity description (`+ 0x1000000 | did & 0xFFFFFF`, only for a `0x40000049` entity DID).
+    /// 0 for none.
+    pub fn defaults_did(package: Option<u32>, entity: Option<u32>) -> u32 {
+        const QUALITIES_BASE: u32 = 0x8000_0000;
+        match entity.unwrap_or(0) {
+            0 => package.map_or(0, |pid| QUALITIES_BASE | (pid & 0xFFFF)),
+            did if (0x4700_0000..=0x47FF_FFFE).contains(&did) => {
+                (QUALITIES_BASE + 0x100_0000) | (did & 0xFF_FFFF)
+            }
+            _ => 0,
+        }
+    }
+
+    /// `CBaseQualities::InitDefaults`: the class defaults the `Inq*` fall back on.
+    pub fn set_defaults(&mut self, defaults: Arc<WeenieQualities>) {
+        self.defaults = Some(defaults);
     }
 
     /// One quality changed in `from` (a `CWRepository::RecvEvt_Update*` for `quality` of `table`,
@@ -158,9 +184,9 @@ impl WeenieQualities {
 /// `CBaseQualities::Inq*` (`InqInt`, `InqBool`, ...): the description answers first
 /// (`gmWeenieDesc::Query*Stat` names its fields; `gmWeenieDesc::InqInt`, `InqBool`, `InqFloat`,
 /// `InqDataID`, `InqInstanceID` and `InqStringInfo` answer only a field that was set), then the
-/// quality's table. Retail then asks `m_defaults` (the class defaults, the DAT qualities of the
-/// weenie's DID): the script glue takes that step (`ac2_script::glue` repository `inq_value`, with
-/// the data source's `class_defaults`); these reads have no data source and stop at the table.
+/// quality's table, then `m_defaults` (the class defaults, the DAT qualities of the weenie's DID,
+/// [`WeenieQualities::defaults`]; the script glue also asks its data source's `class_defaults`
+/// for an object whose defaults are not set here yet).
 /// `CBaseQualities::TruncateInt` (Legions 0x00507AE0): a change that wrapped (a decrease
 /// by a positive `modifier` or an increase by a negative one, or no change at all) is pulled
 /// to the bound it wrapped toward, then the result is clamped to `[minimum, maximum]`.
@@ -252,6 +278,7 @@ impl WeenieQualities {
         self.desc(stype)
             .and_then(|w| Self::desc_int(w, stype))
             .or_else(|| self.ints.get(&stype).copied())
+            .or_else(|| self.defaults.as_ref().and_then(|d| d.inq_int(stype)))
     }
 
     /// `gmWeenieDesc::QueryBoolStat`: each flag is a `_bitfield` bit, set when its mask bit is.
@@ -267,6 +294,7 @@ impl WeenieQualities {
             .filter(|w| w.data_mask & mask != 0)
             .map(|w| i32::from(w.bitfield.unwrap_or(0) & bit != 0))
             .or_else(|| self.bools.get(&stype).copied())
+            .or_else(|| self.defaults.as_ref().and_then(|d| d.inq_bool(stype)))
     }
 
     pub fn inq_float(&self, stype: u32) -> Option<f32> {
@@ -274,6 +302,7 @@ impl WeenieQualities {
             .filter(|_| stype == 0x12A)
             .and_then(|w| w.scale)
             .or_else(|| self.floats.get(&stype).copied())
+            .or_else(|| self.defaults.as_ref().and_then(|d| d.inq_float(stype)))
     }
 
     pub fn inq_data_id(&self, stype: u32) -> Option<u32> {
@@ -281,6 +310,7 @@ impl WeenieQualities {
             .filter(|_| stype == 0x101)
             .and_then(|w| w.icon)
             .or_else(|| self.dids.get(&stype).copied())
+            .or_else(|| self.defaults.as_ref().and_then(|d| d.inq_data_id(stype)))
     }
 
     pub fn inq_instance_id(&self, stype: u32) -> Option<u64> {
@@ -297,6 +327,11 @@ impl WeenieQualities {
         self.desc(stype)
             .and_then(field)
             .or_else(|| self.iids.get(&stype).copied())
+            .or_else(|| {
+                self.defaults
+                    .as_ref()
+                    .and_then(|d| d.inq_instance_id(stype))
+            })
     }
 
     pub fn inq_string_info(&self, stype: u32) -> Option<StringInfo> {
@@ -305,7 +340,14 @@ impl WeenieQualities {
             (Some(w), 0x101) => w.plural_name.as_ref(),
             _ => None,
         };
-        field.or_else(|| self.string_infos.get(&stype)).cloned()
+        field
+            .or_else(|| self.string_infos.get(&stype))
+            .cloned()
+            .or_else(|| {
+                self.defaults
+                    .as_ref()
+                    .and_then(|d| d.inq_string_info(stype))
+            })
     }
 }
 
@@ -579,6 +621,47 @@ mod tests {
         assert_eq!(scripts.inq_int(0x26B), Some(9));
         assert_eq!(scripts.weenie.as_ref().unwrap().quantity, Some(3));
         assert!(!scripts.ints.contains_key(&0x26B));
+    }
+
+    #[test]
+    fn the_defaults_did_follows_the_package_and_the_entity() {
+        // `CWRepository::Construct`: no entity DID reads the package's record, an entity
+        // description its own, anything else none.
+        assert_eq!(
+            WeenieQualities::defaults_did(Some(0x1169), None),
+            0x8000_1169
+        );
+        assert_eq!(
+            WeenieQualities::defaults_did(Some(0x1169), Some(0)),
+            0x8000_1169
+        );
+        assert_eq!(
+            WeenieQualities::defaults_did(None, Some(0x4700_07D1)),
+            0x8100_07D1
+        );
+        assert_eq!(
+            WeenieQualities::defaults_did(Some(7), Some(0x4700_07D1)),
+            0x8100_07D1
+        );
+        assert_eq!(WeenieQualities::defaults_did(None, Some(0x0400_0001)), 0);
+        assert_eq!(WeenieQualities::defaults_did(None, None), 0);
+    }
+
+    #[test]
+    fn inq_falls_back_on_the_class_defaults_after_the_tables() {
+        let mut defaults = WeenieQualities::default();
+        defaults.ints.insert(0x14, 0x1004F);
+        defaults.ints.insert(0x12E, 24);
+        defaults.bools.insert(0x270, 1);
+        let mut q = WeenieQualities::default();
+        q.ints.insert(0x12E, 5);
+        assert_eq!(q.inq_int(0x14), None);
+        q.set_defaults(std::sync::Arc::new(defaults));
+        // The object's own table answers first; the defaults fill the rest.
+        assert_eq!(q.inq_int(0x12E), Some(5));
+        assert_eq!(q.inq_int(0x14), Some(0x1004F));
+        assert_eq!(q.inq_bool(0x270), Some(1));
+        assert_eq!(q.inq_bool(0x271), None);
     }
 }
 
