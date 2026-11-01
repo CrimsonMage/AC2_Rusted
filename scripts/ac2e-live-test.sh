@@ -7,11 +7,14 @@
 #
 #   scripts/ac2e-live-test.sh [cargo test filter and options]
 #
-# AC2E_LIVE_SERVER_ARGS adds `ac2e serve` options (later ones win).
+# The server runs the 7230 profile with the development training kit (`--training-kit true`: the
+# character's racial starter gear and training supplies, the training encounter) and, for the
+# corpse tests, AC2E_TEST_CORPSE_LOOT=1 (the training creatures leave a body with loot; AC2e
+# branch live-gameplay, test-only). AC2E_LIVE_SERVER_ARGS replaces the `ac2e serve` options
+# (`""` for none); later options win.
 # AC2E_LIVE_PROFILE picks the cargo profile (default release; `dev` builds much faster).
-# AC2E_LIVE_TEST picks the test target (default ac2e_live; ac2e_live_inventory needs the Legions
-# profile: AC2_DAT_DIR on the DVD DATs, AC2E_DATA=legions for the server and AC2E_LIVE_VERSION=7148
-# for the client's logon, which is what that profile accepts; see tests/ac2e_live_inventory.rs).
+# AC2E_LIVE_TEST picks the test target (default ac2e_live; e.g. ac2e_live_inventory,
+# ac2e_live_combat).
 #
 # Needs AC2_DAT_DIR (the 7230 DATs) and the AC2e checkout scripts/ac2e-server.sh uses (AC2E_DIR).
 set -euo pipefail
@@ -20,6 +23,7 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 state=$(mktemp -d "${TMPDIR:-/tmp}/ac2e-live.XXXXXX")
 log=$state/server.log
 port=${AC2E_LIVE_PORT:-19600}
+export AC2E_TEST_CORPSE_LOOT=${AC2E_TEST_CORPSE_LOOT:-1}
 export AC2E_STATE=$state AC2E_BIND=127.0.0.1:$port AC2E_GUN_BIND=127.0.0.1:$((port + 2))
 # The skills file runs on AC2e's development kit (`--training-kit true`: the active-skill rules and
 # craft recipes) with AC2e's development knobs: a new character starts with this much experience
@@ -38,7 +42,7 @@ case ${AC2E_LIVE_TEST:-} in
     ;;
 esac
 # shellcheck disable=SC2086 # AC2E_LIVE_SERVER_ARGS is a list of options
-"$root/scripts/ac2e-server.sh" --account livetest ${AC2E_LIVE_SERVER_ARGS:-} > "$log" 2>&1 &
+"$root/scripts/ac2e-server.sh" --account livetest ${AC2E_LIVE_SERVER_ARGS---training-kit true} > "$log" 2>&1 &
 server=$!
 stop() {
   touch "$state/data/stop.request" 2>/dev/null || true

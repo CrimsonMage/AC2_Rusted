@@ -124,13 +124,15 @@ fn open(client: &mut Client, server: &Rc<RefCell<State>>) {
     );
 }
 
-/// The take-all descriptor as `CInventorySystem` 0x1C's stub packs it for the corpse and the
-/// player (`WM_Inventory` 0x68): the wlib's own values, its object tags and state id included.
+/// The take-all descriptor for the corpse and the player (`WM_Inventory` 0x68), as the retail
+/// client's packet has it (AC2e's `loot::decode` checks it: the graph's id 1, the ids tagged
+/// 0x82). The client composes it (`Command::LootAll`); the script's VM packs the library's state
+/// id and 0x84 tags instead, which AC2e refuses.
 const STUB_TAKE_ALL: &[u8] = &[
-    5, 0, 0, 0, 1, 0, 0, 0, 2, 103, 0, 0, 0, 1, 0, 68, 0, 0, 0, 0, 0, 0, 239, 32, 14, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 0, 0, 0, 0, 0, 128,
+    5, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 68, 0, 0, 0, 0, 0, 0, 239, 32, 14, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 0, 0, 0, 0, 0, 128,
     255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 1, 0, 0, 0, 0, 0, 0, 32, 2, 2,
-    2, 2, 2, 2, 132, 205, 1, 2, 2, 1, 132, 205, 0, 0,
+    2, 2, 2, 2, 130, 205, 1, 2, 2, 1, 130, 205, 0, 0,
 ];
 
 #[test]
@@ -152,12 +154,7 @@ fn loot_all_takes_every_item_of_a_corpse() {
     // Loot All: the IFun's stub sends the take-all descriptor (the wlib's bytes); the double
     // answers it, moving the skin and the item into the pack.
     run(&mut client, &server, Some(Command::LootAll(CORPSE)));
-    // Bytes 8..10 are the library's state id for the descriptor's package (DVD 0x6702, 7230
-    // 0x67E9).
-    let mut take_all = STUB_TAKE_ALL.to_vec();
-    let state: u16 = ac2_dat::test_support::pinned(0x6702, 0x67E9);
-    take_all[8..10].copy_from_slice(&state.to_le_bytes());
-    assert_eq!(sent(&server, LOOT_ALL), vec![take_all]);
+    assert_eq!(sent(&server, LOOT_ALL), vec![STUB_TAKE_ALL.to_vec()]);
     let asked = server.borrow().script_requests.clone();
     let Some(ScriptRequest::LootAll(taken)) = asked
         .iter()

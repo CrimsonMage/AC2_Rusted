@@ -40,9 +40,9 @@ pub mod ntype {
     pub const A_ARRAY: u32 = 0x05;
     pub const A_HASH_SET: u32 = 0x06;
     pub const AL_HASH: u32 = 0x08;
-    /// A hash of an item's appearance overrides (seen empty in the inventory profile).
-    pub const APPEARANCE_HASH: u32 = 0x0F;
     pub const A_LIST: u32 = 0x0A;
+    /// `AppInfoHash`: an inventory item's appearance overrides (`PHashTable::StreamPack`).
+    pub const APP_INFO_HASH: u32 = 0x0F;
     pub const AR_HASH: u32 = 0x11;
     pub const BEHAVIOR_PARAMS: u32 = 0x17;
     pub const LA_HASH: u32 = 0x32;
@@ -128,7 +128,10 @@ pub enum NativeObject {
     Empty(u32),
     /// A native kept as its packed bytes (`VisualDesc`: an item's appearance in the inventory
     /// profile).
-    Raw { native_type: u32, bytes: Vec<u8> },
+    Raw {
+        native_type: u32,
+        bytes: Vec<u8>,
+    },
 }
 
 impl NativeObject {
@@ -261,6 +264,32 @@ impl NativeObject {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// An `InventProfile`'s appearance (`VisualDesc` with a parent DID) and its empty
+    /// `AppInfoHash`, which AC2e sends with each inventory item.
+    #[test]
+    fn an_inventory_items_appearance_natives_read() {
+        let bytes = [2u32, 0x1F00_0E3F]
+            .iter()
+            .flat_map(|w| w.to_le_bytes())
+            .collect::<Vec<_>>();
+        let mut reader = Reader::new(&bytes);
+        let visual = NativeObject::read(ntype::VISUAL_DESC, &mut reader).unwrap();
+        reader.finish().unwrap();
+        // Kept as sent: it packs back byte for byte.
+        assert_eq!(
+            visual,
+            NativeObject::Raw {
+                native_type: ntype::VISUAL_DESC,
+                bytes: bytes.clone(),
+            }
+        );
+        let bytes = 0u32.to_le_bytes();
+        let mut reader = Reader::new(&bytes);
+        let hash = NativeObject::read(ntype::APP_INFO_HASH, &mut reader).unwrap();
+        reader.finish().unwrap();
+        assert!(matches!(hash, NativeObject::Hash(h) if h.keys.is_empty()));
+    }
 
     #[test]
     fn engine_structures_and_adaptors_round_trip() {

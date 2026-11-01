@@ -183,9 +183,15 @@ fn attacking_a_creature_kills_it() {
             .is_some_and(|health| health < 60)
     });
     assert!(hurt, "the creature's health never fell");
+    // Dead: its health is gone and it lies down; AC2e keeps the body in the world (a training
+    // kill leaves it standing for good), or removes it once it despawns.
     let gone = rig.until(60.0, |r| {
         r.seen.contains(&SessionEvent::ObjectRemoved(target))
-            || r.client.session().objects().get(target).is_none()
+            || r.client
+                .session()
+                .objects()
+                .get(target)
+                .is_none_or(|o| o.qualities.inq_int(0x102) == Some(0))
     });
     assert!(gone, "the creature never died");
     // It lay down first: the `death` behaviour into the `dead` mode (`gmbehaviors.emp`,

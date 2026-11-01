@@ -88,6 +88,8 @@ pub struct LiveRig {
     pub account: String,
     pub name: String,
     pending: Vec<Command>,
+    /// The commands the HUD's frameworks asked for, in order.
+    pub asked: Vec<Command>,
     /// `gmSelectionUI`, fed the way `bin/ac2/main.rs` feeds it (a click in the world selects).
     selection: SelectionUi,
     /// Every session event the frames saw, in order.
@@ -116,7 +118,7 @@ impl LiveRig {
             server,
             account: account.clone(),
             credential: Credential::Account,
-            // The logon's data version; the DVD DATs log on as 7230 (AC2e takes 7148 / 7230 only).
+            // The logon's data version (AC2e takes 7148 and 7230).
             version: std::env::var("AC2E_LIVE_VERSION")
                 .unwrap_or_else(|_| ac2_net::default_version().into()),
             character: CharacterChoice::Wait,
@@ -206,6 +208,7 @@ impl LiveRig {
             account,
             name: name.to_owned(),
             pending: Vec::new(),
+            asked: Vec::new(),
             selection: SelectionUi::default(),
             seen: Vec::new(),
             world,
@@ -233,6 +236,7 @@ impl LiveRig {
         let asked = self
             .view
             .frameworks(&mut self.client, &frame, &events, &notices);
+        self.asked.extend(asked.iter().cloned());
         self.pending.extend(asked);
         // The selection render: the object under the pointer, selected by
         // `gmSelectionUI::Finish3DSelection` (the window's `world_frame` does the same).

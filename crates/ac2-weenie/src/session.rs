@@ -217,6 +217,9 @@ pub struct OnlineSession {
     choice: CharacterChoice,
     world: World,
     reporter: Option<PositionReporter>,
+    /// The logon names AC2e's profile (7148 or 7230), whose server answers a request the way
+    /// the session's mirror of its messages follows, not the player's script.
+    ac2e: bool,
     entered: bool,
     closed: bool,
     /// Events [`OnlineSession::wait_for_world`] saw, for the next [`OnlineSession::poll`].
@@ -260,6 +263,7 @@ impl OnlineSession {
     ) -> Result<Self, NetError> {
         let connection_sequence = transport.clock().1 as u32;
         let build = Build::from_version(&config.version);
+        let ac2e = matches!(config.version.as_str(), "7148" | "7230");
         let crypto = config
             .server_key
             .as_ref()
@@ -284,6 +288,7 @@ impl OnlineSession {
             choice: config.character,
             world: World::new(build),
             reporter: None,
+            ac2e,
             entered: false,
             closed: false,
             pending: Vec::new(),

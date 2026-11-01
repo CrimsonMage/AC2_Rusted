@@ -694,18 +694,20 @@ impl Client {
                     Vec::new()
                 }
                 Command::LootAll(container) => {
-                    // The player's script (`CPlayer` 0x157 -> `CInventorySystem` 0x1C) when it
-                    // runs one; a server that gives the player no script package (AC2e) gets
-                    // the request the script would send.
-                    if self.scripts_own(crate::scripts::IFUN_LOOT_ALL_FROM_CONTAINER) {
-                        self.script_request(
-                            crate::scripts::IFUN_LOOT_ALL_FROM_CONTAINER,
-                            &[IFunArg::Long(*container)],
-                        )
-                    } else {
+                    // `CPlayer` 0x157 -> `CInventorySystem` 0x1C sends the take-all of a
+                    // container the player has open and that lists something (its check,
+                    // 0x1E). The request is composed here and not by the script: the packet the
+                    // script's VM builds tags the ids 0x84 where the retail client's has 0x82,
+                    // and AC2e refuses it (`loot::decode`).
+                    let listed = self
+                        .session
+                        .inventory()
+                        .contents(*container)
+                        .is_some_and(|c| !c.items.is_empty() || !c.packs.is_empty());
+                    if listed {
                         self.session.loot_all(*container);
-                        Vec::new()
                     }
+                    Vec::new()
                 }
                 Command::TransmuteAll(container) => {
                     self.session.transmute_all(*container);

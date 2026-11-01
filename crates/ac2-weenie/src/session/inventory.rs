@@ -12,6 +12,11 @@ use super::{OnlineSession, SessionEvent};
 use crate::inventory::InventoryState;
 
 impl OnlineSession {
+    /// Whether this is a logon to AC2e's profile (data version 7148 or 7230).
+    pub fn ac2e_logon(&self) -> bool {
+        self.ac2e
+    }
+
     /// The inventory as the player's scripts would keep it.
     pub fn inventory(&self) -> &InventoryState {
         &self.inventory
