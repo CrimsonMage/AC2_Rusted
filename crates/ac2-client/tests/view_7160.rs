@@ -418,6 +418,21 @@ fn the_client_walks_with_w_and_draws_its_character() {
             )),
             "{commands:?}"
         );
+        // The panel's `StartExamination` reaches the player's script, as the window sends it: the
+        // examination panel opens at login now (the modern skill panel's first page opens it, as a
+        // tab press does) and tells the player's script once, when it shows.
+        let start: Vec<_> = commands
+            .into_iter()
+            .filter(|c| matches!(c, ac2_client::Command::StartExamination(_)))
+            .collect();
+        if !start.is_empty() {
+            client
+                .use_time(&FrameInput {
+                    commands: start,
+                    ..FrameInput::default()
+                })
+                .unwrap();
+        }
         if view.shortcut_slots() > 0 {
             ready = true;
             break;
@@ -674,10 +689,12 @@ fn the_client_walks_with_w_and_draws_its_character() {
     // The radar's creatures and NPC (drawn on the radar in the last snapshot): their looks come
     // once their scripts run.
     server.borrow_mut().spawn_radar_objects();
-    for _ in 0..40 {
+    // The looks load on worker threads, so the wait is for the blips, not a count of frames.
+    for _ in 0..600 {
         if client.frame().radar.blips.len() == 3 {
             break;
         }
+        std::thread::sleep(Duration::from_millis(10));
         let now = client.frame();
         let notices = client.take_script_notices();
         let commands = view.frameworks(&mut client, &now, &events, &notices);

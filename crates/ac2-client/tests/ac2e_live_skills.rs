@@ -309,3 +309,38 @@ fn the_players_craft_skill_and_recipes_reach_the_client() {
     assert!(recipes.iter().any(|r| r.did == HEALTH_RECIPE));
     assert!(recipes.iter().any(|r| r.did == VIGOR_RECIPE));
 }
+
+/// Opening the skill panel (its first page asks for the melee panel and opens the examination
+/// panel) must not stop an object's examination from showing its profile afterwards.
+#[test]
+fn examining_an_object_after_opening_the_skill_panel_shows_its_profile() {
+    let Some(mut rig) = rig_for("Skillexamine") else {
+        return;
+    };
+    ready(&mut rig);
+    rig.panel(ToolbarChild::Skill, true);
+    assert!(
+        rig.until(20.0, |r| !r.view.skill_nodes().is_empty()),
+        "the skill panel lists no skills"
+    );
+    let me = rig.client.session().player().unwrap();
+    let (target, name) = rig
+        .client
+        .session()
+        .objects()
+        .iter()
+        .find(|o| o.id != me && o.name.is_some())
+        .map(|o| (o.id, o.name.as_ref().unwrap().to_string()))
+        .expect("a named object near the start");
+    rig.command(Command::Select(Some(target)));
+    rig.command(Command::Examine(
+        ac2_net::protocol::ExaminationRequest::object(target),
+    ));
+    rig.view.open_examination();
+    let shown = rig.until(20.0, |r| r.view.examination_texts().iter().any(|t| *t == name));
+    assert!(
+        shown,
+        "the examination shows no profile: {:?}",
+        rig.view.examination_texts()
+    );
+}
