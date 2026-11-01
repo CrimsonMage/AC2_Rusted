@@ -289,9 +289,7 @@ impl Drop for LiveRig {
         if let Some(character) = character {
             self.client.session_mut().delete_character(character);
             let _ = self.until(5.0, |r| {
-                r.seen
-                    .iter()
-                    .any(|e| *e == SessionEvent::CharacterDeleted(character))
+                r.seen.contains(&SessionEvent::CharacterDeleted(character))
             });
         }
     }
