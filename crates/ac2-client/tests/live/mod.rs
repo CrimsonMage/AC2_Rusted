@@ -88,6 +88,8 @@ pub struct LiveRig {
     pub account: String,
     pub name: String,
     pending: Vec<Command>,
+    /// Input actions held down every frame (movement keys), as the window's key state sends.
+    pub held: Vec<ac2_weenie::ActiveAction>,
     /// The commands the HUD's frameworks asked for, in order.
     pub asked: Vec<Command>,
     /// `gmSelectionUI`, fed the way `bin/ac2/main.rs` feeds it (a click in the world selects).
@@ -209,6 +211,7 @@ impl LiveRig {
             account,
             name: name.to_owned(),
             pending: Vec::new(),
+            held: Vec::new(),
             asked: Vec::new(),
             selection: SelectionUi::default(),
             seen: Vec::new(),
@@ -228,6 +231,7 @@ impl LiveRig {
             self.selection.message(&message);
         }
         let input = FrameInput {
+            actions: self.held.clone(),
             commands: std::mem::take(&mut self.pending),
             ..FrameInput::default()
         };

@@ -183,6 +183,31 @@ fn a_teleport_runs_the_portal_space_and_places_the_player_at_the_destination() {
             teleport_stamp: 6,
         }]
     );
+
+    // The player walks in the interior: a second forward moves the body off its placement.
+    let placed_at = client.frame().player.as_ref().unwrap().origin;
+    let walk = FrameInput {
+        actions: vec![ac2_weenie::ActiveAction {
+            class: ac2_weenie::ACTION_CLASS_MOVEMENT,
+            enum_value: ac2_weenie::ACTION_FORWARD,
+            map_extent: 1.0,
+            extent: 1.0,
+        }],
+        ..FrameInput::default()
+    };
+    for _ in 0..64 {
+        step(&mut client, &server, &walk);
+    }
+    let walked = client.frame().player.as_ref().unwrap().clone();
+    let moved = ((walked.origin[0] - placed_at[0]).powi(2)
+        + (walked.origin[1] - placed_at[1]).powi(2))
+    .sqrt();
+    assert!(
+        moved > 1.0,
+        "the body walked {moved} m from {placed_at:?} (velocity {:?}, contact {})",
+        walked.velocity,
+        walked.contact
+    );
 }
 
 /// `gmGamePlayUI::gmGamePlayUI`: the gameplay UI starts in portal space at once
