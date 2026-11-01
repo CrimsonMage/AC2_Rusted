@@ -7,6 +7,7 @@
 #
 #   scripts/ac2e-live-test.sh [cargo test filter and options]
 #
+# AC2E_LIVE_SERVER_ARGS adds `ac2e serve` options (later ones win).
 # AC2E_LIVE_PROFILE picks the cargo profile (default release; `dev` builds much faster).
 # AC2E_LIVE_TEST picks the test target (default ac2e_live; ac2e_live_inventory needs the Legions
 # profile: AC2_DAT_DIR on the DVD DATs, AC2E_DATA=legions for the server and AC2E_LIVE_VERSION=7148
@@ -20,7 +21,8 @@ state=$(mktemp -d "${TMPDIR:-/tmp}/ac2e-live.XXXXXX")
 log=$state/server.log
 port=${AC2E_LIVE_PORT:-19600}
 export AC2E_STATE=$state AC2E_BIND=127.0.0.1:$port AC2E_GUN_BIND=127.0.0.1:$((port + 2))
-"$root/scripts/ac2e-server.sh" --account livetest > "$log" 2>&1 &
+# shellcheck disable=SC2086 # AC2E_LIVE_SERVER_ARGS is a list of options
+"$root/scripts/ac2e-server.sh" --account livetest ${AC2E_LIVE_SERVER_ARGS:-} > "$log" 2>&1 &
 server=$!
 stop() {
   touch "$state/data/stop.request" 2>/dev/null || true
