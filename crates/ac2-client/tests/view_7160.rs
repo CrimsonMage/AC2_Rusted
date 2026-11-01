@@ -402,12 +402,19 @@ fn the_client_walks_with_w_and_draws_its_character() {
         // Only the hidden allegiance page's request for nobody's profile
         // (`gmAllegianceUI::UpdateShowState`), and on 7230 the examination panel's switch to its
         // tabbed form with the classic option off, which asks for the examination again with
-        // the General tab's word (7230 `gmExaminationUI` 0x00432160).
+        // the General tab's word (7230 `gmExaminationUI` 0x00432160), the player's script
+        // clearing the selection as its process starts, and the modern skill panel opening its
+        // first page (the race's melee panel, `SkillTreeUi::open_first_page`).
         assert!(
             commands.iter().all(|c| matches!(
                 c,
                 ac2_client::Command::Social(ac2_weenie::SocialRequest::QueryAllegianceProfile(0))
                     | ac2_client::Command::StartExamination(0x203)
+                    | ac2_client::Command::Select(None)
+                    | ac2_client::Command::Examine(ac2_net::protocol::ExaminationRequest {
+                        kind: ac2_ui::EXAMINE_PANEL,
+                        ..
+                    })
             )),
             "{commands:?}"
         );

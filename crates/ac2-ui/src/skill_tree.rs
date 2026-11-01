@@ -175,6 +175,8 @@ pub struct SkillTreeUi {
     /// The panel was just shown with nothing loaded: [`SkillTreeUi::open_first_page`] asks for
     /// the melee page.
     wants_first_page: bool,
+    /// The modern first page was asked for (once per panel life, as a tab press would).
+    first_page_asked: bool,
 }
 
 /// `InitElements`: the tab buttons and their root panels.
@@ -208,6 +210,7 @@ impl SkillTreeUi {
             shown: None,
             modern: false,
             wants_first_page: false,
+            first_page_asked: false,
         }
     }
 
@@ -228,6 +231,7 @@ impl SkillTreeUi {
     /// tab's request ([`SkillTreeUi::handle_element`]).
     pub fn open_first_page(&mut self, tree: &mut UiTree, source: &dyn SkillSource) {
         if std::mem::take(&mut self.wants_first_page) && self.current_panel == 0 {
+            self.first_page_asked = true;
             self.handle_element(tree, source, id("MeleeButton"));
         }
     }
@@ -694,11 +698,29 @@ impl SkillTreeUi {
             return;
         };
         let shown = field.visible();
+        // The first page loads only once the panel is on screen: its field and every element
+        // above it shown (the field itself is visible while its hidden window holds it).
+        let on_screen = {
+            let mut at = Some(self.field);
+            let mut all = true;
+            while let Some(element) = at.and_then(|i| tree.get(i)) {
+                all &= element.visible();
+                at = element.parent_index();
+            }
+            all
+        };
+        if !on_screen {
+            self.wants_first_page = false;
+        }
         if self.shown == Some(shown) {
+            if on_screen && self.modern && self.current_panel == 0 && !self.first_page_asked {
+                self.wants_first_page = true;
+            }
             return;
         }
         self.shown = Some(shown);
-        self.wants_first_page = shown && self.modern && self.current_panel == 0;
+        self.wants_first_page =
+            on_screen && self.modern && self.current_panel == 0 && !self.first_page_asked;
         for confirm in [&mut self.train, &mut self.untrain, &mut self.cancel] {
             dialogs.close_dialog(tree, confirm.context);
             *confirm = Confirm::default();

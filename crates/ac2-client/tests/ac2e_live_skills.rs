@@ -42,7 +42,9 @@ fn wait(rig: &mut LiveRig, what: &str, mut ready: impl FnMut(&mut LiveRig) -> bo
 
 /// The player's script process answers (the skill queries need it), and experience is there.
 fn ready(rig: &mut LiveRig) {
-    wait(rig, "the player's script", |r| r.client.skill_credits().is_ok());
+    wait(rig, "the player's script", |r| {
+        r.client.skill_credits().is_ok()
+    });
     for _ in 0..60 * 60 {
         let progress = rig.client.frame().progress;
         if progress.experience.available_xp > 0 && !progress.skills.skills.is_empty() {
@@ -225,7 +227,10 @@ fn a_skill_is_used_and_its_vigor_is_spent_and_comes_back() {
     let before = vitals(&rig);
     let (health, vigor) = (before.health.unwrap(), before.vigor.unwrap());
     assert!(health.current < health.max, "the character starts hurt");
-    assert_eq!(vigor.current, vigor.max, "the character starts with its vigor");
+    assert_eq!(
+        vigor.current, vigor.max,
+        "the character starts with its vigor"
+    );
 
     assert_eq!(rig.client.use_shortcut(slot), Ok(1));
     wait(&mut rig, "the vigor spent", |r| {
@@ -255,7 +260,13 @@ fn a_skill_is_used_and_its_vigor_is_spent_and_comes_back() {
     let mut back = false;
     for _ in 0..30 * 60 {
         rig.frame(&[]);
-        if rig.client.frame().player_vitals.vigor.is_some_and(|v| v.current > low) {
+        if rig
+            .client
+            .frame()
+            .player_vitals
+            .vigor
+            .is_some_and(|v| v.current > low)
+        {
             back = true;
             break;
         }
@@ -263,7 +274,10 @@ fn a_skill_is_used_and_its_vigor_is_spent_and_comes_back() {
     let attacked = rig.seen[..]
         .iter()
         .any(|e| format!("{e:?}").contains("hits you"));
-    eprintln!("vigor back: {back}, attacked: {attacked} ({} events)", rig.seen.len() - mark);
+    eprintln!(
+        "vigor back: {back}, attacked: {attacked} ({} events)",
+        rig.seen.len() - mark
+    );
     assert!(back || attacked, "the vigor never came back");
 }
 
