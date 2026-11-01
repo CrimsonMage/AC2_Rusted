@@ -129,34 +129,42 @@ fn the_craft_panel_lists_the_players_craft_skills() {
     );
 }
 
-/// The recipes of the craft skill, reached down the panel's views as the player does.
-#[test]
-fn a_recipe_is_crafted_from_the_panel() {
-    let Some(mut rig) = rig_for("Craftdo") else {
-        return;
-    };
-    open_craft_tab(&mut rig);
+/// Down the craft panel's views as the player goes (the skill, its category, the vigor recipe),
+/// to the ingredient panel open on the recipe's two slots; then the inventory drawer in place of
+/// the craft panel. Returns the pack's items.
+fn open_vigor_recipe(rig: &mut LiveRig) -> Vec<u64> {
+    open_craft_tab(rig);
     assert!(
         rig.until(10.0, |r| rows(r, "CraftSkillList").len() == 1),
         "the craft skill list"
     );
-    let skill = rows(&rig, "CraftSkillList")[0];
-    double_click_row(&mut rig, skill);
-    assert_eq!(craft_view(&rig), tokenize("craftskillcategoryview"));
-    let categories = rows(&rig, "CraftSkillCategoryList");
-    assert_eq!(categories.len(), 1, "one category of recipes");
-    double_click_row(&mut rig, categories[0]);
-    assert_eq!(craft_view(&rig), tokenize("recipeview"));
-    let recipes = rows(&rig, "RecipeList");
-    assert_eq!(recipes.len(), 2, "the health and the vigor recipe");
+    let skill = rows(rig, "CraftSkillList")[0];
+    double_click_row(rig, skill);
+    assert_eq!(craft_view(rig), tokenize("craftskillcategoryview"));
+    // The rows fill once the records they name are read (the panel refreshes then).
+    assert!(
+        rig.until(10.0, |r| rows(r, "CraftSkillCategoryList").len() == 1),
+        "one category of recipes"
+    );
+    let categories = rows(rig, "CraftSkillCategoryList");
+    double_click_row(rig, categories[0]);
+    assert_eq!(craft_view(rig), tokenize("recipeview"));
+    assert!(
+        rig.until(10.0, |r| rows(r, "RecipeList").len() == 2),
+        "the health and the vigor recipe"
+    );
+    let recipes = rows(rig, "RecipeList");
     let vigor = recipes
         .iter()
         .copied()
-        .find(|&r| row_did(&rig, r) == VIGOR_RECIPE)
+        .find(|&r| row_did(rig, r) == VIGOR_RECIPE)
         .expect("the vigor recipe's row");
-    double_click_row(&mut rig, vigor);
+    double_click_row(rig, vigor);
     assert!(
-        rig.until(5.0, |r| r.view.ui_element_center("RealIngredientField").is_some()
+        rig.until(5.0, |r| r
+            .view
+            .ui_element_center("RealIngredientField")
+            .is_some()
             && rows(r, "IngredientListBox").len() == 2),
         "the ingredient panel opens on the recipe's two ingredients"
     );
@@ -165,8 +173,50 @@ fn a_recipe_is_crafted_from_the_panel() {
     rig.panel(ToolbarChild::Skill, false);
     rig.panel(ToolbarChild::Inventory, true);
     rig.run(1.0);
-    let pack_before = rig.view.item_icons(PACK);
-    assert!(pack_before.len() >= 2, "the development kit's items");
+    let pack = rig.view.item_icons(PACK);
+    assert!(pack.len() >= 2, "the development kit's items");
+    pack
+}
+
+/// The crafted result: the craft is done, the ingredients left the pack, one new item came,
+/// and the slots emptied (`gmIngredientUI::RecvNotice_BeingDeleted`).
+fn assert_crafted(rig: &mut LiveRig, mark: usize, pack_before: &[u64]) {
+    assert!(
+        rig.until(10.0, |r| r.seen[mark..].iter().any(|e| matches!(
+            e,
+            SessionEvent::Notice(GameplayNotice::ExecuteCraftDone { recipe, error: 0 })
+                if *recipe == VIGOR_RECIPE
+        ))),
+        "no ExecuteCraftDone: {:?}",
+        rig.client.take_script_problems()
+    );
+    rig.run(1.0);
+    let pack_after = rig.view.item_icons(PACK);
+    let made: Vec<u64> = pack_after
+        .iter()
+        .copied()
+        .filter(|i| !pack_before.contains(i))
+        .collect();
+    assert_eq!(
+        made.len(),
+        1,
+        "one crafted item in the pack: {pack_after:x?}"
+    );
+    assert_eq!(pack_after.len(), pack_before.len() - 2 + 1);
+    assert!(
+        rig.until(5.0, |r| filled_slots(r).iter().all(Option::is_none)),
+        "the slots still hold {:x?}",
+        filled_slots(rig)
+    );
+}
+
+/// The recipes of the craft skill, reached down the panel's views as the player does.
+#[test]
+fn a_recipe_is_crafted_from_the_panel() {
+    let Some(mut rig) = rig_for("Craftdo") else {
+        return;
+    };
+    let pack_before = open_vigor_recipe(&mut rig);
 
     // Each ingredient is dragged from the pack into its slot: the pack item the recipe accepts
     // for the slot (`CheckIngredient`, which the panel asks to take a drop), the slot's row.
@@ -179,7 +229,11 @@ fn a_recipe_is_crafted_from_the_panel() {
         let item = pack_before
             .iter()
             .copied()
-            .find(|&i| rig.client.check_ingredient(VIGOR_RECIPE, ingredient.id, i, 0) == Some(true))
+            .find(|&i| {
+                rig.client
+                    .check_ingredient(VIGOR_RECIPE, ingredient.id, i, 0)
+                    == Some(true)
+            })
             .expect("a pack item for the ingredient");
         let from = rig.view.item_icon_center(PACK, item).unwrap();
         let to = rig.view.ui_index_center(*slot).unwrap();
@@ -190,38 +244,39 @@ fn a_recipe_is_crafted_from_the_panel() {
             "the slot takes the ingredient the server accepted"
         );
     }
-    assert_eq!(filled_slots(&rig), used.iter().map(|&i| Some(i)).collect::<Vec<_>>());
+    assert_eq!(
+        filled_slots(&rig),
+        used.iter().map(|&i| Some(i)).collect::<Vec<_>>()
+    );
 
     // The craft button: the result comes back and the ingredients are gone.
     let mark = rig.seen.len();
     press(&mut rig, "CraftButton");
-    assert!(
-        rig.until(10.0, |r| r.seen[mark..].iter().any(|e| matches!(
-            e,
-            SessionEvent::Notice(GameplayNotice::ExecuteCraftDone { recipe, error: 0 })
-                if *recipe == VIGOR_RECIPE
-        ))),
-        "no ExecuteCraftDone: {:?}",
-        rig.client.take_script_problems()
-    );
-    rig.run(1.0);
+    assert_crafted(&mut rig, mark, &pack_before);
     let pack_after = rig.view.item_icons(PACK);
     assert!(
         used.iter().all(|i| !pack_after.contains(i)),
         "the ingredients left the pack: {pack_after:x?}"
     );
-    let made: Vec<u64> = pack_after
-        .iter()
-        .copied()
-        .filter(|i| !pack_before.contains(i))
-        .collect();
-    assert_eq!(made.len(), 1, "one crafted item in the pack");
-    assert_eq!(pack_after.len(), pack_before.len() - 2 + 1);
-    // The ingredient panel follows: the consumed objects left their slots
-    // (`gmIngredientUI::RecvNotice_BeingDeleted`).
+}
+
+/// Auto-Populate (`gmIngredientUI::AutoPopulateIngredients`) fills the slots from the pack, and
+/// the craft goes through: the request's leading id (the player's selection, no ingredient as
+/// nothing was dragged) is taken by the server as the first ingredient.
+#[test]
+#[ignore = "the player script's RequestExecuteCraft crashes (BadReference) with nothing selected"]
+fn an_auto_populated_recipe_is_crafted() {
+    let Some(mut rig) = rig_for("Craftauto") else {
+        return;
+    };
+    let pack_before = open_vigor_recipe(&mut rig);
+    press(&mut rig, "AutoPopulateButton");
     assert!(
-        rig.until(5.0, |r| filled_slots(r).iter().all(Option::is_none)),
-        "the slots still hold {:x?}",
+        rig.until(5.0, |r| filled_slots(r).iter().all(Option::is_some)),
+        "Auto-Populate fills both slots: {:x?}",
         filled_slots(&rig)
     );
+    let mark = rig.seen.len();
+    press(&mut rig, "CraftButton");
+    assert_crafted(&mut rig, mark, &pack_before);
 }
