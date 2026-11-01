@@ -358,7 +358,13 @@ pub fn build_styled_hud(
         .iter()
         .find_map(|&r| tree.child_recursive(r, tokenize("SkillField")));
     let skills = match (&layouts[&LAYOUT_TOOLBAR], skill_field) {
-        (Some(toolbar), Some(field)) => Some(SkillTreeUi::create(&tree, toolbar, field)),
+        (Some(toolbar), Some(field)) => {
+            let mut skills = SkillTreeUi::create(&tree, toolbar, field);
+            if style == HudStyle::Modern {
+                skills.set_modern(&mut tree);
+            }
+            Some(skills)
+        }
         _ => None,
     };
     // `gmCraftUI::gmCraftUI`: the craft panel over `CraftPage`.

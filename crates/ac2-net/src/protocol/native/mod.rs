@@ -40,6 +40,8 @@ pub mod ntype {
     pub const A_ARRAY: u32 = 0x05;
     pub const A_HASH_SET: u32 = 0x06;
     pub const AL_HASH: u32 = 0x08;
+    /// A hash of an item's appearance overrides (seen empty in the inventory profile).
+    pub const APPEARANCE_HASH: u32 = 0x0F;
     pub const A_LIST: u32 = 0x0A;
     pub const AR_HASH: u32 = 0x11;
     pub const BEHAVIOR_PARAMS: u32 = 0x17;
@@ -58,6 +60,8 @@ pub mod ntype {
     pub const STRING_INFO: u32 = 0x6A;
     pub const UI_SAVE_LOCATIONS: u32 = 0x6F;
     pub const VECTOR: u32 = 0x70;
+    /// `VisualDesc` (`CNativeFactory` 0x71).
+    pub const VISUAL_DESC: u32 = 0x71;
     /// `wpstring` (`PStringBase<unsigned short>`).
     pub const WPSTRING: u32 = 0x76;
     pub const LA_HASH_SET: u32 = 0x2E0B;
@@ -122,6 +126,9 @@ pub enum NativeObject {
     GmActInfoList(Vec<GmActInfo>),
     /// A type that packs no data (the allegiance and fellowship adaptors): its type id.
     Empty(u32),
+    /// A native kept as its packed bytes (`VisualDesc`: an item's appearance in the inventory
+    /// profile).
+    Raw { native_type: u32, bytes: Vec<u8> },
 }
 
 impl NativeObject {
@@ -152,7 +159,7 @@ impl NativeObject {
             Self::GmQuestInfoList(_) => ntype::GM_QUEST_INFO_LIST,
             Self::GmActInfo(_) => ntype::GM_ACT_INFO,
             Self::GmActInfoList(_) => ntype::GM_ACT_INFO_LIST,
-            Self::Empty(native_type) => *native_type,
+            Self::Empty(native_type) | Self::Raw { native_type, .. } => *native_type,
         }
     }
 
@@ -192,6 +199,18 @@ impl NativeObject {
             | ntype::ALLEGIANCE_PROFILE_ADAPTOR
             | ntype::FELLOW_ADAPTOR
             | ntype::FELLOWSHIP_ADAPTOR => Self::Empty(native_type),
+            ntype::VISUAL_DESC => {
+                // `VisualDesc::Pack`: kept as packed (the port has no packer; the scripts hold
+                // the object opaque).
+                let rest = r.peek_rest();
+                let before = r.remaining();
+                crate::protocol::visual::VisualDesc::read(r)?;
+                let used = before - r.remaining();
+                Self::Raw {
+                    native_type,
+                    bytes: rest[..used].to_vec(),
+                }
+            }
             _ => return Err(ProtocolError::Unsupported("native type")),
         })
     }
@@ -228,6 +247,7 @@ impl NativeObject {
             Self::GmActInfo(act) => act.write(w),
             Self::GmActInfoList(list) => GmActInfo::write_list(list, w),
             Self::Empty(_) => {}
+            Self::Raw { bytes, .. } => w.bytes.extend_from_slice(bytes),
         }
     }
 

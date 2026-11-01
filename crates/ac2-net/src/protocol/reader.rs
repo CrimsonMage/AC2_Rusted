@@ -38,6 +38,11 @@ impl<'a> Reader<'a> {
         self.bytes.len() - self.pos
     }
 
+    /// The bytes from the read position on, without reading them.
+    pub(crate) fn peek_rest(&self) -> &'a [u8] {
+        &self.bytes[self.pos..]
+    }
+
     pub(crate) fn rest(&mut self) -> &'a [u8] {
         let rest = &self.bytes[self.pos..];
         self.pos = self.bytes.len();

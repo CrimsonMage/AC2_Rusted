@@ -170,6 +170,11 @@ pub struct SkillTreeUi {
     cancel: Confirm,
     /// The field's shown state at the last [`SkillTreeUi::follow_show_state`].
     shown: Option<bool>,
+    /// The modern style (see [`SkillTreeUi::set_modern`]).
+    modern: bool,
+    /// The panel was just shown with nothing loaded: [`SkillTreeUi::open_first_page`] asks for
+    /// the melee page.
+    wants_first_page: bool,
 }
 
 /// `InitElements`: the tab buttons and their root panels.
@@ -201,6 +206,29 @@ impl SkillTreeUi {
             untrain: Confirm::default(),
             cancel: Confirm::default(),
             shown: None,
+            modern: false,
+            wants_first_page: false,
+        }
+    }
+
+    /// The modern style's skill panel (an addition; the classic panel is retail's): the tree is
+    /// laid out from the top down, its first row (the roots) at the top and the view at the top
+    /// of the paper, where retail grew it upward from the bottom row (`UIElement_Tree::
+    /// UpdateLayout` without `orient_high`, `End` at the far corner); and showing the panel with
+    /// nothing loaded asks for the melee page as its tab does, where retail left the tree empty
+    /// until a tab was pressed.
+    pub fn set_modern(&mut self, tree: &mut UiTree) {
+        self.modern = true;
+        if let Some(skill_tree) = self.tree {
+            tree.set_bool(skill_tree, id("orient_high"), true);
+        }
+    }
+
+    /// The modern style's first page: after the panel is shown with nothing loaded, the melee
+    /// tab's request ([`SkillTreeUi::handle_element`]).
+    pub fn open_first_page(&mut self, tree: &mut UiTree, source: &dyn SkillSource) {
+        if std::mem::take(&mut self.wants_first_page) && self.current_panel == 0 {
+            self.handle_element(tree, source, id("MeleeButton"));
         }
     }
 
@@ -274,6 +302,9 @@ impl SkillTreeUi {
             }
             tree.tree_multi_op_complete(skill_tree);
             tree.tree_end(skill_tree);
+            if self.modern {
+                tree.tree_view_top(skill_tree);
+            }
         }
         self.selected_skill = 0;
         if let Some(name) = self.selected_name {
@@ -667,6 +698,7 @@ impl SkillTreeUi {
             return;
         }
         self.shown = Some(shown);
+        self.wants_first_page = shown && self.modern && self.current_panel == 0;
         for confirm in [&mut self.train, &mut self.untrain, &mut self.cancel] {
             dialogs.close_dialog(tree, confirm.context);
             *confirm = Confirm::default();

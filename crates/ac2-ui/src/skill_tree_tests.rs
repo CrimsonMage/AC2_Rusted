@@ -506,3 +506,52 @@ fn a_trained_skill_dragged_onto_the_bar_becomes_a_shortcut() {
     };
     assert_eq!(bar.take_requests(), vec![ShortcutRequest::Set(2, skill)]);
 }
+
+/// The modern panel lays the tree out from the top down and asks for the melee page when it is
+/// shown with nothing loaded (the classic panel stays retail's: children above their parents,
+/// empty until a tab is pressed).
+#[test]
+fn the_modern_panel_lays_out_top_down_and_opens_on_melee() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap().tree;
+    let layout = crate::hud::load_layout_by_enum(&store, 0x4100_0003)
+        .unwrap()
+        .unwrap();
+    let field = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("SkillField")))
+        .unwrap();
+    let mut ui = SkillTreeUi::create(&tree, &layout, field);
+    ui.set_modern(&mut tree);
+    let mut dialogs = DialogFactory::new(None);
+    let skill_tree = tree.child_recursive(field, tokenize("SkillTree")).unwrap();
+    // Shown with nothing loaded: the melee tab's request.
+    tree.set_visible(field, true);
+    ui.follow_show_state(&mut tree, &mut dialogs);
+    ui.open_first_page(&mut tree, &Stub);
+    assert_eq!(
+        ui.take_requests(),
+        vec![SkillRequest::Examine {
+            kind: EXAMINE_PANEL,
+            data: PANEL
+        }]
+    );
+    ui.examination_request_changed(&mut tree, &Stub, EXAMINE_PANEL, PANEL);
+    let base = tree.tree_item(skill_tree, 0, 0).expect("base node");
+    let child = tree.tree_item(skill_tree, 0, 1).expect("child node");
+    assert!(tree.get(child).unwrap().rect.y0 > tree.get(base).unwrap().rect.y0);
+    // The roots are at the top of the view.
+    assert!(tree.get(base).unwrap().rect.y0 >= 0);
+    assert_eq!(tree.tree_percentage(skill_tree, true), 0.0);
+    // Shown again with a page loaded: no new request.
+    tree.set_visible(field, false);
+    ui.follow_show_state(&mut tree, &mut dialogs);
+    tree.set_visible(field, true);
+    ui.follow_show_state(&mut tree, &mut dialogs);
+    ui.open_first_page(&mut tree, &Stub);
+    assert!(ui.take_requests().is_empty());
+}

@@ -21,6 +21,17 @@ state=$(mktemp -d "${TMPDIR:-/tmp}/ac2e-live.XXXXXX")
 log=$state/server.log
 port=${AC2E_LIVE_PORT:-19600}
 export AC2E_STATE=$state AC2E_BIND=127.0.0.1:$port AC2E_GUN_BIND=127.0.0.1:$((port + 2))
+# The skills file runs on AC2e's development kit (`--training-kit true`: the active-skill rules and
+# craft recipes) with AC2e's development knobs: a new character starts with this much experience
+# (levels, credits and experience to spend) and this much health already lost (something for a
+# healing skill to heal). Only this file's run sets them; the others see ordinary new characters.
+case ${AC2E_LIVE_TEST:-} in
+  ac2e_live_skills*)
+    AC2E_LIVE_SERVER_ARGS="--training-kit true ${AC2E_LIVE_SERVER_ARGS:-}"
+    export AC2E_LIVE_TRAINING_KIT=1
+    export AC2E_DEV_START_XP=${AC2E_DEV_START_XP:-3000} AC2E_DEV_START_DAMAGE=${AC2E_DEV_START_DAMAGE:-40}
+    ;;
+esac
 # shellcheck disable=SC2086 # AC2E_LIVE_SERVER_ARGS is a list of options
 "$root/scripts/ac2e-server.sh" --account livetest ${AC2E_LIVE_SERVER_ARGS:-} > "$log" 2>&1 &
 server=$!

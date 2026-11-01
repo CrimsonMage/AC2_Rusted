@@ -358,6 +358,9 @@ pub fn tick_pass<P: HudSource>(
         skills.follow_show_state(tree, dialogs);
     }
     if let Some(skills) = skills.as_mut() {
+        skills.open_first_page(tree, player);
+    }
+    if let Some(skills) = skills.as_mut() {
         out.extend(skills.take_requests().into_iter().map(HudRequest::Skill));
     }
     if let Some(bar) = shortcuts.as_mut() {

@@ -46,7 +46,9 @@ fn shape(native_type: u32) -> Option<Shape> {
     Some(match native_type {
         A_LIST | R_LIST | A_ARRAY | R_ARRAY => Shape::List(U32),
         L_LIST | L_ARRAY => Shape::List(U64),
-        AA_HASH | AR_HASH => Shape::Hash(U32, Some(U32)),
+        // 0x0F is an item's appearance-override hash in the inventory profile; the server sends
+        // it empty, so its element widths are the common ones.
+        AA_HASH | AR_HASH | APPEARANCE_HASH => Shape::Hash(U32, Some(U32)),
         AL_HASH => Shape::Hash(U32, Some(U64)),
         LA_HASH | LR_HASH => Shape::Hash(U64, Some(U32)),
         LL_HASH => Shape::Hash(U64, Some(U64)),

@@ -423,6 +423,17 @@ game rules and server-visible behaviour exactly retail.
   images but new art made from them; regenerate them with `cargo run -p ac2-ui --example
   bake_panel_icons -- AC2_DAT_DIR AC1_DAT_DIR` (`ac2_assets::ac1_icons` reads AC1's container
   through `ac2_dat`'s retail layout).
+- Exception: the modern style's skill panel lays its trees out top down and opens on a page.
+  Retail's `UIElement_Tree` for `SkillTree` had no `orient_high`, so `UpdateLayout` put grid row 0
+  at the bottom of the paper, grew the tree upward, and `UIElement_Tree::End` scrolled the view
+  to the far corner (the bottom, the roots). Retail also loaded a page only when a tab was
+  pressed (`gmSkillTreeUI::HandleElement`), so the panel opened empty. Here the modern style
+  (`SkillTreeUi::set_modern`) sets `orient_high` on the tree (the retail layout path that puts row 0
+  at the top, each parent above its children, the connector lines from a parent's foot to a
+  child's head), scrolls to the top after a page loads (`UiTree::tree_view_top`), and the first
+  time the panel is shown with nothing loaded asks for the melee page as its tab does
+  (`SkillTreeUi::open_first_page`, the same `SetExaminationRequest` the tab makes). The classic
+  style keeps retail's bottom-up layout and the empty first show.
 - Exception: the radar shows the player's map coordinates under the compass by default.
   Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
   profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it

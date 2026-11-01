@@ -66,6 +66,12 @@ impl UiTree {
     }
 
     /// Sets `y_view` within the scrollable range, lays the items out and moves the bar to match.
+    /// The view at the top of the paper (the modern skill panel's top-down layout shows its
+    /// roots first); retail's `End` goes to the far corner.
+    pub fn tree_view_top(&mut self, tree: usize) {
+        self.tree_set_view_y(tree, 0);
+    }
+
     fn tree_set_view_y(&mut self, tree: usize, y: i32) {
         let range = self.tree_scroll_range(tree);
         self.tree_state(tree).view.1 = y.clamp(0, range);
