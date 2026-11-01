@@ -136,14 +136,27 @@ fn keyframe_mut(vm: &mut Vm, reference: u32) -> Option<&mut Keyframe> {
     }
 }
 
-fn scene(vm: &Vm, reference: u32) -> Option<&SceneInfo> {
+/// A `gmSceneInfo`'s value: the VM's own, or one unpacked from a WState, which stays in its
+/// wire form (`StreamPack`'s fields, so it packs back byte for byte) until a setter changes it.
+fn scene(vm: &Vm, reference: u32) -> Option<SceneInfo> {
     match vm.native(reference)? {
-        NativeObject::SceneInfo(s) => Some(&**s),
+        NativeObject::SceneInfo(s) => Some((**s).clone()),
+        NativeObject::Wire(wire) => match &**wire {
+            ac2_net::protocol::NativeObject::GmSceneInfo(s) => Some(crate::wire::scene_from_net(s)),
+            _ => None,
+        },
         _ => None,
     }
 }
 
+/// A `gmSceneInfo` to change: a wire-form scene becomes the VM's own first.
 fn scene_mut(vm: &mut Vm, reference: u32) -> Option<&mut SceneInfo> {
+    if let NativeObject::Wire(wire) = vm.native(reference)? {
+        if let ac2_net::protocol::NativeObject::GmSceneInfo(s) = &**wire {
+            let own = crate::wire::scene_from_net(s);
+            *vm.native_mut(reference)? = NativeObject::SceneInfo(Box::new(own));
+        }
+    }
     match vm.native_mut(reference)? {
         NativeObject::SceneInfo(s) => Some(&mut **s),
         _ => None,
@@ -295,7 +308,7 @@ fn scene_do(vm: &mut Vm, ctx: &mut Context, f: impl FnOnce(&mut SceneInfo)) -> I
 /// A `gmSceneInfo` getter: the word `f` reads, returned in slot 2.
 fn get_scene(vm: &mut Vm, ctx: &mut Context, f: fn(&SceneInfo) -> u32) -> InterpStatus {
     let this = Call::new(ctx).this();
-    let Some(v) = scene(vm, this).map(f) else {
+    let Some(v) = scene(vm, this).as_ref().map(f) else {
         return vm.bad_this(this);
     };
     Call::new(ctx).ret(2, v, INT_RESULT);
@@ -327,7 +340,7 @@ fn set_id_by_name(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 /// `gmSceneInfo::GetName`: a copy of the name as a new native.
 fn get_name(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let this = Call::new(ctx).this();
-    let Some(name) = scene(vm, this).map(|s| s.name.clone()) else {
+    let Some(name) = scene(vm, this).map(|s| s.name) else {
         return vm.bad_this(this);
     };
     let r = new_text(vm, &name);
@@ -349,7 +362,7 @@ fn set_name(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 /// `gmSceneInfo::Set(model)`: this scene becomes a copy of `model`.
 fn set_from_model(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let (this, model) = (Call::new(ctx).this(), word(ctx, 2));
-    let Some(copy) = scene(vm, model).cloned() else {
+    let Some(copy) = scene(vm, model) else {
         return vm.bad_this(model);
     };
     let Some(s) = scene_mut(vm, this) else {
@@ -399,7 +412,7 @@ fn num_elements(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 
 /// `ggmSceneInfoList::push_tail(scene)`: a copy at the end; returns 1.
 fn push_tail(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    let Some(s) = scene(vm, word(ctx, 2)).cloned() else {
+    let Some(s) = scene(vm, word(ctx, 2)) else {
         return vm.bad_this(word(ctx, 2));
     };
     with_list(vm, ctx, 3, |l| {
@@ -411,7 +424,7 @@ fn push_tail(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 /// `ggmSceneInfoList::insert_sort(scene)`: before the first scene with a larger scene number;
 /// returns 1.
 fn insert_sort(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    let Some(s) = scene(vm, word(ctx, 2)).cloned() else {
+    let Some(s) = scene(vm, word(ctx, 2)) else {
         return vm.bad_this(word(ctx, 2));
     };
     with_list(vm, ctx, 3, |l| {
@@ -495,7 +508,7 @@ fn verify_keyframe(data: &dyn crate::vm::ScriptData, k: &Keyframe, error: &mut S
 fn verify(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let call = Call::new(ctx);
     let (this, out) = (call.this(), call.word(2));
-    let Some(scene) = scene(vm, this).cloned() else {
+    let Some(scene) = scene(vm, this) else {
         return vm.bad_this(this);
     };
     let mut error = String::new();

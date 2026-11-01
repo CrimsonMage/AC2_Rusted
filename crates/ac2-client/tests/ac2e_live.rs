@@ -35,3 +35,22 @@ fn the_skill_panel_lists_the_players_skills() {
     eprintln!("skill nodes: {:?}", rig.view.skill_nodes());
     assert!(listed, "the skill panel lists no skills");
 }
+
+/// The quest panel's act list (`gmCWInterface::InqActInfoList`, IFun 0xB4008F) runs the player's
+/// script over the scenes its WState unpacked: no script crashes after the login and the panel
+/// shown.
+#[test]
+fn the_quest_panel_runs_the_players_script_without_a_crash() {
+    let Some(mut rig) = LiveRig::new("Questlist") else {
+        return;
+    };
+    rig.panel(ToolbarChild::Quest, true);
+    rig.run(3.0);
+    let crashes: Vec<String> = rig
+        .client
+        .take_script_problems()
+        .into_iter()
+        .filter(|p| p.contains("Crash"))
+        .collect();
+    assert!(crashes.is_empty(), "script crashes: {crashes:?}");
+}
