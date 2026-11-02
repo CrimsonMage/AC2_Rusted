@@ -23,6 +23,8 @@ pub use combat::{
 mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
 mod effects;
+mod story;
+pub use story::{act_registry, UPDATE_STORY_QUEST};
 mod friends;
 pub use friends::{
     FriendRecord, FriendsBook, GUN_ALREADY_IN_LIST, GUN_DONE, GUN_INVALID_USER, GUN_NOT_IN_LIST,

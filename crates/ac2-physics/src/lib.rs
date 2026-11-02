@@ -128,7 +128,9 @@ pub use collision_impact::ImpactReport;
 pub use collision_report::{
     Collided, CollisionReport, ContactMaterials, ContactRecord, ObjectRecord, RecordState,
 };
-pub use collision_types::{CollisionParameters, InstanceId, PhysicsTypeMask, WeenieTypes};
+pub use collision_types::{
+    camera_ethereal_mask, CollisionParameters, InstanceId, PhysicsTypeMask, WeenieTypes,
+};
 pub use detection_volume::{
     box_does_overlap, box_intersects_cylinder, box_intersects_sphere, box_within,
     cylinder_intersects_cylinder, sphere_intersects_cylinder, DetectionShape, DetectionVolume,

@@ -318,7 +318,10 @@ mod text_scroll;
 mod token;
 mod toolbar;
 mod tooltip;
+pub mod ui_scale_pref;
 pub use hud_style::HudStyle;
+pub use ui_scale_pref::UiScaleSetting;
+mod default_locations;
 pub mod tooltip_prefs;
 mod transition;
 mod tree_scroll;
@@ -339,7 +342,20 @@ pub use window_positions::{
     read_window_positions, to_text as window_positions_text, window_positions_file,
     write_radar_coords_hidden, write_window_positions, WindowPosition,
 };
+mod ui_layout;
+pub use ui_layout::{
+    ui_layout_file, ui_layout_file_name, ui_layout_parse, ui_layout_to_text, UiLayoutLine,
+    UI_LAYOUT_WINDOWS,
+};
+mod ui_layout_hud;
+#[cfg(test)]
+mod ui_layout_hud_tests;
+mod ui_layout_text;
+pub use ui_layout_hud::UiLayoutLoad;
+pub use ui_layout_text::{UiLayoutFile, UiLayoutWindow};
 mod radar_state;
+#[cfg(test)]
+mod ui_layout_tests;
 pub use radar_state::{
     add_map_note, groove_of, MapMarker, MarkerRequest, RadarBlip, RadarFrame, RadarState,
     GROOVE_DELAY,

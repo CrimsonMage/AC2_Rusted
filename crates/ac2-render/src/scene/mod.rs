@@ -100,6 +100,17 @@ pub struct ObjectPlacement {
     pub speed: f32,
 }
 
+/// What a frame's viewer can see beyond the env cells (`WorldRender::m_bCanSeeOutside` and the
+/// `bDrawSky` out parameter of `GatherIndoorObjects`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Sight {
+    /// The viewer is outdoors (`GatherOutdoorObjects` ran for the camera), or an outside portal
+    /// of the cells it sees opened a viewport (`GatherIndoorObjects` runs it for each).
+    can_see_outside: bool,
+    /// A cell of the visible set has `m_bDrawSky` (`CEnvCell::CullCells`).
+    draw_sky: bool,
+}
+
 /// What one frame draws, in order.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct SceneFrame {
@@ -165,6 +176,18 @@ pub struct SceneObject {
     pub point_lights: Vec<PointLight>,
     /// The degrade its parts draw at (`WorldScene::object_detail`).
     pub detail: DrawDetail,
+    /// The object's cell (`CPhysicsObj::m_position.objcell_id`): in an env cell
+    /// (`WorldRender::DrawBrushes`) it draws under its landblock's inside environment; 0 outdoors
+    /// and in UI scenes.
+    pub cell: u32,
+}
+
+impl SceneObject {
+    /// The landblock whose inside environment the object draws under (`WorldRender::DrawBrushes`:
+    /// the cell's id at or past `LandDefs::first_envcell_id`), or none outdoors.
+    pub fn inside_block(&self) -> Option<BlockKey> {
+        (self.cell & 0xFFFF >= 0x100).then_some(((self.cell >> 24) as u8, (self.cell >> 16) as u8))
+    }
 }
 
 /// A resident block as the frame thread lays it out.
@@ -188,6 +211,8 @@ pub struct WorldScene {
     radius: i32,
     pub time_of_day: f64,
     center: Option<BlockKey>,
+    /// The cell of the camera's `mRenderPosition`, the cell `WorldRender::Render` gathers from.
+    viewer_cell: Option<u32>,
     far_requested: Option<BlockKey>,
     blocks: HashMap<BlockKey, BlockInfo>,
     pending_blocks: HashSet<BlockKey>,
@@ -276,6 +301,7 @@ impl WorldScene {
             radius,
             time_of_day: 0.0,
             center: None,
+            viewer_cell: None,
             far_requested: None,
             blocks: HashMap::new(),
             pending_blocks: HashSet::new(),
@@ -365,6 +391,13 @@ impl WorldScene {
     fn request(&mut self, request: Request) {
         self.outstanding += 1;
         self.loader.request(request);
+    }
+
+    /// The cell the camera stands in (`SceneCamera::mRenderPosition.objcell_id`), which the
+    /// next frames' interior gather starts from. `None` (a tool with only a point) falls back to
+    /// the first loaded cell holding the eye.
+    pub fn set_viewer_cell(&mut self, cell: Option<u32>) {
+        self.viewer_cell = cell;
     }
 
     /// Centres the ring on `center`: blocks outside it leave, missing ones and the far mesh
@@ -821,6 +854,24 @@ impl WorldScene {
         });
         let mut keys: Vec<BlockKey> = self.blocks.keys().copied().collect();
         keys.sort_unstable();
+        let mut interiors: Vec<BlockKey> = keys
+            .iter()
+            .copied()
+            .filter(|k| self.blocks[k].interiors)
+            .collect();
+        // The viewer's own block is gathered first, so the cap never drops it.
+        if let Some(own) = self.viewer_cell.map(block_of_cell) {
+            if let Some(at) = interiors.iter().position(|k| *k == own) {
+                let key = interiors.remove(at);
+                interiors.insert(0, key);
+            }
+        }
+        interiors.truncate(MAX_INTERIOR_BLOCKS);
+        let (interior_cells, sight) = self.visible_interior_cells(camera, &frustum, &interiors);
+        // `WorldRender::Render`: the landscape, its scenery and water, the rain and (without a
+        // sky cell) the sky draw only when `GatherOutdoorObjects` ran (`m_bCanSeeOutside`): the
+        // viewer is outdoors, or an outside portal of the cells it sees opens a viewport.
+        let outside = sight.can_see_outside;
         let all = || {
             keys.iter()
                 .flat_map(|key| self.blocks[key].placements.iter())
@@ -853,6 +904,7 @@ impl WorldScene {
         let degrades = &self.degrades;
         // Scenery is client-made (temporary ids): `CPartArray::Draw` without adaptive degrade.
         let placements: Vec<FramePlacement> = all()
+            .filter(|_| outside)
             .filter(|p| !p.frill)
             .filter_map(|p| {
                 let placed = degrades.placed(p.visual, p.world.w_axis.truncate(), eye)?;
@@ -866,21 +918,30 @@ impl WorldScene {
                     grass: [0.0; 3],
                 })
             })
-            .chain(self.frill_placements(&frills, &chosen, &far_frills, shadow_bit))
+            .chain(
+                self.frill_placements(&frills, &chosen, &far_frills, shadow_bit)
+                    .into_iter()
+                    .filter(|_| outside),
+            )
             .collect();
-        let shadow_placements = degrades.shadow_placements(all().filter(|p| !p.frill));
+        let shadow_placements = degrades.shadow_placements(all().filter(|p| outside && !p.frill));
         let sky_objects = self
             .world
             .region()
             .and_then(|region| region.sky_objects(self.time_of_day))
             .unwrap_or_default();
-        let sky = sky_frame(
-            &sky_objects,
-            eye,
-            false,
-            lighting.fog_color,
-            lighting.fog_sky,
-        );
+        // `WorldRender::Render`: `m_bCanSeeOutside || bDrawSky` (a visible `m_bDrawSky` cell).
+        let sky = if outside || sight.draw_sky {
+            sky_frame(
+                &sky_objects,
+                eye,
+                false,
+                lighting.fog_color,
+                lighting.fog_sky,
+            )
+        } else {
+            SkyFrame::default()
+        };
         let wanted: Vec<DataId> = sky
             .before
             .iter()
@@ -906,23 +967,18 @@ impl WorldScene {
         let terrain: Vec<BlockKey> = keys
             .iter()
             .copied()
-            .filter(|k| self.blocks[k].terrain)
+            .filter(|k| outside && self.blocks[k].terrain)
             .collect();
         let water = keys
             .iter()
             .copied()
-            .filter(|k| self.blocks[k].water)
+            .filter(|k| outside && self.blocks[k].water)
             .collect();
-        let mut interiors: Vec<BlockKey> = keys
-            .iter()
-            .copied()
-            .filter(|k| self.blocks[k].interiors)
-            .collect();
-        interiors.truncate(MAX_INTERIOR_BLOCKS);
-        let interior_cells = self.visible_interior_cells(camera, &frustum, &interiors);
         let mut particles = self.particles.frame(camera);
         self.skeleton_effects(lighting.rain, lighting.rain_wind);
-        particles.extend(self.rain_frame(camera, &lighting));
+        if outside {
+            particles.extend(self.rain_frame(camera, &lighting));
+        }
         self.object_streaks.think(self.particles.now());
         if self.streaks_visible {
             particles.extend(
@@ -936,7 +992,11 @@ impl WorldScene {
         let shore = self.shore_batch(&terrain);
         particles.extend(self.decal_batches());
         let coronas = self.frame_coronas(&interiors, &interior_cells);
-        let reflection = self.reflection_plane(eye);
+        let reflection = if outside {
+            self.reflection_plane(eye)
+        } else {
+            None
+        };
         // The posed bodies (creatures and players) part the grass they stand in.
         let grass_pushers = crate::frill::grass_pushers(
             self.bodies
@@ -954,7 +1014,7 @@ impl WorldScene {
             water,
             interiors,
             interior_cells,
-            far_chunks,
+            far_chunks: if outside { far_chunks } else { Vec::new() },
             particles,
             coronas,
             reflection,
@@ -967,20 +1027,36 @@ impl WorldScene {
     /// cell when it stands in one (`CEnvCell::CullCells`), whose outside portals open the
     /// viewports the other blocks' cells are looked at through; from the outside, each outside-
     /// stab cell that touches the outside and passes `CEnvCell::CheckVisibility`.
+    ///
+    /// The start is the camera's cell id, as retail's: an env cell, or the cell of its stab list
+    /// holding the eye (`CEnvCell::find_visible_child_cell`; neither means the outside), or for
+    /// an outdoor camera the env cell of its own block holding the eye (retail scans the land
+    /// cell's stab list). Several landblocks hold the same dungeon (0x0296..0x0299 one, and
+    /// 0x0396..0x0399 another) and a dungeon reaches past its block's 160 m, so loaded copies
+    /// overlap: a search of every block by geometry started the walk in another copy's room,
+    /// which then drew around a player whose physics stood in this one.
     fn visible_interior_cells(
         &self,
         camera: &Camera,
         frustum: &Frustum,
         blocks: &[BlockKey],
-    ) -> HashMap<BlockKey, Vec<u32>> {
+    ) -> (HashMap<BlockKey, Vec<u32>>, Sight) {
         let mut visible: HashMap<BlockKey, Vec<u32>> = HashMap::new();
         let mut viewports = vec![*frustum];
         let mut viewer_inside = false;
+        let mut draw_sky = false;
         for key in blocks {
             let Some(cull) = self.blocks.get(key).and_then(|b| b.cull.as_deref()) else {
                 continue;
             };
-            let Some(start) = cull.cell_at(camera.eye) else {
+            let start = match self.viewer_cell {
+                Some(cell) if block_of_cell(cell) != *key => continue,
+                Some(cell) if cell & 0xFFFF >= FIRST_ENV_CELL => {
+                    cull.visible_child_cell(cell, camera.eye)
+                }
+                _ => cull.cell_at(camera.eye),
+            };
+            let Some(start) = start else {
                 continue;
             };
             viewer_inside = true;
@@ -988,6 +1064,7 @@ impl WorldScene {
             walk.cull_cells(start, frustum, cull.culling_plane);
             let result = walk.finish();
             viewports = result.outside_viewports;
+            draw_sky = result.draw_sky;
             visible.entry(*key).or_default().extend(result.visible);
             break;
         }
@@ -1017,7 +1094,11 @@ impl WorldScene {
                 }
             }
         }
-        visible
+        let sight = Sight {
+            can_see_outside: !viewer_inside || !viewports.is_empty(),
+            draw_sky,
+        };
+        (visible, sight)
     }
 
     /// `WorldRender::Update`'s `UpdateRain` and `WorldRender::Render`'s `DrawRain`: the frame's
@@ -1092,4 +1173,12 @@ impl WorldScene {
     pub fn particles_alive(&self) -> usize {
         self.particles.alive()
     }
+}
+
+/// `LandDefs::first_envcell_id`.
+const FIRST_ENV_CELL: u32 = 0x100;
+
+/// The landblock key of a cell id.
+fn block_of_cell(cell: u32) -> BlockKey {
+    ((cell >> 24) as u8, (cell >> 16) as u8)
 }

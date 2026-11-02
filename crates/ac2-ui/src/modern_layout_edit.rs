@@ -31,6 +31,10 @@ const PINNED: [(&str, &str, &str); 5] = [
     ("strip", "Shortcuts", "ModernStripFade"),
     ("dock", "Dock", "ModernDockOrb"),
 ];
+/// The ids of the pinned parts, whose places are their offsets, not a window place.
+pub(crate) fn pinned_ids() -> Vec<u32> {
+    PINNED.iter().map(|&(_, _, id)| tokenize(id)).collect()
+}
 /// The chat windows, moved as windows.
 const WINDOWS: [&str; 4] = ["ChatWindow1", "ChatWindow2", "ChatWindow3", "ChatWindow4"];
 /// The bar's size and the tag's height.
@@ -106,6 +110,9 @@ fn make_root(tree: &mut UiTree, window: usize, template: usize, id: &str, z: i32
     desc.id = tokenize(id);
     desc.states.clear();
     desc.edges = [0; 4];
+    // The root's own level: placing it again (`update_size_and_position` on every display refresh)
+    // sets the level back to the description's, which would put the shield over the bar.
+    desc.z_level = z as u16;
     let root = tree.create_element(layout, Arc::new(desc), true)?;
     tree.el_mut(root)
         .attributes

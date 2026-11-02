@@ -4,12 +4,10 @@
 //! (`docs/server-list.md`):
 //!
 //! - AC2E: `--host HOST --port PORT --version 7230 --account ACCOUNT`, with `--glsticket FILE`
-//!   when the server has a login service (its ticket), and the server's own GUN service
-//!   (`ac2`'s default, with `--gunticketoverride ACCOUNT:TICKET` from the login service).
+//!   when the server has a login service (its ticket).
 //! - Relaunch: `--host HOST --port PORT --version 1802 --account ACCOUNT --glsticket FILE`
-//!   (the password, as `glsticketdirect`) and `--no-gun`.
+//!   (the password, as `glsticketdirect`).
 //!
-//! A `gun_server` on the server overrides its GUN service (`none`, or a shared `host:port`).
 //! The ticket is a file only the player can read (`glsticket FILE`), which the client reads and
 //! deletes, as retail's launcher waited for its registry value to go.
 
@@ -17,7 +15,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use crate::account;
-use crate::servers::{Emu, Gun, Server, Settings};
+use crate::servers::{Emu, Server, Settings};
 
 /// A prepared start: the program, its arguments and the ticket file waiting for it.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -61,12 +59,10 @@ pub fn account_for(server: &Server, typed: &str) -> Option<String> {
 /// The command line for `server` (see the module docs).
 pub fn args_for(
     server: &Server,
-    gun: &Gun,
     dat_dir: &str,
     account: &str,
     address: (&str, u16),
     ticket_file: Option<&Path>,
-    gun_ticket: Option<&str>,
 ) -> Vec<String> {
     let mut args = vec![
         "--dat-dir".to_owned(),
@@ -83,28 +79,6 @@ pub fn args_for(
     if let Some(file) = ticket_file {
         args.push("--glsticket".into());
         args.push(file.display().to_string());
-    }
-    match gun {
-        Gun::Server { port } => {
-            if *port != ac2_net::gun::DEFAULT_GUN_PORT {
-                args.push("--gunport".into());
-                args.push(port.to_string());
-            }
-            if let Some(ticket) = gun_ticket {
-                args.push("--gunticketoverride".into());
-                args.push(ticket.to_owned());
-            }
-        }
-        Gun::Shared { host, port } => {
-            args.extend([
-                "--gunserver".to_owned(),
-                host.clone(),
-                "--gunport".to_owned(),
-                port.to_string(),
-                "--gunticket".to_owned(),
-            ]);
-        }
-        Gun::None => args.push("--no-gun".into()),
     }
     args
 }
@@ -129,11 +103,10 @@ pub fn prepare(
         return Err("enter your password".into());
     }
     let mut address = server.address()?;
-    let gun = server.gun()?;
     let login = server.login_server_url.trim();
-    let (ticket, gun_ticket) = match server.emu {
-        Emu::Relaunch => (Some(password.to_owned()), None),
-        Emu::Ac2e if login.is_empty() => (None, None),
+    let ticket = match server.emu {
+        Emu::Relaunch => Some(password.to_owned()),
+        Emu::Ac2e if login.is_empty() => None,
         Emu::Ac2e => {
             let signed = account::sign_in(login, &account, password)?;
             if let Some(host) = signed.game_host.clone().filter(|h| !h.is_empty()) {
@@ -142,14 +115,7 @@ pub fn prepare(
             if let Some(port) = signed.game_port.filter(|p| *p != 0) {
                 address.1 = port;
             }
-            // The server's own GUN service spends a ticket of its own (`account:ticket`).
-            let gun_ticket = match gun {
-                Gun::Server { .. } => account::sign_in(login, &account, password)
-                    .ok()
-                    .map(|g| format!("{}:{}", g.account, g.ticket)),
-                _ => None,
-            };
-            (Some(signed.ticket), gun_ticket)
+            Some(signed.ticket)
         }
     };
     let ticket_file = match ticket {
@@ -158,12 +124,10 @@ pub fn prepare(
     };
     let args = args_for(
         server,
-        &gun,
         dat_dir,
         &account,
         (&address.0, address.1),
         ticket_file.as_deref(),
-        gun_ticket.as_deref(),
     );
     Ok(Launch {
         program: client_program(settings),
@@ -259,15 +223,7 @@ mod tests {
     fn an_ac2e_server_without_a_login_service_uses_the_developer_account() {
         let s = local();
         let account = account_for(&s, "").unwrap();
-        let args = args_for(
-            &s,
-            &s.gun().unwrap(),
-            "/dats",
-            &account,
-            ("127.0.0.1", 9000),
-            None,
-            None,
-        );
+        let args = args_for(&s, "/dats", &account, ("127.0.0.1", 9000), None);
         assert_eq!(
             args,
             [
@@ -286,19 +242,17 @@ mod tests {
     }
 
     #[test]
-    fn a_relaunch_server_takes_the_password_ticket_its_protocol_and_no_gun() {
+    fn a_relaunch_server_takes_the_password_ticket_and_its_protocol() {
         let s = relaunch();
         assert!(needs_password(&s));
         assert_eq!(account_for(&s, ""), None, "an account must be typed");
         let file = Path::new("/cfg/launch/GLSTicket-1");
         let args = args_for(
             &s,
-            &s.gun().unwrap(),
             "/dats",
             "player",
             ("icefire.portalspace.net", 8610),
             Some(file),
-            None,
         );
         assert_eq!(
             args,
@@ -314,39 +268,9 @@ mod tests {
                 "--account",
                 "player",
                 "--glsticket",
-                "/cfg/launch/GLSTicket-1",
-                "--no-gun"
+                "/cfg/launch/GLSTicket-1"
             ]
         );
-    }
-
-    #[test]
-    fn a_shared_gun_or_another_port_is_passed_on() {
-        let mut s = local();
-        s.gun_server = "gun.example:2400".into();
-        let args = args_for(&s, &s.gun().unwrap(), "/d", "a", ("h", 1), None, None);
-        assert!(args.ends_with(&[
-            "--gunserver".into(),
-            "gun.example".into(),
-            "--gunport".into(),
-            "2400".into(),
-            "--gunticket".into()
-        ]));
-        let args = args_for(
-            &s,
-            &Gun::Server { port: 2311 },
-            "/d",
-            "a",
-            ("h", 1),
-            None,
-            Some("a:tok"),
-        );
-        assert!(args.ends_with(&[
-            "--gunport".into(),
-            "2311".into(),
-            "--gunticketoverride".into(),
-            "a:tok".into()
-        ]));
     }
 
     #[test]

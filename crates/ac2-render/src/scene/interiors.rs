@@ -122,6 +122,7 @@ fn cull_cell(
         no_cull: cell.no_cull,
         draw_sky: cell.draw_sky,
         shared_cells: cell.shared_cells.iter().map(|id| id.raw()).collect(),
+        stab_list: cell.visible_cells.iter().map(|id| id.raw()).collect(),
         structure: Some(Arc::clone(structure)),
         inverse: world.inverse(),
         geometry,

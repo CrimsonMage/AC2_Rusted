@@ -92,6 +92,7 @@ pub struct FrameHosts<'a, P: ?Sized> {
 
 /// The frame's plain inputs to the passes: what the frame says about the player, the selection,
 /// the map and the events, with no client type in it.
+#[derive(Clone, Copy)]
 pub struct FrameInputs<'a> {
     /// `Timer::cur_time` (server time).
     pub server_time: f64,
@@ -162,6 +163,8 @@ impl Hud {
             self.display_backlog
                 .extend(crate::display_notices(input.events));
         }
+        // `RecvNotice_UpdateDeathState` of a login that comes before the HUD waits for it.
+        self.death.hold(input.events);
         let (Some(tree), Some(hosts)) = (tree, hosts) else {
             return Vec::new();
         };
@@ -174,8 +177,31 @@ impl Hud {
         // `gmStoryUI`: the skip key, the background's fade, then the slot's events.
         self.story_pass(tree, player, &messages, &mut requests);
         if !input.in_world {
+            // A notice raised while the player travels (A Safe Journey's quest update comes
+            // with the portal's forced move) is kept for the frame the player is back.
+            if self.player_loaded {
+                self.parked_notices.extend(
+                    input
+                        .events
+                        .iter()
+                        .filter(|e| matches!(e, SessionEvent::Notice(_)))
+                        .cloned(),
+                );
+            }
             return requests;
         }
+        let merged;
+        let input = if self.parked_notices.is_empty() {
+            input
+        } else {
+            let mut events = std::mem::take(&mut self.parked_notices);
+            events.extend_from_slice(input.events);
+            merged = events;
+            &FrameInputs {
+                events: &merged,
+                ..*input
+            }
+        };
         // `gm3DItemsUI`: a drop's target search finishes with `world_pick`, then the messages;
         // the drops' stack dialogs open here and the rest are requests.
         if let Some(items) = self.items_3d.as_mut() {
@@ -565,6 +591,15 @@ impl Hud {
                 quest: Box::default(),
             };
             quests.recv_gameplay_notice(tree, player, &list);
+            // `gmStoryQuestsUI` registers the same way, before the login message's act registry
+            // (`WM_Player` 0x27) raises `CM_Quest::SendNotice_UpdateStoryQuests`; a notice that
+            // came before this HUD existed found no panel, so the Story page asks the global loop
+            // for the script's current list as that notice's `RecvNotice_UpdateStoryQuests` would.
+            let story = GameplayNotice::UpdateStoryQuests {
+                code: crate::STORY_CODE_LIST,
+                act: 0,
+            };
+            quests.recv_gameplay_notice(tree, player, &story);
         }
         if let Some(page) = self.allegiance.as_mut() {
             page.set_player(tree, FellowshipSource::player(player));

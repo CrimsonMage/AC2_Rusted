@@ -88,8 +88,8 @@ impl ScriptPort for Client {
         self.session.send_interp(function, arguments, encrypt);
     }
 
-    fn send_to_room(&mut self, room: u32, text: &str, flags: u32) {
-        self.session.send_to_room(room, text, flags);
+    fn send_to_room(&mut self, room: u32, text: &str, extra: Vec<u8>) -> Option<u32> {
+        self.session.send_to_room_with_extra(room, text, extra)
     }
 
     fn push_outbox(&mut self, events: Vec<SessionEvent>) {
@@ -130,6 +130,15 @@ impl ScriptPort for Client {
             .map_or(0, |o| o.qualities.did);
         self.loader
             .request(Request::ScriptState(id, package, did, defaults));
+        // The item's icon is its visual's total icon description (`ItemDisplay::Update`).
+        let visual = self
+            .session
+            .objects()
+            .get(id)
+            .map_or(0, |o| o.appearance.parent);
+        if visual != 0 {
+            self.loader.request(Request::TotalIcon(id, visual));
+        }
     }
 
     fn push_produced(&mut self, events: Vec<SessionEvent>) {

@@ -63,6 +63,7 @@ mod tests {
             tint: [1.0; 4],
             point_lights: Vec::new(),
             detail: ac2_render::object::DrawDetail::FULL,
+            cell: 0,
         }
     }
 

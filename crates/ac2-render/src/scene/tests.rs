@@ -255,6 +255,55 @@ fn a_dungeon_camera_sees_the_cells_its_portals_open_on() {
     assert!(most > 1, "a portal in view opens another cell");
 }
 
+/// `WorldRender::Render` draws the landscape, its scenery, water and rain only when the viewer is
+/// outdoors or an outside portal of the cells it sees opens a viewport (`GatherOutdoorObjects`,
+/// `m_bCanSeeOutside`), and the sky also for a visible `m_bDrawSky` cell. The start dungeon's cell
+/// `0x0299011B` sees no outside portal but sees sky cells: the block's terrain stays out of the
+/// frame (it drew through the cell meshes as a second ground) and the sky draws.
+#[test]
+fn a_camera_in_the_start_dungeon_does_not_draw_the_landscape_over_its_cells() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .unwrap();
+    if !world.has_landblock(ac2_core::CellId::new(0x0299_FFFF)) {
+        return;
+    }
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0x02, 0x99));
+    scene.wait();
+    let camera = |eye: Vec3| Camera {
+        eye,
+        target: eye + Vec3::Y,
+        fov_y: 60_f32.to_radians(),
+        near: 0.1,
+        far: 4000.0,
+    };
+    // Where the player stands (49.5, 230.4, -43.6 in the block at 320, 24480), eye height.
+    scene.frame(&camera(Vec3::new(369.525, 24710.409, -42.0)), 1.5);
+    scene.wait();
+    let inside = scene.frame(&camera(Vec3::new(369.525, 24710.409, -42.0)), 1.5);
+    assert!(
+        inside
+            .interior_cells
+            .values()
+            .any(|cells| cells.contains(&0x0299_011B)),
+        "the viewer's own cell draws"
+    );
+    assert!(inside.terrain.is_empty() && inside.water.is_empty());
+    assert!(inside.placements.is_empty() && inside.far_chunks.is_empty());
+    assert!(inside.reflection.is_none());
+    assert!(
+        !inside.sky.before.is_empty() || !inside.sky.after.is_empty(),
+        "a visible sky cell draws the sky"
+    );
+    // Above the block, outside every cell, the landscape draws.
+    let outside = scene.frame(&camera(Vec3::new(400.0, 24560.0, 600.0)), 1.5);
+    assert!(!outside.terrain.is_empty(), "the landscape draws outdoors");
+}
+
 #[test]
 fn an_fx_light_over_the_ground_pools_its_light_there_for_one_frame() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
@@ -486,4 +535,79 @@ fn a_moving_object_is_lit_by_a_landblock_lamp_post_outdoors() {
     scene.set_center((0x10, 0x10));
     let _ = scene.wait();
     assert!(scene.object_lit_by(beside, 0.5, false).is_empty());
+}
+
+/// `WorldRender::DrawBrushes`: an object in an env cell (`xxyy0100` and up) draws under its
+/// landblock's inside environment; one in a land cell does not.
+#[test]
+fn an_object_in_an_env_cell_names_its_block_for_the_inside_environment() {
+    let object = |cell| super::SceneObject {
+        key: 1,
+        world: ac2_math::Mat4::IDENTITY,
+        pose: None,
+        tint: [1.0; 4],
+        point_lights: Vec::new(),
+        detail: crate::object::DrawDetail::FULL,
+        cell,
+    };
+    assert_eq!(object(0x0299_011B).inside_block(), Some((0x02, 0x99)));
+    assert_eq!(object(0x0299_0025).inside_block(), None);
+    assert_eq!(object(0).inside_block(), None);
+}
+
+/// Blocks 0x0296..0x0299 hold one dungeon each, the same cells, and the dungeon reaches past its
+/// block's 160 m, so with the near ring of quality 4 and 5 (two blocks) another block's copy
+/// holds the start dungeon's spot too. `WorldRender::Render` gathers from the camera's own cell
+/// (`mRenderPosition.objcell_id`, `CEnvCell::find_visible_child_cell`), so the rooms that draw
+/// are the viewer's block's: the walk once started in the first block whose cell held the eye,
+/// and the player, the lifestone and the NPCs stood in another copy's walls.
+#[test]
+fn the_interior_walk_starts_in_the_cameras_own_cell_where_dungeon_copies_overlap() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .unwrap();
+    if !world.has_landblock(ac2_core::CellId::new(0x0299_FFFF)) {
+        return;
+    }
+    let mut scene = WorldScene::new(Arc::clone(&world), 2);
+    scene.set_center((0x02, 0x99));
+    scene.wait();
+    // The saved character's spot (52.875, 230.991, -43.601 in cell 0x0299011B), eye height.
+    let eye = Vec3::new(372.875, 24710.99, -42.0);
+    let camera = Camera {
+        eye,
+        target: eye + Vec3::Y,
+        fov_y: 60_f32.to_radians(),
+        near: 0.1,
+        far: 4000.0,
+    };
+    scene.frame(&camera, 1.5);
+    scene.wait();
+    // Another loaded block's copy holds the eye as well.
+    let holders: Vec<(crate::scene::BlockKey, u32)> = scene
+        .blocks
+        .iter()
+        .filter_map(|(key, block)| Some((*key, block.cull.as_deref()?.cell_at(eye)?)))
+        .collect();
+    assert!(
+        holders.iter().any(|(key, _)| *key != (0x02, 0x99)),
+        "another block's dungeon copy holds the spot: {holders:x?}"
+    );
+    scene.set_viewer_cell(Some(0x0299_011B));
+    let frame = scene.frame(&camera, 1.5);
+    assert_eq!(frame.interiors.first(), Some(&(0x02, 0x99)));
+    assert!(frame.interior_cells[&(0x02, 0x99)].contains(&0x0299_011B));
+    for (key, cells) in &frame.interior_cells {
+        if *key == (0x02, 0x99) {
+            continue;
+        }
+        let cull = scene.blocks[key].cull.as_deref().unwrap();
+        assert!(
+            !cells.iter().any(|id| cull.cells[id].contains(eye)),
+            "block {key:x?} draws a room around the viewer: {cells:x?}"
+        );
+    }
 }

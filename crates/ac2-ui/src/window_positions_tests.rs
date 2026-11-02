@@ -133,7 +133,7 @@ fn alt_drag_moves_a_window_without_a_drag_bar() {
 }
 
 #[test]
-fn without_alt_a_window_without_a_drag_bar_stays_put() {
+fn below_the_header_band_a_window_without_a_drag_bar_stays_put() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
@@ -142,12 +142,76 @@ fn without_alt_a_window_without_a_drag_bar_stays_put() {
     let tree = &mut hud.tree;
     let root = bar_less_window(tree);
     let start = tree.screen_box(root);
-    let at = (start.x0 + 10, start.y0 + 10);
+    assert!(start.y1 - start.y0 > 40, "a window with a body: {start:?}");
+    let at = (
+        start.x0 + 10,
+        start.y0 + crate::window_locations::HEADER_BAND + 8,
+    );
     left_press(tree, at);
     pointer_to(tree, (at.0 + 40, at.1 + 30));
     left_release(tree);
     assert_eq!(tree.screen_box(root), start);
     assert!(!tree.take_positions_changed());
+}
+
+/// Modern exception: a press in the top band of a window with no working drag bar moves it; a
+/// locked window does not move, and its press is not taken.
+#[test]
+fn the_header_band_moves_a_window_without_a_drag_bar_unless_it_is_locked() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = load(&store);
+    let tree = &mut hud.tree;
+    let root = bar_less_window(tree);
+    let start = tree.screen_box(root);
+    let by = (
+        if start.x0 < 300 { 40 } else { -40 },
+        if start.y0 < 300 { 30 } else { -30 },
+    );
+    // Header points where the window itself is on top (a control there keeps its press).
+    let mut points = Vec::new();
+    for x in (start.x0 + 2..start.x1 - 1).step_by(3) {
+        pointer_to(tree, (x, start.y0 + 6));
+        tree.update_mouse();
+        if tree
+            .mouse_top()
+            .is_some_and(|top| tree.root_of(top) == root)
+        {
+            points.push((x, start.y0 + 6));
+        }
+    }
+    assert!(
+        !points.is_empty(),
+        "a header point of the window: {start:?}"
+    );
+    tree.set_locked(root, true);
+    for &at in &points {
+        left_press(tree, at);
+        pointer_to(tree, (at.0 + by.0, at.1 + by.1));
+        left_release(tree);
+        assert_eq!(tree.screen_box(root), start, "a locked window stays");
+    }
+    tree.set_locked(root, false);
+    let mut moved_by = None;
+    for &at in &points {
+        left_press(tree, at);
+        pointer_to(tree, (at.0 + by.0, at.1 + by.1));
+        left_release(tree);
+        let moved = tree.screen_box(root);
+        if moved != start {
+            moved_by = Some((moved.x0 - start.x0, moved.y0 - start.y0));
+            break;
+        }
+    }
+    // (The sideways move may be clamped at a display edge.)
+    assert_eq!(
+        moved_by.map(|d| d.1),
+        Some(by.1),
+        "some header point moves the window"
+    );
+    assert!(tree.take_positions_changed());
 }
 
 #[test]

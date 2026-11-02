@@ -56,9 +56,20 @@ pub enum OfferAnswer {
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct DeathPanel {
     context: u32,
+    /// The latest death flag a frame brought before the dialogs could act on it (the HUD is built
+    /// on workers and can come after the login's `UpdateDeathState`; retail's `gmGamePlayUI` was
+    /// made before it).
+    pending: Option<bool>,
 }
 
 impl DeathPanel {
+    /// Keeps the latest `UpdateDeathState` of `events` until [`death_notices`] can raise it.
+    pub fn hold(&mut self, events: &[SessionEvent]) {
+        if let Some(dead) = last_death_flag(events) {
+            self.pending = Some(dead);
+        }
+    }
+
     /// The death dialog's context, or 0.
     pub fn context(&self) -> u32 {
         self.context
@@ -148,6 +159,13 @@ impl DeathPanel {
     }
 }
 
+fn last_death_flag(events: &[SessionEvent]) -> Option<bool> {
+    events.iter().rev().find_map(|e| match e {
+        SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)) => Some(*dead),
+        _ => None,
+    })
+}
+
 /// `RecvNotice_UpdateDeathState` and `RecvNotice_ResurrectionRequestedByOther` for the frame's
 /// notices, in order. The offer's prompt is rendered with the resurrecter's name. Dying calls
 /// `gmGamePlayUI::Show(0)` before the dialog is made and coming back alive calls `Show(1)` after
@@ -164,9 +182,16 @@ pub fn death_notices(
     shown: &mut Vec<bool>,
 ) {
     let Some(dialogs) = dialogs.as_mut() else {
+        death.hold(events);
         return;
     };
-    for event in events {
+    // A flag held from before the dialogs existed comes first, unless this frame brings a newer.
+    let held = death
+        .pending
+        .take()
+        .filter(|_| last_death_flag(events).is_none());
+    let held = held.map(|dead| SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)));
+    for event in held.iter().chain(events) {
         match event {
             SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)) => {
                 if *dead {
@@ -279,6 +304,43 @@ mod tests {
             &mut held,
         );
         assert!(held.is_empty());
+    }
+
+    #[test]
+    fn a_death_flag_before_the_dialogs_is_raised_when_they_exist() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut panel = DeathPanel::default();
+        let dead = [SessionEvent::Notice(GameplayNotice::UpdateDeathState(true))];
+        let mut none = None;
+        let mut shown = Vec::new();
+        death_notices(
+            &mut panel, &mut tree, &mut none, &Text, &dead, false, &mut shown,
+        );
+        assert_eq!(panel.context(), 0);
+        let mut dialogs = Some(DialogFactory::new(None));
+        death_notices(
+            &mut panel,
+            &mut tree,
+            &mut dialogs,
+            &Text,
+            &[],
+            false,
+            &mut shown,
+        );
+        assert_ne!(panel.context(), 0);
+        assert_eq!(shown, [false]);
+        // Held once: a later frame does not raise it again.
+        let context = panel.context();
+        death_notices(
+            &mut panel,
+            &mut tree,
+            &mut dialogs,
+            &Text,
+            &[],
+            false,
+            &mut shown,
+        );
+        assert_eq!(panel.context(), context);
     }
 
     #[test]

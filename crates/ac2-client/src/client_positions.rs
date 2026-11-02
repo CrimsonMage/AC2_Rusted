@@ -25,6 +25,12 @@ impl Client {
             .unwrap_or_else(paths::config_dir)
     }
 
+    /// Where `/saveui` and `/loadui` keep their files: the `ui` folder of the player's AC2
+    /// directory (`ac2_ui::save_ui_layout`; retail wrote beside the working folder).
+    pub(crate) fn ui_layout_dir(&self) -> PathBuf {
+        self.positions_dir().join("ui")
+    }
+
     /// `character`'s saved window positions for the HUD's `style`; none when the player has not
     /// moved a window yet.
     pub fn local_window_positions(

@@ -90,8 +90,10 @@ pub trait ScriptPort {
     /// A server call the VM made, its packed arguments (`gCWInterface::SendServerEvt`).
     fn send_interp(&mut self, function: u32, arguments: Vec<u8>, encrypt: bool);
 
-    /// Room chat the scripts sent (`gmCWInterface::RequestGUN_SendToRoom` on the Turbine path).
-    fn send_to_room(&mut self, room: u32, text: &str, flags: u32);
+    /// Room chat the scripts sent (`gmCWInterface::RequestGUN_SendToRoom` on the Turbine path:
+    /// `CWBookKeeper::CSendToTurbineRoomByID`), with the packed `GunChatExtraInfo`.
+    /// Returns the chat request's context id.
+    fn send_to_room(&mut self, room: u32, text: &str, extra: Vec<u8>) -> Option<u32>;
 
     /// A DAT read the VM stopped for, handed to the loader; its answer resumes the waiting calls.
     fn request_script_data(&mut self, read: DataRequest);

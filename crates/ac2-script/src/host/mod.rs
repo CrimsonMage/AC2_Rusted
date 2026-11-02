@@ -50,7 +50,6 @@ use crate::wire;
 use crate::wstate::WSTATE_BASE_DID;
 
 pub use crate::vm::DataRequest;
-pub use gun::{ChatRequest, ChatServices};
 pub use ifun::{IFunArg, IFunResult, IFunReturn, OutValue};
 pub use latent::LatentPhysics;
 pub use notices::{notice_names, NoticeArg, ScriptNotice};
@@ -72,8 +71,6 @@ pub struct Outbox {
     pub notices: Vec<GameplayNotice>,
     /// Notices ac2-weenie has no type for, in the order raised.
     pub script_notices: Vec<ScriptNotice>,
-    /// Chat-service requests (`gmCWInterface::RequestGUN_*`).
-    pub chat_requests: Vec<ChatRequest>,
     /// Calls and notices the boundary could not convert (a native the wire cannot carry yet).
     pub dropped: Vec<String>,
 }
@@ -417,27 +414,12 @@ impl ScriptHost {
         std::mem::take(&mut self.vm.outbox.notices)
     }
 
-    /// What the boundary had to drop since the last take.
     /// The `CM_*` notices without a [`GameplayNotice`] type since the last call.
     pub fn take_script_notices(&mut self) -> Vec<ScriptNotice> {
         std::mem::take(&mut self.vm.outbox.script_notices)
     }
 
-    /// The chat-service requests scripts made since the last call.
-    pub fn take_chat_requests(&mut self) -> Vec<ChatRequest> {
-        std::mem::take(&mut self.vm.outbox.chat_requests)
-    }
-
-    /// Which chat services requests can go to (none until the host says).
-    pub fn set_chat_services(&mut self, services: ChatServices) {
-        self.vm.chat = services;
-    }
-
-    /// The world's name for `gTurbineGunUtils::CallEFun_GetWorldName` (the client's world name).
-    pub fn set_world_name(&mut self, name: &str) {
-        self.vm.world_name = name.to_owned();
-    }
-
+    /// What the boundary had to drop since the last take.
     pub fn take_dropped(&mut self) -> Vec<String> {
         std::mem::take(&mut self.vm.outbox.dropped)
     }

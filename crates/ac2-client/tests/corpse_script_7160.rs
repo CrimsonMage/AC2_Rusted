@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 use ac2_client::{Client, Command, FrameInput};
 use ac2_core::DataId;
-use ac2_net::protocol::ScriptRequest;
+use ac2_net::protocol::{InvMoveDesc, ScriptRequest};
 use ac2_script::data::DatScriptData;
 use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
@@ -124,15 +124,15 @@ fn open(client: &mut Client, server: &Rc<RefCell<State>>) {
     );
 }
 
-/// The take-all descriptor for the corpse and the player (`WM_Inventory` 0x68), as the retail
-/// client's packet has it (AC2e's `loot::decode` checks it: the graph's id 1, the ids tagged
-/// 0x82). The client composes it (`Command::LootAll`); the script's VM packs the library's state
-/// id and 0x84 tags instead, which AC2e refuses.
+/// The take-all descriptor `CInventorySystem` 0x1C's stub packs for the corpse and the player
+/// (`WM_Inventory` 0x68): the wlib's own values, the container and player ids typed 0x84 as
+/// `CallIFun_LootAllFromContainer` and `GetPlayerID` give them, and the graph's id counted from 1
+/// (`ac2_script::wire::as_collected`).
 const STUB_TAKE_ALL: &[u8] = &[
     5, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 68, 0, 0, 0, 0, 0, 0, 239, 32, 14, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 0, 0, 0, 0, 0, 128,
     255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 1, 0, 0, 0, 0, 0, 0, 32, 2, 2,
-    2, 2, 2, 2, 130, 205, 1, 2, 2, 1, 130, 205, 0, 0,
+    2, 2, 2, 2, 132, 205, 1, 2, 2, 1, 132, 205, 0, 0,
 ];
 
 #[test]
@@ -193,7 +193,9 @@ fn a_single_item_comes_off_a_corpse_and_the_rest_stays() {
         return;
     };
     open(&mut client, &server);
-    // The trophy skin taken out of the corpse into the pack (the inventory's move path).
+    // The trophy skin dragged out of the corpse's window onto the first free slot of the pack
+    // (`ContainerDisplay::FinishListBoxDrop`: the slot under the pointer).
+    let free = listed(&client, PLAYER).map_or(0, |pack| pack.len() as i32);
     run(
         &mut client,
         &server,
@@ -202,9 +204,27 @@ fn a_single_item_comes_off_a_corpse_and_the_rest_stays() {
             from: CORPSE,
             from_slot: 0,
             target: PLAYER,
-            target_slot: -1,
+            target_slot: free,
             quantity: 1,
         }),
+    );
+    // The request the player's script sends, byte for byte: the move is classified 20 (out of a
+    // `GameplayContainer`-typed corpse into the player, `InventorySystem` 0xD) with the player's
+    // weenie type (31) as the target's.
+    let moves: Vec<ScriptRequest> = server
+        .borrow()
+        .script_requests
+        .iter()
+        .filter(|r| matches!(r, ScriptRequest::MoveItem(_)))
+        .cloned()
+        .collect();
+    assert_eq!(
+        moves,
+        [ScriptRequest::MoveItem(
+            InvMoveDesc::new(CORPSE_SKIN, CORPSE, 0, PLAYER, free, 1)
+                .with_script_tags()
+                .with_move_type(20, 31)
+        )]
     );
     assert_eq!(listed(&client, CORPSE), Some(vec![CORPSE_ITEM]));
     assert!(listed(&client, PLAYER).is_some_and(|pack| pack.contains(&CORPSE_SKIN)));

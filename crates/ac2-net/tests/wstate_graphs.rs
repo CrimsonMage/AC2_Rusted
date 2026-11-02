@@ -63,5 +63,6 @@ fn every_wstate_graph_round_trips_byte_exact() {
         }
     }
     assert!(checked > 39_000, "{checked} WStates");
-    assert_eq!(legacy, 1638);
+    // The end-of-retail set holds no record of the older layout.
+    assert_eq!(legacy, ac2_dat::test_support::pinned(1638, 1638, 0));
 }

@@ -83,6 +83,7 @@ mod tests {
             alpha_moves: None,
             behavior: 0,
             fx_follow: None,
+            collision: None,
             listed_cell: None,
         }
     }

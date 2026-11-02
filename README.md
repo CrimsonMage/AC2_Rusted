@@ -103,7 +103,7 @@ cargo run --release -p ac2-client --bin ac2 -- --dat-dir "$AC2_DAT_DIR" \
 | `--host NAME`, `--port N` | the server (retail's `-h` / `-p`); `--server HOST:PORT` gives both |
 | `--account NAME` | the account (lower-cased, as retail) |
 | `--glsticketdirect PASS` | password logon; `--glsticket FILE` reads the ticket from a file and deletes it (the launcher's way) |
-| `--version V` | the logon's data version: by default the DATs' release (`7230` for the 7230 data, `7160` for the DVD's); `7148` for servers that take only the admin build, `1802` for the relaunch servers |
+| `--version V` | the logon's data version: by default the DATs' release (`7230` for the 7230 and 0930 data, `7160` for the DVD's); `7148` for servers that take only the admin build, `1802` for the relaunch servers |
 | `--character NAME` | enter with this character, skipping character selection |
 | `--intro` | show the intro's pictures before the connecting screen (skipped by default) |
 | `--width N`, `--height N` | the window's first size |

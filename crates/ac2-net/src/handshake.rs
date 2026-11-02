@@ -18,10 +18,12 @@ pub const LEGIONS_VERSION: &str = "7160";
 /// where Legions has "7160"). AC2e serves its 7230 data to this version.
 pub const RELEASE_7230_VERSION: &str = "7230";
 
-/// The data version for the mounted DATs' release (`ac2_core::data_release`): 7230's, or the
-/// Legions DVD client's for the DVD data.
+/// The data version for the mounted DATs' release (`ac2_core::data_release`): 7230's (also for the
+/// end-of-retail data for now), or the Legions DVD client's for the DVD data.
 pub fn default_version() -> &'static str {
     match ac2_core::data_release() {
+        // The 0930 data keeps the 7230 logon until the logon is settled.
+        ac2_core::DataRelease::Release0930 => RELEASE_7230_VERSION,
         ac2_core::DataRelease::Release7230 => RELEASE_7230_VERSION,
         ac2_core::DataRelease::Legions => LEGIONS_VERSION,
     }

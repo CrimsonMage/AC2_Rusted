@@ -102,8 +102,14 @@ fn every_legions_mesh_record_decodes_its_physics_data() {
             .expect("listed record exists");
         with_tree += usize::from(mesh.bsp().is_some());
     }
-    assert_eq!(ids.len(), ac2_dat::test_support::pinned(4501, 4556));
-    assert_eq!(with_tree, ac2_dat::test_support::pinned(1377, 1389));
+    assert_eq!(
+        ids.len(),
+        ac2_dat::test_support::pinned(4501, 4556, /*0930*/ 4302)
+    );
+    assert_eq!(
+        with_tree,
+        ac2_dat::test_support::pinned(1377, 1389, /*0930*/ 1243)
+    );
 }
 
 /// Every Legions `CSetup` parses through its collision primitives to its fixed tail.
@@ -136,8 +142,14 @@ fn every_legions_setup_decodes_its_collision_primitives() {
         ))
         .expect("decodes")
         .expect("exists");
-    assert_eq!(tree.cylspheres.len(), 1);
-    assert!((tree.cylspheres[0].radius - 6.17).abs() < 0.01);
+    if ac2_core::data_release() == ac2_core::DataRelease::Release0930 {
+        // The relaunch renumbered the setups: 0x040003DE is another model there (300 bytes,
+        // zero cylinder and sphere counts, height 1.9), whose decode consumes the record exactly.
+        assert!(tree.cylspheres.is_empty() && tree.spheres.is_empty());
+    } else {
+        assert_eq!(tree.cylspheres.len(), 1);
+        assert!((tree.cylspheres[0].radius - 6.17).abs() < 0.01);
+    }
     assert!(with_cylinders > 0 && !ids.is_empty());
 }
 

@@ -195,3 +195,19 @@ fn a_mouse_invisible_element_lets_the_pointer_through() {
     assert_ne!(tree.mouse_top(), Some(overlay));
     assert_eq!(tree.mouse_top(), Some(panel));
 }
+
+/// `UIRegion::NotifyMouseMove`: an element is under the pointer only while it is shown, so the
+/// children of a hidden page (the Quest panel's Story page before its tab is clicked) are not
+/// over it, and the visible element beneath takes the pointer.
+#[test]
+fn a_hidden_element_is_not_under_the_pointer() {
+    let (mut tree, [_, panel, button, _]) = tree();
+    tree.set_visible(button, false);
+    point(&mut tree, 70, 10);
+    assert_eq!(tree.mouse_top(), Some(panel));
+    assert!(!tree.get(button).unwrap().mouse_over());
+    tree.set_visible(button, true);
+    point(&mut tree, 71, 10);
+    assert_eq!(tree.mouse_top(), Some(button));
+    assert!(tree.get(button).unwrap().mouse_over());
+}

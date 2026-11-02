@@ -24,6 +24,7 @@ fn cube() -> PickMesh {
         min: Vec3::splat(-0.5),
         max: Vec3::splat(0.5),
         parts: vec![(Mat4::IDENTITY, triangles)],
+        skins: vec![None],
         part_types: vec![0x8100_001C],
     }
 }
@@ -83,4 +84,37 @@ fn the_third_person_player_loses_to_anything_else() {
         pick(vp, camera.eye, (200, 200), (100, 100), &alone),
         Some(7)
     );
+}
+
+/// A part whose vertices blend is picked where its pose's matrices put it (a creature lying
+/// dead away from its bind pose), not at its rest triangles.
+#[test]
+fn a_blended_part_is_picked_where_its_pose_deforms_it() {
+    let mut mesh = cube();
+    let corners = mesh.parts[0].1.len();
+    mesh.skins = vec![Some(vec![[[(0, 1.0), (0, 0.0), (0, 0.0), (0, 0.0)]; 3]; corners])];
+    let pose = crate::object::ObjectPose {
+        parts: vec![Mat4::IDENTITY],
+        skins: vec![Some(0)],
+        palette: vec![Mat4::from_translation(Vec3::new(3.0, 0.0, 0.0))],
+        ..Default::default()
+    };
+    let camera = camera();
+    let vp = camera.view_projection(1.0);
+    let screen = (200, 200);
+    let posed = [PickCandidate {
+        id: 9,
+        world: Mat4::IDENTITY,
+        pose: Some(&pose),
+        mesh: &mesh,
+        third_person_player: false,
+    }];
+    // The rest cube sits on the view axis; the posed one 3 m to the right.
+    assert_eq!(pick(vp, camera.eye, screen, (100, 100), &posed), None);
+    let right = vp.project_point3(Vec3::new(3.0, 0.0, 0.0));
+    let cursor = (
+        ((right.x + 1.0) * 0.5 * 200.0) as i32,
+        ((1.0 - right.y) * 0.5 * 200.0) as i32,
+    );
+    assert_eq!(pick(vp, camera.eye, screen, cursor, &posed), Some(9));
 }

@@ -245,12 +245,7 @@ impl Client {
                 continue;
             };
             if !launch.initialized {
-                let collision = &launch.info.collision_params;
-                body.set_collision_state(&collision.sets, &|_| None);
-                body.set_collision_minimums(
-                    collision.min_reported_impact_xy,
-                    collision.min_reported_impact_z,
-                );
+                // The collision state was set as the body was made (`create_missile`).
                 body.missile_initialize(
                     terrain,
                     &views,
@@ -312,6 +307,11 @@ impl Client {
             ac2_smartbox::remotes::LocalStart {
                 alpha_moves: [(1.0, 0.0), (1.0, 0.0)],
                 behavior: 0,
+                collision: Some(ac2_smartbox::remotes::MissileCollision {
+                    sets: (*info.collision_params.sets).clone(),
+                    min_reported_impact_xy: info.collision_params.min_reported_impact_xy,
+                    min_reported_impact_z: info.collision_params.min_reported_impact_z,
+                }),
             },
             &mut cx,
         );

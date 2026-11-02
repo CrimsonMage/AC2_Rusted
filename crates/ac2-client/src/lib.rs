@@ -30,11 +30,16 @@ mod client_locations;
 mod client_part_trees;
 mod client_positions;
 mod client_prefs;
+mod client_shadow;
 mod clipboard;
 pub use help_content::{content_dir, resolve_content_dir, set_content_dir, CONTENT_DIR_ENV};
 mod help_content;
 use ac2_smartbox::{camera, cells, scene};
 mod client_frame;
+#[cfg(feature = "test-support")]
+mod client_ground;
+#[cfg(feature = "test-support")]
+pub use client_ground::Footing;
 mod client_objects;
 mod client_radar;
 mod client_story;
@@ -56,10 +61,11 @@ mod controls;
 mod craft;
 mod frame;
 mod friends;
+mod gun;
+pub mod gun_env;
 mod hud_friends;
-pub use friends::{FriendEvent, FriendResult};
+pub use friends::FriendEvent;
 mod gameplay;
-pub mod gun_service;
 mod hud_arrow;
 #[cfg(feature = "window")]
 #[cfg(feature = "window")]
@@ -86,6 +92,7 @@ mod hud_tracker;
 #[cfg(feature = "window")]
 #[cfg(feature = "window")]
 mod hud_view;
+mod inventory_commands;
 
 #[cfg(feature = "window")]
 pub mod keys;
@@ -122,6 +129,8 @@ pub mod view;
 #[cfg(feature = "window")]
 mod window_presentation;
 mod world_data;
+#[cfg(feature = "window")]
+pub mod world_input;
 
 /// `EffectUINode`: one effect as the status bar's strip shows it ([`Client::effect_list`]).
 pub use ac2_net::protocol::EffectUiNode as EffectNode;

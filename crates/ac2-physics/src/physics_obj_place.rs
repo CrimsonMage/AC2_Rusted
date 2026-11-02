@@ -13,7 +13,7 @@ use crate::physics_obj::PhysicsObj;
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::transition::{Transition, TransitionObject};
-use crate::vector::Vector;
+use crate::vector::{Sphere, Vector};
 
 /// `SetPositionFlag`: after the body is placed, `SetPlacementPosition` makes the requested
 /// position its previous and animation position and restarts its mode.
@@ -112,7 +112,23 @@ pub(crate) fn adjust_position(
     ObjCell::get(cells, p.cell_id).map(|_| p.cell_id)
 }
 
+/// `dummy_sphere` (`$E208`): the sphere a body with no collision spheres moves by, centre
+/// (0, 0, 0.1), radius 0.1.
+const DUMMY_SPHERE: Sphere = Sphere::new(Vector::new(0.0, 0.0, 0.1), 0.1);
+
 impl PhysicsObj {
+    /// The spheres and scale `CPhysicsObj::transition` and `CPhysicsObj::SetPosition` hand
+    /// `CTransition::init_sphere`: the Setup's spheres at the body's scale, or, when it has none
+    /// (`GetNumSphere` 0, a lifestone's Setup), the one `dummy_sphere` at scale 1.
+    pub(crate) fn transition_spheres(&self) -> (Vec<Sphere>, f32) {
+        if self.shape.spheres.is_empty() {
+            return (vec![DUMMY_SPHERE], 1.0);
+        }
+        (
+            self.shape.spheres.clone(),
+            st(ld(self.shape.scale) * ld(self.scale.z)),
+        )
+    }
     /// `CPhysicsObj::SetPosition(SetPositionStruct*)`: `SetPositionInternal` for the struct, then
     /// on success with `PLACEMENT_SPF` `SetPlacementPosition` of the requested position.
     /// `random` is the client's shared generator (`Random::RollDice`) the scatter flags roll on.
@@ -249,11 +265,11 @@ impl PhysicsObj {
         flags: u32,
         terrain: &Terrain,
     ) -> SetPositionError {
-        let spheres = self.shape.spheres.clone();
+        let (spheres, scale) = self.transition_spheres();
         let object = TransitionObject {
             state: 0,
             spheres: &spheres,
-            scale: st(ld(self.shape.scale) * ld(self.scale.z)),
+            scale,
             step_up_height: self.shape.step_up_height,
             step_down_height: self.step_down_height(),
             affected_by_gravity: self.state & crate::physics_obj::GRAVITY_PS != 0,

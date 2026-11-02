@@ -9,9 +9,10 @@
 # AC2E_DIR    AC2e checkout (the folder holding AC2E/); default ../third_party/ac2e-src/repo
 # AC2E_STATE  server data, prepared content and logs; default ~/.local/state/ac2e-test
 # AC2E_BIND   listen address; default 127.0.0.1:9000 (the client's default --server)
-# AC2E_GUN_BIND  the GUN service's address (friends, ignore list, presence, tells), which AC2e
-#             starts with every server; default AC2e's own, the game address's IP at port 2310;
-#             `off` turns it off. The client finds it there by itself (`ac2 --no-gun` opts out).
+# AC2E_EXTRA_WORLD  a file of placements (the prepared world table's columns) added to the prepared
+#             world, for tests that need a creature at a known place
+# AC2E_GUN_BIND  AC2e's own GUN service address (`--gun-bind`; `off` turns it off); default AC2e's
+#             (the game address's IP at port 2310). The client does not use it.
 #
 # Connect with: ac2 --dat-dir DIR --server 127.0.0.1:9000 --account local (the logon's data
 # version follows the DATs: 7230 for the 7230 set, which AC2e serves as its 7230 profile).
@@ -51,13 +52,25 @@ if [ ! -f "$content" ] || [ "$dats/portal.dat" -nt "$content" ] || [ "$dats/cell
   python3 "$ac2e/Network/prepare_content.py" "$dats" "$content"
 fi
 
+# Placements a test adds (each only once).
+if [ -n "${AC2E_EXTRA_WORLD:-}" ]; then
+  while IFS= read -r row; do
+    grep -qxF -- "$row" "$content" || printf '%s\n' "$row" >> "$content"
+  done < "$AC2E_EXTRA_WORLD"
+fi
+
 # AC2e's opt-in for the release (bootstrap.rs). The Legions one also turns on gameplay checks
 # pinned to the DVD records, so it must not be set for 7230.
 # The development training kit (starter gear, crafting, training supplies, the active-skill
 # rules) runs on the 7230 data; the Legions profile's gameplay checks are pinned to the DVD
 # records and run without it. Later `--training-kit` options win.
 case ${AC2E_DATA:-7230} in
-  7230) training_kit=true ;; # AC2e serves the 7230 data as its 7230 profile (to version 7230 logons).
+  # AC2e serves the 7230 data as its 7230 profile (to version 7230 logons), with its tradeskills
+  # (Surveying, Mining and the DAT's craft skills and recipes; AC2E_DEV_TRADESKILLS=0 turns them off).
+  7230)
+    training_kit=true
+    # AC2e reads the variable's presence, so "0" is turned off by removing it.
+    if [ "${AC2E_DEV_TRADESKILLS:-1}" = 0 ]; then unset AC2E_DEV_TRADESKILLS; else export AC2E_DEV_TRADESKILLS=${AC2E_DEV_TRADESKILLS:-1}; fi ;;
   legions) export PYREALIUM_UNREAL_LEGIONS_DATA=1; training_kit=false ;;
   *) echo "AC2E_DATA must be 7230 or legions" >&2; exit 1 ;;
 esac

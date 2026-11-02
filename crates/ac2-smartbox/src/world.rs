@@ -37,4 +37,9 @@ pub trait ResidentWorld: BlockSource {
     fn camera_fx(&self, _did: u32) -> Result<Option<crate::camera_fx::CameraFx>, String> {
         Ok(None)
     }
+    /// `SmartBox::Init`'s camera object: the collision shape of the Setup that
+    /// `FileArray::GetDIDFromEnum(0x4000002a, 0x40000002)` names. `None` when the DATs have none.
+    fn camera_object_shape(&self) -> Result<Option<ac2_physics::BodyShape>, String> {
+        Ok(None)
+    }
 }

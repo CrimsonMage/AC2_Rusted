@@ -455,3 +455,106 @@ fn help_is_shown_for_a_command_an_unknown_one_and_all() {
         Some("usage: /sayusage: /sayusage: /sayusage: /tellusage: /tellusage: /tell")
     );
 }
+
+/// A shown line's literal text and display type.
+fn shown_text(action: &ShellAction) -> (u32, String) {
+    let ShellAction::Notice(GameplayNotice::DisplayStringInfo { kind, text }) = action else {
+        panic!("{action:?}");
+    };
+    (*kind, text.literal.clone().expect("a literal line"))
+}
+
+fn ui_state() -> ChatState {
+    let mut c = commands();
+    c.register_client_commands();
+    let mut s = ChatState::default();
+    s.set_commands(c);
+    s
+}
+
+#[test]
+fn saveui_and_loadui_name_the_file_and_say_so() {
+    let mut s = ui_state();
+    for (line, expect) in [
+        (
+            "/saveui mine",
+            (
+                "Saving UI to file mine.txt.\n",
+                ShellAction::SaveUiLayout {
+                    name: "mine".into(),
+                },
+            ),
+        ),
+        (
+            "/loadui mine",
+            (
+                "Loading UI from file mine.txt.\n",
+                ShellAction::LoadUiLayout {
+                    name: "mine".into(),
+                },
+            ),
+        ),
+        (
+            "/SAVEUI UI-Default",
+            (
+                "Saving UI to file UI-Default.txt.\n",
+                ShellAction::SaveUiLayout {
+                    name: "UI-Default".into(),
+                },
+            ),
+        ),
+        // No name: "UI-Default"; Turbine's loadui shows the saving line here.
+        (
+            "/saveui",
+            (
+                "Saving UI to file UI-Default.txt.\n",
+                ShellAction::SaveUiLayout {
+                    name: "UI-Default".into(),
+                },
+            ),
+        ),
+        (
+            "/loadui",
+            (
+                "Saving UI to file UI-Default.txt.\n",
+                ShellAction::LoadUiLayout {
+                    name: "UI-Default".into(),
+                },
+            ),
+        ),
+        // A quoted name keeps its space.
+        (
+            r#"/loadui "my ui""#,
+            (
+                "Loading UI from file my ui.txt.\n",
+                ShellAction::LoadUiLayout {
+                    name: "my ui".into(),
+                },
+            ),
+        ),
+    ] {
+        let out = run(&mut s, line);
+        assert_eq!(out.len(), 2, "{line}");
+        assert_eq!(shown_text(&out[0]), (8, expect.0.to_owned()), "{line}");
+        assert_eq!(out[1], expect.1, "{line}");
+    }
+}
+
+#[test]
+fn saveui_and_loadui_with_more_than_one_argument_show_their_usage() {
+    let mut s = ui_state();
+    for (line, cmd) in [("/saveui a b", "saveui"), ("/loadui a b c", "loadui")] {
+        let out = run(&mut s, line);
+        assert_eq!(out.len(), 1, "{line}");
+        assert_eq!(
+            shown_text(&out[0]),
+            (
+                8,
+                format!("usage: /{cmd} < filename > (filename is optional)\n")
+            )
+        );
+    }
+    // The 7230 script's commands are untouched, and the new ones sit outside its handler ids.
+    assert_eq!(s.commands().handler("say"), Some(SAY));
+    const { assert!(SAVE_UI > 0xFFFF && LOAD_UI > 0xFFFF) };
+}

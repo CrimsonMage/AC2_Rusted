@@ -1,17 +1,27 @@
-//! The UI fitted to a window of any size: a deliberate deviation from retail.
+//! The UI sized for a window of any size.
 //!
-//! Retail laid its UI out pixel for pixel on the window `Turbine::Client::InitUI` made
-//! (`Client+0x60` / `Client+100`, 1024 x 768 unless `width` / `height` said otherwise) and only
-//! changed size through a resolution change. Its layouts are authored at 1024 x 768: the pregame
-//! screens are one fixed 1024 x 768 panel and the HUD's roots are anchored to that display. This
-//! client's window resizes freely, so the UI is laid out on a logical display and drawn scaled:
-//! every UI pixel is `scale` window pixels, with `scale = min(width / 1024, height / 768)`.
+//! Retail laid its UI out pixel for pixel on the display `Turbine::Client::InitUI` made
+//! (`Client+0x60` / `Client+100`, 1024 x 768 unless `width` / `height` said otherwise): every
+//! root is anchored to `RenderDevice::GetDisplayWidth` / `GetDisplayHeight`
+//! (`UIElement::UpdateSizeAndPosition`, run for each root by `UIElementManager::RefreshEvent`),
+//! so a bigger display held the same pixel-sized UI. This client's window resizes freely and
+//! the player picks the size (`ac2_ui::UiScaleSetting`): the UI is laid out on a logical
+//! display and drawn scaled, every UI pixel being `scale` window pixels.
 //!
-//! - [`UiScale::fill`] (the HUD): the logical display covers the window, so one axis is
-//!   1024 or 768 and the other is longer; the layouts' anchors spread the roots over it.
-//! - [`UiScale::fit`] (the pregame screens): the logical display is exactly 1024 x 768,
-//!   centred in the window with the rest left black, and composed at `scale`
-//!   (`UiTree::set_render_scale`) rather than stretched, so it stays sharp.
+//! - [`UiScale::hud`] (the HUD): the logical display covers the window (`window / scale`),
+//!   so at 1x it is the window itself, as retail's was (its smallest display mode was
+//!   800 x 600). A scale that would leave the logical display under [`MIN_DISPLAY`] is held
+//!   at the one that fits it. [`UiScale::fill`] is the largest scale that keeps the authored
+//!   1024 x 768 inside the window, the first modern client's behaviour.
+//! - [`UiScale::fit`] (the pregame screens): the logical display is exactly 1024 x 768, as
+//!   retail showed them, centred in the window with the rest left black, and composed at
+//!   its scale (`UiTree::set_render_scale`) rather than stretched, so it stays sharp. The
+//!   scale is 1 unless the window is smaller.
+
+use ac2_ui::UiScaleSetting;
+
+/// The smallest logical display a fixed scale may leave (retail's smallest display mode, 800 x 600).
+pub const MIN_DISPLAY: (u32, u32) = (800, 600);
 
 /// The display retail's layouts are authored for (`Client+0x60` / `Client+100` defaults).
 pub const BASE_DISPLAY: (u32, u32) = (1024, 768);
@@ -30,18 +40,26 @@ pub struct UiScale {
 }
 
 impl UiScale {
+    /// The largest scale that keeps the 1024 x 768 display inside the window.
     fn factor(window: (u32, u32)) -> f64 {
         let (w, h) = (f64::from(window.0.max(1)), f64::from(window.1.max(1)));
         (w / f64::from(BASE_DISPLAY.0)).min(h / f64::from(BASE_DISPLAY.1))
     }
 
-    /// A logical display covering the whole window (the HUD).
-    pub fn fill(window: (u32, u32)) -> Self {
+    /// A logical display covering the whole window (the HUD) at the setting's scale.
+    pub fn hud(window: (u32, u32), setting: UiScaleSetting) -> Self {
         let window = (window.0.max(1), window.1.max(1));
-        let scale = Self::factor(window);
+        let (scale, floor) = match setting.factor() {
+            Some(f) => {
+                let (w, h) = (f64::from(window.0), f64::from(window.1));
+                let fits = (w / f64::from(MIN_DISPLAY.0)).min(h / f64::from(MIN_DISPLAY.1));
+                (f.min(fits), MIN_DISPLAY)
+            }
+            None => (Self::factor(window), BASE_DISPLAY),
+        };
         let display = (
-            ((f64::from(window.0) / scale).round() as u32).max(BASE_DISPLAY.0),
-            ((f64::from(window.1) / scale).round() as u32).max(BASE_DISPLAY.1),
+            ((f64::from(window.0) / scale).round() as u32).max(floor.0),
+            ((f64::from(window.1) / scale).round() as u32).max(floor.1),
         );
         Self {
             scale,
@@ -51,7 +69,12 @@ impl UiScale {
         }
     }
 
-    /// The fixed [`BASE_DISPLAY`] centred in the window (the pregame screens).
+    /// The HUD filling the window ([`UiScaleSetting::Fill`]).
+    pub fn fill(window: (u32, u32)) -> Self {
+        Self::hud(window, UiScaleSetting::Fill)
+    }
+
+    /// The fixed [`BASE_DISPLAY`] scaled to fit the window and centred (the pregame screens).
     pub fn fit(window: (u32, u32)) -> Self {
         let window = (window.0.max(1), window.1.max(1));
         let scale = Self::factor(window);
@@ -107,7 +130,7 @@ impl UiScale {
 
 #[cfg(test)]
 mod tests {
-    use super::{UiScale, BASE_DISPLAY};
+    use super::{UiScale, UiScaleSetting, BASE_DISPLAY};
 
     #[test]
     fn the_authored_window_is_drawn_pixel_for_pixel() {
@@ -122,11 +145,39 @@ mod tests {
         let fill = UiScale::fill((1920, 1080));
         assert_eq!(fill.scale, 1080.0 / 768.0);
         assert_eq!(fill.display, (1365, 768));
+        // The pregame screens are scaled to fit the window and centred.
         let fit = UiScale::fit((1920, 1080));
         assert_eq!(fit.display, BASE_DISPLAY);
-        // 1024 UI pixels are 1440 window pixels: 240 on each side.
+        assert_eq!(fit.scale, 1080.0 / 768.0);
         assert_eq!(fit.origin, (240.0, 0.0));
-        assert_eq!(fit.to_ui(240.0 + 1440.0 / 2.0, 540.0), (512.0, 384.0));
+        assert_eq!(fit.to_ui(240.0 + 720.0, 540.0), (512.0, 384.0));
+    }
+
+    #[test]
+    fn the_default_hud_is_laid_out_on_the_real_display() {
+        let hud = UiScale::hud((2560, 1440), UiScaleSetting::Retail);
+        assert!(hud.is_identity());
+        assert_eq!(hud.display, (2560, 1440));
+    }
+
+    #[test]
+    fn a_fixed_scale_lays_out_on_the_window_over_the_scale() {
+        let two = UiScale::hud((2560, 1440), UiScaleSetting::Percent(200));
+        assert_eq!((two.scale, two.display), (2.0, (1280, 720)));
+        let quarter = UiScale::hud((2560, 1440), UiScaleSetting::Percent(125));
+        assert_eq!((quarter.scale, quarter.display), (1.25, (2048, 1152)));
+        // The display never drops under 800 x 600: 3x on 1080p is held at 1.8x.
+        let three = UiScale::hud((1920, 1080), UiScaleSetting::Percent(300));
+        assert_eq!((three.scale, three.display), (1.8, (1067, 600)));
+        // Retail's smallest mode is drawn pixel for pixel at 1x.
+        assert!(UiScale::hud((800, 600), UiScaleSetting::Retail).is_identity());
+    }
+
+    #[test]
+    fn fill_is_the_first_modern_clients_scale() {
+        let fill = UiScale::hud((2560, 1440), UiScaleSetting::Fill);
+        assert_eq!(fill.scale, 1440.0 / 768.0);
+        assert_eq!(fill.display, (1365, 768));
     }
 
     #[test]
@@ -143,7 +194,7 @@ mod tests {
 
     #[test]
     fn pointer_actions_move_into_ui_pixels() {
-        let fit = UiScale::fit((2048, 1536));
+        let fit = UiScale::hud((2048, 1536), UiScaleSetting::Percent(200));
         let moved = fit.actions_to_ui(&[
             (ac2_ui::UI_POINTER_X, 1000.0, true),
             (ac2_ui::UI_POINTER_Y, 700.0, true),

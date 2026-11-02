@@ -143,6 +143,8 @@ pub fn chat_commands(data: &dyn ScriptData) -> ChatCommands {
     for (names, emote) in emotes(data) {
         commands.add_emote(&names, emote);
     }
+    // `/saveui` and `/loadui` come from client 0930 (`AGENTS.md`), not from the 7230 script.
+    commands.register_client_commands();
     for (handler, table_enum, first, second) in HELP_STRINGS {
         let text = |id| table_string(data, table_enum, id).unwrap_or_default();
         commands.set_help(handler, text(first) + &text(second));
@@ -172,6 +174,15 @@ mod tests {
         assert_eq!(commands.handler("say"), Some(SAY));
         assert_eq!(commands.handler("T"), Some(TELL));
         assert!(commands.help(TELL).starts_with("usage:"));
+        // 0930's commands are added beside the script's.
+        assert_eq!(
+            commands.handler("saveui"),
+            Some(ac2_weenie::chat_handler::SAVE_UI)
+        );
+        assert_eq!(
+            commands.handler("LOADUI"),
+            Some(ac2_weenie::chat_handler::LOAD_UI)
+        );
         // One command per emote name.
         assert_eq!(emotes(&data).len(), 47);
         assert_eq!(commands.handler("wave"), Some(EMOTE_BY_NAME));

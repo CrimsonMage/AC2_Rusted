@@ -212,8 +212,15 @@ impl Client {
             interpolation: self.render_interpolation,
             children: &children,
         };
-        self.scene
-            .update_with(&mut self.camera, &subject, &world, quantum, interpolate);
+        self.scene.update_collided(
+            &mut self.camera,
+            &subject,
+            &world,
+            &mut self.camera_collision,
+            &self.terrain,
+            quantum,
+            interpolate,
+        );
         // `InternalCalcViewerPos`: with the player as the camera's parent, its head turns to the
         // target (`CPhysicsObj::LookAt`, here only when the target changes).
         if let Some(target) = self.camera.targeting.take_look_at() {

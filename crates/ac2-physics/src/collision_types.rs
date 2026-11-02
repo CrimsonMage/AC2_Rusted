@@ -30,6 +30,18 @@ pub fn ethereal_property_bit(name: u32) -> Option<u64> {
 /// The water-layer property `EtherealPhysicsType::SetEtherealToWaterLayer` names.
 pub const WATER_LAYER_PROPERTY: u32 = 0x4000_001C;
 
+/// The camera-ethereal property `EtherealPhysicsType::SetCameraEthereal` names.
+pub const CAMERA_ETHEREAL_PROPERTY: u32 = 0x4000_0026;
+
+/// `EtherealPhysicsType::SetCameraEthereal` on a fresh mask: only the camera property's bit
+/// (empty where the property table has none).
+pub fn camera_ethereal_mask() -> PhysicsTypeMask {
+    let mut mask = PhysicsTypeMask::default();
+    let bit = ethereal_property_bit(CAMERA_ETHEREAL_PROPERTY).unwrap_or(u64::MAX);
+    mask.set_camera_ethereal(bit, |bit| bit != u64::MAX);
+    mask
+}
+
 /// An `InstanceID` (the 64-bit id a weenie and its lists use).
 pub type InstanceId = u64;
 

@@ -11,7 +11,7 @@
 //! way `MakeString` builds it, and expands effect nodes first (`ProcessEffectIDNode`, in the
 //! client, which asks the player's script).
 //!
-//! A countdown is a `TimeDisplay` (`Init` with the seconds left; `ListenToMessage` on the global
+//! A countdown is a `TimeDisplay` (`Init` with the node's end time; `ListenToMessage` on the global
 //! loop rewrites the words, see [`crate::journal_time`]); the panel passes it the global loop each
 //! frame through [`ExaminationUi::global_loop`]. The countdown's thresholds are a day and a minute
 //! (1 and 60, as `TimeDisplay::Init` is called); the month threshold is 1 as the journal sets it.
@@ -55,10 +55,11 @@ pub enum ExaminationItem {
     Break,
     /// Type 7: the tab count.
     Tabs(u32),
-    /// Type 8: seconds left.
+    /// Type 8: the time the countdown ends on the global clock (`ExaminationDataNode::GetCountdownValue`
+    /// is `TimeDisplay::Init`'s `m_endTime`; the panel shows the time left from it).
     Countdown {
         appearance: u32,
-        seconds: f64,
+        end: f64,
     },
 }
 
@@ -427,10 +428,7 @@ impl ExaminationUi {
                 self.cur.0 += count * 16;
                 self.tab_level += count;
             }
-            ExaminationItem::Countdown {
-                appearance,
-                seconds,
-            } => {
+            ExaminationItem::Countdown { appearance, end } => {
                 let Some(element) = self.text_element(tree, *appearance) else {
                     return;
                 };
@@ -442,12 +440,14 @@ impl ExaminationUi {
                     width = width.min(self.row_width(tree) - self.cur.0);
                 }
                 self.place(tree, row, element, (width, 16));
-                // `TimeDisplay::Init` on the element: the seconds left from now.
+                // `TimeDisplay::Init` on the element: the node's value is the end time itself
+                // (`gmExaminationUI::ProcessNode` passes `GetCountdownValue` as `m_endTime`);
+                // `ComputeTimeLeft` takes the time left from the clock.
                 let timer = QuestTimeDisplay::init(
                     tree,
                     clock.strings,
                     element,
-                    clock.now + seconds,
+                    *end,
                     COUNTDOWN_THRESHOLDS,
                     clock.now,
                 );

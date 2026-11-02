@@ -68,6 +68,11 @@ pub struct Controls {
     text_actions: Vec<(u32, f32)>,
     characters: Vec<(u16, u32)>,
     pending: ControlFrame,
+    /// The right button is held (physical button 1).
+    right_down: bool,
+    /// Mouse look is on because a right press over empty world started it
+    /// ([`Controls::start_right_look`]); the release ends it.
+    right_look: bool,
 }
 
 impl Controls {
@@ -154,11 +159,44 @@ impl Controls {
             text_actions: Vec::new(),
             characters: Vec::new(),
             pending: ControlFrame::default(),
+            right_down: false,
+            right_look: false,
+        }
+    }
+
+    /// Modern exception (`AGENTS.md`, right-hold look). Retail bound the right button only to the
+    /// UI's SelectRight (examine) and toggled mouse look on the middle button
+    /// (`CameraToggleMouseLook`). A right press that picked nothing in the world, with the button
+    /// still held, turns mouse look on until the button comes up. Mouse look the player already
+    /// has on is left alone.
+    pub fn start_right_look(&mut self) {
+        if !self.right_down || self.right_look || self.camera_ui.want_mouse_look {
+            return;
+        }
+        self.right_look = true;
+        self.set_look(true);
+    }
+
+    fn set_look(&mut self, on: bool) {
+        if let CameraUiEffect::States {
+            mouse_look,
+            first_person,
+        } = self.camera_ui.set_want_mouse_look(on)
+        {
+            self.pending.mouse_look_state = Some(mouse_look);
+            self.pending.first_person_state = Some(first_person);
         }
     }
 
     /// One input event at `timestamp` milliseconds and client time `now`.
     pub fn event(&mut self, event: InputEvent, timestamp: u32, now: f64) {
+        if let InputEvent::Button { button: 1, pressed } = event {
+            self.right_down = pressed;
+            if !pressed && self.right_look {
+                self.right_look = false;
+                self.set_look(false);
+            }
+        }
         let mut actions: Vec<RawAction> = Vec::new();
         self.input.process(event, timestamp, &mut actions);
         self.characters.extend(self.input.take_characters());

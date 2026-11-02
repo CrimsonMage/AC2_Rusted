@@ -352,10 +352,10 @@ impl ShopUi {
             "ID_Store_ConfirmPurchasePlural"
         };
         let vars = vec![
-            (id("Product"), SkillVar::Text(s.render_wire(product))),
-            (id("Quantity"), SkillVar::UInt(u64::from(quantity))),
-            (id("Trade"), SkillVar::Text(s.render_wire(trade))),
-            (id("Cost"), SkillVar::UInt(u64::from(cost))),
+            (id("product"), SkillVar::Text(s.render_wire(product))),
+            (id("quantity"), SkillVar::UInt(u64::from(quantity))),
+            (id("trade"), SkillVar::Text(s.render_wire(trade))),
+            (id("cost"), SkillVar::UInt(u64::from(cost))),
         ];
         let text = s.render_string(&UiString::ui(id(string_id), vars));
         self.confirm_context = dialogs.make_dialog(tree, &text, DIALOG_CONFIRMATION, false);

@@ -212,7 +212,7 @@ impl CharacterUi {
             }));
             self.main.push(index);
             crate::option_expander::refit(tree, element, header, list);
-            let release_7230 = ac2_core::data_release() == ac2_core::DataRelease::Release7230;
+            let release_7230 = ac2_core::data_release().reads_7230_layouts();
             for option in tree_desc
                 .options
                 .iter()

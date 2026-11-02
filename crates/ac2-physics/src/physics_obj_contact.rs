@@ -160,11 +160,11 @@ impl PhysicsObj {
         } else {
             0
         };
-        let spheres = self.shape.spheres.clone();
+        let (spheres, scale) = self.transition_spheres();
         let object = TransitionObject {
             state: self.object_info_state(),
             spheres: &spheres,
-            scale: st(ld(self.shape.scale) * ld(self.scale.z)),
+            scale,
             step_up_height: self.shape.step_up_height,
             step_down_height: self.step_down_height(),
             affected_by_gravity: self.state & crate::physics_obj::GRAVITY_PS != 0,

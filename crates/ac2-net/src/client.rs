@@ -92,6 +92,10 @@ pub struct NetClient {
     net: ClientNet,
     pending: VecDeque<NetEvent>,
     closed: bool,
+    /// The configuration of a connection that has not started yet ([`NetClient::with_transport_held`]):
+    /// `Turbine::Client::Connect` runs `InitAuth` and then `ClientNet::Init`, and the GUN start
+    /// (`gmClient::Connect`'s `StartupGUN`) comes before both.
+    held: Option<NetClientConfig>,
 }
 
 /// `Timer::get_real_time`: Unix seconds.
@@ -115,6 +119,31 @@ impl NetClient {
             net: ClientNet::new(config.server, &config.logon),
             pending: VecDeque::new(),
             closed: false,
+            held: None,
+        }
+    }
+
+    /// [`NetClient::with_transport`] for a connection that waits: nothing is sent or read until
+    /// [`NetClient::start`] gives the logon its credential (`gmClient::Connect`: `StartupGUN`, then
+    /// `Turbine::Client::Connect` = `InitAuth` + `ClientNet::Init`).
+    pub fn with_transport_held(config: NetClientConfig, transport: Box<dyn Transport>) -> Self {
+        let mut client = Self::with_transport(config.clone(), transport);
+        client.held = Some(config);
+        client
+    }
+
+    /// Whether the connection still waits for [`NetClient::start`].
+    pub fn is_held(&self) -> bool {
+        self.held.is_some()
+    }
+
+    /// `ClientNet::Init` with the logon carrying `credential` (`gmClient::InitAuth`'s
+    /// `NetAuthenticator`): the logon goes out at the next frame. No effect on a connection that
+    /// is not held.
+    pub fn start(&mut self, credential: crate::Credential) {
+        if let Some(mut config) = self.held.take() {
+            config.logon.credential = credential;
+            self.net = ClientNet::new(config.server, &config.logon);
         }
     }
 
@@ -138,7 +167,7 @@ impl NetClient {
 
     /// One frame: read what arrived, run [`ClientNet::use_time`], send what it produced.
     pub fn pump(&mut self) -> Result<(), NetError> {
-        if self.closed {
+        if self.closed || self.held.is_some() {
             return Ok(());
         }
         let inbound = self.transport.receive()?;
@@ -198,7 +227,7 @@ impl NetClient {
 
     /// `ClientNet::LogOffServer`: the logoff goes out now; nothing is sent after.
     pub fn disconnect(&mut self) {
-        if self.closed {
+        if self.closed || self.held.is_some() {
             return;
         }
         self.net.log_off_server();
@@ -212,5 +241,72 @@ impl NetClient {
 impl Drop for NetClient {
     fn drop(&mut self) {
         self.disconnect();
+    }
+}
+
+#[cfg(test)]
+mod held_tests {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    use super::*;
+    use crate::handshake::Credential;
+
+    /// A transport that records what is sent.
+    struct Recording(Rc<RefCell<Vec<Vec<u8>>>>);
+
+    impl Transport for Recording {
+        fn receive(&mut self) -> Result<Vec<(SocketAddr, Vec<u8>)>, NetError> {
+            Ok(Vec::new())
+        }
+        fn send(&mut self, _to: SocketAddr, datagram: &[u8]) -> Result<(), NetError> {
+            self.0.borrow_mut().push(datagram.to_vec());
+            Ok(())
+        }
+        fn clock(&mut self) -> (f64, i64) {
+            (1.0, 1_700_000_000)
+        }
+        fn sleep(&mut self, _duration: Duration) {}
+    }
+
+    fn config() -> NetClientConfig {
+        NetClientConfig {
+            server: "127.0.0.1:9000".parse().unwrap(),
+            logon: Logon {
+                version: "7160".into(),
+                account: "a".into(),
+                credential: Credential::Account,
+                connection_sequence: 1,
+                crypto: None,
+            },
+        }
+    }
+
+    /// `gmClient::Connect` runs `StartupGUN` before `Turbine::Client::Connect`: a held
+    /// connection sends nothing until it is started, and then the logon carries the
+    /// `InitAuth` credential (auth type 0x41000001 with the ticket bytes).
+    #[test]
+    fn a_held_connection_sends_nothing_until_started() {
+        let sent = Rc::new(RefCell::new(Vec::new()));
+        let mut client =
+            NetClient::with_transport_held(config(), Box::new(Recording(Rc::clone(&sent))));
+        assert!(client.is_held());
+        for _ in 0..3 {
+            assert!(client.poll().is_empty());
+        }
+        assert!(sent.borrow().is_empty());
+        client.start(Credential::GunTicket(vec![9, 8, 7]));
+        assert!(!client.is_held());
+        client.poll();
+        let sent = sent.borrow();
+        assert_eq!(
+            sent.len(),
+            1,
+            "the logon request goes out at the first frame"
+        );
+        let ticket = [9u8, 8, 7];
+        assert!(sent[0].windows(3).any(|w| w == ticket));
+        let auth_type = 0x4100_0001u32.to_le_bytes();
+        assert!(sent[0].windows(4).any(|w| w == auth_type));
     }
 }

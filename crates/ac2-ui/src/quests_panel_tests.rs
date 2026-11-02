@@ -18,6 +18,8 @@ use crate::{build_gameplay_hud, QuestSource, UiTree, STORY_CODE_LIST};
 /// A quest source that records whether the panel asked the script for the quest list.
 struct Source {
     list_asked: Cell<bool>,
+    /// What `act_list` answers.
+    acts: Vec<GmActInfo>,
 }
 
 impl crate::ui_string::UiStrings for Source {
@@ -39,7 +41,7 @@ impl QuestSource for Source {
     }
 
     fn act_list(&self) -> Vec<GmActInfo> {
-        Vec::new()
+        self.acts.clone()
     }
 
     fn play_story_scene(&self, _scene: SceneInfo) {}
@@ -134,6 +136,7 @@ fn gameplay_notices_reach_the_panel_and_its_list() {
     let tree = &mut hud.tree;
     let quests = hud.quests.as_mut().expect("the quest panel");
     let source = Source {
+        acts: Vec::new(),
         list_asked: Cell::new(false),
     };
 
@@ -174,4 +177,37 @@ fn gameplay_notices_reach_the_panel_and_its_list() {
         },
     );
     assert!(quests.story().reload_pending());
+}
+
+/// The login's `UpdateStoryQuests` notice can come before the HUD exists (the HUD is built on
+/// workers) and find no panel; the first frame in the world (`Hud::init_pass`) then raises the
+/// list notice itself, and the global loop lists what the script holds.
+#[test]
+fn a_list_notice_raised_when_the_panel_is_first_there_lists_the_scenes() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    let quests = hud.quests.as_mut().expect("the quest panel");
+    let source = Source {
+        list_asked: Cell::new(false),
+        acts: vec![GmActInfo {
+            id: 7,
+            visible: 1,
+            playable: 1,
+            ..GmActInfo::default()
+        }],
+    };
+    assert!(quests.story().acts().is_empty());
+    let notice = GameplayNotice::UpdateStoryQuests {
+        code: STORY_CODE_LIST,
+        act: 0,
+    };
+    quests.recv_gameplay_notice(tree, &source, &notice);
+    // The panel stays hidden and the quest button does not flash for the list code.
+    assert!(!quests.shown());
+    quests.story_global_loop(tree, &source, || source.act_list());
+    assert_eq!(quests.story().acts().len(), 1);
 }

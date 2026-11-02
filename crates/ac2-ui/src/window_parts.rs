@@ -118,6 +118,11 @@ pub(crate) fn entry_field(
     if let (Some(field_box), Some(z)) = (field_box, tree.get(field).map(|e| e.z)) {
         tree.set_z_level(field_box, z + 1);
     }
+    // The box is art: a press on it goes to the field (a box in front of the field in its
+    // parent's list, as the Edit layout bar's, would take the press).
+    if let Some(field_box) = field_box {
+        tree.set_bool(field_box, crate::token::MOUSE_INVISIBLE, true);
+    }
     Some((field, field_box))
 }
 

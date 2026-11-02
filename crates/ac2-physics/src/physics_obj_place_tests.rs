@@ -203,3 +203,35 @@ fn a_listed_object_reports_its_shadow_cells() {
     assert_eq!(world.shadow_object_count(id + 9), 0);
     assert!(!world.shadow_objects_complete(id + 9));
 }
+
+/// A Setup with no collision spheres (a lifestone's) is placed by `dummy_sphere`
+/// (`CPhysicsObj::SetPosition`: `GetNumSphere` 0 -> one sphere of radius 0.1 at z 0.1, scale 1),
+/// not refused for having no sphere to test.
+#[test]
+fn a_body_without_spheres_places_with_the_dummy_sphere() {
+    let world = blocked_world();
+    let shape = crate::BodyShape {
+        spheres: Vec::new(),
+        height: 8.21,
+        step_up_height: 1.5,
+        step_down_height: 3.0,
+        scale: 1.0,
+        allow_free_heading: true,
+    };
+    let at =
+        |x: f32, y: f32| crate::body::PhysicsBody::new(position(x, y, 0.0), shape.clone(), None);
+    let mut random = Random::default();
+    let mut body = at(70.0, 70.0);
+    let sps = SetPositionStruct::new(position(70.0, 70.0, 0.0), 0);
+    assert_eq!(
+        body.set_position_struct(&sps, &world, &mut random),
+        SetPositionError::Ok
+    );
+    // The dummy sphere is still a sphere: cutting the 2 m box's east face it does not place.
+    let mut body = at(81.0, 84.0);
+    let sps = SetPositionStruct::new(position(81.0, 84.0, 0.9), 0);
+    assert_ne!(
+        body.set_position_struct(&sps, &world, &mut random),
+        SetPositionError::Ok
+    );
+}

@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use ac2_launcher::launch::{self, Started};
-use ac2_launcher::servers::{self, Emu, Gun, Server, Settings, Source};
+use ac2_launcher::servers::{self, Emu, Server, Settings, Source};
 use eframe::egui;
 
 /// How long the launcher waits for the client to take its ticket.
@@ -447,15 +447,6 @@ fn type_name(emu: Emu) -> &'static str {
     }
 }
 
-fn gun_text(server: &Server) -> String {
-    match server.gun() {
-        Ok(Gun::Server { port }) => format!("the server's own (port {port})"),
-        Ok(Gun::Shared { host, port }) => format!("shared, {host}:{port}"),
-        Ok(Gun::None) => "none".into(),
-        Err(e) => e,
-    }
-}
-
 /// The editable fields of one of the player's servers. Returns whether anything changed.
 fn edit_server(ui: &mut egui::Ui, server: &mut Server) -> bool {
     let before = server.clone();
@@ -483,15 +474,6 @@ fn edit_server(ui: &mut egui::Ui, server: &mut Server) -> bool {
             );
             ui.end_row();
         }
-        ui.label("Friends (GUN)");
-        ui.add(
-            egui::TextEdit::singleline(&mut server.gun_server).hint_text(match server.emu {
-                Emu::Ac2e => "the server's own",
-                Emu::Relaunch => "none",
-            }),
-        )
-        .on_hover_text("empty for the type's default, none, or a shared host:port");
-        ui.end_row();
         ui.label("Notes");
         ui.text_edit_singleline(&mut server.description);
         ui.end_row();
@@ -517,9 +499,6 @@ fn show_server(ui: &mut egui::Ui, server: &Server) {
             ui.label(&server.status);
             ui.end_row();
         }
-        ui.label("Friends (GUN)");
-        ui.label(gun_text(server));
-        ui.end_row();
     });
     for link in [&server.website_url, &server.discord_url] {
         if !link.is_empty() {

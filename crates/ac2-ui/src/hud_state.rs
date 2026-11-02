@@ -172,6 +172,11 @@ pub struct Hud {
     /// before the HUD's dialogs exist); retail's handler is registered with the HUD's children,
     /// so these wait for the HUD rather than being dropped.
     pub display_backlog: Vec<DisplayNotice>,
+    /// The script's notices that came while the player was out of the world (a portal's travel),
+    /// for the frame the player is back: retail's `RecvNotice_*` receivers get a notice the
+    /// moment it is raised, whether or not the player is in the world, and the frame passes
+    /// here run only in the world.
+    pub parked_notices: Vec<ac2_weenie::SessionEvent>,
     /// The tree's messages for the frameworks that ask the player.
     pub player_messages: Vec<UiMessage>,
     /// The frameworks that ask the player have been loaded from it.

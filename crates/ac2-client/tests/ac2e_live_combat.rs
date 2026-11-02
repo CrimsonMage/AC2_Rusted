@@ -101,31 +101,41 @@ fn a_click_selects_a_creature() {
     };
     let creatures = wait_for_monsters(&mut rig);
     rig.settle_view();
+    // Some of the monsters in the vault (the guards) have no health to show, and which creature
+    // the pick finds first depends on where the training creatures settled around the player, so
+    // each one picked is tried until a selected creature shows its health.
+    let mut tried = Vec::new();
     let mut clicked = None;
-    for _ in 0..40 {
-        let found = creatures
+    'search: for _ in 0..40 {
+        let untried: Vec<u64> = creatures
             .iter()
-            .find_map(|&id| point_on(&rig, id).map(|at| (id, at)));
-        if let Some((id, at)) = found {
+            .copied()
+            .filter(|id| !tried.contains(id))
+            .collect();
+        for id in untried {
+            let Some(at) = point_on(&rig, id) else {
+                continue;
+            };
             rig.click(at);
-            if selected(&rig) == Some(id) {
+            if selected(&rig) != Some(id) {
+                continue;
+            }
+            tried.push(id);
+            if rig.until(3.0, |r| {
+                r.client
+                    .frame()
+                    .selection
+                    .and_then(|s| s.info)
+                    .is_some_and(|i| i.max_health > 0)
+            }) {
                 clicked = Some(id);
-                break;
+                break 'search;
             }
         }
         rig.run(0.25);
         rig.settle_view();
     }
-    let id = clicked.expect("no click selected a creature");
-    assert!(
-        rig.until(10.0, |r| r
-            .client
-            .frame()
-            .selection
-            .and_then(|s| s.info)
-            .is_some_and(|i| i.max_health > 0)),
-        "the selection panel never got the creature's health"
-    );
+    let id = clicked.expect("no click selected a creature that shows its health");
     assert_eq!(selected(&rig), Some(id));
 }
 
@@ -276,4 +286,73 @@ fn the_player_dies_is_offered_resurrection_and_comes_back() {
     let after = rig.client.frame().player.map(|p| (p.cell, p.origin));
     eprintln!("respawned: {before:?} -> {after:?}");
     assert!(after.is_some());
+}
+
+/// Examining a creature as the player does (a right click on it in the world: the selection, then
+/// `CM_UI::SendNotice_OpenExaminationPanel`) shows its profile in the examination panel: the
+/// creature's name and the rows the server answers with (its health).
+#[test]
+fn examining_a_creature_shows_its_profile() {
+    let Some(mut rig) = LiveRig::new("Creatureexamine") else {
+        return;
+    };
+    let creatures = wait_for_monsters(&mut rig);
+    rig.settle_view();
+    let mut tried = Vec::new();
+    let mut shown = None;
+    'search: for _ in 0..3 {
+        let untried: Vec<u64> = creatures
+            .iter()
+            .copied()
+            .filter(|id| !tried.contains(id))
+            .collect();
+        for id in untried {
+            let Some(at) = point_on(&rig, id) else {
+                continue;
+            };
+            rig.right_click(at);
+            if selected(&rig) != Some(id) {
+                continue;
+            }
+            tried.push(id);
+            if rig.until(5.0, |r| {
+                r.view
+                    .examination_texts()
+                    .iter()
+                    .any(|t| t.starts_with("Health:"))
+            }) {
+                shown = Some(id);
+                break 'search;
+            }
+        }
+        rig.run(0.25);
+        rig.settle_view();
+    }
+    let Some(id) = shown else {
+        panic!(
+            "no creature's examination showed a profile: tried {tried:x?}, panel {:?}, server said {:?}",
+            rig.view.examination_texts(),
+            notices(&rig)
+                .filter_map(|n| match n {
+                    GameplayNotice::DisplayStringInfo { text, .. } => text.literal.clone(),
+                    _ => None,
+                })
+                .collect::<Vec<_>>()
+        );
+    };
+    let texts = rig.view.examination_texts();
+    eprintln!("creature {id:#x} examination {texts:?}");
+    // The rows the creature's qualities give (AC2e's profile: the name, then its health), and
+    // the name is a name, not the server's fallback for an unnamed object.
+    let object = rig.client.session().objects().get(id).unwrap();
+    let (current, max) = (
+        object.qualities.inq_int(0x102).unwrap(),
+        object.qualities.inq_int(0x107).unwrap(),
+    );
+    assert!(
+        texts.contains(&format!("Health: {current} / {max}")),
+        "{texts:?}"
+    );
+    let name = texts.iter().find(|t| !t.contains(':')).expect("a name");
+    assert!(!matches!(name.as_str(), "Object" | "Creature"), "{texts:?}");
 }

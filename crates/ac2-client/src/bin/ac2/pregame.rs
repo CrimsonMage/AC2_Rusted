@@ -48,7 +48,6 @@ impl App {
             }
         };
         show_world_names(&state.window, &events);
-        super::gun_world_names(&mut self.gun, &events);
         let notices = self.client.take_notices();
         match &mut state.pregame {
             Some(pregame) => {
@@ -100,13 +99,19 @@ impl App {
                 .prefs()
                 .map(|prefs| ac2_ui::hud_style::hud_style(prefs.bank()))
                 .unwrap_or_default();
-            let mut view = ClientView::with_hud_style(
+            let setting = self
+                .client
+                .prefs()
+                .map(|prefs| ac2_ui::ui_scale_pref::ui_scale(prefs.bank()))
+                .unwrap_or_default();
+            let mut view = ClientView::with_hud_options(
                 Arc::clone(&self.world),
                 &state.gpu,
                 state.format,
                 self.radius,
                 (state.config.width, state.config.height),
                 style,
+                setting,
             );
             view.set_scene_options(self.scene_options);
             view.set_stream_pipelines(true);

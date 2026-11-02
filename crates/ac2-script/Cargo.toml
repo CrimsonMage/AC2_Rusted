@@ -14,6 +14,7 @@ workspace = true
 ac2-anim = { path = "../ac2-anim" }
 ac2-core = { path = "../ac2-core" }
 ac2-dat = { path = "../ac2-dat" }
+ac2-gun = { path = "../ac2-gun" }
 ac2-assets = { path = "../ac2-assets" }
 ac2-db = { path = "../ac2-db" }
 ac2-math = { path = "../ac2-math" }
@@ -23,4 +24,5 @@ ac2-weenie = { path = "../ac2-weenie" }
 log = "0.4"
 
 [dev-dependencies]
+ac2-gun = { path = "../ac2-gun", features = ["test-support"] }
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }

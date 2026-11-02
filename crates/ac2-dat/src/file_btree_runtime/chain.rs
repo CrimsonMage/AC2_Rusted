@@ -213,6 +213,9 @@ mod tests {
             return;
         };
         let root = std::path::PathBuf::from(root);
+        // Mounting the set sets the release the skip check below depends on.
+        crate::DatDataset::open(crate::DatOpenOptions::for_retail_install(&root))
+            .expect("AC2 DATs mount");
         for kind in [DatFileKind::Portal, DatFileKind::Cell, DatFileKind::Local] {
             let runtime =
                 FileBtreeRuntime::open(root.join(kind.default_file_name())).expect("DAT opens");
@@ -288,7 +291,13 @@ mod tests {
             assert!(compared > 1000 && multi_block > 0, "{kind:?} coverage");
             SCRATCH.with(|scratch| assert!(scratch.borrow().capacity() <= MAX_COALESCED_READ));
         }
-        // Some chains skip ahead inside one read, and those came out the same too.
-        assert!(IN_READ_SKIPS.load(Ordering::Relaxed) > 0);
+        // Some chains skip ahead inside one read, and those came out the same too. The
+        // end-of-retail set has no such chain (the test counts none there); only the 7230 and
+        // DVD sets exercise that path.
+        let skips = IN_READ_SKIPS.load(Ordering::Relaxed);
+        eprintln!("{skips} in-read skips");
+        if ac2_core::data_release() != ac2_core::DataRelease::Release0930 {
+            assert!(skips > 0);
+        }
     }
 }

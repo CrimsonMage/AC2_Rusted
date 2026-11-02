@@ -35,6 +35,18 @@ fn config() -> OnlineConfig {
     }
 }
 
+/// Sends `request` as the player's script would (`WM_Inventory`): the double answers it.
+fn send(session: &mut OnlineSession, request: ScriptRequest) {
+    if let ac2_net::protocol::ClientEvent::Interp {
+        function,
+        arguments,
+        encrypted,
+    } = request.to_event()
+    {
+        session.send_interp(function, arguments, encrypted);
+    }
+}
+
 type Double = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 
 fn settle(session: &mut OnlineSession, state: &Double) -> Vec<SessionEvent> {
@@ -121,33 +133,45 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
     assert_eq!(session.inventory().equipped(), [(0x10, E)]);
 
     // B into the side pack's first slot, A to the second slot of the player's own pack (a
-    // reorganization), C onto its own slot (nothing), then C dropped on the landblock.
-    session.move_item(B, PLAYER, 1, PACK, 0, 1);
+    // reorganization), then C dropped on the landblock.
+    send(
+        &mut session,
+        ScriptRequest::MoveItem(InvMoveDesc::new(B, PLAYER, 1, PACK, 0, 1)),
+    );
     settle(&mut session, &state);
     assert_eq!(
         (items(&session, PLAYER), items(&session, PACK)),
         (vec![A, C], vec![B, D])
     );
-    session.move_item(A, PLAYER, 0, PLAYER, 1, 1);
+    send(
+        &mut session,
+        ScriptRequest::ReorganizeContents(InvMoveDesc::new(A, PLAYER, 0, PLAYER, 1, 1)),
+    );
     settle(&mut session, &state);
     assert_eq!(items(&session, PLAYER), [C, A]);
-    session.move_item(C, PLAYER, 0, PLAYER, 0, 1);
-    session.move_item(C, PLAYER, 0, LANDBLOCK, -1, 1);
+    send(
+        &mut session,
+        ScriptRequest::MoveItem(InvMoveDesc::new(C, PLAYER, 0, LANDBLOCK, -1, 1)),
+    );
     settle(&mut session, &state);
     assert_eq!(items(&session, PLAYER), [A]);
 
-    // Equip A at 0x20, take E off into slot 0; an unknown item is refused before sending.
-    session.equip_item(A, 0x20).unwrap();
+    // Equip A at 0x20, take E off into slot 0.
+    send(
+        &mut session,
+        ScriptRequest::EquipItem(InvEquipDesc::equip(A, PLAYER, 0x20, PLAYER, 0)),
+    );
     settle(&mut session, &state);
-    session.unequip_item(E, 0).unwrap();
+    send(
+        &mut session,
+        ScriptRequest::UnequipItem(InvEquipDesc::unequip(E, PLAYER, 0x10, 0)),
+    );
     settle(&mut session, &state);
     assert_eq!(session.inventory().equipped(), [(0x20, A)]);
     assert_eq!(items(&session, PLAYER), [E]);
-    assert!(session.equip_item(0x99, 0x20).is_err());
-    assert!(session.unequip_item(0x99, 0).is_err());
 
     // Opening the side pack lists it again and marks it open; closing drops it.
-    session.set_container_open(PACK, true);
+    send(&mut session, ScriptRequest::OpenContainer(PACK));
     let events = settle(&mut session, &state);
     assert_eq!(
         notices(&events),
@@ -161,11 +185,14 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
     );
     assert_eq!(session.inventory().open_containers(), [PACK]);
     // Everything in it into the player's pack.
-    session.loot_all(PACK);
+    send(
+        &mut session,
+        ScriptRequest::LootAll(ac2_net::protocol::InvTakeAllDesc::new(PACK, PLAYER)),
+    );
     settle(&mut session, &state);
     assert_eq!(items(&session, PLAYER), [E, B, D]);
     assert!(items(&session, PACK).is_empty());
-    session.set_container_open(PACK, false);
+    send(&mut session, ScriptRequest::CloseContainer(PACK));
     let events = settle(&mut session, &state);
     assert!(
         notices(&events).contains(&GameplayNotice::ContainerStateUpdate {
@@ -196,9 +223,7 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
         s.script_requests,
         vec![
             ScriptRequest::MoveItem(InvMoveDesc::new(B, PLAYER, 1, PACK, 0, 1)),
-            ScriptRequest::ReorganizeContents(
-                InvMoveDesc::new(A, PLAYER, 0, PLAYER, 1, 1).with_native_tags()
-            ),
+            ScriptRequest::ReorganizeContents(InvMoveDesc::new(A, PLAYER, 0, PLAYER, 1, 1)),
             ScriptRequest::MoveItem(InvMoveDesc::new(C, PLAYER, 0, LANDBLOCK, -1, 1)),
             ScriptRequest::EquipItem(InvEquipDesc::equip(A, PLAYER, 0x20, PLAYER, 0)),
             ScriptRequest::UnequipItem(InvEquipDesc::unequip(E, PLAYER, 0x10, 0)),

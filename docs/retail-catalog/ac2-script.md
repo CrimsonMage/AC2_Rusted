@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1694 done, 32 partial, 332 to do, 410 skipped.
+2468 retail functions: 1695 done, 32 partial, 331 to do, 410 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -497,11 +497,11 @@ Legend and workflow: [README](README.md).
 - [x] `gSkillUINode::CallEFun_GetParentList` · 0046f7c0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 - [x] `gSkillUINode::CallEFun_InqCoordinates` · 0046f8e0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 
-## `ac2/shared/src/interp/glue/gturbinegunutils.cpp.c` (1/2)
+## `ac2/shared/src/interp/glue/gturbinegunutils.cpp.c` (2/2)
 
 ### gTurbineGunUtils
 - [x] `gTurbineGunUtils::CallEFun_GetWorldName` · 0046ea20 — ac2-script glue/turbine_gun.rs: returns the client's world name (Vm::world_name, from the WORLD_NAME notice); test in glue/turbine_gun.rs
-- [ ] `gTurbineGunUtils::CallEFun_GetWorldSuffix` · 0046eaa0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [x] `gTurbineGunUtils::CallEFun_GetWorldSuffix` · 0046eaa0 — GUN phase 3 (gun-phase3)
 
 ## `ac2/shared/src/interp/glue/gturbineuserstatus.cpp.c` (3/4)
 

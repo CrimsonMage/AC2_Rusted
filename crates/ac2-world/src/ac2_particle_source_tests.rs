@@ -96,3 +96,58 @@ fn survey_landblocks_with_the_most_particle_sources() {
     }
     assert_eq!(failed, 0);
 }
+
+/// `CEnvCell::InitStaticObjects` makes a `CPhysicsObj` per cell entity and `ApplyStartupFX` starts
+/// its particle systems, so the start dungeon's torches and fires play indoors as the landscape's
+/// do: some of the block's sources stand inside the interior cells' bounds, and they are more than
+/// the landscape entities alone start.
+#[test]
+fn the_start_dungeon_cells_start_their_entities_particle_systems() {
+    let Some((_, world)) = ac2_world() else {
+        return;
+    };
+    let block = CellId::new(0x0299_FFFF);
+    let Some(interior) = world.landblock_interior(block).unwrap() else {
+        return;
+    };
+    let all = ac2_block_particle_sources(&world, block).expect("block sources resolve");
+    let landscape = world.entity_markers(block).unwrap();
+    let mut from_cells = 0;
+    for id in interior.cell_ids(block) {
+        let Some(cell) = world.env_cell(id).unwrap() else {
+            continue;
+        };
+        from_cells += world
+            .env_cell_markers(&cell)
+            .iter()
+            .filter(|marker| !marker.frill())
+            .count();
+    }
+    eprintln!(
+        "{} sources, {} landscape markers, {from_cells} cell entity markers",
+        all.len(),
+        landscape.len()
+    );
+    assert!(
+        from_cells > 0 && !all.is_empty(),
+        "the dungeon's cells hold static entities"
+    );
+    let landscape_only: usize = {
+        // The same walk over the landscape markers alone.
+        let mut count = 0;
+        let store = world.resource_store();
+        for marker in landscape.iter().filter(|marker| !marker.frill()) {
+            if let Some(particles) =
+                ac2_assets::resolve_ac2_visual_particles(store, marker.visual()).unwrap()
+            {
+                count += particles.attachments.len();
+            }
+        }
+        count
+    };
+    assert!(
+        all.len() > landscape_only,
+        "{} sources against {landscape_only} from the landscape",
+        all.len()
+    );
+}

@@ -74,11 +74,11 @@ type Shared = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 /// 0x8213_0013): the `PList<gmSceneInfo>` the script hands back, one scene with one keyframe,
 /// its one reference numbered 1 (`ac2_script::wire::as_collected`).
 const PLAYED_LIST: &[u8] = &[
-    5, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0x44, 0, 0, 0, 0, 0xa4, 0, 0xff, 0xff, 1, 0,
-    0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0xac, 0x92, 0x62, 0xe5, 0x3a, 0x76,
-    0xa, 0xeb, 0xf6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 7, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0xf0, 0xbf, 1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+    5, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0x44, 0, 0, 0, 0, 0xa4, 0, 0xff, 0xff, 1, 0, 0, 0,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0xac, 0x92, 0x62, 0xe5, 0x3a, 0x76, 0xa,
+    0xeb, 0xf6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 7, 0, 0, 0, 1, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0xf0, 0xbf, 1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
 ];
 
 /// A portal scene's leave with no story in the slot reports the scene to the script at once

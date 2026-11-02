@@ -76,6 +76,52 @@ impl RingTarget {
     }
 }
 
+/// Where button `i` of the ring for `t` is centred, on the screen. The buttons fan out at
+/// [`RADIUS`] and stay inside the target's bounds, but never over the slot the ring opened from:
+/// where the bounds are so close that the clamp would put a button on the slot, a press on the
+/// slot (the double click that uses the item) would hit the button instead and no use would be
+/// sent. Such a button goes outside the bounds, inside `drawer`, and farther out while it still
+/// touches the slot.
+pub(crate) fn button_center(t: &RingTarget, i: usize, drawer: UiBox) -> (i32, i32) {
+    let (cx, cy) = (
+        (t.slot.x0 + t.slot.x1) as f32 / 2.0,
+        (t.slot.y0 + t.slot.y1) as f32 / 2.0,
+    );
+    let half = art::RING_ART / 2;
+    // The button's place in the fan, as an offset from the way the ring opens.
+    let offset = -SPREAD + i as f32 * 2.0 * SPREAD / 4.0;
+    let clamp_to = |bounds: UiBox, offset: f32, r: f32| {
+        let angle = (t.towards + offset).to_radians();
+        let x = (cx + r * angle.cos()).round() as i32;
+        let y = (cy + r * angle.sin()).round() as i32;
+        (
+            x.clamp(bounds.x0 + half, (bounds.x1 - half).max(bounds.x0 + half)),
+            y.clamp(bounds.y0 + half, (bounds.y1 - half).max(bounds.y0 + half)),
+        )
+    };
+    let covers = |(x, y): (i32, i32)| {
+        x - half < t.slot.x1 && x + half > t.slot.x0 && y - half < t.slot.y1 && y + half > t.slot.y0
+    };
+    let first = clamp_to(t.bounds, offset, RADIUS);
+    if !covers(first) {
+        return first;
+    }
+    // Farther out, then (a narrower fan) nearer the way the ring opens, first inside the bounds
+    // and then anywhere in the drawer.
+    for bounds in [t.bounds, drawer] {
+        for narrow in 0..4 {
+            let offset = offset * (1.0 - narrow as f32 * 0.25);
+            for step in 0..4 {
+                let candidate = clamp_to(bounds, offset, RADIUS + 6.0 * step as f32);
+                if !covers(candidate) {
+                    return candidate;
+                }
+            }
+        }
+    }
+    first
+}
+
 /// The ring's buttons and what they were laid out for.
 #[derive(Debug, Clone)]
 pub(crate) struct ItemRing {
@@ -155,10 +201,6 @@ impl ItemRing {
 
     fn lay_out(&self, tree: &mut UiTree, t: &RingTarget) {
         let origin = tree.screen_box(self.parent);
-        let (cx, cy) = (
-            (t.slot.x0 + t.slot.x1) as f32 / 2.0,
-            (t.slot.y0 + t.slot.y1) as f32 / 2.0,
-        );
         let half = art::RING_ART / 2;
         let actions = t.actions();
         self.shown.set(actions);
@@ -166,17 +208,7 @@ impl ItemRing {
             let Some(button) = button else {
                 continue;
             };
-            let angle = (t.towards - SPREAD + i as f32 * 2.0 * SPREAD / 4.0).to_radians();
-            let x = (cx + RADIUS * angle.cos()).round() as i32;
-            let y = (cy + RADIUS * angle.sin()).round() as i32;
-            let x = x.clamp(
-                t.bounds.x0 + half,
-                (t.bounds.x1 - half).max(t.bounds.x0 + half),
-            );
-            let y = y.clamp(
-                t.bounds.y0 + half,
-                (t.bounds.y1 - half).max(t.bounds.y0 + half),
-            );
+            let (x, y) = button_center(t, i, origin);
             tree.move_to(button, x - half - origin.x0, y - half - origin.y0);
             tree.set_visible(button, true);
         }
@@ -212,5 +244,62 @@ impl ItemRing {
         let i = self.buttons.iter().position(|b| *b == Some(element))?;
         let (action, applies) = *self.shown.get().get(i)?;
         applies.then_some((action, target.item))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn target(slot: UiBox, bounds: UiBox, towards: f32) -> RingTarget {
+        RingTarget {
+            item: 1,
+            slot,
+            bounds,
+            towards,
+            worn: false,
+            split: false,
+            melt: false,
+            equip: false,
+        }
+    }
+
+    /// A slot in a grid just one row tall: every button the bounds clamp would sit on the slot
+    /// goes clear of it, so a press on the slot reaches the item.
+    #[test]
+    fn no_button_covers_the_slot_it_opened_from() {
+        let half = art::RING_ART / 2;
+        let drawer = UiBox {
+            x0: 700,
+            y0: 170,
+            x1: 1020,
+            y1: 700,
+        };
+        let grid = UiBox {
+            x0: 710,
+            y0: 520,
+            x1: 1010,
+            y1: 566,
+        };
+        for (x0, towards) in [(716, -90.0), (800, -90.0), (990, 90.0), (712, 90.0)] {
+            let slot = UiBox {
+                x0,
+                y0: 524,
+                x1: x0 + 36,
+                y1: 560,
+            };
+            let t = target(slot, grid, towards);
+            for i in 0..5 {
+                let (x, y) = button_center(&t, i, drawer);
+                let overlap = x - half < slot.x1
+                    && x + half > slot.x0
+                    && y - half < slot.y1
+                    && y + half > slot.y0;
+                assert!(
+                    !overlap,
+                    "button {i} at ({x}, {y}) covers {slot:?} (x0 {x0})"
+                );
+            }
+        }
     }
 }

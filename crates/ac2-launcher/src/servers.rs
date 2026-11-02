@@ -17,10 +17,10 @@ pub const PROTOCOL_RELAUNCH: &str = ac2_net::RELAUNCH_VERSION;
 pub enum Emu {
     /// An AC2e server: the 7230 protocol (7230; AC2e serves its 7230 data to it), an account
     /// service for its tickets when
-    /// it has one (`LoginServerUrlKey`), else the developer account, and its own GUN service.
+    /// it has one (`LoginServerUrlKey`), else the developer account.
     Ac2e,
     /// A relaunch server (2012-2017 client): protocol 1802, the password as the ticket
-    /// (`glsticketdirect`), no GUN service.
+    /// (`glsticketdirect`).
     Relaunch,
 }
 
@@ -49,17 +49,6 @@ impl Emu {
     }
 }
 
-/// Where a server's GUN service (friends, ignore lists, presence) is.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Gun {
-    /// On the game server's host, on this port (AC2e starts one with every server).
-    Server { port: u16 },
-    /// A shared GUN service, for friends across several game servers.
-    Shared { host: String, port: u16 },
-    /// No GUN service: no friends list.
-    None,
-}
-
 /// Where a server came from.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Source {
@@ -78,9 +67,6 @@ pub struct Server {
     pub connect: String,
     /// An AC2e account service (`LoginServerUrlKey`); empty for none.
     pub login_server_url: String,
-    /// `gun_server`: `none`, a shared service's `host:port`, or empty for the type's default
-    /// (an AC2e server's own on 2310; none for a relaunch server).
-    pub gun_server: String,
     pub website_url: String,
     pub discord_url: String,
     pub status: String,
@@ -96,7 +82,6 @@ impl Server {
             emu,
             connect: connect.trim().to_owned(),
             login_server_url: String::new(),
-            gun_server: String::new(),
             website_url: String::new(),
             discord_url: String::new(),
             status: String::new(),
@@ -127,43 +112,12 @@ impl Server {
         self.connect.trim().to_ascii_lowercase()
     }
 
-    /// The server's GUN service.
-    pub fn gun(&self) -> Result<Gun, String> {
-        let text = self.gun_server.trim();
-        if text.is_empty() {
-            return Ok(match self.emu {
-                Emu::Ac2e => Gun::Server {
-                    port: ac2_net::gun::DEFAULT_GUN_PORT,
-                },
-                Emu::Relaunch => Gun::None,
-            });
-        }
-        if text.eq_ignore_ascii_case("none") {
-            return Ok(Gun::None);
-        }
-        let (host, port) = text
-            .rsplit_once(':')
-            .ok_or_else(|| format!("{}: gun_server must be none or host:port", self.name))?;
-        let port = port
-            .parse()
-            .ok()
-            .filter(|p| *p != 0)
-            .ok_or_else(|| format!("{}: the GUN port is not valid", self.name))?;
-        Ok(Gun::Shared {
-            host: host.to_owned(),
-            port,
-        })
-    }
-
     /// What is wrong with the entry, if anything.
     pub fn problem(&self) -> Option<String> {
         if self.name.trim().is_empty() {
             return Some("a server needs a name".into());
         }
         if let Err(e) = self.address() {
-            return Some(e);
-        }
-        if let Err(e) = self.gun() {
             return Some(e);
         }
         let url = self.login_server_url.trim();
@@ -229,7 +183,6 @@ pub fn write_servers(servers: &[Server]) -> String {
             ("emu", s.emu.name()),
             ("connect_string", &s.connect),
             ("LoginServerUrlKey", &s.login_server_url),
-            ("gun_server", &s.gun_server),
             ("website_url", &s.website_url),
             ("discord_url", &s.discord_url),
             ("status", &s.status),
@@ -279,7 +232,6 @@ pub fn parse_servers(text: &str, source: Source) -> Result<(Vec<Server>, Vec<Str
             emu,
             connect,
             login_server_url: field("LoginServerUrlKey"),
-            gun_server: field("gun_server"),
             website_url: field("website_url"),
             discord_url: field("discord_url"),
             status: field("status"),
@@ -406,10 +358,9 @@ mod tests {
         assert_eq!(servers.len(), 1);
         assert_eq!(servers[0].problem(), None);
         assert_eq!(servers[0].address().unwrap(), ("127.0.0.1".into(), 9000));
-        assert_eq!(servers[0].gun().unwrap(), Gun::Server { port: 2310 });
     }
 
-    /// A relaunch server is its connect string and its type: no GUN service by default.
+    /// A relaunch server is its connect string and its type.
     #[test]
     fn a_relaunch_server_is_its_connect_string() {
         let s = Server::new("IceFire", "icefire.portalspace.net:8610", Emu::Relaunch);
@@ -418,7 +369,6 @@ mod tests {
             s.address().unwrap(),
             ("icefire.portalspace.net".into(), 8610)
         );
-        assert_eq!(s.gun().unwrap(), Gun::None);
         assert_eq!(s.emu.protocol(), "1802");
         assert!(Server::new("x", "nohost", Emu::Ac2e).problem().is_some());
         assert!(Server::new("x", "h:0", Emu::Ac2e).problem().is_some());
@@ -433,7 +383,6 @@ mod tests {
         };
         let mut mine = Server::new("Mine & <yours>", "ac2.example.net:9100", Emu::Ac2e);
         mine.login_server_url = "https://ac2.example.net".into();
-        mine.gun_server = "gun.example.net:2400".into();
         settings.add_favorite(mine);
         settings
             .accounts
@@ -441,13 +390,6 @@ mod tests {
         settings.save_to(dir.path()).unwrap();
         let loaded = Settings::load_from(dir.path());
         assert_eq!(loaded, settings);
-        assert_eq!(
-            loaded.favorites[1].gun().unwrap(),
-            Gun::Shared {
-                host: "gun.example.net".into(),
-                port: 2400
-            }
-        );
         for file in [SETTINGS_FILE, SERVERS_FILE] {
             let text = std::fs::read_to_string(dir.path().join(file)).unwrap();
             assert!(!text.to_ascii_lowercase().contains("password"), "{text}");

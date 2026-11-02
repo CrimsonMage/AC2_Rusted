@@ -202,6 +202,14 @@ pub enum SessionEvent {
     LinkHeartbeat(Box<ac2_net::LinkAverages>),
     /// A notice the player's scripts raised (`CM_*::SendNotice_*`) for the UI.
     Notice(GameplayNotice),
+    /// `/saveui [name]` ([`crate::ShellAction::SaveUiLayout`]): the HUD writes its windows' places.
+    SaveUiLayout {
+        name: String,
+    },
+    /// `/loadui [name]` ([`crate::ShellAction::LoadUiLayout`]): the HUD reads them back.
+    LoadUiLayout {
+        name: String,
+    },
     /// A chat command the port does not run natively ([`crate::ShellAction::Command`]).
     ShellCommand {
         handler: u32,
@@ -219,7 +227,6 @@ pub struct OnlineSession {
     reporter: Option<PositionReporter>,
     /// The logon names AC2e's profile (7148 or 7230), whose server answers a request the way
     /// the session's mirror of its messages follows, not the player's script.
-    ac2e: bool,
     entered: bool,
     closed: bool,
     /// Events [`OnlineSession::wait_for_world`] saw, for the next [`OnlineSession::poll`].
@@ -259,36 +266,70 @@ impl OnlineSession {
     /// [`OnlineSession::connect`] over `transport` (a scripted server in tests).
     pub fn with_transport(
         config: OnlineConfig,
+        transport: Box<dyn ac2_net::Transport>,
+    ) -> Result<Self, NetError> {
+        Self::build(config, transport, false)
+    }
+
+    /// [`OnlineSession::connect`] that waits: no datagram is sent until
+    /// [`OnlineSession::start_logon`] (`gmClient::Connect` runs `StartupGUN` before
+    /// `Turbine::Client::Connect`). `config.credential` is replaced by `start_logon`'s.
+    pub fn connect_held(config: OnlineConfig) -> Result<Self, NetError> {
+        let transport = ac2_net::UdpTransport::bind(config.server)?;
+        Self::build(config, Box::new(transport), true)
+    }
+
+    /// [`OnlineSession::connect_held`] over `transport`.
+    pub fn with_transport_held(
+        config: OnlineConfig,
+        transport: Box<dyn ac2_net::Transport>,
+    ) -> Result<Self, NetError> {
+        Self::build(config, transport, true)
+    }
+
+    /// Whether the logon still waits for [`OnlineSession::start_logon`].
+    pub fn is_logon_held(&self) -> bool {
+        self.client.is_held()
+    }
+
+    /// `Turbine::Client::Connect` after `InitAuth` made `credential`: the logon starts.
+    pub fn start_logon(&mut self, credential: Credential) {
+        self.client.start(credential);
+    }
+
+    fn build(
+        config: OnlineConfig,
         mut transport: Box<dyn ac2_net::Transport>,
+        held: bool,
     ) -> Result<Self, NetError> {
         let connection_sequence = transport.clock().1 as u32;
         let build = Build::from_version(&config.version);
-        let ac2e = matches!(config.version.as_str(), "7148" | "7230");
         let crypto = config
             .server_key
             .as_ref()
             .map(SessionCrypto::new)
             .transpose()?;
-        let client = NetClient::with_transport(
-            NetClientConfig {
-                server: config.server,
-                logon: Logon {
-                    version: config.version,
-                    account: config.account.clone(),
-                    credential: config.credential,
-                    connection_sequence,
-                    crypto,
-                },
+        let net_config = NetClientConfig {
+            server: config.server,
+            logon: Logon {
+                version: config.version,
+                account: config.account.clone(),
+                credential: config.credential,
+                connection_sequence,
+                crypto,
             },
-            transport,
-        );
+        };
+        let client = if held {
+            NetClient::with_transport_held(net_config, transport)
+        } else {
+            NetClient::with_transport(net_config, transport)
+        };
         Ok(Self {
             client,
             account: config.account,
             choice: config.character,
             world: World::new(build),
             reporter: None,
-            ac2e,
             entered: false,
             closed: false,
             pending: Vec::new(),
@@ -305,6 +346,17 @@ impl OnlineSession {
             chat: Default::default(),
             observer: None,
         })
+    }
+
+    /// The name of character `id` as the character set lists it (the player's name:
+    /// `gmCWInterface::InqName`, string stat 0x100).
+    pub fn character_name(&self, id: u64) -> Option<String> {
+        self.characters
+            .as_ref()?
+            .characters
+            .iter()
+            .find(|c| c.id == id)
+            .map(|c| c.name.clone())
     }
 
     /// [`World::set_property_types`] for this session's world.

@@ -23,11 +23,6 @@ OPTIONS
                           7148 data to 7148. The RSA session key is never sent.
   --dat-dir DIR           DAT directory for the interrogation response (default AC2_DAT_DIR)
   --timeout SECS          wait for the character set this long (default 45)
-  --gunserver HOST        first run the GUN stage (gmClient::StartupGUN) against this AC2e
-                          GUN service: connect, ticket, a friends round trip
-  --gunport N             GUN port (default 2310)
-  --gunticketoverride T   the GUN ticket (default: the account name, AC2e's developer ticket)
-  --gunfriend NAME        the friend the round trip adds and removes (default gunprobe_friend)
   -h, --help              this text
 
 EXIT CODES
@@ -43,10 +38,6 @@ struct Args {
     version: String,
     dat_dir: Option<String>,
     timeout: u64,
-    gun_server: Option<String>,
-    gun_port: u16,
-    gun_ticket: Option<String>,
-    gun_friend: String,
 }
 
 fn parse(mut args: impl Iterator<Item = String>) -> Result<Option<Args>, String> {
@@ -59,10 +50,6 @@ fn parse(mut args: impl Iterator<Item = String>) -> Result<Option<Args>, String>
         version: String::new(),
         dat_dir: std::env::var("AC2_DAT_DIR").ok().filter(|d| !d.is_empty()),
         timeout: 45,
-        gun_server: None,
-        gun_port: ac2_net::gun::DEFAULT_GUN_PORT,
-        gun_ticket: None,
-        gun_friend: "gunprobe_friend".into(),
     };
     while let Some(flag) = args.next() {
         if flag == "-h" || flag == "--help" {
@@ -80,12 +67,6 @@ fn parse(mut args: impl Iterator<Item = String>) -> Result<Option<Args>, String>
             }
             "--account" => account = Some(value()?),
             "--glsticketdirect" => parsed.password = Some(value()?).filter(|p| !p.is_empty()),
-            "--gunserver" => parsed.gun_server = Some(value()?),
-            "--gunport" => {
-                parsed.gun_port = value()?.parse().map_err(|e| format!("--gunport: {e}"))?
-            }
-            "--gunticketoverride" => parsed.gun_ticket = Some(value()?),
-            "--gunfriend" => parsed.gun_friend = value()?,
             "--version" => parsed.version = value()?,
             "--dat-dir" => parsed.dat_dir = Some(value()?),
             "--timeout" => {
@@ -142,30 +123,6 @@ fn main() -> ExitCode {
             return ExitCode::from(FailureKind::Setup.exit_code());
         }
     };
-    // `gmClient::StartupGUN` comes before the logon.
-    if let Some(host) = &args.gun_server {
-        let probe = resolve_ipv4(host, args.gun_port)
-            .map_err(|e| Failure::new(FailureKind::Resolve, e))
-            .and_then(|server| {
-                ac2_login_probe::gun::run_gun(
-                    &ac2_login_probe::gun::GunProbe {
-                        server,
-                        ticket: args
-                            .gun_ticket
-                            .clone()
-                            .unwrap_or_else(|| retail_account(&args.account)),
-                        world: "AC2e".into(),
-                        friend: args.gun_friend.clone(),
-                        timeout: Duration::from_secs(args.timeout),
-                    },
-                    &mut |line| println!("{line}"),
-                )
-            });
-        if let Err(failure) = probe {
-            eprintln!("failed ({}): {}", failure.kind.label(), failure.detail);
-            return ExitCode::from(failure.kind.exit_code());
-        }
-    }
     let result = setup(&args).and_then(|config| {
         if config.dat_iterations.is_empty() {
             println!("no DATs: the interrogation response will list no files");

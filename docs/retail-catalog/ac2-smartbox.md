@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 145 done, 24 partial, 52 to do, 41 skipped.
+262 retail functions: 146 done, 23 partial, 52 to do, 41 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -272,7 +272,7 @@ Legend and workflow: [README](README.md).
 - [x] `TargetingModule::InternalCalcViewerPos` · 00579910 · legions 00549270 — ac2-smartbox targeting.rs: no-parent, parent-and-target and parent-alone branches, bone types, camera dummies; the player's head turns to the target (LookAt 0x4F8, take_look_at, applied by ac2-client update_camera); positions are the drawn ones the client hands over (see GetPosition)
 - [x] `TargetingModule::CalcViewerPos` · 0057a320 · legions 00549c80 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 
-## `portal/client/src/smartbox/smartbox.cpp.c` (8/30)
+## `portal/client/src/smartbox/smartbox.cpp.c` (9/30)
 
 ### Position
 - [-] `Position::operator!=` · 005734b0 · legions 005434b0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
@@ -300,7 +300,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartBox::Render` · 00573a10 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
 - [ ] `SmartBox::ResetWorldState` · 00573a60 · legions 00543a30 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
 - [~] `SmartBox::InitPlayer` · 00573b50 · legions 00543b20 — SetCameraDefaults once the body's Setup has loaded
-- [~] `SmartBox::UpdateCamera` · 00573bd0 · legions 00543ba0 — the line-of-sight pull-in (CObjCell::LOSCheck) is not ported: the desired position stands
+- [x] `SmartBox::UpdateCamera` · 00573bd0 · legions 00543ba0 — ac2-smartbox camera_collision.rs CameraCollision::trace / SceneCamera::update_collided: LOSCheck head ray (env only, 0.0004 lift, GetTargetOffset), ray to the desired place (camera-ethereal, CheckEnvOnly), indoor 0.2 m stand-off along the impact normal, outdoor camera object placement (EnterWorldSimple), m_cameraVelocity; tests camera_collision::tests, camera_collision_7230
 - [~] `SmartBox::RecvNotice_CreatePlayerObject` · 00574220 · legions 00544170 — the body loads on a loader thread; m_bBlockingLoad set
 - [x] `SmartBox::PlayerPhysicsUpdatedCallback` · 00574280 · legions 005441d0 — after every player physics quantum outside mouse look
 - [~] `SmartBox::HandleTeleport` · 005742d0 · legions 00544220 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds

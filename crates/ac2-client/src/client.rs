@@ -97,6 +97,12 @@ pub(crate) struct Body {
     pub(crate) height: f64,
     pub(crate) radius: f64,
     pub(crate) scale: f32,
+    /// Its collision shape as a world object (`CPartArray`'s spheres, cylinders and BSPs) and
+    /// root scale, which the object lists hold for the other movers (`sync_player_shadow`).
+    pub(crate) object: Option<ac2_smartbox::body_shadow::BodyObject>,
+    /// The body's entry in the world's object lists (`CObjCell::AddObject`), while it is in the
+    /// world with a shape.
+    pub(crate) shadow: Option<u32>,
 }
 
 /// The player object (`CreateObject` of the player).
@@ -134,6 +140,8 @@ pub struct Client {
     module: MovementModule,
     pub(crate) camera: CameraManager,
     pub(crate) scene: SceneCamera,
+    /// `SmartBox::mpCameraPhysObj` and the camera's collision state.
+    pub(crate) camera_collision: ac2_smartbox::CameraCollision,
     pub(crate) game_clock: Option<GameClock>,
     /// The region, for its weather (`PhysicsGlobals::SetWind`).
     pub(crate) region: Option<Arc<ac2_world::RegionDesc>>,
@@ -212,6 +220,9 @@ pub struct Client {
     /// Session events a script resumed outside a frame made (a latent mode or behaviour that
     /// finished on its body); they join the next frame's events.
     pub(crate) script_outbox: Vec<SessionEvent>,
+    /// Each object's icon layers from its visual's DAT chain (`VisualDesc::GetTotalIconDesc`),
+    /// read by the loader threads.
+    pub(crate) total_icons: HashMap<u64, Vec<(u32, u32, u32)>>,
     /// Whether the HUD's background has a fade to report (`StoryView::fades_by_media`): the
     /// story waits for its `token_play` ([`Client::story_fade_done`]) instead of starting at once.
     pub(crate) story_fades_on_hud: bool,
@@ -225,6 +236,12 @@ pub struct Client {
     /// notice); the scripts' `gTurbineGunUtils::CallEFun_GetWorldName` and the assistance page
     /// read it. Empty until the notice arrives.
     pub(crate) world_name: String,
+    /// The GUN half of `gmClient` (`attach_gun`); `None` for a client with no GUN wiring.
+    pub(crate) gun: Option<std::rc::Rc<ac2_weenie::gun::GunClient>>,
+    /// Whether the logon connected (`gmDataPatchUI::OnNetStatusChange(Net_LoginConnected)`).
+    pub(crate) logon_connected: bool,
+    /// `gmClient::Connect` returned a `NetError`: the logon stays held.
+    pub(crate) gun_failed: bool,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -261,15 +278,19 @@ impl Client {
         let game_clock = data.game_clock();
         let region = data.region();
         let now = session.local_time();
+        let mut loader = Loader::new(data, ac2_db::WORLD_LOADER_THREADS);
+        // `SmartBox::Init` makes the camera object.
+        loader.request(Request::CameraObject);
         Self {
             session,
-            loader: Loader::new(data, ac2_db::WORLD_LOADER_THREADS),
+            loader,
             terrain: Terrain::new(),
             cells: CellManager::default(),
             player: None,
             module: MovementModule::default(),
             camera: CameraManager::new(),
             scene: SceneCamera::default(),
+            camera_collision: ac2_smartbox::CameraCollision::new(),
             game_clock,
             region,
             physics_clock: PhysicsClock::new(now),
@@ -308,9 +329,13 @@ impl Client {
             stories: Default::default(),
             story_outbox: Vec::new(),
             script_outbox: Vec::new(),
+            total_icons: HashMap::new(),
             story_fades_on_hud: false,
             mouse_look_notices: Vec::new(),
             world_name: String::new(),
+            gun: None,
+            logon_connected: false,
+            gun_failed: false,
             prefs: None,
         }
     }
@@ -376,6 +401,12 @@ impl Client {
 
     /// One client frame (see the module docs); returns the session's events.
     pub fn use_time(&mut self, input: &FrameInput) -> Result<Vec<SessionEvent>, String> {
+        // `gmClient::UseTime`: `TurbineGun::CheckForMessages` first; before the logon starts,
+        // `gmClient::Connect`'s `StartupGUN` (one iteration of its wait loops).
+        let gun_events = {
+            profile_scope!("gun");
+            self.gun_frame()
+        };
         {
             profile_scope!("net_use_time");
             self.session.net_use_time();
@@ -403,6 +434,7 @@ impl Client {
             self.smart_box()?
         };
         events.extend(commanded);
+        events.extend(gun_events);
         let mut dispatched = {
             profile_scope!("dispatch_events");
             self.session.dispatch_events()
@@ -412,6 +444,7 @@ impl Client {
             // `CPhysicsObj::RecvEvt_DoStory` in arrival order with the other physics events (a
             // swing's story before the mode change that ends the fight).
             for event in &dispatched {
+                self.gun_session_event(event);
                 self.apply(event)?;
                 self.apply_story(event);
             }
@@ -421,6 +454,8 @@ impl Client {
             self.run_scripts(&mut dispatched);
         }
         events.extend(dispatched);
+        // The calls the chat replies raised (`Result_SendToRoom`).
+        events.extend(self.carry_out_gun_outputs());
         // The script notices of this frame reach the story slot (`CM_Quest`, `CM_UI`).
         let mut story = self.apply_story_notices(&events);
         // `gmGamePlayUI::EndSession`: the story slot goes when the character leaves or drops.
@@ -547,12 +582,36 @@ impl Client {
                 // `CBaseQualities::InitDefaults`: the object's qualities now answer from the
                 // class defaults too.
                 if let Some(defaults) = defaults {
-                    self.session.set_object_defaults(id, defaults);
+                    if self.session.set_object_defaults(id, defaults) {
+                        // Retail read the class defaults before the object existed for the
+                        // panels, so a slot never drew the item without its icon, name or
+                        // locations; here the read finishes frames after the `CreateObject`,
+                        // and the displays that drew the item meanwhile refresh now
+                        // (`ItemDisplay::RecvNotice_ItemUpdate`, `gmPaperDollUI` and the
+                        // ingredient slots take the same notice).
+                        self.script_outbox.push(SessionEvent::Notice(
+                            ac2_weenie::GameplayNotice::ItemUpdate(id),
+                        ));
+                    }
                 }
                 self.script_state_loaded(id, pid, did)
             }
+            Loaded::TotalIcon(id, layers) => {
+                if !layers.is_empty() {
+                    self.total_icons.insert(id, layers);
+                    // The slots that drew the item without them redraw it.
+                    self.script_outbox.push(SessionEvent::Notice(
+                        ac2_weenie::GameplayNotice::ItemUpdate(id),
+                    ));
+                }
+            }
             Loaded::MotionDesc(object, desc) => self.motion_desc_loaded(object, desc),
             Loaded::CameraFx(source, scalar, fx) => self.camera_fx_loaded(source, scalar, fx),
+            Loaded::CameraObject(shape) => {
+                if let Some(shape) = shape.ok().flatten() {
+                    self.camera_collision.set_object(shape);
+                }
+            }
             Loaded::EntityMask(object, mask) => self.entity_mask_loaded(object, mask),
             Loaded::PartTree(object, key, tree) => self.part_tree_loaded(object, key, tree),
             Loaded::ScriptData(answered) => self.script_data_loaded(answered),
@@ -603,6 +662,8 @@ impl Client {
             height,
             radius,
             scale,
+            object: data.body.object,
+            shadow: None,
         });
         if let Some(subject) = self.camera_subject(false) {
             self.camera.set_player(&subject, INITIAL_CAMERA_HEIGHT);
@@ -639,6 +700,8 @@ impl Client {
     /// `SmartBox::UseTime`.
     fn smart_box(&mut self) -> Result<Vec<SessionEvent>, String> {
         let mut events = self.update_player();
+        // The body just placed is listed before the objects that enter the world after it.
+        self.sync_player_shadow();
         events.extend(self.world_manager_update()?);
         let in_world = self.player.as_ref().is_some_and(|p| p.in_world);
         // The camera updates every frame against the body where it is drawn, in every camera
@@ -779,6 +842,9 @@ impl Client {
                     // `ICPhysicsObj::SetPlayerPhysicsEventHandler` installs): its camera
                     // update runs per frame instead (`smart_box`).
                 }
+                // The player's entry in the object lists follows the quantum's move, before the
+                // other objects test it.
+                self.sync_player_shadow();
                 // `CPhysics::UpdateAllPhysics`: the other objects.
                 let others: Vec<_> = self
                     .player
@@ -889,9 +955,6 @@ impl Client {
     /// kept as empty), and the script VM's copy of it.
     fn set_world_name(&mut self, info: &ac2_net::protocol::StringInfo) {
         self.world_name = info.literal.clone().unwrap_or_default();
-        if let Some(scripts) = self.scripts.as_mut() {
-            scripts.host.set_world_name(&self.world_name);
-        }
     }
 
     /// `Turbine::Client::GetWorldName`: the world's name ("" before the notice).

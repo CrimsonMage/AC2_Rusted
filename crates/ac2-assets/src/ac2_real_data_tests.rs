@@ -45,15 +45,15 @@ fn every_legions_material_record_decodes_to_its_exact_length() {
     };
     assert_eq!(
         decode_all::<Ac2RenderMaterial>(&dataset, &store, 0x2B00_0000),
-        130
+        ac2_dat::test_support::pinned(130, 130, /*0930*/ 122)
     );
     assert_eq!(
         decode_all::<Ac2MaterialModifier>(&dataset, &store, 0x3000_0000),
-        ac2_dat::test_support::pinned(4035, 4205)
+        ac2_dat::test_support::pinned(4035, 4205, /*0930*/ 4068)
     );
     assert_eq!(
         decode_all::<Ac2MaterialInstance>(&dataset, &store, 0x3100_0000),
-        ac2_dat::test_support::pinned(2401, 2457)
+        ac2_dat::test_support::pinned(2401, 2457, /*0930*/ 2348)
     );
 }
 
@@ -65,7 +65,7 @@ fn material_instances_resolve_to_loadable_textures() {
     let instances = dataset
         .ids_in_range(DatFileKind::Portal, 0x3100_0000, 0x31FF_FFFF)
         .collect::<Vec<_>>();
-    let (mut textured, mut loaded) = (0, 0);
+    let (mut textured, mut loaded, mut absent) = (0, 0, 0);
     for did in instances.iter().step_by(16) {
         let material = load_ac2_material(&store, DataId::new(*did))
             .expect("instance resolves")
@@ -74,14 +74,35 @@ fn material_instances_resolve_to_loadable_textures() {
         if let Some(chain) = resolve_ac2_material_texture_chain(&store, DataId::new(*did)).unwrap()
         {
             textured += 1;
-            loaded += usize::from(load_ac2_texture_asset(&store, chain).unwrap().is_some());
+            let ok = load_ac2_texture_asset(&store, chain).unwrap().is_some();
+            // The 0930 data names a chain no record holds (0x400011C0); `LayerStage::SetTexture`
+            // (0930 0x00571B50) takes the null `RenderTextureLocal::GetGlobalOrLocal` result as
+            // "no texture", so a stage with an absent record draws untextured.
+            let file = if chain.raw() >= 0x4010_0000 {
+                DatFileKind::Local
+            } else {
+                DatFileKind::Portal
+            };
+            if !ok {
+                assert!(
+                    !dataset.contains(file, chain.raw()),
+                    "chain {chain:?} exists but does not load"
+                );
+                absent += 1;
+            }
+            loaded += usize::from(ok);
         }
     }
     assert!(
         textured > 100,
         "most sampled instances are textured ({textured})"
     );
-    assert_eq!(loaded, textured, "every resolved texture chain loads");
+    assert_eq!(
+        loaded + absent,
+        textured,
+        "every resolved texture chain loads or has no record"
+    );
+    assert_eq!(absent, ac2_dat::test_support::pinned(0, 0, /*0930*/ 1));
 }
 
 #[test]
@@ -97,7 +118,10 @@ fn every_legions_texture_chain_loads() {
             .unwrap_or_else(|error| panic!("texture {did:08X}: {error}"))
             .unwrap_or_else(|| panic!("texture {did:08X} has no level"));
     }
-    assert_eq!(chains.len(), ac2_dat::test_support::pinned(4395, 4528));
+    assert_eq!(
+        chains.len(),
+        ac2_dat::test_support::pinned(4395, 4528, /*0930*/ 4301)
+    );
 }
 
 #[test]
@@ -107,11 +131,11 @@ fn every_legions_mesh_setup_and_visual_desc_decodes() {
     };
     assert_eq!(
         decode_all::<crate::Ac2Mesh>(&dataset, &store, 0x0600_0000),
-        ac2_dat::test_support::pinned(4501, 4556)
+        ac2_dat::test_support::pinned(4501, 4556, /*0930*/ 4302)
     );
     assert_eq!(
         decode_all::<ac2_anim::Ac2Setup>(&dataset, &store, 0x0400_0000),
-        ac2_dat::test_support::pinned(2465, 2497)
+        ac2_dat::test_support::pinned(2465, 2497, /*0930*/ 2473)
     );
     let descs = dataset
         .ids_in_range(DatFileKind::Portal, 0x1F00_0000, 0x1FFF_FFFF)
@@ -128,7 +152,10 @@ fn every_legions_mesh_setup_and_visual_desc_decodes() {
                     .map(|error| format!("{did:08X}: {error}"))
             })
             .collect::<Vec<_>>();
-    assert_eq!(descs.len(), ac2_dat::test_support::pinned(6504, 6682));
+    assert_eq!(
+        descs.len(),
+        ac2_dat::test_support::pinned(6504, 6682, /*0930*/ 6615)
+    );
     assert!(
         failures.is_empty(),
         "{} VisualDescs failed: {:?}",
@@ -151,7 +178,10 @@ fn every_legions_mesh_setup_and_visual_desc_decodes() {
                 .is_err()
         })
         .count();
-    assert_eq!(entities.len(), ac2_dat::test_support::pinned(15029, 16066));
+    assert_eq!(
+        entities.len(),
+        ac2_dat::test_support::pinned(15029, 16066, /*0930*/ 15808)
+    );
     assert!(entity_failures <= 5, "{entity_failures} EntityDescs failed");
 }
 

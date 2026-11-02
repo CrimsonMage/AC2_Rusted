@@ -200,3 +200,75 @@ fn forced_alpha_test_off_drops_a_faded_layers_test_and_depth_write() {
     assert!(opaque.depth_write);
     assert_eq!(opaque.alpha_test, Some(127));
 }
+
+/// The torch flame's particle material (`PSDesc::m_pMaterial`, DAT `RenderMaterial` 0x310002E5 in
+/// the 7230 set): unlit with the vertex colour (`m_bUseVertexDiffuse`, modulated), stage 0
+/// MODULATE2X(texture, diffuse) with alpha SELECTARG2(diffuse), SRCALPHA/ONE, depth write on.
+fn flame_layer() -> Ac2MaterialLayer {
+    Ac2MaterialLayer {
+        true_flags: 0,
+        source_blend: blend::SRCALPHA,
+        dest_blend: blend::ONE,
+        lighting: Ac2LayerLighting {
+            material_diffuse: true,
+            vertex_diffuse: true,
+            modulate_vertex_diffuse: true,
+            ..Ac2LayerLighting::default()
+        },
+        ambient: [1.0; 4],
+        diffuse: [1.0; 4],
+        ..lit_layer()
+    }
+}
+
+/// `RenderDeviceD3D::SetupState` for a particle layer: the flame adds its texture, tinted by the
+/// particle's colour, scaled by the particle's alpha (`SRCALPHA`, `ONE`), through the unlit
+/// vertex-colour program; its layer writes depth and tests alpha greater than 0 (SRCALPHA turns
+/// the test on), so the quad's black texels still write depth, as in retail.
+#[test]
+fn a_flame_particle_layer_is_additive_vertex_colour_modulate2x() {
+    // `ParticleSystem::RenderAtPosition` passes a white colour with the system's distance fade
+    // as alpha.
+    let pass = layer_pass(&flame_layer(), [1.0, 1.0, 1.0, 1.0], 0.0);
+    assert_eq!(pass.program, VertexProgram::Unlit);
+    assert_eq!(
+        (pass.source_blend, pass.dest_blend),
+        (blend::SRCALPHA, blend::ONE)
+    );
+    assert!(pass.flags.vertex_diffuse && pass.flags.modulate_vertex_diffuse);
+    assert!(
+        !pass.flags.dynamic && !pass.fog,
+        "no lights and no depth fog on the flame"
+    );
+    assert!(pass.depth_write && pass.alpha_test == Some(0));
+    let stage = pass.stages[0];
+    assert_eq!(
+        (stage.color_op, stage.color_arg1, stage.color_arg2),
+        (5, 2, 0),
+        "MODULATE2X(texture, diffuse)"
+    );
+    assert_eq!(
+        (stage.alpha_op, stage.alpha_arg2),
+        (3, 0),
+        "alpha SELECTARG2(diffuse): the texture's alpha is not used"
+    );
+}
+
+/// `RenderIndexedUsingMaterial` draws a layer whatever the quality level's detail setting unless
+/// the layer asks for one; the flame material asks for none, so the lowest quality (detail 0,
+/// hardware class 1 or 2) still draws it.
+#[test]
+fn the_flame_layer_draws_at_every_detail_level() {
+    for hardware_class in [1, 2, 3] {
+        for detail in [0, 1, 2] {
+            for fog_linear in [false, true] {
+                let settings = RenderSettings {
+                    hardware_class,
+                    detail,
+                    fog_linear,
+                };
+                assert!(layer_drawn(&flame_layer(), &settings), "{settings:?}");
+            }
+        }
+    }
+}

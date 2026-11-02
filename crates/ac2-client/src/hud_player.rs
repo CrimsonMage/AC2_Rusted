@@ -57,7 +57,49 @@ pub(crate) struct PassOut {
     pub(crate) death_gameplay: Vec<bool>,
 }
 
+/// The display type of the chat line a load shows (the shell's own `/saveui` lines are type 8).
+const UI_LAYOUT_TEXT_TYPE: u32 = 8;
+
 impl HudView {
+    /// `/saveui` and `/loadui` (`gmGameplayUI` 0x443030 / 0x442D40, `ac2_ui::Hud::save_ui_layout`):
+    /// the HUD's layout goes to the named file or comes back from it, and a load is kept like a
+    /// drag and a layout preset by the passes that follow. A failure goes to stderr (retail
+    /// printed nothing); the chat line already said the file's name. A load that skipped the
+    /// other HUD style's settings says so in the chat.
+    fn ui_layout_commands(&mut self, client: &Client, events: &[SessionEvent]) {
+        let dir = client.ui_layout_dir();
+        for event in events {
+            let Some((tree, _)) = self.hud.as_mut() else {
+                return;
+            };
+            let (name, result) = match event {
+                SessionEvent::SaveUiLayout { name } => (
+                    name,
+                    self.panels.save_ui_layout(tree, &dir, name).map(|_| None),
+                ),
+                SessionEvent::LoadUiLayout { name } => (
+                    name,
+                    self.panels
+                        .load_ui_layout(tree, &dir, name)
+                        .map(|load| load.notice()),
+                ),
+                _ => continue,
+            };
+            match result {
+                Ok(notice) => {
+                    if let Some(text) = notice {
+                        self.chat_display(UI_LAYOUT_TEXT_TYPE, &text);
+                    }
+                }
+                Err(error) => {
+                    let path = ac2_ui::ui_layout_file(&dir, name);
+                    eprintln!("ac2: UI layout {}: {error}", path.display());
+                }
+            }
+            self.dirty = true;
+        }
+    }
+
     /// One frame of the frameworks that ask the player; returns the gameplay commands they ask
     /// for. The sequencing is `ac2_ui::Hud::frame`'s; this builds its inputs over the client and
     /// maps the requests it returns. They wait for the HUD, the string tables and the player in
@@ -70,6 +112,7 @@ impl HudView {
         script_notices: &[ScriptNotice],
         picks: (Option<Option<u32>>, Option<Option<u64>>),
     ) -> Vec<Command> {
+        self.ui_layout_commands(client, events);
         let strings = self.panels.strings.clone();
         let player = strings.as_ref().map(|strings| ClientPlayer {
             client: RefCell::new(client),

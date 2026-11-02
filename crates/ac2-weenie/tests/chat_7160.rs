@@ -193,7 +193,9 @@ fn room_chat_goes_through_the_chat_client_and_comes_back() {
     for unit in "Hi all".encode_utf16() {
         payload.extend(unit.to_le_bytes());
     }
-    words(&mut payload, &[16, 1, 0, 4, 0]);
+    // The blob's length, then `GunChatExtraInfo`: u16 version 1, u16 misc 0 (one word), the
+    // weenie flags, the empty string.
+    words(&mut payload, &[12, 1, 4, 0]);
     let mut packet = Vec::new();
     words(&mut packet, &[3, 2, 1, 0, 0, 0, 0, payload.len() as u32]);
     packet.extend(payload);

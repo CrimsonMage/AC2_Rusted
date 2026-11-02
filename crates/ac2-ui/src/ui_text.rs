@@ -194,8 +194,25 @@ impl<'a> UiText<'a> {
 
     /// A wire `StringInfo` rendered from the tables (the chat renderer's `RenderInfo`).
     pub fn text(&self, info: &StringInfo) -> String {
-        let info = wire_render_info(info);
+        let mut info = wire_render_info(info);
+        self.resolve_table_enums(&mut info);
         String::from_utf16_lossy(&ac2_db::get_string(self.strings, &info, false))
+    }
+
+    /// A wire string whose table is named by an enum (`StringInfo::SetTableEnum`, e.g. the race
+    /// and sex names `0x4100000B` an effect's examination uses) renders from the table the enum
+    /// maps to, in its nested strings too.
+    fn resolve_table_enums(&self, info: &mut RenderInfo) {
+        if info.table_id >> 24 == 0x41 {
+            if let Some(&did) = self.enums.get(&info.table_id) {
+                info.table_id = did;
+            }
+        }
+        for (_, value) in &mut info.variables {
+            if let RenderVar::Info(inner) = value {
+                self.resolve_table_enums(inner);
+            }
+        }
     }
 
     /// A UI string as the renderer's `RenderInfo` (its table enum resolved to the table).
@@ -335,9 +352,9 @@ impl<'a> UiText<'a> {
                     ),
                     V::Break => I::Break,
                     V::Tabs(n) => I::Tabs(*n),
-                    V::Countdown(seconds) => I::Countdown {
+                    V::Countdown(end) => I::Countdown {
                         appearance: a,
-                        seconds: *seconds,
+                        end: *end,
                     },
                     V::Effect(_) | V::Other(_) => return None,
                 })

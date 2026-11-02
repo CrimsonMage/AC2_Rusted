@@ -381,7 +381,9 @@ pub fn tick_pass<P: HudSource>(
                         out.extend(page.take_requests().into_iter().map(HudRequest::Character));
                     }
                 }
-                ShortcutRequest::Attack(_) | ShortcutRequest::WhichSet(_) => {}
+                // `gmShortcutUI::RequestAttackStateChange`.
+                ShortcutRequest::Attack(attacking) => out.push(HudRequest::Attack(attacking)),
+                ShortcutRequest::WhichSet(_) => {}
             }
         }
     }

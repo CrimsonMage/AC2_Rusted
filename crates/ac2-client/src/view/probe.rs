@@ -219,6 +219,39 @@ impl ClientView {
         out
     }
 
+    /// The items shown by the `ItemIcon`s inside the shown element called `within`, each with
+    /// the image file the icon draws (0: no icon, the "?" of a missing image).
+    pub fn item_icon_images(&self, within: &str) -> Vec<(u64, u32)> {
+        let Some((tree, _)) = self.hud.hud.as_ref() else {
+            return Vec::new();
+        };
+        let data = tokenize("Token_ShortcutData");
+        let icon = tokenize("ItemIcon");
+        let mut out = Vec::new();
+        let mut stack: Vec<usize> = tree
+            .roots()
+            .iter()
+            .filter_map(|&root| find(tree, root, tokenize(within), &|_, _| true))
+            .collect();
+        while let Some(index) = stack.pop() {
+            let Some(element) = tree.get(index) else {
+                continue;
+            };
+            if !element.visible() {
+                continue;
+            }
+            if element.id() == icon {
+                if let Some(AttributeValue::InstanceId(item)) = element.attribute(data) {
+                    if let Some(image) = element.image() {
+                        out.push((*item, image.file));
+                    }
+                }
+            }
+            stack.extend(tree.children(index).iter().rev());
+        }
+        out
+    }
+
     /// The window pixel at the centre of slot `index` of the `ContainerListBox` inside the shown
     /// element called `within` (`PackMainContainer`, `ExternalContainer`).
     pub fn container_slot_center(&self, within: &str, index: usize) -> Option<(i32, i32)> {
@@ -229,6 +262,13 @@ impl ClientView {
         })?;
         let slot = *tree.list_items(list).get(index)?;
         Some(self.window_center(tree, slot))
+    }
+
+    /// The element index of the shortcut bar's slot `index`.
+    pub fn shortcut_slot_element(&self, index: usize) -> Option<usize> {
+        let (tree, _) = self.hud.hud.as_ref()?;
+        let (_, list) = self.hud.panels.shortcuts.as_ref()?.elements();
+        tree.list_items(list?).get(index).copied()
     }
 
     /// The window pixel at the centre of the shortcut bar's slot `index`.

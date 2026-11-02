@@ -46,6 +46,9 @@ pub enum OptionsEffect {
     /// The HUD's style was applied: the client rebuilds the HUD in the bank's style
     /// ([`crate::hud_style::hud_style`]).
     HudStyle,
+    /// The UI scale was applied: the client lays the HUD out again at the bank's setting
+    /// ([`crate::ui_scale_pref::ui_scale`]), keeping the panels.
+    UiScale,
 }
 
 /// The client's side of the options page: the preferences the page reads and writes, and the live
@@ -257,6 +260,9 @@ pub fn live_effects(
     }
     if keys.contains(&crate::hud_style::CLASSIC_HUD) {
         effects.push(OptionsEffect::HudStyle);
+    }
+    if keys.contains(&crate::ui_scale_pref::UI_SCALE) {
+        effects.push(OptionsEffect::UiScale);
     }
     effects
 }

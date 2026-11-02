@@ -42,6 +42,15 @@ impl InvTakeAllDesc {
         Self(i)
     }
 
+    /// The tags of the request the player's script builds (`ggmCWInterface::
+    /// CallIFun_LootAllFromContainer` pushes the container id tagged 0x84, and the script copies
+    /// the player's id from a native the same way).
+    pub fn with_script_tags(mut self) -> Self {
+        self.0.set_tag(6, 0x84);
+        self.0.set_tag(12, 0x84);
+        self
+    }
+
     pub fn from_reference(reference: &PackedReference) -> Result<Self, ProtocolError> {
         Instance::check(reference, INV_TAKE_ALL_DESC_PACKAGE, TAKE_ALL_DEFAULT.len()).map(Self)
     }
@@ -86,6 +95,14 @@ impl InvTransmuteAllDesc {
         i.set_word(5, 0);
         i.set_word(7, 0);
         Self(i)
+    }
+
+    /// The tags of the request the player's script builds (the ids come through
+    /// `ggmCWInterface::CallIFun_TransmuteAllFromContainer` and a native, tagged 0x84).
+    pub fn with_script_tags(mut self) -> Self {
+        self.0.set_tag(8, 0x84);
+        self.0.set_tag(13, 0x84);
+        self
     }
 
     pub fn from_reference(reference: &PackedReference) -> Result<Self, ProtocolError> {

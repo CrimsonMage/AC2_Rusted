@@ -8,6 +8,7 @@
 mod arith;
 pub mod context;
 pub mod efun;
+pub(crate) mod efun_ids;
 mod exec;
 mod pack;
 pub mod program;
@@ -315,11 +316,6 @@ pub struct Vm {
     /// client's object table holds it), by object id: `CWPhysicsObject::GetLocalVisualDesc`
     /// copies it.
     pub appearances: std::collections::HashMap<u64, ac2_weenie::Appearance>,
-    /// The chat services `gmCWInterface::RequestGUN_*` can reach.
-    pub chat: crate::host::ChatServices,
-    /// The world's name as the client holds it (`Turbine::Client`'s, set by the world-name
-    /// notice); `gTurbineGunUtils::CallEFun_GetWorldName` answers with it.
-    pub world_name: String,
     /// The chat-shell commands and help handlers the scripts registered
     /// (`CWInterface::AddShellCmd` / `AddShellHelp`), in registration order.
     pub shell: ShellTable,
@@ -442,8 +438,6 @@ impl Vm {
             player: 0,
             repositories: Default::default(),
             appearances: Default::default(),
-            chat: Default::default(),
-            world_name: String::new(),
             shell: ShellTable::default(),
             cur_time: 0.0,
             game_time: None,

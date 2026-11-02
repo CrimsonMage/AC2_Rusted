@@ -14,7 +14,10 @@ use ac2_net::protocol::{UiLocation, UiSaveLocations};
 use ac2_script::native::{add_ui_location, GameplayOptions};
 
 use crate::element::UiTree;
-use crate::token::{ALLOW_RESIZE, BROADCAST_LOC_CHANGE, DRAGBAR, DRAGBAR_DISABLED, SAVE_LOC};
+use crate::token::{
+    tokenize, ALLOW_RESIZE, BROADCAST_LOC_CHANGE, BUTTON, DRAGBAR, DRAGBAR_DISABLED, RESIZEBAR,
+    SAVE_LOC, TEXT,
+};
 
 /// The left mouse button (`0x40000004`, `UIElement_Dragbar::MouseDown`'s button).
 pub const UI_LEFT_BUTTON: u32 = 0x4000_0004;
@@ -114,9 +117,26 @@ pub(crate) struct Movement {
     start_pos: (i32, i32),
 }
 
+/// The height of a window's header band, in UI pixels.
+pub const HEADER_BAND: i32 = 24;
+
+/// The element classes whose own press the header band leaves alone.
+const TAKES_PRESS: [u32; 10] = [
+    BUTTON,
+    TEXT,
+    RESIZEBAR,
+    DRAGBAR,
+    crate::list_box_select::LIST_BOX,
+    crate::list_box_select::LIST_BOX_MSIZE,
+    crate::menu::MENU,
+    tokenize("tree"),
+    tokenize("scrollbar"),
+    tokenize("slider"),
+];
+
 impl UiTree {
     /// `UIElement::InqLocation`'s test: the element saves its location.
-    fn saves_location(&self, index: usize) -> bool {
+    pub(crate) fn saves_location(&self, index: usize) -> bool {
         self.bool_attribute(index, SAVE_LOC)
     }
 
@@ -164,21 +184,44 @@ impl UiTree {
         if targets.iter().any(|&(root, _)| !self.saves_location(root)) {
             return false;
         }
-        let (width, height) = self.display;
         for (root, location) in targets {
-            // `UIElement::ApplyLocation`: the corners in window pixels, the window moved there,
-            // resized when it allows it, then shown or hidden.
-            let (x0, y0) = clip_to_pixel(location.x0, location.y0, width, height);
-            let (x1, y1) = clip_to_pixel(location.x1, location.y1, width, height);
-            self.move_to(root, x0, y0);
-            if self.bool_attribute(root, ALLOW_RESIZE) {
-                self.resize_to(root, x1 - x0 + 1, y1 - y0 + 1);
-            }
+            self.place_location(root, &location);
             self.set_visible(root, location.shown);
         }
+        self.server_locations = saved.to_vec();
         self.moved = true;
         self.changed = true;
         true
+    }
+
+    /// `UIElement::ApplyLocation`'s placing: the corners in window pixels of the current display,
+    /// the window moved there and resized when it allows it.
+    fn place_location(&mut self, root: usize, location: &WindowLocation) {
+        let (width, height) = self.display;
+        let (x0, y0) = clip_to_pixel(location.x0, location.y0, width, height);
+        let (x1, y1) = clip_to_pixel(location.x1, location.y1, width, height);
+        self.move_to(root, x0, y0);
+        if self.bool_attribute(root, ALLOW_RESIZE) {
+            self.resize_to(root, x1 - x0 + 1, y1 - y0 + 1);
+        }
+    }
+
+    /// The display changed: the server's locations place their windows again on it (position
+    /// only, the windows' shown state is the player's).
+    pub(crate) fn reapply_server_locations(&mut self) {
+        let saved = self.server_locations.clone();
+        for root in self.roots.clone() {
+            let el = self.el(root);
+            let found = saved
+                .iter()
+                .find(|s| s.layout == el.layout.did && s.element == el.id())
+                .map(|s| s.location);
+            if let Some(location) = found {
+                if self.saves_location(root) {
+                    self.place_location(root, &location);
+                }
+            }
+        }
     }
 
     /// `UIElement::StartMovement`: the element follows the pointer from here. A move in progress
@@ -202,8 +245,13 @@ impl UiTree {
     }
 
     /// The modern layout's offset of the pinned part `name` from its place (none: `(0, 0)`).
-    pub(crate) fn hud_offset(&self, name: &str) -> (i32, i32) {
+    pub fn hud_offset(&self, name: &str) -> (i32, i32) {
         self.hud_offsets.get(name).copied().unwrap_or((0, 0))
+    }
+
+    /// Whether the modern HUD's lock holds (`hud_locked`: no window or part moves or resizes).
+    pub fn is_hud_locked(&self) -> bool {
+        self.hud_locked
     }
 
     /// `root` locked in place or freed (the modern style's lock): a locked window neither moves
@@ -244,6 +292,51 @@ impl UiTree {
         };
         self.start_movement(root);
         true
+    }
+
+    /// Modern exception (`AGENTS.md`, move by the header): a left press in the top band of a
+    /// window (the strip where its title sits, [`HEADER_BAND`] pixels) moves the window, as the
+    /// press on a drag bar does, for windows whose layout has no drag bar. Retail moved a window
+    /// only by its drag bar (`UIElement_Dragbar::MouseDown`). The press stays with a control that
+    /// takes it (a button, an entry, a list, a scrollbar, a resize bar, a dragable item...) and with a locked
+    /// window. Returns whether the press was taken for a move.
+    pub(crate) fn header_move_mouse_down(&mut self, action: u32) -> bool {
+        if action != UI_LEFT_BUTTON || self.hud_locked {
+            return false;
+        }
+        let Some(root) = self.window_under_pointer() else {
+            return false;
+        };
+        let b = self.screen_box(root);
+        if self.pointer.1 >= b.y0 + HEADER_BAND || self.el(root).locked || self.has_dragbar(root) {
+            return false;
+        }
+        // The control under the pointer, or any parent up to the window, that takes the press.
+        let mut at = self.mouse_top;
+        while let Some(index) = at {
+            let kind = self.el(index).kind();
+            if index != root
+                && (TAKES_PRESS.contains(&kind)
+                    || self.bool_attribute(index, tokenize("dragable")))
+            {
+                return false;
+            }
+            at = self.el(index).parent;
+        }
+        self.start_movement(root);
+        true
+    }
+
+    /// Whether the window has a drag bar (retail's own way to move it).
+    fn has_dragbar(&self, root: usize) -> bool {
+        let mut stack = vec![root];
+        while let Some(index) = stack.pop() {
+            if self.el(index).kind() == DRAGBAR && !self.bool_attribute(index, DRAGBAR_DISABLED) {
+                return true;
+            }
+            stack.extend(self.el(index).children.iter().copied());
+        }
+        false
     }
 
     /// The window the pointer is on: the first window root, topmost first (the roots' order), with

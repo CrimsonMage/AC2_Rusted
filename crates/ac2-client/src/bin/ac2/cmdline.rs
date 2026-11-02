@@ -42,52 +42,17 @@ pub(crate) struct Args {
     /// `content-dir <path>`: the folder of the help pages (`KeyStone`'s `content/`). Without it the
     /// `Content` folder beside the DATs, then `AC2_CONTENT_DIR` (`ac2_client::resolve_content_dir`).
     pub content_dir: Option<std::path::PathBuf>,
-    /// `gunserver` (`gmClient::m_gunServer`): the GUN service's host. Without it no GUN starts.
-    pub gun_server: String,
-    /// `gunport` (`m_gunPort`, a number, default 0x906 = 2310).
-    pub gun_port: u16,
-    /// `gunticket` (`m_fUseGunTicket`): log on to GUN with a ticket (needs `gunserver`).
-    pub gun_ticket: bool,
-    /// `gunticketoverride` (`m_GunTicketOverride`): the ticket text to use. Without it retail
-    /// asked `GunDll.dll`; here the account name is the ticket.
-    pub gun_ticket_override: Option<String>,
-    /// `no-gun` (the client's own switch): no GUN unless `gunserver` names one. Without it and
-    /// without `gunserver`, the client does what a launcher does for its server's own GUN
-    /// service (AC2e starts one with every server): see [`Args::gun_config`].
-    pub no_gun: bool,
     /// `intro` (the client's own switch): show the intro's pictures (`gmIntroUI`) before the
     /// connecting screen. Retail always showed them; the client skips them without it.
     pub intro: bool,
+    /// `gmClient`'s GUN options (`gunserver`, `gunport`, `gunclientdll`, `gunticket`,
+    /// `gunticketoverride`, `migrationurl`, `migration1Timeout`, `migration2Timeout`).
+    pub gun: ac2_weenie::gun::GunOptions,
+    /// `Turbine::Client`'s `tchat` / `tchatdll` (`Client+0xB0` / `+0xB4`).
+    pub chat: ac2_weenie::gun::TurbineClientOptions,
 }
 
 impl Args {
-    /// The GUN start (`gmClient::StartupGUN`'s arguments). With `gunserver` they are retail's:
-    /// that host, `gunport`, and a ticket only with `gunticket`, a failed start ending the
-    /// client. Without it (and without `no-gun`) the client takes what a launcher would pass
-    /// for the game server's own GUN service, which AC2e starts with every server: the game
-    /// server's host on `gunport` (2310) with the account as the ticket, so the players of a
-    /// server have friends there; a start that fails then only leaves GUN off. A shared GUN
-    /// server for players of several game servers is chosen with `gunserver`.
-    pub fn gun_config(&self, server: SocketAddr) -> (ac2_client::gun_service::GunConfig, bool) {
-        let explicit = !self.gun_server.is_empty();
-        let server_host = if explicit {
-            self.gun_server.clone()
-        } else if self.no_gun {
-            String::new()
-        } else {
-            server.ip().to_string()
-        };
-        let config = ac2_client::gun_service::GunConfig {
-            server: server_host,
-            port: self.gun_port,
-            use_ticket: self.gun_ticket || !explicit,
-            ticket_override: self.gun_ticket_override.clone(),
-            account: self.account.clone(),
-            direct_ticket: !self.ticket.is_empty(),
-        };
-        (config, explicit)
-    }
-
     /// The server to log on to: `--host` (resolved the way `ClientNet::InitAddresses` does) and
     /// `--port` when either is given, else `--server`.
     pub fn server_address(&self) -> Result<SocketAddr, String> {
@@ -144,7 +109,7 @@ pub(crate) fn parse_args() -> Result<Args, String> {
 }
 
 /// The options with a value. `rodat` and `glsticket` take an optional one.
-const WITH_VALUE: [&str; 18] = [
+const WITH_VALUE: [&str; 15] = [
     "dat-dir",
     "server",
     "account",
@@ -160,18 +125,14 @@ const WITH_VALUE: [&str; 18] = [
     "height",
     "language",
     "content-dir",
-    "gunserver",
-    "gunport",
-    "gunticketoverride",
 ];
 
 /// Whether `name` is an option this program knows.
 fn is_option(name: &str) -> bool {
     WITH_VALUE.contains(&name)
-        || matches!(
-            name,
-            "rodat" | "glsticket" | "gunticket" | "no-gun" | "intro"
-        )
+        || matches!(name, "rodat" | "glsticket" | "intro")
+        || ac2_weenie::gun::GunOptions::takes_value(name).is_some()
+        || ac2_weenie::gun::TurbineClientOptions::takes_value(name).is_some()
 }
 
 /// `width` / `height` are type 0x22: `strtol(text, 0, 0)`.
@@ -203,12 +164,9 @@ fn parse_from(
         height: None,
         language: None,
         content_dir: None,
-        gun_server: String::new(),
-        gun_port: ac2_net::gun::DEFAULT_GUN_PORT,
-        gun_ticket: false,
-        gun_ticket_override: None,
-        no_gun: false,
         intro: false,
+        gun: ac2_weenie::gun::GunOptions::default(),
+        chat: ac2_weenie::gun::TurbineClientOptions::default(),
     };
     let mut it = tokens.into_iter().peekable();
     while let Some(token) = it.next() {
@@ -222,17 +180,8 @@ fn parse_from(
             }
             continue;
         }
-        if name == "no-gun" {
-            args.no_gun = true;
-            continue;
-        }
         if name == "intro" {
             args.intro = true;
-            continue;
-        }
-        if name == "gunticket" {
-            // `gunticket` is a switch with no value (type 1, `m_fUseGunTicket`).
-            args.gun_ticket = true;
             continue;
         }
         if name == "glsticket" {
@@ -249,6 +198,24 @@ fn parse_from(
                 None => take_ticket(),
             };
             args.ticket = taken.map_err(|e| format!("--glsticket: {e}"))?;
+            continue;
+        }
+        if let Some(takes_value) = ac2_weenie::gun::GunOptions::takes_value(&name) {
+            let value = if takes_value {
+                Some(it.next().ok_or(format!("{token} needs a value"))?)
+            } else {
+                None
+            };
+            args.gun.apply(&name, value.as_deref())?;
+            continue;
+        }
+        if let Some(takes_value) = ac2_weenie::gun::TurbineClientOptions::takes_value(&name) {
+            let value = if takes_value {
+                Some(it.next().ok_or(format!("{token} needs a value"))?)
+            } else {
+                None
+            };
+            args.chat.apply(&name, value.as_deref())?;
             continue;
         }
         if !is_option(&name) {
@@ -270,15 +237,11 @@ fn parse_from(
             "content-dir" => args.content_dir = Some(value.into()),
             "host" => args.host = Some(value),
             "port" => args.port = Some(value),
-            "gunserver" => args.gun_server = value,
-            "gunport" => {
-                args.gun_port =
-                    ac2_net::parse_port(&value).map_err(|e| format!("--gunport: {e}"))?;
-            }
-            "gunticketoverride" => args.gun_ticket_override = Some(value),
             _ => args.ticket = value,
         }
     }
+    // `gmClient::OnCommandLineEvaluationDone`.
+    args.gun.validate().map_err(String::from)?;
     if args.dat_dir.is_empty() {
         return Err("set AC2_DAT_DIR or pass --dat-dir".into());
     }
@@ -308,53 +271,44 @@ mod tests {
     }
 
     #[test]
-    fn the_gun_arguments_are_read() {
+    fn the_gun_options_have_retails_names_and_defaults() {
+        let args = parse("--account A").unwrap();
+        assert!(!args.gun.gun_enabled(), "GUN is off without gunserver");
+        assert_eq!(args.gun.gun_port, 2310);
+        assert_eq!(args.gun.migration1_timeout, 8000);
         let args = parse(
-            "--account A --gunserver gun.test --gunport 28000 --gunticket --gunticketoverride T0k",
+            "--account A -gunserver gun.example /gunport 2320 --gunclientdll X.dll -gunticket \
+             -gunticketoverride tk -migrationurl http://m -migration1Timeout 0x20 \
+             -migration2Timeout 30 -tchat -tchatdll C.dll",
         )
         .unwrap();
-        assert_eq!(args.gun_server, "gun.test");
-        assert_eq!(args.gun_port, 28000);
-        assert!(args.gun_ticket);
-        assert_eq!(args.gun_ticket_override.as_deref(), Some("T0k"));
-        let plain = parse("--account A").unwrap();
-        assert_eq!(
-            (plain.gun_server.as_str(), plain.gun_port, plain.gun_ticket),
-            ("", 2310, false)
-        );
+        let g = &args.gun;
+        assert_eq!(g.gun_server, "gun.example");
+        assert_eq!(g.gun_port, 2320);
+        assert_eq!(g.gun_client_dll, "X.dll");
+        assert!(g.use_gun_ticket);
+        assert!(args.chat.tchat);
+        assert_eq!(args.chat.tchat_dll, "C.dll");
+        assert_eq!(g.gun_ticket_override, "tk");
+        assert_eq!(g.migration_url, "http://m");
+        assert_eq!((g.migration1_timeout, g.migration2_timeout), (32, 30));
+        assert!(parse("--gunport").is_err());
+        // type word 0x62 is sscanf("%hu"): no number is an error, hex is not read.
+        assert!(parse("--gunport abc").is_err());
+        assert_eq!(parse("--gunport 0x910").unwrap().gun.gun_port, 0);
     }
 
-    /// Without `gunserver` the client uses its game server's own GUN service with the account
-    /// as the ticket (a failure is not fatal); `gunserver` keeps retail's arguments; `no-gun`
-    /// turns the default off.
     #[test]
-    fn gun_defaults_to_the_game_servers_service() {
-        let server: std::net::SocketAddr = "10.0.0.5:9000".parse().unwrap();
-        let (config, explicit) = parse("--account A").unwrap().gun_config(server);
-        assert!(!explicit);
-        assert_eq!(
-            (config.server.as_str(), config.port, config.use_ticket),
-            ("10.0.0.5", 2310, true)
-        );
-        assert_eq!(
-            config.account, "a",
-            "the account, lowercased as the logon takes it"
-        );
+    fn gunticket_without_gunserver_is_refused() {
+        let error = parse("--account A --gunticket").err().unwrap();
+        assert!(error.contains("gun server"), "{error}");
+        assert!(parse("--account A --gunticket --gunserver s").is_ok());
+    }
 
-        let (config, explicit) = parse("--account A --gunserver gun.test")
-            .unwrap()
-            .gun_config(server);
-        assert!(explicit);
-        assert_eq!(
-            (config.server.as_str(), config.use_ticket),
-            ("gun.test", false)
-        );
-
+    #[test]
+    fn intro_is_a_switch() {
         assert!(!parse("--account A").unwrap().intro);
         assert!(parse("--account A --intro").unwrap().intro);
-        let (config, explicit) = parse("--account A --no-gun").unwrap().gun_config(server);
-        assert!(!explicit);
-        assert!(config.server.is_empty());
     }
 
     #[test]

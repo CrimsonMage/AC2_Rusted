@@ -25,6 +25,9 @@ pub(crate) enum Request {
     ScriptState(u64, u32, u32, u32),
     /// A read a script call stopped for (cache-only script data).
     ScriptData(ac2_script::vm::DataRequest),
+    /// An object's total icon description (`VisualDesc::GetTotalIconDesc` of its visual's DAT
+    /// chain, which `ItemDisplay::Update` draws): object, the visual DID.
+    TotalIcon(u64, u32),
     /// The region's ambient sound data (`CRegionDesc::GetCurrentSoundInfo`'s `CSoundDesc`).
     AmbientData,
     /// A landblock's ambient sound points (`CLandBlock::CreateAmbientSoundPoints`).
@@ -35,6 +38,8 @@ pub(crate) enum Request {
     EntityMask(u64, u32),
     /// A camera effect (`CameraManager::DoCameraFX`): DID, the scalar's bits, the source.
     CameraFx(u32, u32, u64),
+    /// `SmartBox::Init`'s camera object shape.
+    CameraObject,
     /// An object's part tree followed to its changed description (`CPhysicsObj::ApplyVisualDesc`):
     /// object, the description's structure key, and the job.
     PartTree(u64, u64, Box<PartTreeJob>),
@@ -58,6 +63,8 @@ pub(crate) enum Loaded {
     Body(Option<u32>, Result<BodyData, String>),
     /// The script state is in the cache (or does not exist): object, package, DID.
     ScriptState(u64, u32, u32, Option<Arc<ac2_weenie::WeenieQualities>>),
+    /// An object's total icon layers (empty: its visual has none).
+    TotalIcon(u64, Vec<(u32, u32, u32)>),
     /// The script data read is done: `true` when the world answered it (the record is resident
     /// or known absent), `false` when the world never answers (its reads are dropped).
     ScriptData(bool),
@@ -78,6 +85,8 @@ pub(crate) enum Loaded {
         f32,
         Result<Option<ac2_smartbox::camera_fx::CameraFx>, String>,
     ),
+    /// The camera object's collision shape (`None` where the DATs have none).
+    CameraObject(Result<Option<ac2_physics::BodyShape>, String>),
     /// A rebuilt part tree: object, the structure key it was asked for, the tree (`None` where
     /// nothing was followed).
     PartTree(u64, u64, Result<Option<ac2_physics::RebuiltVisual>, String>),
@@ -112,6 +121,7 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
                 .flatten();
             Loaded::ScriptState(id, pid, did, defaults)
         }
+        Request::TotalIcon(id, visual) => Loaded::TotalIcon(id, data.total_icon(visual)),
         Request::ScriptData(read) => Loaded::ScriptData(data.load_script_data(read)),
         Request::AmbientData => Loaded::Ambient(crate::client_ambient::AmbientLoaded::Data(
             data.ambient_data(),
@@ -123,6 +133,7 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
         Request::CameraFx(did, scalar, source) => {
             Loaded::CameraFx(source, f32::from_bits(scalar), data.camera_fx(did))
         }
+        Request::CameraObject => Loaded::CameraObject(data.camera_object_shape()),
         Request::PartTree(object, key, job) => Loaded::PartTree(
             object,
             key,

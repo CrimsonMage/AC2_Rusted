@@ -58,7 +58,9 @@ fn spawn() -> Spawn {
 
 #[test]
 fn the_frame_carries_what_the_panels_show() {
-    let (mut client, server) = entered(spawn());
+    let Some((mut client, server)) = with_script_vm() else {
+        return;
+    };
     open_the_pack(&mut client, &server);
     let frame = client.frame();
     let inventory = &frame.inventory;
@@ -197,7 +199,9 @@ fn run(
 
 #[test]
 fn drags_and_drops_refresh_the_frame() {
-    let (mut client, server) = entered(spawn());
+    let Some((mut client, server)) = with_script_vm() else {
+        return;
+    };
     open_the_pack(&mut client, &server);
     let container = |inv: &ac2_client::InventoryFrame, id| {
         let c = std::iter::once(&inv.pack)
@@ -329,16 +333,18 @@ fn drags_and_drops_refresh_the_frame() {
 /// `InvTransmuteAllDesc`, and the server's answer raises the container's refresh.
 #[test]
 fn transmute_all_asks_the_server_to_transmute_the_container() {
-    let (mut client, server) = entered(spawn());
+    let Some((mut client, server)) = with_script_vm() else {
+        return;
+    };
     open_the_pack(&mut client, &server);
     let before = server.borrow().script_requests.len();
     let (_, notices) = run(&mut client, &server, Command::TransmuteAll(PACK));
     let asked = server.borrow().script_requests[before..].to_vec();
     assert_eq!(
         asked,
-        [ScriptRequest::TransmuteAll(InvTransmuteAllDesc::new(
-            PACK, PLAYER
-        ))]
+        [ScriptRequest::TransmuteAll(
+            InvTransmuteAllDesc::new(PACK, PLAYER).with_script_tags()
+        )]
     );
     assert!(
         notices.iter().any(|n| matches!(

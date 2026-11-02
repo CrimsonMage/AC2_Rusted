@@ -315,6 +315,20 @@ pub fn load_ac2_ui_surface(
     }))
 }
 
+/// `RenderTextureLocal::GetGlobalOrLocal` (Legions 0x00560260, 0930 0x00571810): a
+/// `0x40000000..` DID below `0x40100000` is a portal `RenderTexture` (type 0x4000003D), one in
+/// `0x40100000..=0x40FFFFFE` a local-DAT `RenderTextureLocal` (type 0x40000062); a stage's
+/// texture DID goes through it (`LayerStage::SetTexture`, Legions 0x00587580, 0930
+/// 0x00571B50). Both record kinds share the `RenderTexture` layout; the levels are portal
+/// `RenderSurface`s.
+fn texture_chain_file(chain_did: DataId) -> DatFileKind {
+    if chain_did.raw() >= 0x4010_0000 {
+        DatFileKind::Local
+    } else {
+        DatFileKind::Portal
+    }
+}
+
 fn load_ac2_texture_chain(
     store: &ResourceStore,
     chain_did: DataId,
@@ -323,7 +337,7 @@ fn load_ac2_texture_chain(
         return Ok(None);
     }
     let Some(chain) = store.load_cached_packed::<Ac2TextureChain>(TypedResourceRef::new(
-        DatFileKind::Portal,
+        texture_chain_file(chain_did),
         chain_did,
         0,
     ))?

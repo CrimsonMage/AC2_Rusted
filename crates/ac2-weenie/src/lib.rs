@@ -13,6 +13,7 @@ mod craft;
 mod ddd;
 mod destruction;
 mod friends;
+pub mod gun;
 mod inventory;
 mod items;
 mod movement_module;

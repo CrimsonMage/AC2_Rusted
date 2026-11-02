@@ -46,21 +46,21 @@ key	status	note
 00401d90	-	ctor/dtor of plain data
 00401da0	_	needs port (check): gmClient::InitWeenie, weenie session setup at startup; uncited
 00401dc0	_	needs port: DDD event handling (data-patch progress, OnDDDEvent); crates/ac2-ui/src/pregame/data_patch.rs says the patch is not modelled
-00401e00	~	CharacterSet.turbine_chat is decoded (ac2-net) but the port keeps Turbine chat on: the double sends 0 and room chat must still work
-00401e30	~	no TurbineGun (GUN) step
+00401e00	~	GUN: GunClient::recv_notice_character_set sets S_fUseTurbineChatInsteadOfGUN/strip; the trailing [this-0xBC vtbl+0x9C] call is not modelled
+00401e30	x	GUN phase 3 (gun-phase3)
 00401e70	x	
 00401ea0	-	operator==/=/+/!= of plain data (string, id, error); Rust derives or uses String
 00401f00	-	ctor/dtor of plain data
 00401f90	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00401fc0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00402170	-	COM QueryInterface plumbing
-00402190	-	GUN bullet event counter; statistics only, no client behaviour
-004021a0	-	GUN bullet event counter; statistics only, no client behaviour
-004021d0	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
-00402240	~	admin-only forwarder of the async result; Legions answers through the chat response (CCliSendToRoomResult::HandleSendToRoomResult -> GameplayNotice::SendToRoomResult)
+00402190	x	ported in ac2-gun (gun-phase2), cited per item
+004021a0	x	ported in ac2-gun (gun-phase2), cited per item
+004021d0	-	COM refcount and object lifetime: Rust ownership (the chat provider keeps no GUN state here)
+00402240	x	GunShared::answer_turbine_send: ctx.m_hr = hr, Result_SendToRoom
 00402380	-	operator==/=/+/!= of plain data (string, id, error); Rust derives or uses String
 004025c0	-	string-table cache flag; strings read on demand (AGENTS.md cache rules)
-00402650	_	needs port (check): client construction and teardown (gmClient ctor/dtor); Client::new and Drop in crates/ac2-client/src/client.rs uncited
+00402650	x	GUN phase 3 (gun-phase3)
 00402830	x	Args (account, host, port, width, height) and Args::server_address, the window size
 00402840	x	Args (account, host, port, width, height) and Args::server_address, the window size
 00402850	x	Args (account, host, port, width, height) and Args::server_address, the window size
@@ -71,8 +71,8 @@ key	status	note
 004028a0	_	needs port (check): Turbine::Client::SetHostName; implemented as crates/ac2-net/src/resolve.rs but uncited
 004028f0	~	the virtual slot +0x70 gmClient calls (Turbine::Client vtable 0x9c60a0) is this setter; the world-name path reaches the window title (bin/ac2 show_world_name)
 00402940	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
-004029d0	_	needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
-00402ae0	~	events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
+004029d0	x	GUN phase 3 fix round
+00402ae0	x	GUN phase 3 (gun-phase3)
 00402d00	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402d70	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402d90	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
@@ -81,25 +81,25 @@ key	status	note
 00403030	x	Rust std replaces it
 00403280	_	needs port (check): NetError string and log text; implemented as NetError Display in crates/ac2-net but uncited
 004032f0	_	needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
-004033a0	x	ported: ac2_net::gun::TurbineGun
-004034a0	_	needs port (check): client construction and teardown (gmClient ctor/dtor); Client::new and Drop in crates/ac2-client/src/client.rs uncited
-004035c0	-	ctor of plain data (presentation, event, dialog gateway)
-00403650	_	needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
-00403ae0	_	needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
-00403b60	_	needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
-00403c10	_	needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
+004033a0	x	ported in ac2-gun (gun-phase2), cited per item
+004034a0	x	GUN phase 3 (gun-phase3)
+004035c0	x	GUN phase 3 (gun-phase3)
+00403650	x	GUN phase 3 fix round
+00403ae0	x	GUN phase 3 fix round
+00403b60	x	GUN phase 3 (gun-phase3)
+00403c10	x	GUN phase 3 (gun-phase3)
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
-00403ff0	~	window title (main.rs) and the script copy (Client::set_world_name); the GUN copy (NSTurbineGun::SetWorldName) is not kept, no GUN service
-00404080	_	needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
+00403ff0	x	GUN phase 3 (gun-phase3)
+00404080	x	GUN phase 3 (gun-phase3)
 00404100	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 00404190	x	the session is the chat provider (ac2-weenie OnlineSession send_to_room / receive_chat over ac2-net turbine_chat)
 004042f0	x	
 004043d0	-	operator==/=/+/!= of plain data (string, id, error); Rust derives or uses String
 004043f0	_	needs port (check): Turbine::Client::SetAccount stores the account; implemented as cmdline.rs Args::account but uncited
-00404410	~	gmClient::Init: same start-up as ac2 run(); see Turbine::Client::Init
-00404a40	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00404e10	~	ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
-00404f80	~	ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
+00404410	~	GUN phase 3: Init step 5 (billing migration) not ported
+00404a40	~	ui_alive (KeepUIAlive) is always true in the frame loop
+00404e10	x	GUN phase 3 (gun-phase3)
+00404f80	x	GUN phase 3 fix round
 00405050	-	GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
 00405210	~	base virtual flushes the played list; the port sends no finish notice, the story slot ends its own sequence (client_story.rs)
 00405230	x	base virtual flushes its list; the story slot takes the scenes: client_story.rs GameplayNotice::PlaySequence
@@ -121,7 +121,7 @@ key	status	note
 004061b0	-	authoring/export/debug-info tooling (checkpoint export, file tree, source line info); no runtime behaviour
 00406220	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406410	x	ac2-ui pregame/flow.rs, pregame/ui.rs
-004064a0	-	GUN chat servers are not used (Turbine chat)
+004064a0	x	GUN phase 3 (gun-phase3)
 00406af0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406b00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406b10	x	ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view
@@ -827,7 +827,7 @@ key	status	note
 00430c00	x	ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
 00430c80	x	ac2-ui examination.rs message + examination_tabs.rs: tab presses (Ctrl toggles bits) and SELECTION_NEXT/PREV_EXAM_TAB_KEY choose the filter and restart the examination with it (Legions 0x00431990, 0x00431900); wired in hud_message.rs; tests examination_tests.rs
 00430d80	x	ac2-ui examination.rs + ac2-client ui_sources
-00430db0	x	ac2-ui examination.rs layout per node type; countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client; type 5 images (AddImageToState, draw mode 0) and type 9 icon descriptions with every layer and shift colour (SetIconDesc, examination_tests.rs)
+00430db0	x	ac2-ui examination.rs layout per node type; countdowns tick from the node's end time (TimeDisplay::Init m_endTime, ComputeTimeLeft against the global clock; QuestTimeDisplay, global loop); effect nodes expanded by the client; type 5 images (AddImageToState, draw mode 0) and type 9 icon descriptions with every layer and shift colour (SetIconDesc, examination_tests.rs)
 004312e0	x	ac2-ui examination.rs create: field, list, timers, hidden start, the four filter tabs (GeneralTab 0x203, DetailsTab 0x18C, EffectsTab 0x10, UsageTab 0x60) in the construction state (Legions 0x00431C40); ExaminationProfile now carries the trailing available-tabs word (ac2-net)
 00431410	x	ac2-ui examination.rs + ac2-client ui_sources
 004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
@@ -1487,15 +1487,15 @@ key	status	note
 00450c60	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450c80	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450cc0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-00450d00	~	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
-00450d10	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00450d40	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00450d70	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-00450d90	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-00450db0	x	ac2-client friends.rs gun_friend_event (list and status to the page through take_friend_events; the script IFuns run first); ac2-ui friends_panel.rs; tests friends_script_7160, friends_page_7160
-00450de0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00450e00	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00450e20	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+00450d00	x	GUN phase 3 (gun-phase3)
+00450d10	x	GUN phase 3 (gun-phase3)
+00450d40	x	GUN phase 3 (gun-phase3)
+00450d70	x	GUN phase 3 (gun-phase3)
+00450d90	x	GUN phase 3 (gun-phase3)
+00450db0	x	GUN phase 3 (gun-phase3)
+00450de0	x	GUN phase 3 (gun-phase3)
+00450e00	x	GUN phase 3 (gun-phase3)
+00450e20	x	GUN phase 3 (gun-phase3)
 00450e60	~	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 00450ea0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450ed0	x	ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
@@ -1601,19 +1601,19 @@ key	status	note
 00451fb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00451ff0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00452030	_	needs port: interface handle set weenie desc; no citation in crates/
-004520f0	x	implemented: cited at crates/ac2-net/src/protocol/turbine_chat.rs:94
+004520f0	x	GUN phase 3 (gun-phase3)
 004521b0	x	implemented: cited at crates/ac2-weenie/src/shell/handlers.rs:109
-004521e0	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
-00452250	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
-004522c0	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
-00452330	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-004523a0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00452410	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00452480	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00452580	-	constructor of plain data: Rust struct init replaces it
+004521e0	x	GUN phase 3 (gun-phase3)
+00452250	x	GUN phase 3 (gun-phase3)
+004522c0	x	GUN phase 3 (gun-phase3)
+00452330	x	GUN phase 3 (gun-phase3)
+004523a0	x	GUN phase 3 (gun-phase3)
+00452410	x	GUN phase 3 (gun-phase3)
+00452480	x	GUN phase 3 (gun-phase3)
+00452580	x	GUN phase 3 (gun-phase3)
 00452660	-	destructor: Rust Drop replaces it
-00452710	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-004527c0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+00452710	x	GUN phase 3 (gun-phase3)
+004527c0	x	GUN phase 3 (gun-phase3)
 004528d0	-	constructor of plain data: Rust struct init replaces it
 00452960	-	constructor of plain data: Rust struct init replaces it
 004529f0	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
@@ -1622,12 +1622,12 @@ key	status	note
 00452bf0	-	admin dump-to-string / dump debug output: not in the client
 00452cd0	_	needs port: interface get name; no citation in crates/
 00452d50	_	needs port: interface get plural name; no citation in crates/
-00452dd0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00452e40	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+00452dd0	x	GUN phase 3 (gun-phase3)
+00452e40	x	GUN phase 3 (gun-phase3)
 00452f50	-	STL/container internals: a Rust collection replaces it
-004530f0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00453320	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-004534e0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+004530f0	x	GUN phase 3 (gun-phase3)
+00453320	x	GUN phase 3 (gun-phase3)
+004534e0	x	GunChatExtraInfo::encode/decode (crates/ac2-net/src/protocol/turbine_chat.rs): u16 version, u16 misc (2-byte STREAMPACK, Legions 0x005E6F90), u32 weenie flags, munged PStringBase<ushort>; under 8 bytes refused
 00453560	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 004535f0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00453670	x	implemented: cited at crates/ac2-weenie/src/shell/mod.rs:230
@@ -1635,9 +1635,9 @@ key	status	note
 00453840	-	STL/container internals: a Rust collection replaces it
 00453880	-	STL/container internals: a Rust collection replaces it
 004539e0	_	needs port: interface expand text; no citation in crates/
-00453b90	-	admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart [vtable-checked: not a slot of any located Legions vtable]
-00453bd0	x	ac2-client friends.rs gun_friend_event (list and status to the page through take_friend_events; the script IFuns run first); ac2-ui friends_panel.rs; tests friends_script_7160, friends_page_7160
-00453c10	x	implemented: cited at crates/ac2-weenie/src/shell/state.rs:191
+00453b90	x	GUN phase 3 (gun-phase3)
+00453bd0	x	GUN phase 3 (gun-phase3)
+00453c10	x	GUN phase 3 (gun-phase3)
 00453de0	x	no timer: the question is held by GameplayDialogs popups until its answer (the awakener's keep-alive trigger has no Rust counterpart)
 00453e30	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 00453ed0	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
@@ -1663,17 +1663,17 @@ key	status	note
 004548d0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00454900	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00454960	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
-004549f0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
-00454a90	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
-00454b10	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
-00454b90	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-00454c10	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00454c90	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00454d10	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00454d90	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00454e20	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00454eb0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00454f30	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+004549f0	x	GUN phase 3 (gun-phase3)
+00454a90	x	GUN phase 3 (gun-phase3)
+00454b10	x	GUN phase 3 (gun-phase3)
+00454b90	x	GUN phase 3 (gun-phase3)
+00454c10	x	GUN phase 3 (gun-phase3)
+00454c90	x	GUN phase 3 (gun-phase3)
+00454d10	x	GUN phase 3 (gun-phase3)
+00454d90	x	GUN phase 3 (gun-phase3)
+00454e20	x	GUN phase 3 (gun-phase3)
+00454eb0	x	GUN phase 3 (gun-phase3)
+00454f30	x	GUN phase 3 (gun-phase3)
 00455000	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00455060	x	implemented: cited at crates/ac2-script/src/vm/program.rs:8
 004550b0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
@@ -2178,7 +2178,7 @@ key	status	note
 0046e8c0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046e970	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046ea20	x	ac2-script glue/turbine_gun.rs: returns the client's world name (Vm::world_name, from the WORLD_NAME notice); test in glue/turbine_gun.rs
-0046eaa0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0046eaa0	x	GUN phase 3 (gun-phase3)
 0046eb20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0046ebd0	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 0046ec60	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
@@ -6273,7 +6273,7 @@ key	status	note
 00530c80	~	ac2-script host/body_state.rs keeps m_bPlaceMarkers only; marker objects are a debug aid not drawn
 00530cb0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 00530cc0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
-00530ce0	_	needs port: physics object init physics; no citation in crates/
+00530ce0	~	the weenie Scale quality (0x12A) reaches the body as ApplyPhysObjProfile's SetScale(float) (ac2-client remote describer); the profile's state bits and placement frame are not applied yet
 00530d50	x	Returns a new VisualDesc native (word 2, REF) copied from the host's shared appearance (ScriptHost::set_appearance from the session's object table); a weenie never shared has the default description. The sell body reads it through gVisualDesc::GetTotalIconDesc.
 00530da0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530de0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
@@ -6366,7 +6366,7 @@ key	status	note
 00532110	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
 00532170	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
 00532200	_	needs port: weenie repository load data idw; no citation in crates/
-00532290	_	needs port: weenie repository build phys obj profile; no citation in crates/
+00532290	~	the weenie Scale quality (0x12A) reaches the body as ApplyPhysObjProfile's SetScale(float) (ac2-client remote describer); the profile's state bits and placement frame are not applied yet
 00532380	-	admin dump-to-string / dump debug output: not in the client
 00532510	-	admin dump-to-string / dump debug output: not in the client
 00532560	-	admin dump-to-string / dump debug output: not in the client
@@ -8170,7 +8170,7 @@ key	status	note
 00573a10	_	needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
 00573a60	_	needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
 00573b50	~	SetCameraDefaults once the body's Setup has loaded
-00573bd0	~	the line-of-sight pull-in (CObjCell::LOSCheck) is not ported: the desired position stands
+00573bd0	x	ac2-smartbox camera_collision.rs CameraCollision::trace / SceneCamera::update_collided: LOSCheck head ray (env only, 0.0004 lift, GetTargetOffset), ray to the desired place (camera-ethereal, CheckEnvOnly), indoor 0.2 m stand-off along the impact normal, outdoor camera object placement (EnterWorldSimple), m_cameraVelocity; tests camera_collision::tests, camera_collision_7230
 00574220	~	the body loads on a loader thread; m_bBlockingLoad set
 00574280	x	after every player physics quantum outside mouse look
 005742d0	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
@@ -10497,78 +10497,80 @@ key	status	note
 00603bf0	-	operator of plain data or container; Rust value semantics / derived PartialEq
 00603c00	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
 00603c60	-	debug dump of the description's fields (Legions 0x005C4B40); no client caller outside tools
-00604530	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-00604550	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-006045a0	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-00604630	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-006046c0	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-00604720	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-00604770	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-006047d0	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00604830	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00604880	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
+00604530	x	ported in ac2-gun (gun-phase2), cited per item
+00604550	x	ported in ac2-gun (gun-phase2), cited per item
+006045a0	x	ported in ac2-gun (gun-phase2), cited per item
+00604630	x	ported in ac2-gun (gun-phase2), cited per item
+006046c0	x	ported in ac2-gun (gun-phase2), cited per item
+00604720	x	ported in ac2-gun (gun-phase2), cited per item
+00604770	x	ported in ac2-gun (gun-phase2), cited per item
+006047d0	x	ported in ac2-gun (gun-phase2), cited per item
+00604810	x	ported in ac2-gun (gun-phase2), cited per item
+00604830	x	ported in ac2-gun (gun-phase2), cited per item
+00604880	x	ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
 006048d0	-	GUN result/event accessor (Gaming Zone)
 00604900	-	GUN result/event accessor (Gaming Zone)
 00604930	-	GUN result/event accessor (Gaming Zone)
 00604960	-	GUN result/event accessor (Gaming Zone)
 00604990	-	GUN result/event accessor (Gaming Zone)
 006049c0	-	GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-006049f0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00604a20	x	ported: ac2_net::gun::TurbineGun
-00604a80	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00604ad0	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00604b70	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00604b90	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00604bb0	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00604c10	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00604ca0	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00604cf0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00605140	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00605440	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-006054d0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00605640	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-006056a0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-006056f0	-	GUN rooms are not served; room chat goes to Turbine chat
-00605770	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-006057d0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00605830	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-006058a0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00605900	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00605a10	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00605ac0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00605ba0	x	ported: ac2_net::gun::TurbineGun
-00605ca0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00605e00	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00605e40	~	events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
-00605e80	~	events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
-00605f00	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00606250	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00606330	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-006064b0	x	ported: ac2_net::gun::TurbineGun
-00606590	x	ported: ac2_net::gun::TurbineGun
-00606710	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00606c20	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+006049f0	x	ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+00604a20	x	ported in ac2-gun (gun-phase2), cited per item
+00604a80	x	ported in ac2-gun (gun-phase2), cited per item
+00604ad0	x	ported in ac2-gun (gun-phase2), cited per item
+00604b70	x	ported in ac2-gun (gun-phase2), cited per item
+00604b90	x	ported in ac2-gun (gun-phase2), cited per item
+00604bb0	x	ported in ac2-gun (gun-phase2), cited per item
+00604c10	x	ported in ac2-gun (gun-phase2), cited per item
+00604ca0	x	ported in ac2-gun (gun-phase2), cited per item
+00604cf0	x	ported in ac2-gun (gun-phase2), cited per item
+00605140	x	ported in ac2-gun (gun-phase2), cited per item
+00605440	x	ported in ac2-gun (gun-phase2), cited per item
+006054d0	~	ac2-gun rcv_authenticate_result: done; NULL ctx / NULL ticket crash paths not ported (open)
+00605640	x	ported in ac2-gun (gun-phase2), cited per item
+006056a0	x	ported in ac2-gun (gun-phase2), cited per item
+006056f0	x	ported in ac2-gun (gun-phase2), cited per item
+00605770	x	ported in ac2-gun (gun-phase2), cited per item
+006057d0	x	ported in ac2-gun (gun-phase2), cited per item
+00605830	x	ported in ac2-gun (gun-phase2), cited per item
+006058a0	x	ported in ac2-gun (gun-phase2), cited per item
+00605900	x	ported in ac2-gun (gun-phase2), cited per item
+00605a10	x	ported in ac2-gun (gun-phase2), cited per item
+00605ac0	x	ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+00605ba0	x	ported in ac2-gun (gun-phase2), cited per item
+00605ca0	x	ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+00605e00	x	ported in ac2-gun (gun-phase2), cited per item
+00605e40	x	ported in ac2-gun (gun-phase2), cited per item
+00605e80	x	ported in ac2-gun (gun-phase2), cited per item
+00605f00	~	ac2-gun TurbineGun::init: LoadLibrary/GunCreateInstance behind GunLoader; QI checks trivial; AddDllToDumpCapture skipped; missing-export NULL crash not ported
+00606250	x	ported in ac2-gun (gun-phase2), cited per item
+00606330	~	ac2-gun Drop: m_pGunSupport is never released in retail; Rust drops the whole CGun box
+006064b0	x	ported in ac2-gun (gun-phase2), cited per item
+00606590	x	ported in ac2-gun (gun-phase2), cited per item
+00606710	~	ac2-gun rcv_chat_event: done; uninited events read uninitialised stack in retail (open)
+00606c20	~	ac2-gun rcv_friends_event: done; uninited events read uninitialised stack in retail (open)
 00606d50	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00606df0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00606ec0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00606f50	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00606fe0	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00607070	~	ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-00607100	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-006071f0	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-00607400	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00607470	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-006074b0	-	GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-00607500	-	GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-006075b0	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-006075d0	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-00607690	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-00607780	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-00607830	~	GUN-only in retail (reads TurbineGun::m_worldName); the client answers from Turbine::Client's copy, which retail also keeps without GUN
-00607870	_	needs port (check): GUN world suffix; confirm whether Turbine chat room names use it
-006078b0	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-00607930	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-006079a0	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
+00606dd0	x	ported in ac2-gun (gun-phase2), cited per item
+00606df0	x	ported in ac2-gun (gun-phase2), cited per item
+00606ec0	x	ported in ac2-gun (gun-phase2), cited per item
+00606f50	x	ported in ac2-gun (gun-phase2), cited per item
+00606fe0	x	ported in ac2-gun (gun-phase2), cited per item
+00607070	x	ported in ac2-gun (gun-phase2), cited per item
+00607100	x	ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+006071f0	x	ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+00607400	x	ported in ac2-gun (gun-phase2), cited per item
+00607470	x	ported in ac2-gun (gun-phase2), cited per item
+006074b0	x	ported in ac2-gun (gun-phase2), cited per item
+00607500	x	ported in ac2-gun (gun-phase2), cited per item
+006075b0	x	ported in ac2-gun (gun-phase2), cited per item
+006075d0	x	ported in ac2-gun (gun-phase2), cited per item
+00607690	x	ported in ac2-gun (gun-phase2), cited per item
+00607780	~	ac2-gun gun_create_instance over GunModule; leak of the factory after a failed CreateInstance not reproduced
+00607830	x	ported in ac2-gun (gun-phase2), cited per item
+00607870	x	ported in ac2-gun (gun-phase2), cited per item
+006078b0	~	ac2-gun string_from_hr: 112-entry table done; FormatMessageA text for codes outside it is open
+00607930	x	ported in ac2-gun (gun-phase2), cited per item
+006079a0	x	ported in ac2-gun (gun-phase2), cited per item
 006079d0	x	ac2-net protocol::native pack+unpack (Legions layout; 7230's perk word after mUntrainable by ac2_core::data_release; WState graphs round-trip byte-exact on both)
 00607a90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607ae0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
@@ -13115,7 +13117,7 @@ key	status	note
 006a44d0	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 006a4510	x	ac2-physics PhysicsTypeMask::update_ethereality: the lowest type the other mask has and this lacks is added (one type); tested; used by update_collide_physics_mask
 006a4590	x	ac2-physics PhysicsTypeMask::set_ethereal_to_water_layer; the script glue (ac2-script glue/ethereal.rs solid_only_to_environment, set_ethereal_to_water) applies the same bit rules to the efun natives; LosParameters::set_blocked_by_water uses the water layer too
-006a45e0	x	ac2-physics PhysicsTypeMask::set_camera_ethereal (mask empties, then the camera property bit); tested. Its caller SmartBox::UpdateCamera belongs to the camera port
+006a45e0	x	ac2-physics collision_types.rs camera_ethereal_mask (property 0x40000026)
 006a4630	x	ac2-physics PhysicsTypeMask::set_ethereal_to_water_layer; the script glue (ac2-script glue/ethereal.rs solid_only_to_environment, set_ethereal_to_water) applies the same bit rules to the efun natives; LosParameters::set_blocked_by_water uses the water layer too
 006a4690	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a46b0	x	ac2-physics WeenieTypes::set_to_ethereal (the mask empties) and need_los_check (false only when the mask is empty and no solid id is listed); tested; the glue in ac2-script glue/ethereal.rs exposes SetToEthereal
@@ -14730,7 +14732,7 @@ key	status	note
 00720230	x	bin/ac2/instance.rs: exclusive lock on Turbine Client.lock in the AC2 config directory; a second client stops with a message (retail dialog text not known)
 007202b0	~	ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
 00720450	~	ac2-net NetClient::disconnect sends the logoff; leave order is session.rs (LogOffCharacter, CharExitGame, transport logoff); PacketController cleanup and error dialog not ported
-007205d0	~	cmdline.rs option table (retail names and short forms); no launch-line builder or help text
+007205d0	~	tchat stored and used for GUN; tchatdll stored, no chat DLL to load
 007218f0	~	ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag or FILE), rodat, language (kept, not applied), chargen, prefs; other retail options not ported
 00722600	~	Legions: a vtable slot, no direct caller in the DVD client. The port has the Turbine chat service on the game connection from logon (no chatclient.dll load, no AC2ClientChatManager)
 00722720	~	no Client object: state is Args, ClientPrefs and OnlineSession built in run()
@@ -14872,37 +14874,37 @@ key	status	note
 00728020	x	implemented: cited at crates/ac2-weenie/src/notice.rs:118
 007280c0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:116
 00728150	x	implemented: cited at crates/ac2-weenie/src/notice.rs:122
-007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
-00728220	_	needs port (check): GUN chat receive (HearUser); Rust room chat is protocol/turbine_chat.rs, confirm same path
+007281f0	x	GUN phase 3 (gun-phase3)
+00728220	x	GUN phase 3 (gun-phase3)
 00728240	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 00728290	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-007282a0	-	GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-007282c0	-	GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-007282e0	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00728380	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-007283c0	_	needs port (check): FriendStatus event; implemented as ac2-client/src/friends.rs FriendEvent::Status, uncited
+007282a0	x	GUN phase 3 (gun-phase3)
+007282c0	x	GUN phase 3 (gun-phase3)
+007282e0	x	GUN phase 3 (gun-phase3)
+00728380	x	GUN phase 3 (gun-phase3)
+007283c0	x	GUN phase 3 (gun-phase3)
 00728470	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00728500	_	needs port (check): friends list start is reached through gmCWInterface::GUNEvent_FriendStart / CM_Friends notices; verify and cite
-00728690	~	net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+00728500	x	GUN phase 3 (gun-phase3)
+00728690	x	GUN phase 3 (gun-phase3)
 007286d0	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00728780	_	needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+00728780	x	GUN phase 3 (gun-phase3)
 007287c0	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 00728870	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00728910	~	net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-00728ad0	_	needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+00728910	x	GUN phase 3 (gun-phase3)
+00728ad0	x	GUN phase 3 (gun-phase3)
 00728b10	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00728bc0	_	needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+00728bc0	x	GUN phase 3 (gun-phase3)
 00728c00	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 00728ce0	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 00728d00	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00728dd0	_	needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
-00728ee0	-	MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
+00728dd0	x	GUN phase 3 (gun-phase3)
+00728ee0	x	GUN phase 3 (gun-phase3)
 00728f20	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 00728fc0	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-00729060	_	needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+00729060	x	GUN phase 3 (gun-phase3)
 007290b0	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 007291a0	-	ctor/dtor/operator= of plain data or container: Rust owns the state
-007291f0	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
+007291f0	x	GUN phase 3 (gun-phase3)
 00729240	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 00729320	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 0072aef0	x	ac2-audio/ac2-client: ambient environments, groove
@@ -15142,7 +15144,7 @@ key	status	note
 00735a90	x	ac2-ui tree_view.rs
 00735c00	x	ac2-ui tree_view.rs
 00735c30	x	ac2-ui tree_view.rs
-00735c60	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+00735c60	x	ported in ac2-gun (gun-phase2), cited per item
 00735e50	-	container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 00735e90	-	container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 00735ed0	-	container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)

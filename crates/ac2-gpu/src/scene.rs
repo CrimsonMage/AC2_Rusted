@@ -445,7 +445,7 @@ impl SceneRenderer {
         let world_visible = in_view(&all_world, &Frustum::from_camera(camera, aspect));
         let world = visible(&all_world, &world_visible);
         let after = sky_instances(models, &frame.sky.after);
-        let interiors = interior_instances(models, blocks, frame);
+        let interiors = interior_instances(models, placed, blocks, frame);
         let mut groups = vec![
             DrawGroup {
                 instances: &before,
@@ -476,6 +476,14 @@ impl SceneRenderer {
         let shore = shore_instances(models, frame);
         groups.push(DrawGroup {
             instances: &shore,
+            ordered: true,
+            environment: None,
+            sky: false,
+        });
+        // `PSManager::RenderParticleSystems`, after everything else of the world.
+        let particles = particle_instances(models, frame);
+        groups.push(DrawGroup {
+            instances: &particles,
             ordered: true,
             environment: None,
             sky: false,
@@ -657,12 +665,17 @@ impl SceneRenderer {
                 &self.world_visible,
             ),
         );
-        let interiors = interior_instances(models, blocks, frame);
+        let interiors = interior_instances(models, placed, blocks, frame);
         for (index, (instances, _)) in interiors.iter().enumerate() {
             self.objects.draw(pass, 3 + index, instances);
         }
         self.objects
             .draw(pass, 3 + interiors.len(), &shore_instances(models, frame));
+        self.objects.draw(
+            pass,
+            4 + interiors.len(),
+            &particle_instances(models, frame),
+        );
         self.objects
             .draw(pass, 2, &sky_instances(models, &frame.sky.after));
         // `LScapeSky::Draw(1)`: then each sky light's `LensFlareEffect::Draw`, with the drawn
@@ -732,6 +745,28 @@ fn shore_instances<'a>(
         .collect()
 }
 
+/// The frame's particle systems (`PSManager::RenderParticleSystems`), each material's merged
+/// quads in the list order. Retail runs it at the end of `WorldRender::Render`, after the opaque
+/// and translucent world objects, the interior cells, the water and the frills: a particle layer
+/// that writes depth (the DAT's additive flame and smoke materials do) then only hides what is
+/// drawn after it, so a draw before the cells would cut a box of black out of the wall behind
+/// each quad.
+fn particle_instances<'a>(
+    models: &'a HashMap<DataId, GpuObjectModel>,
+    frame: &SceneFrame,
+) -> Vec<ObjectInstance<'a>> {
+    frame
+        .particles
+        .iter()
+        .filter_map(|batch| {
+            Some(ObjectInstance::new(
+                models.get(&batch.material)?,
+                Mat4::IDENTITY,
+            ))
+        })
+        .collect()
+}
+
 /// Whether the frame has a landscape sky (`LScapeSky`): sky objects, or the fog quad that
 /// replaces the before-world ones when the sky is fogged out.
 fn landscape_sky(sky: &ac2_render::sky::SkyFrame) -> bool {
@@ -756,7 +791,7 @@ fn sky_instances<'a>(
 /// Whether each instance can be seen: `Frustum::CheckRelationship` of the box around its
 /// bounding sphere (the model's farthest vertex from its origin, scaled by the placement; a posed
 /// model's limbs may reach past its rest pose, so twice that). Instances drawn in world space
-/// (particles, water) are kept.
+/// (water) are kept.
 fn in_view(instances: &[ObjectInstance<'_>], frustum: &Frustum) -> Vec<bool> {
     instances
         .iter()
@@ -819,22 +854,21 @@ fn world_instances<'a>(
                 ..ObjectInstance::new(models.get(&p.visual)?, p.world)
             })
         })
-        .chain(objects.iter().filter_map(|o| {
-            Some(ObjectInstance {
-                tint: o.tint,
-                pose: o.pose.as_ref(),
-                point_lights: &o.point_lights,
-                detail: o.detail,
-                previous: previous.of(o.key),
-                ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
-            })
-        }))
-        .chain(frame.particles.iter().filter_map(|batch| {
-            Some(ObjectInstance::new(
-                models.get(&batch.material)?,
-                Mat4::IDENTITY,
-            ))
-        }))
+        .chain(
+            objects
+                .iter()
+                .filter(|o| !draws_inside(blocks, frame, o))
+                .filter_map(|o| {
+                    Some(ObjectInstance {
+                        tint: o.tint,
+                        pose: o.pose.as_ref(),
+                        point_lights: &o.point_lights,
+                        detail: o.detail,
+                        previous: previous.of(o.key),
+                        ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
+                    })
+                }),
+        )
         .chain(
             frame
                 .water
@@ -846,10 +880,27 @@ fn world_instances<'a>(
         .collect()
 }
 
-/// Each drawn interior block's cells and static objects with their point lights, and its inside
-/// environment.
+/// Whether `object` draws under its block's inside environment: it stands in an env cell of a
+/// block whose interiors draw this frame (`WorldRender::DrawBrushes` with `InsideEnvironment`).
+fn draws_inside(
+    blocks: &HashMap<BlockKey, GpuBlock>,
+    frame: &SceneFrame,
+    object: &SceneObject,
+) -> bool {
+    object.inside_block().is_some_and(|key| {
+        frame.interiors.contains(&key) && blocks.get(&key).is_some_and(|b| b.interiors.is_some())
+    })
+}
+
+/// Each drawn interior block's cells and static objects with their point lights, then the
+/// frame's objects standing in its cells (`WorldRender::DrawBrushes`), and its inside environment.
 fn interior_instances<'a>(
     models: &'a HashMap<DataId, GpuObjectModel>,
+    (world_objects, frame_objects, previous): (
+        &'a HashMap<u64, GpuObjectModel>,
+        &'a [SceneObject],
+        &'a PreviousObjects,
+    ),
     blocks: &'a HashMap<BlockKey, GpuBlock>,
     frame: &SceneFrame,
 ) -> Vec<(Vec<ObjectInstance<'a>>, ObjectEnvironment)> {
@@ -858,11 +909,12 @@ fn interior_instances<'a>(
         .iter()
         .filter_map(|key| {
             Some((
+                *key,
                 blocks.get(key)?.interiors.as_ref()?,
                 frame.interior_cells.get(key),
             ))
         })
-        .map(|(interiors, visible)| {
+        .map(|(key, interiors, visible)| {
             // A block without a visibility decision draws all of its cells.
             let drawn = |id: &u32| visible.is_none_or(|ids| ids.contains(id));
             let cells = interiors
@@ -885,7 +937,23 @@ fn interior_instances<'a>(
                         ..ObjectInstance::new(models.get(visual)?, *world)
                     })
                 });
-            (cells.chain(objects).collect(), interiors.environment)
+            let bodies = frame_objects
+                .iter()
+                .filter(|o| o.inside_block() == Some(key))
+                .filter_map(|o| {
+                    Some(ObjectInstance {
+                        tint: o.tint,
+                        pose: o.pose.as_ref(),
+                        point_lights: &o.point_lights,
+                        detail: o.detail,
+                        previous: previous.of(o.key),
+                        ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
+                    })
+                });
+            (
+                cells.chain(objects).chain(bodies).collect(),
+                interiors.environment,
+            )
         })
         .collect()
 }

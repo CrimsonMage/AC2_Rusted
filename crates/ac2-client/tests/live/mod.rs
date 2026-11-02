@@ -29,8 +29,14 @@ use ac2_ui::pregame::{
 use ac2_ui::{tokenize, Modifiers, SelectionUi, ToolbarChild, UI_POINTER_X, UI_POINTER_Y};
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent};
 
+pub mod chain;
+pub mod craft;
+pub mod trade;
+mod walk;
+
 pub const SIZE: (u32, u32) = (1024, 768);
 pub const LEFT: u32 = 0x4000_0004;
+pub const RIGHT: u32 = 0x4000_0005;
 /// The frame's step, as the window's: the server keeps its own time.
 const FRAME: Duration = Duration::from_millis(16);
 
@@ -99,6 +105,8 @@ pub struct LiveRig {
     pub world: Arc<ac2_world::Ac2WorldSource>,
     store: Arc<ac2_db::ResourceStore>,
     started: Instant,
+    /// Whether each frame first waits for the loader threads (see [`Self::new_unsettled`]).
+    settle: bool,
 }
 
 impl LiveRig {
@@ -106,6 +114,17 @@ impl LiveRig {
     /// selection (the first avatar) and avatar modification, entered into the world, the HUD
     /// built. `None` without `AC2E_LIVE`, `AC2_DAT_DIR` or a GPU adapter.
     pub fn new(name: &str) -> Option<Self> {
+        Self::with_loads(name, true)
+    }
+
+    /// [`Self::new`] with the frames not waiting for the loader threads (`settle` false): the
+    /// window's frame never does (`Client::settle_loads` is for tests), so a DAT read finishes
+    /// some frames after what asked for it.
+    pub fn new_unsettled(name: &str) -> Option<Self> {
+        Self::with_loads(name, false)
+    }
+
+    fn with_loads(name: &str, settle: bool) -> Option<Self> {
         let server = server()?;
         let name = &unique_name(name);
         let dataset = ac2_dat::test_support::env_dataset()?;
@@ -161,7 +180,9 @@ impl LiveRig {
         ui.set_char_gen_system(Box::new(ScriptCharGen::new(chargen)));
         let mut t = 0.0;
         let pregame = |client: &mut Client, ui: &mut PregameUi, t: &mut f64| {
-            client.settle_loads(Duration::from_secs(30)).unwrap();
+            if settle {
+                client.settle_loads(Duration::from_secs(30)).unwrap();
+            }
             for event in client.use_time(&FrameInput::default()).unwrap() {
                 pregame_event(ui, &event);
             }
@@ -218,6 +239,7 @@ impl LiveRig {
             world,
             store,
             started: Instant::now(),
+            settle,
         };
         rig.wait("the HUD", |r| r.view.shortcut_slots() > 0);
         Some(rig)
@@ -235,7 +257,9 @@ impl LiveRig {
             commands: std::mem::take(&mut self.pending),
             ..FrameInput::default()
         };
-        self.client.settle_loads(Duration::from_secs(5)).unwrap();
+        if self.settle {
+            self.client.settle_loads(Duration::from_secs(5)).unwrap();
+        }
         let events = self.client.use_time(&input).unwrap();
         let frame = self.client.frame();
         let notices = self.client.take_script_notices();
@@ -266,6 +290,22 @@ impl LiveRig {
         self.seen.extend(events.iter().cloned());
         std::thread::sleep(FRAME);
         events
+    }
+
+    /// Whether the UI image `did` reads and decodes (what the HUD's image loader does for an icon).
+    pub fn ui_image_decodes(&self, did: u32) -> bool {
+        ac2_assets::load_ac2_ui_surface(&self.store, ac2_core::DataId::new(did))
+            .ok()
+            .flatten()
+            .is_some()
+    }
+
+    /// `VisualDesc::GetTotalIconDesc` of the DAT visual `did`: its icon layers' images.
+    pub fn total_icon_images(&self, did: u32) -> Vec<u32> {
+        ac2_assets::ac2_total_icon_desc(&self.store, ac2_core::DataId::new(did), None)
+            .ok()
+            .flatten()
+            .map_or_else(Vec::new, |d| d.layers.iter().map(|l| l.image).collect())
     }
 
     /// Loads the view's meshes now (the frames give it no load budget), so a pick can find the
@@ -382,6 +422,14 @@ impl LiveRig {
             (UI_POINTER_X, at.0 as f32, true),
             (UI_POINTER_Y, at.1 as f32, true),
         ]);
+    }
+
+    /// A right click at `at` (window pixels): the selection and its examination, as the player's.
+    pub fn right_click(&mut self, at: (i32, i32)) {
+        self.point(at);
+        self.frame(&[(RIGHT, 1.0, true)]);
+        self.frame(&[(RIGHT, 1.0, false)]);
+        self.run(0.1);
     }
 
     /// The left button down or up.

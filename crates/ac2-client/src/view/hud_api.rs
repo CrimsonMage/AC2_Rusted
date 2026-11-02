@@ -54,10 +54,20 @@ impl ClientView {
             let viewport = self.hud.doll_viewport()?;
             self.doll.pick(point, &viewport)
         });
-        // `gm3DItemsUI`: a drop's target search finishes with the object under the pointer.
+        // `gm3DItemsUI`: a drop's target search finishes with the object under the pointer
+        // (`FinishFind3DTarget`). A drop on the ground names a landblock (the request the
+        // scripts send for it has the landblock's IID as its target, which
+        // `LandDefs::InqLandblockIIDFromStaticObjectIID` gives for a static object), and this port
+        // has no terrain or static-object pick, so a pointer over nothing names the landblock the
+        // player stands in.
         let world_pick = self.hud.world_pick_point().map(|point| {
             let size = self.hud.window_size();
-            self.pick(frame, size, point)
+            self.pick(frame, size, point).or_else(|| {
+                frame
+                    .player
+                    .as_ref()
+                    .map(|p| u64::from(p.cell & 0xFFFF_0000))
+            })
         });
         // `gmGamePlayUI::ListenToMessage` 0x4100000D: `gmCWInterface::UseSelection`.
         let mut commands: Vec<crate::Command> = self
@@ -224,6 +234,16 @@ impl ClientView {
     pub fn quest_ids(&self) -> Option<(Vec<u32>, Vec<u32>)> {
         let journal = self.hud.panels.quests.as_ref()?.journal();
         Some((journal.underway_ids(), journal.finished_ids()))
+    }
+
+    /// The Quest panel's Story page: the acts the player's script listed (`gmActInfo`).
+    pub fn story_acts(&self) -> Vec<ac2_net::protocol::GmActInfo> {
+        self.hud
+            .panels
+            .quests
+            .as_ref()
+            .map(|p| p.story().acts().to_vec())
+            .unwrap_or_default()
     }
 
     /// The quest journal's Underway and Finished page texts, row by row.

@@ -190,6 +190,12 @@ impl State {
                     Some(l) if owned => (l.0, l.1),
                     _ => (Vec::new(), Vec::new()),
                 };
+                // The server marks the container `Open` (bool 702, `gmEntity` 0x45) while the
+                // player has it open; the script's move check wants its target open
+                // (`Container` 0xD).
+                if error == 0 {
+                    self.send_container_open(*id, true);
+                }
                 self.send_script(&ScriptMessage::OpenContainerDone {
                     error,
                     packs: Some(packs),
@@ -198,6 +204,7 @@ impl State {
                 });
             }
             ScriptRequest::CloseContainer(id) => {
+                self.send_container_open(*id, false);
                 self.send_script(&ScriptMessage::CloseContainerDone {
                     error: 0,
                     container: *id,
@@ -414,12 +421,27 @@ impl State {
         self.send_event(&update.encode());
     }
 
+    /// The container's `Open` quality (bool 702).
+    pub fn send_container_open(&mut self, container: u64, open: bool) {
+        self.send_quality(&QualityUpdate {
+            object: Some(InstanceIdWithStamp {
+                id: container,
+                instance: 1,
+                other: 0,
+            }),
+            quality: 702,
+            value: ac2_net::protocol::QualityValue::Bool(i32::from(open)),
+        });
+    }
+
     /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65): the skill
     /// repository, the options profile, the equipment and the player's contents from
     /// [`ScriptWorld`]; the double has no other player systems, so the remaining arguments are
     /// zero ints.
     pub fn send_init_player(&mut self) {
         let mut args = vec![PackValue::Int(0); 14];
+        // Argument 2: the act registry (`CPlayer` 0x65 keeps it as the player's `ActRegistry`).
+        args[1] = PackValue::Reference(crate::act_registry());
         // Argument 3: the quest list (`gmQuestInfoList`, native 0xA1), when the player has any.
         if !self.script_world.quests.is_empty() {
             args[2] = PackValue::native(ac2_net::protocol::NativeObject::GmQuestInfoList(

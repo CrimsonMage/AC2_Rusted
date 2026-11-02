@@ -15,7 +15,7 @@ take it from a published list.
 | Type (`emu`) | For | The command line the launcher sends |
 |---|---|---|
 | `AC2E` | AC2e servers (on the 7230 data) | `--host HOST --port PORT --version 7230 --account ACCOUNT`, plus `--glsticket TICKETFILE` when the server has a login server |
-| `Relaunch` | relaunch servers (the 2012-2017 client) | `--host HOST --port PORT --version 1802 --account ACCOUNT --glsticket TICKETFILE --no-gun` |
+| `Relaunch` | relaunch servers (the 2012-2017 client) | `--host HOST --port PORT --version 1802 --account ACCOUNT --glsticket TICKETFILE` |
 
 The command line also always carries `--dat-dir` with the DAT folder chosen in Settings.
 
@@ -25,22 +25,13 @@ The command line also always carries `--dat-dir` with the DAT folder chosen in S
   empty), with no password.
 - **AC2E with a login server** (`LoginServerUrlKey`):
   - The launcher signs in at `POST {login server}/api/login` with the account and password.
-  - It does this twice: one single-use ticket for the game, one for the server's GUN service
-    (passed as `--gunticketoverride ACCOUNT:TICKET`).
+  - The single-use ticket it gets is the game's.
   - It sends a password only over HTTPS, or over HTTP to this computer.
 - **Relaunch:** the password is the ticket, as retail's `glsticketdirect` passes it.
 
 `TICKETFILE` is a file only the player can read. The client reads it and deletes it, and the
 launcher waits for that. A ticket left behind is removed. A ticket or password never goes on
 the command line, and the launcher never saves a password.
-
-**Friends (GUN):**
-
-- **AC2E:** the server's own GUN service (AC2e starts one with every server). This is the
-  client's default, so nothing extra is sent unless the port isn't 2310 (then `--gunport`).
-- **Relaunch:** none (`--no-gun`). The relaunch servers have no GUN service.
-- **`gun_server`:** overrides either default. `none`, or a shared GUN server's `host:port`,
-  sent as `--gunserver HOST --gunport PORT --gunticket`.
 
 ## The server lists
 
@@ -83,7 +74,6 @@ address (a web address or a file) in the launcher's Settings.
 | `emu` | `AC2E` or `Relaunch`. Entries for other games (ThwargLauncher's `ACE`, `GDLE`) are skipped. |
 | `server_host` and `server_port`, or `connect_string` | The address. A published list uses `server_host` and `server_port`; the player's own servers use `connect_string` (`host:port`), as ThwargLauncher does. |
 | `LoginServerUrlKey` | AC2E only: the AC2e account service. Empty means the developer account. |
-| `gun_server` | Optional: `none`, or a shared GUN server's `host:port`. Empty means the type's default. |
 | `type`, `status`, `website_url`, `discord_url` | Shown in the launcher. |
 
 The launcher skips an entry with a bad address, or one listed twice (the same address), and

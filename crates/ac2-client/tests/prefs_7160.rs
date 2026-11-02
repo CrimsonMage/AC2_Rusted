@@ -237,6 +237,7 @@ fn the_tooltip_preferences_register_from_the_dat_names() {
             ac2_ui::tooltip_prefs::TOOLTIP_DELAY,
             ac2_ui::tooltip_prefs::TOOLTIP_ENABLE,
             ac2_ui::hud_style::CLASSIC_HUD,
+            ac2_ui::ui_scale_pref::UI_SCALE,
         ]
     );
     assert_eq!(ac2_ui::tooltip_prefs::values(bank), (0.25, true));
@@ -320,4 +321,40 @@ fn the_fx_channel_preferences_register_and_reach_the_channel_table() {
     assert_eq!(ac2_assets::fx_channel_prefs(), table);
     ac2_assets::set_fx_channel_prefs(Default::default());
     let _ = std::fs::remove_dir_all(path.parent().unwrap());
+}
+
+/// The UI scale (`UiScale`, a client-only key): registered at 1x, a choice written under its own
+/// name as a number (Fill is 0) and read back.
+#[test]
+fn the_ui_scale_saves_under_its_client_name_and_reads_back() {
+    use ac2_ui::UiScaleSetting;
+    let Some(store) = store() else {
+        return;
+    };
+    let path = temp_file("ui_scale.ini");
+    let mut prefs = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    assert_eq!(
+        ac2_ui::ui_scale_pref::ui_scale(prefs.bank()),
+        UiScaleSetting::Retail
+    );
+    for (value, expected) in [
+        (250, UiScaleSetting::Percent(250)),
+        (0, UiScaleSetting::Fill),
+    ] {
+        prefs
+            .bank_mut()
+            .find_mut(ac2_ui::ui_scale_pref::UI_SCALE)
+            .expect("the key is registered")
+            .value = Value::Int(value);
+        prefs
+            .save()
+            .join()
+            .expect("the save thread")
+            .expect("saved");
+        let text = std::fs::read_to_string(&path).expect("the file");
+        assert!(text.contains(&format!("UiScale={value}")), "{text}");
+        let back = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("reload");
+        assert_eq!(ac2_ui::ui_scale_pref::ui_scale(back.bank()), expected);
+    }
+    let _ = std::fs::remove_dir_all(path.parent().expect("a directory"));
 }

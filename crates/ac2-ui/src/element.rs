@@ -295,6 +295,11 @@ pub struct UiTree {
     /// The player's saved positions of the windows (`window_positions`): applied to a window when
     /// it is made and to the windows already up.
     pub(crate) saved_positions: Vec<crate::window_positions::WindowPosition>,
+    /// The locations the server's profile last applied (`apply_locations`), applied again when
+    /// the display changes (`UIElementManager::RefreshEvent`'s `0xffff0007`).
+    pub(crate) server_locations: Vec<crate::window_locations::SavedWindow>,
+    /// Where each window's default place (`default_locations`) last put it.
+    pub(crate) default_places: Vec<(usize, (i32, i32))>,
     /// The read-only selectable text a left press last landed in: it takes the copy keys
     /// (Ctrl+A / Ctrl+C) without becoming the active element, which only editable text does
     /// (`UIElement_Text::MouseDown` activates an editable element alone).
@@ -377,6 +382,8 @@ impl UiTree {
             alt: false,
             positions_changed: false,
             saved_positions: Vec::new(),
+            server_locations: Vec::new(),
+            default_places: Vec::new(),
             copy_focus: None,
             text_press: None,
             wheel_scrolled: false,

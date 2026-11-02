@@ -64,7 +64,7 @@ fn an_item_dragged_to_another_slot_of_the_pack_reorganizes_it() {
     // The sword from slot 1 to slot 0 of the player's own pack: `ReorganizeContents`.
     let sent = requests(&rig, before);
     let expected = ScriptRequest::ReorganizeContents(
-        InvMoveDesc::new(SWORD, PLAYER, 1, PLAYER, 0, 1).with_native_tags(),
+        InvMoveDesc::new(SWORD, PLAYER, 1, PLAYER, 0, 1).with_script_tags(),
     );
     assert_eq!(sent, std::slice::from_ref(&expected));
     assert_eq!(wire(&sent[0]), wire(&expected));
@@ -144,15 +144,24 @@ fn an_item_dragged_into_the_open_side_pack_is_moved_there() {
         .unwrap();
     rig.drag(from, to);
     let sent = requests(&rig, before);
-    let expected = ScriptRequest::MoveItem(InvMoveDesc::new(SWORD, PLAYER, 1, PACK, 1, 1));
+    // A move into a container the player has open: the script types it 34 and records the
+    // target's weenie type, `GameplayContainer` 0x103.
+    let expected = ScriptRequest::MoveItem(
+        InvMoveDesc::new(SWORD, PLAYER, 1, PACK, 1, 1)
+            .with_script_tags()
+            .with_move_type(34, 0x103),
+    );
     assert_eq!(sent, std::slice::from_ref(&expected));
     assert_eq!(wire(&sent[0]), wire(&expected));
 }
 
-/// `HandlePaperDollDrop`: an item from another container (`FromID` not the player) only comes
-/// into the player's pack: retail returns after the move.
+/// `HandlePaperDollDrop`: an item from another container (`FromID` not the player) is only moved
+/// into the player's pack (retail returns after the move). The player's script refuses it for a
+/// side pack: the player's container holds that pack, so its contents already are the player's
+/// (`CInventorySystem` 0xB: `Container` 0x16 finds the item in the target's packs, error 1083
+/// `CurrentlyContain`), and sends nothing.
 #[test]
-fn an_item_from_a_side_pack_dropped_on_the_doll_only_comes_into_the_pack() {
+fn an_item_from_a_side_pack_dropped_on_the_doll_is_refused_by_the_script() {
     let Some(mut rig) = with_pack() else {
         return;
     };
@@ -164,13 +173,7 @@ fn an_item_from_a_side_pack_dropped_on_the_doll_only_comes_into_the_pack() {
         .unwrap();
     let to = rig.view.ui_element_center("PrimaryHand_Slot").unwrap();
     rig.drag(from, to);
-    let sent = requests(&rig, before);
-    assert_eq!(
-        sent,
-        [ScriptRequest::MoveItem(InvMoveDesc::new(
-            RATIONS, PACK, 0, PLAYER, -1, 1
-        ))]
-    );
+    assert!(requests(&rig, before).is_empty());
 }
 
 /// Equipping, then taking it off by dragging it from its slot into the pack

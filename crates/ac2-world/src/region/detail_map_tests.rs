@@ -125,10 +125,11 @@ fn every_map_note_record_decodes_and_each_row_lists_known_notes() {
         .dataset()
         .ids_in_range(DatFileKind::Portal, MAP_NOTE_FIRST, MAP_NOTE_LAST)
         .collect();
+    // The end-of-retail set lacks the first record (0x5900F000).
     assert_eq!(
         notes.len(),
-        25,
-        "the Legions DAT has 25 CMapNoteDesc records"
+        ac2_dat::test_support::pinned(25, 25, 24),
+        "the DAT's CMapNoteDesc record count"
     );
     let decoded: HashSet<u32> = notes
         .iter()

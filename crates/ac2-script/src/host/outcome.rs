@@ -9,7 +9,6 @@ use std::collections::{BTreeMap, BTreeSet};
 use ac2_net::protocol::pack_values;
 use ac2_weenie::SessionEvent;
 
-use super::gun::ChatRequest;
 use super::latent;
 use super::notices::ScriptNotice;
 use super::port::ScriptPort;
@@ -46,10 +45,6 @@ pub struct ScriptState {
     pub waited_queries: BTreeSet<u32>,
     /// The `CM_*` notices ac2-weenie has no type for, since the last take.
     pub script_notices: Vec<ScriptNotice>,
-    /// GUN requests for the GUN service (`ScriptPort::set_gun_service`).
-    pub gun_requests: Vec<ChatRequest>,
-    /// Whether the client has a GUN service; the UI's requests are queued only with one.
-    pub gun_service: bool,
     /// The objects whose physics objects the scripts set no-draw (`SetNoDrawPhysics`).
     pub no_draw: BTreeSet<u64>,
 }
@@ -70,8 +65,6 @@ impl ScriptState {
             data_unanswered: false,
             waited_queries: BTreeSet::new(),
             script_notices: Vec::new(),
-            gun_requests: Vec::new(),
-            gun_service: false,
             no_draw: BTreeSet::new(),
         }
     }
@@ -174,7 +167,6 @@ pub fn outcome<P: ScriptPort + ?Sized>(
     let calls = scripts.host.take_server_calls();
     let notices = scripts.host.take_notices();
     let script_notices = scripts.host.take_script_notices();
-    let chat = scripts.host.take_chat_requests();
     let dropped = scripts.host.take_dropped();
     scripts.problems.extend(dropped);
     let reads = scripts.host.take_data_requests();
@@ -195,18 +187,12 @@ pub fn outcome<P: ScriptPort + ?Sized>(
     for call in calls {
         port.send_interp(call.function, pack_values(&call.args), call.encrypt);
     }
-    for request in chat {
-        match request {
-            ChatRequest::SendToRoom { room, text, flags } => {
-                port.send_to_room(room, &text, flags);
-            }
-            // The GUN service's (friends, ignore list, presence): only queued once
-            // the client says it has a GUN service.
-            other => {
-                if let Some(scripts) = port.script_state() {
-                    scripts.gun_requests.push(other);
-                }
-            }
+    // `RequestGUN_SendToRoom` with Turbine chat: `CWBookKeeper::CSendToTurbineRoomByID` (the chat
+    // client is the session's) with the packed `GunChatExtraInfo`.
+    let gun = ac2_weenie::gun::shared();
+    for send in gun.take_turbine_sends() {
+        if let Some(context) = port.send_to_room(send.room, &send.text, send.extra.clone()) {
+            gun.register_turbine_context(context, &send);
         }
     }
     out.extend(notices.into_iter().map(SessionEvent::Notice));

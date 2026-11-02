@@ -29,6 +29,7 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
                     .push(Command::SetWindowOpacity { window, opacity });
             }
             HudRequest::Dismount => out.commands.push(Command::Dismount),
+            HudRequest::Attack(attacking) => out.commands.push(Command::SetAttacking(attacking)),
             HudRequest::DisplaySaleReminders => out.commands.push(Command::DisplaySaleReminders),
             HudRequest::Selection(call) => match call {
                 // `gmSelectionUI`: `SetSelection`, then `CWPhysicsObject::LookAtSelection`.

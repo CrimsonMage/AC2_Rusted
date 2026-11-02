@@ -47,7 +47,16 @@ pub mod handler {
     pub const CG: u32 = 0x154;
     /// ck: channel 0x400000.
     pub const CK: u32 = 0x1A4;
+    /// saveui: a command of this client, not of the 7230 script. 0930's `CPlayer` 0x1F5 / 0x1F8
+    /// mean other functions in 7230's wlib, so these ids lie outside the `CPlayer` range.
+    pub const SAVE_UI: u32 = 0x1_0001;
+    /// loadui (0930's `CPlayer` 0x1F8).
+    pub const LOAD_UI: u32 = 0x1_0002;
 }
+
+/// The file name `/saveui` and `/loadui` use with no name (script string literal 998 of the 0930
+/// player script).
+pub const UI_DEFAULT_NAME: &str = "UI-Default";
 
 /// The string table enum `CPlayer` 0x121 names its commands from.
 pub const COMMAND_TABLE_ENUM: u32 = 0x4100_0007;
@@ -176,6 +185,20 @@ impl ChatCommands {
     }
 
     /// The usage text `handler` shows when it is used wrongly.
+    /// The commands this client adds to the 7230 script's list, from the 0930 client: `saveui`
+    /// and `loadui` with their usage texts (0930's strings 0x66A028AE + 0x6AA028AE and
+    /// 0xA360A95F + 0xAF60A95F, which 7230's DATs do not have). The commands the DATs
+    /// registered keep their names.
+    pub fn register_client_commands(&mut self) {
+        for (name, handler) in [("saveui", handler::SAVE_UI), ("loadui", handler::LOAD_UI)] {
+            self.register(name, handler, true);
+            self.set_help(
+                handler,
+                format!("usage: /{name} < filename > (filename is optional)\n"),
+            );
+        }
+    }
+
     pub fn set_help(&mut self, handler: u32, text: String) {
         self.help.insert(handler, text);
     }

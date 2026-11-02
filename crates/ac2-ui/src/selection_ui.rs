@@ -34,6 +34,9 @@ pub struct SelectionOutcome {
     pub use_selection: bool,
     /// `CM_UI::SendNotice_OpenExaminationPanel`.
     pub open_examination: bool,
+    /// The finished selection took a right press (with nothing picked, the client's right-hold
+    /// look starts: `Controls::start_right_look`).
+    pub right_click: bool,
 }
 
 /// One entry of the potential list, as `Finish3DSelection` reads the object: its `0x270`
@@ -106,6 +109,43 @@ impl SelectionUi {
                 && !first
                     .is_some_and(|target| target.selectable.is_some() && target.wielder == player),
             open_examination: click.right_click && first.is_some(),
+            right_click: click.right_click,
         })
+    }
+}
+
+#[cfg(test)]
+mod right_click_tests {
+    use super::*;
+
+    fn target(id: u64) -> PotentialTarget {
+        PotentialTarget {
+            id,
+            selectable: Some(true),
+            wielder: 0,
+        }
+    }
+
+    fn right_press() -> UiMessage {
+        UiMessage {
+            element: None,
+            element_id: tokenize("ItemSelectionField"),
+            message: MSG_MOUSE_PRESS_TOP,
+            data: RIGHT as i32,
+            item: None,
+        }
+    }
+
+    /// A right press that picks an entity examines it and is no look; one that picks nothing
+    /// is reported as a right click with nothing selected (the client's right-hold look).
+    #[test]
+    fn a_right_press_on_an_entity_examines_and_on_nothing_looks() {
+        let mut ui = SelectionUi::default();
+        ui.message(&right_press());
+        let hit = ui.finish(&[target(7)], 0x3f, 1).unwrap();
+        assert!(hit.open_examination && hit.right_click && hit.select == Some(7));
+        ui.message(&right_press());
+        let empty = ui.finish(&[], 0x3f, 1).unwrap();
+        assert!(!empty.open_examination && empty.right_click && empty.select.is_none());
     }
 }

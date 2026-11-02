@@ -39,38 +39,60 @@ game rules and server-visible behaviour exactly retail.
   and whether the AC2e server ever pushes updated portal objects (the retail on-disk
   `AsyncCache` / `CMissingIteration` path exists for that). Read those before deleting the
   related code, and record the findings here.
-- Exception: GUN (friends, ignore list, presence, tells) speaks AC2e's transport, not Microsoft's.
-  Retail never spoke GUN itself: `GunDll.dll` did, over WSOCK32 sockets and a CryptoAPI RSA key
-  exchange that is not decoded (`decompiled-pdb/gundll/README.md`), to servers that are gone. The
-  client program's side is ported (`NSTurbineGun::TurbineGun`: `RequestConnect`, the ticket,
-  the `Request*` wrappers, `Rcv*Result` / `Rcv*Event`, `LocalToGlobalName` / `GlobalToLocalName`, and
-  `gmClient::StartupGUN`'s connect-then-ticket order) in `ac2_net::gun` and `ac2_client::gun_service`,
-  but the wire is AC2e's: a big-endian length and one XML element per frame, named as `GunDll.dll`
-  names its messages (AC2e's `docs/gun-protocol.md`). AC2e starts its GUN service with every server
-  (port 2310 on the game address), so friends work for the players of a server; a shared GUN server
-  for several game servers is a client's `-gunserver`. With `-gunserver` the start is retail's:
-  `-gunticket` presents `-gunticketoverride`, else the account name (retail asked `GunDll.dll` for
-  the ticket), and a GUN connect failure ends the start unless a `glsticketdirect` ticket was given,
-  as in build 0930's `StartupGUN`. Without it the client does what a launcher does for its server's
-  own service (retail's `StartupGUN` returned at once without `-gunserver`): the game server's host
-  on `-gunport` with the account as the ticket, and a failure only leaves GUN off; `--no-gun` turns
-  that off (`Args::gun_config`). GUN rooms and the other message families (accounts, news, personas,
-  support) are not served; room chat stays on Turbine chat.
-- Exception: the window resizes freely (a modern client). Retail drew its UI pixel for pixel on a
-  fixed window authored at 1024 x 768; here `ac2_client::ui_scale::UiScale` lays the UI out on a
-  logical display and draws it scaled by `min(width / 1024, height / 768)`. Retail's
-  `DisplayResolution` (`Device::InitializeRenderingPreferences`: the device's modes over 799 x
-  599, 1024 x 768 always listed and the default) switched the display mode; here it lists the
-  monitor's modes the same way and sets the window's inner size, at start and when the player
-  picks a mode (a window resized by hand keeps its size until then; FullScreen stays the
-  borderless switch). The HUD fills the window and the pregame screens stay 1024 x 768,
-  centred. Layout and anchoring code stays retail. The pregame screens are composed at the
-  window's scale, not stretched from 1024 x 768 (`UiTree::set_render_scale`,
+- Exception: the window resizes freely (a modern client), and the UI has a scale setting.
+  Retail drew its UI pixel for pixel on the device's display, authored at 1024 x 768: every root
+  is anchored to `RenderDevice::GetDisplayWidth` / `GetDisplayHeight`
+  (`UIElement::UpdateSizeAndPosition`, run for each root by `UIElementManager::RefreshEvent`), so
+  a bigger display held a pixel-sized UI covering less of the screen. That is the default here
+  (scale 1): the HUD lays out on the real window size in UI pixels (2560 x 1440 at 2560 x 1440;
+  the vitals, radar and chat keep their authored places and sizes, the toolbar sits on the
+  bottom edge at its native width) and the world gets the room. The improvement is the
+  client-only `UiScale` preference (`ac2_ui::ui_scale_pref`, key `0x7E000002` in the `Misc`
+  section beside `ClassicHud`, a drop-down on the options page, stored as hundredths so
+  `UiScale=250` is 2.5x): 1x (retail size, the default), 1.25x, 1.5x, 1.75x, 2x, 2.5x, 3x, and
+  Fill. `ac2_client::ui_scale::UiScale` lays the HUD out on a logical display of
+  `window / scale` UI pixels and draws it scaled (`UiScale::hud`); a scale that would leave the
+  display under 800 x 600 (retail's smallest mode) is held at the one that fits. Fill is the
+  first modern client's behaviour, `min(width / 1024, height / 768)`, the largest scale that
+  keeps 1024 x 768 inside the window. Applying the setting (`OptionsEffect::UiScale`,
+  `ClientView::set_ui_scale`) lays the HUD out again on the new display without rebuilding it:
+  `UiTree::set_display` places every root and a saved window place, which records the display it
+  was saved on, keeps its size and its distance from the nearest edges (`window_positions.rs`
+  `anchored`), so switching scale does not scatter the windows. The scaled HUD is drawn
+  stretched (smooth, `UiOverlay::set_smooth`; its radar and bandwidth graph draw into the
+  surfaces in UI pixels); at 1x nothing is filtered. Retail's `DisplayResolution`
+  (`Device::InitializeRenderingPreferences`: the device's modes over 799 x 599, 1024 x 768
+  always listed and the default) switched the display mode; here it lists the monitor's modes
+  the same way and sets the window's inner size, at start and when the player picks a mode (a
+  window resized by hand keeps its size until then; FullScreen stays the borderless switch).
+  The pregame screens (connecting, character select and creation) are one 1024 x 768 panel
+  scaled to fit the window and centred (`UiScale::fit`, `min(width / 1024, height / 768)`; the
+  user's choice: retail showed them at 1024 x 768, and the UI Scale setting applies to the HUD
+  only). They are composed at that scale, not stretched from 1024 x 768 (`UiTree::set_render_scale`,
   `ac2_ui::compose_scaled`, `UiOverlay::set_density`): each root's surface is its scaled size,
   every image is filtered once from its source to its scaled box (Catmull-Rom where it grows),
   each glyph is grown from the DAT font's coverage with its edge narrowed to a window pixel, and
-  the surfaces are drawn texel for texel. At 1024 x 768 nothing changes. The HUD is still
-  stretched (its radar and bandwidth graph draw into the surfaces in UI pixels).
+  the surfaces are drawn texel for texel. Layout and anchoring code stays retail.
+- Exception: a window nobody placed takes its authored place proportionally. Retail applied a
+  window location only where the profile held one (`UIMainFramework::ApplyLocations` for the
+  entries of the player's `UISaveLocations`, run on `gmGamePlayUI::ListenToMessage` `0xffff0007`
+  after `UIElementManager::RefreshEvent` and on `RecvNotice_ReloadOptions`; `UIElement::ApplyLocation`
+  maps the stored clip-space corners to the display and resizes only an `allow_resize` window).
+  A `save_loc` window with none stayed where `UIElement::UpdateSizeAndPosition` left it, which for
+  the layouts' fixed-edge windows (the radar, the four chat windows, most panels) is their
+  authored pixel place, so on a bigger display they sat near the top left.
+  `UIElementManager::CreateRootElementByDataID` did record each such root's creation-time clip box
+  (`UIElement::SetDefaultLocation` into `m_defaultLocation`), but nothing reads it. Here that box
+  is used (`ac2_ui` `default_locations.rs`): a `save_loc` root whose four edges are fixed, with no
+  place saved by the player (`window_positions`) and none from the server, and that nothing
+  else has moved, is put where its authored box lies in clip space over the layout's display,
+  mapped onto the current display, by `ApplyLocation`'s rule (the same size, unless it allows
+  resizing, then the far corner is mapped too, `max_width` and the like still clamping). It runs
+  on every display change (`UiTree::set_display`: start, resize, the UI scale), so the radar sits
+  at the same fraction of the screen at every scale. A server location (`apply_locations`) is
+  kept and placed again on a display change; the player's saved places still keep their distance
+  from the nearest edges, as above. Edge-anchored windows are retail's as before, and the modern
+  style's own placed parts are not moved.
 - Exception: one modern shading pass, no retail look beside it. What is drawn, its colours,
   order, blend, fog and baked light come from the DATs and the decompile (`LScapeSky::Draw`,
   `CPartArray` colours, `CEnvCell` vertex light); the shading turns that into linear light.
@@ -184,8 +206,11 @@ game rules and server-visible behaviour exactly retail.
   itself takes none.
 - Exception: every HUD window can be moved and keeps its place. Retail moved only windows with a
   drag bar and saved only `save_loc` windows to the server (`gmCWInterface::SetUISaveLocations`).
-  Here a window with a drag bar still moves by it, and any other top-level HUD window moves by
-  Alt + left drag anywhere on it. Every window's position is saved locally per character (the
+  Here a window with a drag bar still moves by it, any other top-level HUD window moves by a
+  left press in its header band (the top 24 pixels, `ac2_ui::window_locations::HEADER_BAND`;
+  a press on a button, entry, list, scrollbar or resize bar there stays with that control) and
+  by Alt + left drag anywhere on it; a locked window (`UiTree::set_locked`, the modern HUD's
+  lock) moves by neither. Every window's position is saved locally per character (the
   client's config directory, `ac2_prefs::paths`) and restored at login, over the server's
   locations, and again after the window changes size (where retail's `RefreshEvent` re-applied
   the server's saved locations, scaled with the display). A saved place records the display it
@@ -261,7 +286,10 @@ game rules and server-visible behaviour exactly retail.
   stack question and move, onto the end of the item's own page, at most all but one), Melt
   (`gmMoneyBagUI::HandleMoneyBagDrop`'s stack question and confirmation), and Equip (`EquipItem`
   at the preferred location) or, for a worn item, Unequip (`UnEquipItem` into the first page with
-  room); an action that does not apply is dimmed. Retail had no such ring.
+  room); an action that does not apply is dimmed. Retail had no such ring. No button covers the
+  slot the ring opened from (a slot in a short grid, whose bounds would clamp a button onto it,
+  has its buttons placed outside the grid, in the drawer), so the double click that uses the item
+  still reaches its icon.
   The stack dialog (`gmStackUI`'s `StackableField`) is the design's popover on the drawer's glass
   (`ac2_ui::modern_stack`): its title and the question at the left, a slider beside the amount's
   entry, the error line, then the all / half toggle, the most allowed (`max N`) and OK and Cancel.
@@ -441,6 +469,15 @@ game rules and server-visible behaviour exactly retail.
   (`Client::radar_coords_shown`): the radar's button or a change of the bit records the choice
   per character on this machine (`RadarCoordsHidden-<character>.txt` beside the window
   positions). The bit, the button's `SetShowRadarCoords` call and the profile upload stay retail.
+- Exception: holding the right button over empty world looks around. Retail bound the right
+  button only to the UI's `SelectRight` (a right click on an entity examines it,
+  `gmSelectionUI::Finish3DSelection`) and put mouse look on the middle button
+  (`CameraToggleMouseLook` 0x400000BA, a toggle) and a bindable hold action (`gmCameraUI::
+  ListenToMessage`); no key map of 7160, 7230 or 0930 binds a right-hold look. Here a right
+  press whose selection render picks nothing (the press landed on the world element, not on a
+  panel) turns mouse look on (`Controls::start_right_look`, the camera UI's want state) until the
+  button comes up; a right click on an entity or item still selects and examines it. Mouse look
+  the player already toggled on is left alone.
 - Exception: text fields support modern selection and the clipboard: mouse drag and Shift+arrow
   selection, highlighted, with Ctrl+A / Ctrl+C / Ctrl+X / Ctrl+V (the OS clipboard). Password
   fields never copy out. Retail's own text editing rules (max length, enter/escape) still apply.
@@ -550,8 +587,8 @@ game rules and server-visible behaviour exactly retail.
   command line for that type and starts it (`docs/server-list.md`); the player never writes one.
   The player's servers (a local AC2e to start with; no community server is built in) and a
   published list share ThwargLauncher's `ServerItem` XML. An AC2E server with a login server
-  (`LoginServerUrlKey`) signs in at its AC2e account service (`POST /api/login`: one ticket for
-  the game, one for its GUN service); the client takes the ticket from a file (`glsticket FILE`),
+  (`LoginServerUrlKey`) signs in at its AC2e account service (`POST /api/login`: the game's
+  ticket); the client takes the ticket from a file (`glsticket FILE`),
   and the launcher waits for that. Passwords are never kept.
   `scripts/ac2e-launcher-test.sh` runs that start against a local AC2e.
 - Exception: the intro is skipped. Retail's `gmUIFlow::gmUIFlow` queued `gmIntroUI` first (two
@@ -617,6 +654,9 @@ game rules and server-visible behaviour exactly retail.
   the two jittered against each other by up to a third of a metre, and a turn reached the camera a
   quantum late. Here the camera updates every frame in every mode against the drawn position
   (`Client::update_camera`, `Player::drawn_camera_subject`).
+  The collision stays retail's and applies on top of that: `SmartBox::UpdateCamera`'s line-of-sight
+  pull-in (`CameraCollision::trace`, `SceneCamera::update_collided`) runs from the drawn player's
+  origin where retail used the physics frame's, so the camera and the body it follows stay together.
 - Exception: a body's environment collision response does not wait for a collision manager. Retail's
   `CPhysicsObj::handle_all_collisions` returns at once for an object that has no
   `m_pCollisionManager`, which only `CPhysicsObj::SetCollisionState` makes, so such an object never
@@ -638,6 +678,25 @@ game rules and server-visible behaviour exactly retail.
   story fields over the screen and leaves the panels shown; here the panels leave at the story's
   begin and return at its hide (`HudRequest::StoryGameplay`, `ac2-ui` `frame_passes.rs`
   `story_pass`), so no window sits over the pictures.
+- Exception: a notice raised while the player is out of the world waits for the player's return.
+  Retail's `RecvNotice_*` receivers (`gmJournalQuestsUI::RecvNotice_UpdateQuests` among them) were
+  called the moment the script raised the notice, in portal space too. The HUD's frame passes run
+  only in the world (`CPhysicsObj::IsInWorld`), so the notices of the frames between a portal's
+  forced move and the arrival are kept (`Hud::parked_notices`) and handed to the first frame back,
+  ahead of its own: A Safe Journey's quest update arrives with the portal's move and the journal
+  shows it. The shop's string variables are `Tokenize("quantity")`, `"product"`, `"trade"` and
+  `"cost"` (`gmShopUI`'s `Token_*`, lower case), the names the UI string table's entries bind.
+- Exception: a death flag that comes before the HUD waits for it. Retail's `gmGamePlayUI` existed
+  before the login's `WM_Death` 0x33 (`CDeathSystem` 0x3 -> `CM_Character::SendNotice_UpdateDeathState`)
+  reached `RecvNotice_UpdateDeathState`; here the HUD of a new session is built on workers and can
+  come after it, so a character that enters the world dead found no dialogs and neither raised the
+  resurrect dialog (`MakeResurrectDialog`) nor hid the gameplay panels (`gmGamePlayUI::Show(0)`).
+  `DeathPanel::hold` keeps the latest flag and `death_notices` raises it when the dialogs exist
+  (a newer flag in the same frame wins). Movement while dead is not a client rule: the keys stop
+  through `PlayerMovementModule::LockActions`, set by a behaviour whose params lock actions; AC2e
+  policy (no capture of the retail server is known) sends the player `DoBehavior` death into the
+  dead mode with the lock at death and at entering dead, and `SetMode` peace plus `StopBehavior`
+  death at the respawn.
 - Exception: a book's text after its last `<BR>` is a page. Retail's `gmBookUI::ParseText` stops
   at the last `<BR>` and drops anything after it; here that tail is paginated too
   (`book.rs` `segments`), so a book without a closing `<BR>` is not shown empty.
@@ -670,12 +729,16 @@ game rules and server-visible behaviour exactly retail.
 - Keep public APIs small: plain data and narrow entry points.
 - Tests that need game data read `AC2_DAT_DIR` and are skipped when it is unset.
 - The DAT set is the 7230 release (newer than the Legions DVD's 7160 data): `AC2_DAT_DIR` is
-  `../dataset-7230` in the analysis workspace. Tests that pin record counts pin 7230's. Porting
-  still follows the Legions 7160 code (below); where 7230 changed a packed layout or added script
-  calls, follow the 7230 executable (02.00.20.7230, from the archive's 2012 client package; no
-  symbols, so cite its addresses). The layouts that differ (so far `SkillUINode`'s perk word)
-  follow `ac2_core::data_release`, which `DatDataset::open` sets from the portal iteration
-  (7230 is 5064; the DVD's 4862), so the DVD set still reads.
+  `../dataset-7230` in the analysis workspace. Tests that pin record counts pin per release
+  (`test_support::pinned(legions, r7230, r0930)`). Porting still follows the Legions 7160 code
+  (below); where 7230 changed a packed layout or added script calls, follow the 7230 executable
+  (02.00.20.7230, from the archive's 2012 client package; no symbols, so cite its addresses). The
+  layouts that differ (so far `SkillUINode`'s perk word) follow `ac2_core::data_release`, which
+  `DatDataset::open` sets from the portal iteration (7230 is 5064; the
+  DVD's 4862). The end-of-retail set of client build 0930 (`../dataset-0930`, iteration 137, below
+  1000) is readable as `Release0930`, which reads 7230's layouts (`SkillUINode::StreamPack`
+  0930 0x005D5780); its script library numbers some native types and efuns differently
+  (`ac2_core::native_type_from_release`, `ac2-script` `vm/efun_ids.rs`).
 - Live server testing is against the AC2e server (github.com/Thwargle/AC2e, run on the 7230
   DATs, which it serves as its 7230 profile). The client logs on as the 7230 client does (data
   version `7230`, `ac2_net::RELEASE_7230_VERSION`; `ac2_net::default_version` follows the mounted
@@ -683,48 +746,103 @@ game rules and server-visible behaviour exactly retail.
   `ac2-login-probe` to the character set and stops it; `scripts/ac2e-server.sh` keeps one running
   for the client (`ac2 --server 127.0.0.1:9000 --account local`). The in-process
   `legions-server-double` stays the 7160 path's test peer.
-- Exception: the inventory requests are composed natively, not by the player's script. Retail's
-  `gmCWInterface` calls ran the player's scripts (`CContainer` / `CInventorySystem`), which build
-  the `InvMoveDesc` / `InvEquipDesc` / `UsageDesc` objects and send them. The VM's packets for
-  them are what the 7230 wlib and the retail interpreter produce (checked against
-  `ggmCWInterface::CallIFun_MoveItem` / `CallIFun_LootAllFromContainer`, which push every id word
-  tagged 0x84 and every number tagged 4, and the interpreter's `HandleLoad_Long` /
-  `HandleStore_Long` / `HandleRStore_Long`, which this port reproduces), and they differ from the
-  packets AC2e checks (`loot::decode`, `inventory_request::TAGS`, `equipment.rs`) only where those
-  were captured from a client whose script differs: ids 0x84 where the capture has 0x82, icon,
-  definition and physical typed 2 where the capture has 4, a ground drop's move type 33 and slot 0
-  where the capture has 0 and -1. The reference ids are the one place the port differs from the
-  retail code, and it differs on purpose: retail wrote the sender's reference-table indices
-  (`ReferenceTable::PackReferenceArray` packs the id array as it is), and its table hands out the
-  lowest free index after each collection (`FinishGarbageCollection` resets `m_highWater` to 0,
-  `FindNextReference` searches from 1), so a request made soon after one is numbered from 1; this
-  port never collects, so its indices only grow (some 26,000 by the time the player acts). A
-  request leaves with its graph counted from 1 in table order (`ac2_script::wire::as_collected`);
-  the receiver only maps the ids to its own (`UnPackReferenceArray`, `UpdateReferences`).
-  AC2e compares tags up to the integer kind and takes a drop's type 33 and slot 0
+- Effects (buffs and debuffs): the client is retail's. The server adds a timed effect to the player
+  with `WM_Effect` 0x17 (an `EffectRecord` and its `Effect` state) and removes it with 0x16; the
+  status bar's strip (`gmEffectsUI::Init`) lists it in order of expiry with its time meter running
+  down on the global clock, and a press examines it (`gmEffectsUI::ListenToMessage` ->
+  `SetExaminationRequest` type `0x40000001`): the request is not the server's, the player's script
+  builds the profile (`CExaminationSystem`; name, description and the end time as a countdown,
+  `gmExaminationUI::ProcessNode` type `0x40000008`, whose value is `TimeDisplay::Init`'s
+  `m_endTime`), so `Client::examine_request` hands such a request, and `StartExamination` /
+  `StopExamination` with it, to the VM beside the session's stand-in. What AC2e does with effects
+  (a recast replaces the record, different skills stack, death takes them off, a creature's burn is
+  text in its examination, a creature uses its harmful entity-record skill in place of a swing and
+  then every 45 s, a logged-off player keeps its effects, and the server tells the client of them with `WM_Effect` 0x17 after the login, whose `EffectRegistry` (7230: 14 slots, record hash in slot 4, order hash in slot 11) is empty, since the registry's own add builds the indexes in slots 0 and 12 that its remove and `UpdateEffect` notice go by)
+  is its own policy, not retail's. What the server puts in the `EffectRecord` (package 0x14E) is
+  what the client's script reads: slots 2-3 the cast time, 6 the duration, 8 the caster's level in
+  the skill (the examination's "Spellcraft", and the level the effect's stat tables are read at,
+  so the skill panel's enchanted level moves by it: `InqSkillLevel`), 14 the `Effect` state, 20
+  the flags (0x2 timed, 0x400 pulsed; a pulsed effect has the strip's `pulsed` state and no
+  draining meter). AC2e flags health and vigor changes over time as pulsed, because the DAT
+  `Effect` states of exactly those types carry flag bit 0x20000000 (an inference: no retail text
+  says what the server set). `scripts/ac2e-live-test.sh` runs
+  `ac2e_live_effects` (the creature test needs `AC2E_LIVE_THRASHER=1`, a Banderling Thrasher placed beside the start through `AC2E_EXTRA_WORLD`) against a server whose timed effects last `AC2E_DEV_EFFECT_SCALE` (0.1) of
+  their record's time and whose new characters start with 2,000,000 experience.
+- Story scenes (the Quest panel's Story page) are retail's client path, and AC2e's trigger is its own
+  policy. Retail: the server calls `WM_Quest` 0x23 -> `CPlayer` 0x2A -> `CQuestSystem::UpdateStoryQuest_Done`
+  with `(errorCode, bAdd, sceneId)` (stack order: the script branches on the second on add or
+  remove and hands the third to `ActRegistry::AddSceneID`; errors 0xFA7, 0xFA8, 0xFA0 print the
+  script's failure text), which finds the scene's act through the `MasterActList` singleton
+  (`WState` 70001a89, a subclass of `MasterSceneList`; the base's own singleton 700001a5 is empty and
+  unused), adds it to the player's `ActRegistry` (the login's `WM_Player` 0x27 argument 2) and
+  raises `CM_Quest::SendNotice_UpdateStoryQuests`; `QuestSystem::InqActInfoList` then marks a
+  scene playable only if the registry holds it (`ggmSceneInfo::SetPlayable`). The act and scene
+  content (names, keyframes) is in the acts' `WState`s in the DATs. A scene row plays on the
+  double click (`0x40000007`); the skip key finishes the story and `HandlePlayScenesDone` sends
+  the played list (`WM_Quest` 0x22, 0x82130013). Not in the client or the data: what made the
+  retail server grant a scene (`Eff_BestowScene*` carry a scene id and stat 4200
+  `Quest_BestowedSceneID` exists; no script or AC2Hero page says when) and what it did with a
+  played list. AC2e policy (`emulator/src/story.rs`): a character with no scene earned is
+  granted the three scenes of the Prologue act (0x40000008) when it first enters the world; the
+  login sends the registry empty, as for effects, and each earned scene is granted again after
+  it; the played list is accepted and not acted on (AC2e decodes only that it is non-empty).
+  Live: `ac2e_live_story`; double: `story_scenes_7160`. Both click the Story tab first, as a player
+  does: the Story page is a hidden page of the Quest panel until then, and `UIRegion::NotifyMouseMove`
+  (0x005e25c0) counts an element under the pointer only while it and its parents are shown, so
+  before the tab only a leaf of the visible page (element 0x6a170865) sat under the list's box (the
+  port matches retail here, `ac2-ui` `mouse_tests`). The double click then plays the scene
+  (`0x40000007`) and the skip key (`0x4000001E`) ends it. `ac2e_live_story` proves the play step live.
+  Exception: the Story page lists the scenes when the first frame in the world runs
+  (`Hud::init_pass`). Retail's `gmStoryQuestsUI` is made before the login's `WM_Player` 0x27 raises
+  `CM_Quest::SendNotice_UpdateStoryQuests`, so it receives that notice; the HUD here is built on
+  workers and can come after it, and the notice then finds no panel (as for the journal's quest
+  list). `init_pass` raises the list notice (code 0x40000002) itself, as `RecvNotice_UpdateStoryQuests`
+  would, and the global loop asks the script for `InqActInfoList`.
+- The inventory requests are the player's script's, as in retail. `gmCWInterface::MoveItem`,
+  `EquipItem`, `UnEquipItem`, `LootAllFromContainer` and `TransmuteAllFromContainer` call their
+  IFuns on the player's process (`ggmCWInterface::CallIFun_MoveItem` pushes each id as two words
+  tagged 0x84 and each number tagged 4, and the `CContainer` / `CInventorySystem` code builds the
+  `InvMoveDesc` / `InvEquipDesc` / `InvTakeAllDesc` and sends it: `ac2_client::inventory_commands`);
+  `UpdateOpen` goes to the container's own process with the player as the updater and, as the
+  wlib reads it, a nonzero argument closing (`gmExternalContainerUI::ListenToMessage` passes 0
+  when its window shows). The pack panel lists what the script lists
+  (`gmCWInterface::GetContentsInfo`); there is no mirror fallback. The packets are what the VM
+  builds. Two points differ from a reading of the retail client's code:
+  - Exception: a request leaves with its reference ids counted from 1 (`ac2_script::wire::
+    as_collected`, applied to what `gCWInterface::SendServerEvt` sends). Retail wrote the sender's
+    reference-table indices (`ReferenceTable::PackReferenceArray` packs the id array as it is), and
+    its table hands out the lowest free index after each collection
+    (`ReferenceTable::FinishGarbageCollection` resets `m_highWater` to 0,
+    `FindNextReference` searches from 1), so a request made soon after one is numbered from 1; this
+    port never collects, so its indices only grow (some 26,000 by the time the player acts). The
+    receiver only maps the ids to its own (`UnPackReferenceArray`, `UpdateReferences`).
+  - Exception: a drop with nothing picked under the pointer names the landblock the player stands
+    in as its target (`ac2_client::view::hud_api`). Retail's selection render named the object
+    under the pointer (`gm3DItemsUI::FinishFind3DTarget`), and the wlib turns a static object
+    into its landblock (`LandDefs::InqLandblockIIDFromStaticObjectIID`); this port has no terrain
+    or static-object pick yet.
+  AC2e checks these requests against packets captured from clients whose scripts differ from the
+  7230 wlib the DATs carry (ids 1; 0x82 on ids that `CallIFun_*` pushes tagged 0x84; icon,
+  definition and physical typed 4; a ground drop typed 0 with the slots -1): it compares tags up to
+  the integer kind and accepts a drop's move type 33 and slot 0
   (`inventory_request::tags_agree`).
-  The requests are still composed by `OnlineSession` (`InvMoveDesc::with_native_tags`,
-  `InvEquipDesc`, `UsageDesc::to_reference`, `Command::LootAll`) because the script path is not
-  usable against AC2e yet: its `CInventorySystem` keeps request-side state (0xE) and a list of
-  the pack that AC2e's answers do not keep in step (a reorganization leaves the item at the end
-  of the script's list; an item equipped through `EquipItem_Done` is not found by `UnEquipItem`;
-  a stack AC2e splits is not in the list, so a merge onto it is refused), and a `MoveItem` out of
-  a body is refused by the script's own checks. `gmCWInterface::UpdateOpen` goes to the
-  container's own process (`gmExternalContainerUI::ListenToMessage`), with the player as the
-  updater and a nonzero argument closing. The branch `inventory-script-routing-wip` holds the
-  routing (`ac2_client::inventory_commands`) with its findings. A ground drop
-  (`gm3DItemsUI::FinishItemDrop`, target none) names the player's landblock with no slot
-  (`OnlineSession::drop_item`); a move of an item out of another container into the player (a
-  body's loot) sends source slot 0 and target slot -1. The server's `WM_Inventory` 0x58
-  (`CContainer::RecvCEvt_DiscreteDestroyContainedItem`) removes the item from the pack list
-  (`InventoryState::discrete_destroy`). A create of a new instance of an object drops the old
-  instance's pending deletion (`CObjectMaint::FinishEntityCreation` -> `DestroyObjectInternal`),
-  since AC2e re-creates a wielded, put-away or re-counted item with the old instance's destroy
-  ahead of it. The pack panel shows the script's list (`gmCWInterface::GetContentsInfo`); on
-  AC2e's logon (7148, 7230) it falls back to the session's mirror of the server's messages when
-  the script has lost an item the mirror lists: a request sent natively sets none of the
-  request-side state `CInventorySystem` 0xE keeps, so after a reorganization the script's list
-  loses the item.
+- Exception: an object's class defaults arrive frames after its `CreateObject`, and the panels
+  refresh then. Retail's `CBaseQualities::InitDefaults` read them synchronously when the object was
+  made, so `ItemDisplay::Update` (backpack, `gmPaperDollUI`) never saw an item without its icon,
+  name or locations. Here the loader thread reads them (`Request::ScriptState`), a pack or worn
+  item drawn before they land had icon 0 (the "?" slot) and nothing redrew it. `Client::take_loaded`
+  raises `GameplayNotice::ItemUpdate` for the object when its defaults are set, which the slots take
+  as `RecvNotice_ItemUpdate`. `ac2e_live_item_icons` proves it with frames that do not wait for the
+  loader (`LiveRig::new_unsettled`); the other live files settle the loads each frame and cannot see
+  the race.
+- Exception: an item's icon is its visual's total icon description, read on a loader thread. Retail's
+  `ItemDisplay::Update` draws `VisualDesc::GetTotalIconDesc` of the object's local visual desc (the
+  parent DAT chain's icon layers with the local ones on top) and only falls back to the `ICON`
+  quality (`gmCWInterface::GetIconID`) when it has no layers. The tools and the starter apparel
+  have `ICON` = `default_icon.tga` (0x4100034b, the "?") and carry the real icon as four layers in
+  their `VisualDesc` (e.g. 0x1f00058e: 0x41005961, 0x410048b4, 0x410048b5, 0x41004314).
+  `Request::TotalIcon` reads them (`ac2_assets::ac2_total_icon_desc`), `Client::total_icons` keeps
+  them, `inventory_frame` puts them under the wire's local layers, and `ItemUpdate` redraws the slot.
 - Exception: a craft query that waits for DAT data is asked again by its panel. Retail's
   `gmCWInterface::InqCraftSkillList` / `InqRecipeList` (and the other craft queries) ran the
   player's script, which read the craft records from the DATs synchronously. Here the frame thread
@@ -733,6 +851,221 @@ game rules and server-visible behaviour exactly retail.
   land and the waiting contexts have run, raises `CM_Craft::SendNotice_UpdateCraftPanel`
   (`gmCraftUI::RecvNotice_UpdateCraftPanel` -> `RefreshCraftPanel`), so the craft panel lists its
   rows as soon as the data is there (`script_data_loaded`).
+- Tradeskills against AC2e (live: `ac2e_live_tradeskills*`, `ac2e_live_traders`): what the data
+  settles, what AC2Hero settles and what is AC2e policy. Ranking: client and DATs, then the
+  AC2Hero mirror (a 2013 player guide, untrusted; pages cited below), then AC2e policy.
+  Data: a mote stack holds 1,000,000 (entity property `0x41000089`, description word `0x105`), a
+  recipe slot takes one item that holds the slot's whole quantity (the client's `CheckIngredient`),
+  so a 500 or 2500 refining is filled by one merged stack; coal and flawless pyreal are sold by
+  the raw-material traders (`store_cragstone`, `store_ikeras`, `store_linvaktukal`: coal at 0.5;
+  `store_cavendo`: pyreal at 50; `store_hakata` deruwood; `store_ondekodo` obsidian), and the
+  WState `700005ec` is a craft trait of the pyreal mote, not a loot table. The 67
+  `*butcheryprofile.wc` records are identical and empty, so what a creature gives is AC2Hero's.
+  AC2Hero rules AC2e applies (each with an AC2e unit test, and the chain/butchery/spellbinding
+  live files): `butcher.html` (a corpse eight or more levels below the butcher is refused),
+  `traits.html` (the table of the two traits each creature family gives, keyed by the
+  creature's `*butcheryprofile.wc` record: `butchery::LISTED`, ten units each; the training Idol
+  Spawns give sinew and tallow, a Vermin Pilferer bone and hide), `refining.html` (a refining
+  recipe returns 34 to 100 percent of its ingredients by the refining rank, 34 + 66 (rank - 1) /
+  149; the Crucible and the Refiner raise it by amounts no page or DAT gives, so they are not
+  modelled; the DAT already makes a Refining Workshop a requirement), `survey.html` (a mining strike
+  adds up to 40 units at Surveying rank 150 to the deposit's ten; even steps, 40 rank / 150),
+  `resource.html` (the traders' bundles equal the DAT's per-unit prices: coal 0.5, the other
+  commodities 50, so 200 coal = 100 gp ... 50 pyreal = 2500 gp; the purchase dialog sells any
+  count, a unit test checks every bundle; the traders file buys the 50-pyreal bundle for 2500).
+  Not applied, with the reason: knife and tool durability (`butcher.html`: tools wear out and
+  vanish; the starter tools carry `Durability_MaxLevel` 618 = 50 in the DAT, but
+  `Usage_DurabilityLostOnUse` 325 is absent on them and no page gives the wear per use, so the
+  rate would be invented), the better knives' bonus items (no count anywhere),
+  `cartomancer.html` and `workshops.html` (AC2e's profile carries neither the cartomancers nor
+  the workshops; the map travel stays the `@maptravel` test knob).
+  Known AC2e gap, not diagnosed: a stack merge made after a log-in, of stacks created before it,
+  is refused with `InvalidValue` (the chain file merges before it visits the traders).
+  Policy still without a record: automatic rank-up, ten units a deposit strike before the bonus,
+  certain success, one-time butchery of a body.
+  Names: an item AC2e creates after the login carries its name in the `CreateObject`
+  description (`gmWeenieDesc` data-mask bit 4, `Name_StringInfoStat`; AC2e `item_names.rs`, the
+  entity's `Name` property `0x41000143`, else the name its qualities record embeds). Without it
+  the client reads the name from the class defaults (`0x81000000 | definition`) only after its
+  data load, and a pack slot created before that keeps "Error! Name_StringInfoStat missing";
+  items in the pack at login do not show it. The live tests assert the crafted sword's, bracket's
+  and charm's names. The knife is used as a player does: a double-click arms the targeting
+  pointer (the client reads `Usage_NumberOfEntitiesUsedWith` 720, `Usage_InventoryRequired` 305 and
+  `Usage_ValidTargetTypes` 722 = 8 from the DAT's defaults, nothing from AC2e), and the click on
+  the body completes the use only if the body's `Usage_TargetType` (721) shares a bit with 722: a
+  creature's DAT default is 4, so AC2e sends 8 on a creature at zero health
+  (`butchery::BUTCHERABLE_TARGET`). Spellbinding: `rcp_spellbinding_practice` (wood 1, runewood 35,
+  bone 10) makes one of the six `wsl_tradegoods_spellbinding_N` charms; `rcp_spellbinding_study`
+  names no output and the DAT calls it "OBSOLETE - DNT: ... crafting and discarding sample totems.
+  You will earn no profits", so AC2e uses its ingredients up for the experience and makes no item
+  (`tradeskills::is_study`). Buying coal after mining works at any pack size; the earlier failure
+  was the test server's `@maptravel` (a loopback test knob), which a second travel on one login does
+  not carry out, so the tests log in again before each trader.
+- Exception: GUN (the MSN Gaming Zone service: friends, ignore list, tells, room chat, tickets,
+  support calls). Retail loaded Microsoft's `GunDll.dll` with `LoadLibraryA(-gunclientdll or
+  "GunDll.dll")`, called its `DllGetClassObject`, `QueryInterface`d ten `IGun*` interfaces from the
+  one `CGun` COM object (`NSTurbineGun::TurbineGun::Init`, Legions 0x005C6DA0), made `TurbineGun`
+  with the global `S_pTurbineGun`, and ran `StartupGUN` as two blocking loops inside
+  `gmClient::Connect`. The client has no DLL: `ac2_gun::gundll::CGun` (over `ac2_gun::dplay8`,
+  DirectPlay 8 as `dpnet.dll`/`dpnwsock.dll` speak it) is the object `ac2_client::gun_env::
+  OwnGunLoader` hands `TurbineGun::Init` as the "module" whatever the path, so `-gunclientdll` is
+  parsed and ignored, and a module without `DllGetClassObject` is a false `Init` where retail
+  went on with a NULL object and crashed. GUN is off exactly when `-gunserver` is empty (no
+  default server, no switch), as in retail. Differences, all of them:
+  (1) `TurbineGun::new` takes `GetUserDefaultLCID()` from the caller. `gun_env::default_lcid`
+  maps the user's locale name (`sys-locale`: on Windows `GetUserDefaultLocaleName`, which names
+  the locale `GetUserDefaultLCID` numbers, one to one; elsewhere `LC_ALL`/`LC_MESSAGES`/`LANG`)
+  through Microsoft's [MS-LCID] section 2.2 table (version 16.0,
+  `learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/63d3d639-7fd2-4afb-abbe-0d5b5551eef8`),
+  mapping only the rows it lists (the table's neutral language ids when only a language is
+  known), and an unmapped or `C` locale to 0x0409 en-US, the language of the shipped
+  `local_English.dat`. Off Windows the POSIX UI-language chain is only the nearest analogue of
+  the regional-format locale retail used.
+  (2) A request's `void*` context is a `Context` id into `TurbineGun`'s map of `Rc` handlers
+  instead of a pointer; listeners and contexts are `Rc`s and the ten interface pointers one
+  `Rc<dyn GunObject>`; the statics (`S_pTurbineGun`, `S_fUseTurbineChatInsteadOfGUN`,
+  `G_pGunTicketHandler`, the player interface) are per-thread (`ac2_weenie::gun::shared`), and
+  `S_pTurbineGun` is cleared when the object goes (retail leaves it dangling). `Drop` releases
+  everything, including the `m_pGunSupport` reference retail leaks, and unloads the module
+  (retail never `FreeLibrary`s).
+  (3) The Win32/COM seams are traits: `GunLoader`/`GunModule`/`ClassFactory`, `Dp8Factory`, the
+  `GunRegistry` (retail's `HKCU\Software\Microsoft\Microsoft Games` values `LaunchTicketData`,
+  `LaunchTicketSize`, `Email` are files in `<config>/AC2/MicrosoftGames`; `Email` and
+  `LaunchTicketData` are binary values), the random source (the operating system's for
+  `CryptGenRandom`: there is no CryptoAPI provider or container, the key exchange is the `rsa`,
+  MD5 and RC4 crates' work), and the local-port probe. The registry read retries as the
+  decompile does; DP8's adapter order falls back as `dplay8` documents; every DP8 send failure
+  maps to 0xC1120405; `CGun::DoWork`'s return value is not used; a hostname is cut at 63
+  characters (`MultiByteToWideChar` into 0x40); NULL string members of a message reach the
+  client as empty strings; the thread pool is per `CGun` slot, not a process singleton.
+  The DP8 thread pool is made by the first `Connect` (the handler constructor `FUN_10035ae0` runs
+  `FUN_10003810`), not by `Init`, and a failed creation is tried again by every later `Connect`.
+  `Disconnect` is retail's order (`FUN_10003ae0`): the DP8 client is reset first (`Close`,
+  re-create, `Initialize`, a synthetic `USERCANCEL` terminate written into Q1), then Q1 is drained
+  with the shutting-down flag, which the terminate slot ignores, so the next `DispatchQueue`
+  raises a `DisconnectEv` (0x1301), then the service object's destructor resets and closes again
+  (three `Close` calls); a `Disconnect` made while Q1 drains is deferred until the drain ends. A
+  failed `CONNECT_COMPLETE` or a `TERMINATE_SESSION` destroys the same object from its own sink
+  slot. Control frames of type 0 call `GetConnectionInfo` and type 1 reset the keep-alive
+  (`0xFFFFFFFF` or 15000) as retail does; their sinks are stubs, and the elapsed-time doubles
+  `FUN_1003da50` keeps are not modelled. `GetTicket` after a failed `LaunchTicketData` read: retail
+  keeps a half-filled cache (the next call encrypts uninitialised bytes and answers `S_OK`), the
+  port reads the registry again. The private interfaces `IGunUnknown_eeeeee28` and
+  `b0a7e593` (`QueryInterface`), the queue's event handle (`FUN_10039780`, never signalled) and
+  the thread pool's `Close` wrapper (0x1003b620, no caller) are not answered or ported. The
+  `CONNECT_COMPLETE` reply-data replay (`reply.vtable[0]`) stays a no-op.
+  (4) Crash paths of retail are defined: list rows (15 classes: a row missing an attribute leaves
+  retail a NULL array and a stale count), a `HostData`/`MHostData` `Item` without `ItemId` or `Num`
+  (retail's render dereferences the NULL block; the port prints the empty block), events with `m_bInited` 0 (retail reads
+  uninitialised stack), a NULL ticket or context, a ticket shorter than 0xCC, a NULL extra blob in
+  `HearTell`, and the 0xFFFE/0xFFFF send-length wrap are handled instead of read through; a
+  control frame of type 2..998 is dropped where retail hangs. A tell or room event
+  without `Extra` (retail's `HearTell`/`HearFromRoom` dereference NULL) is taken as no metas; a
+  `PresentTicket` ticket under 0xCC bytes (retail reads the two words that decide "encrypt again"
+  past its heap block) reads them as zero, so it is encrypted (a ticket `GetTicket` already
+  encrypted goes out as its plaintext); a result whose `Cx` matches no pending context is ignored
+  where retail would use or release a pointer.
+  (5) `GetNews` and `CreateGame` are not ported (`E_NOTIMPL`; the client never calls them).
+  (6) Pumping: retail's `CheckForMessages` (`gmClient::UseTime`, every frame) drives
+  `CGun::DispatchQueue`, which calls `DoWork` on the DP8 thread pool; DP8's own timer wheel ran
+  every 4 ms on its worker threads, here its timers advance only when `DispatchQueue` runs, so
+  their granularity is the frame time (no separate pump thread).
+  (7) `StartupGUN`'s two wait loops (no timeout, `KeepUIAlive` + `CheckForMessages`) are
+  `GunClient::connect`, one iteration per frame while the pregame screen runs; the game logon is
+  held (`OnlineSession::connect_held`) and starts, with `InitAuth`'s credential, when it answers
+  (`gmClient::Connect`'s order). A failed start stays failed: the `NetError` goes to the
+  connecting screen once and the logon never starts, as `Connect` returns before
+  `Turbine::Client::Connect`; a false `InitAuth` is `ID_ConnectionError_Generic` (Legions
+  `DAT_00AF596C/70`). Retail's `UseTime` poll does not run while the loops spin and does not
+  here. `ui_alive` (`RealClient::KeepUIAlive`) is always true: closing the window ends the
+  process, so the `!KeepUIAlive` failure branches cannot be reached.
+  (8) What the `CCli*` handlers do inside `DispatchQueue` is split. The `CM_UI` notices that
+  have a gmClient receiver (`GunReconnected` 0x46B, `GunAuthenticated` 0x46C) run at once, so
+  the re-authentication happens inside `DispatchQueue` as in retail. The calls into the player's
+  script (`Result_*`, `GUNEvent_*`, `HearTell`, `GUNEvent_HearFromRoom`,
+  `GUNHandleReauthentication`) and the lines of `gmUIFlow`/`gmClient` are recorded
+  (`GunOutput`) and carried out right after `CheckForMessages` returns, in order, in the same
+  frame. Retail makes them synchronously from inside the handler; the handler is reached from
+  `Client::use_time` holding `&mut Client`, and running the VM needs that whole client (session,
+  script state, loader), so a handler cannot be given it without `unsafe` (the crate forbids
+  it) or sharing every one of those through `Rc<RefCell<..>>`. `GunConnected`
+  (0x469, no handler) and the `ConnectionLost` notice are recorded likewise.
+  (9) `RequestGUN_SendToRoom` with Turbine chat (`CharacterSet.m_fUseTurbineChat` or
+  `-tchat`; the client no longer forces Turbine chat on, as retail does not) records the
+  `CSendToTurbineRoomByID` call (the chat client is the session's) and returns 1 when the chat
+  client exists (in the world) and 0 otherwise; the session's send cannot fail. The context is
+  kept and answered by the chat reply (`OnSendToRoomByIDResult` -> `Result_SendToRoom`). With no
+  `TurbineGun` and no Turbine chat it returns a non-zero stand-in for retail's `arg2` pointer.
+  (10) Options: `-gunport` is `sscanf("%hu")` as retail's type word 0x62 (decimal, no digits is
+  an error). `-tchat` (also `Client+0xB0`) and `-tchatdll` (`Client+0xB4`) are
+  `Turbine::Client` options; `-tchatdll` is stored but there is no chat DLL to load (Turbine chat
+  is built in). `gmClient::Init`'s registry billing-migration check (`CheckForBillingMigration`
+  against `-migrationurl` with `-migration1Timeout`/`-migration2Timeout`) is not ported
+  (Turbine's billing service is gone); the options are parsed and kept. The local GUN port is
+  `Preferences::InqBool(0x4000000F, 0x41000001)` read from the user's preferences file, absent
+  being 0. `gmClient::RecvNotice_CharacterSet`'s trailing virtual call (`+0x9C`, after it sets
+  `S_fUseTurbineChatInsteadOfGUN`) is not modelled.
+  (11) Scripts' `gTurbineGunUtils::GetWorldName`/`GetWorldSuffix` read `S_pTurbineGun`'s names
+  as retail's do, so without `-gunserver` (the default) they are empty strings (the client's own
+  `world_name` still feeds the assistance page). The GUN failure strings
+  (`ID_DataPatch_GUNFailed`, `ID_DataPatch_GUNAccountBanned`, table 0x41000018) reach the
+  connecting screen as a `NetError::Server`; the lines of `gmClient`/`gmUIFlow`
+  (`ID_GunReAuthenticationFailed`, `ID_CHAR_ERROR_GUN_SERVER_DOWN`/`_LOST`) are shown as chat
+  lines (the retail UI sink is unresolved, and the flow state "data patch" is read as "the logon
+  has not connected"). `ID_GunReAuthenticationFailed` is preferred when it is in the DATs
+  (`StringInfo::IsOnDisk`).
+- Exception: `/saveui [name]` and `/loadui [name]` come from the 2013 relaunch client (build 0930)
+  and are added to this 7230 client natively; 7230's player script (`CPlayer` 0x121) and DATs
+  have neither. Retail 0930 registered them in the player script's command registry (the
+  function that registers `/loc`; `AddShellCmdByStringID` 0x7f003c / `AddShellHelpByStringID`
+  0x7f003e, commands table 0x250007c7): `saveui` (string 0xAEA028AE) -> `CPlayer` 0x1F5, help
+  0x1F6; `loadui` (0x6B60A95F) -> 0x1F8, help 0x1F7. Those ids mean other functions in 7230's
+  wlib, so the commands use their own handler ids (`ac2_weenie::chat_handler::SAVE_UI` /
+  `LOAD_UI`, outside the `CPlayer` range) and `ChatCommands::register_client_commands` adds the
+  names and usage texts ("usage: /saveui < filename > (filename is optional)"). `saveautoui`
+  and `loadautoui` are in 0930's table but never registered; not ported. The handlers take the
+  name from one argument or use "UI-Default" (script literal 998), show "Saving UI to file
+  <name>.txt." (string 0xC109BBD2) or, for `/loadui <name>`, "Loading UI from file <name>.txt."
+  (0x6F243A7C) with display type 8, and run efun 0x85001C (save, notice 0x4A5) or 0x85001D
+  (load); more than one argument shows the usage. Turbine's bug is kept: `/loadui` with no
+  name prints the saving message. The listener is `gmGameplayUI` 0x442540 (path: `"%s%s.txt"`,
+  directory and name; the unreachable empty-name form `"%sUI-%s-%s-%d-%d.txt"` is not
+  ported), 0x443030 (save) and 0x442D40 (load), in `ac2_ui::ui_layout`. Save writes, for
+  SocialField, QuestField, SkillField, NavigationField, ExaminationField and ChatWindow1..4 in
+  that order, `"<SOCIA> X:%d Y: %d W: %d H: %d\n"` (tags <SOCIA> <QUEST> <SKILL> <NAVIG>
+  <EXAMI> <CHAT1>..<CHAT4>) with `UIRegion::GetScreenX0` / `GetScreenY0` and the box width and
+  height (x1 - x0 + 1, y1 - y0 + 1). Load reads each line by `sscanf("%s X:%d Y: %d W: %d H:
+  %d")`, skips a line that does not give 5 values or whose tag is none of the nine, then
+  `UIElement::ResizeTo(W, H)` and `UIElement::MoveTo(X, Y)`. Differences: (1) retail wrote and
+  read beside the game's working folder; the client keeps the files in the `ui` folder of the
+  player's AC2 directory (`ac2_prefs::paths::config_dir`, where the window positions live), and
+  the name is made safe so it cannot leave that folder (path separators, drive colons, wildcard
+  and control characters become `_`, leading dots too, so no `..`). (2) Retail looked each
+  window up with no null check; a window the HUD does not have is skipped. (3) Retail's
+  `MoveTo(X, Y)` of a window inside a panel took the saved screen place as the parent-relative
+  box (`UIRegion::MoveTo` sets `m_box` in the parent's coordinates, `GetScreenX0` adds the
+  parents), so a load moved such a field off by its panel's place; in 7230's HUD the social,
+  quest, skill, navigation and examination fields are such children. The client moves a child
+  to the screen place it was saved at; a root window is moved as retail did. (4) After a load
+  the windows' places are recorded as a finished drag records them
+  (`UiTree::record_window_positions`, and the location upload of a window that saves its
+  location), so the per-character window positions keep them across a relog. A file error goes
+  to stderr (retail printed nothing).
+  Beyond 0930's nine lines the file holds the whole HUD layout of the style that wrote it
+  (`ac2_ui::ui_layout_text`, `Hud::save_ui_layout` / `load_ui_layout`), in lines 0930's
+  `sscanf` skips: `<STYLE> modern|classic`; a `<WIN> <layout>:<element> X:%d Y: %d W: %d H: %d`
+  line for every other movable top-level window (ids in hex, the `Tokenize` hash of its element
+  name, as the tree keeps no names; the pinned parts of the modern style are left out, their
+  place being their offset); and, in the modern style, a `<SET> key=value` line for every `HudLayout`
+  value an Edit layout preset saves (offsets, lock, vitals layout, chat settings, tabs and
+  pets mode, not the stored presets), the value escaping backslash and line breaks. A load of a file of
+  this style applies the settings as a preset load does (`HudLayout::replace_settings`, then
+  each part's `apply_layout`), then the other windows, then the nine (fields inside a panel
+  follow the panel), and keeps them like a drag and a preset load (window places recorded,
+  `HudLayout` marked for writing). A file of the other style, or without a `<STYLE>` line but with
+  window or setting lines, applies the nine and the windows this style also has, skips the
+  `<SET>` lines, and prints one chat line (display type 8) that it skipped the other style's
+  settings; a bare 0930 file loads silently. Unknown or malformed lines are skipped.
 - `crates/` is the client. `tools/` holds test tooling only; the world viewer is an offline
   harness and never connects to a server.
 - Close-out reports list `Retail Behavior traced:`, `Verification:` and `Known Gaps:`.

@@ -94,7 +94,7 @@ impl ShopUi {
                     precision: 2,
                 }
             };
-            let text = UiString::ui(id("ID_Store_Quantity"), vec![(id("Quantity"), quantity)]);
+            let text = UiString::ui(id("ID_Store_Quantity"), vec![(id("quantity"), quantity)]);
             tree.set_text(cost, &s.render_string(&text));
         }
         if let Some(stock) = tree.child_recursive(row, id("StockQuantity")) {
@@ -110,7 +110,7 @@ impl ShopUi {
                 }
             } else {
                 let quantity = SkillVar::Int(i64::from(sale.stock));
-                UiString::ui(id("ID_Store_Quantity"), vec![(id("Quantity"), quantity)])
+                UiString::ui(id("ID_Store_Quantity"), vec![(id("quantity"), quantity)])
             };
             if sale.status == 1 || sale.stock == 0 {
                 tree.set_state(stock, id(UNAVAILABLE));
@@ -145,7 +145,7 @@ impl ShopUi {
         } else {
             SkillVar::Int(i64::from(stock))
         };
-        let string = UiString::ui(id("ID_Store_Quantity"), vec![(id("Quantity"), quantity)]);
+        let string = UiString::ui(id("ID_Store_Quantity"), vec![(id("quantity"), quantity)]);
         tree.set_text(text, &s.render_string(&string));
     }
 

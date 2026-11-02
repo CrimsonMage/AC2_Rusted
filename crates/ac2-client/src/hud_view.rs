@@ -45,8 +45,10 @@ pub(crate) struct HudView {
     layer_roots: Vec<usize>,
     /// The window, in pixels.
     size: (u32, u32),
-    /// The HUD laid out over the whole window and drawn scaled ([`UiScale::fill`]).
+    /// The HUD laid out over the whole window and drawn scaled ([`UiScale::hud`]).
     pub(crate) scale: UiScale,
+    /// The UI scale setting the HUD is laid out at (`ac2_ui::ui_scale_pref`).
+    pub(crate) setting: ac2_ui::UiScaleSetting,
     pub(crate) dirty: bool,
     /// The sounds the UI's media played (`MD_Data_Sound`) until the audio sink takes them.
     pub(crate) sounds: Vec<u32>,
@@ -71,7 +73,7 @@ impl HudView {
     /// The render device's new size: every root placed again (`UIElement::UpdateSizeAndPosition`).
     pub(crate) fn resize(&mut self, width: u32, height: u32) {
         self.size = (width.max(1), height.max(1));
-        self.scale = UiScale::fill(self.size);
+        self.scale = UiScale::hud(self.size, self.setting);
         self.overlay.set_smooth(!self.scale.is_identity());
         let display = self.scale.display;
         if let Some((tree, _)) = &mut self.hud {
@@ -86,6 +88,18 @@ impl HudView {
             }
         }
         self.dirty = true;
+    }
+
+    /// The UI scale setting changed: the HUD is laid out again on the new logical display (the
+    /// windows keep their distance from the edges they were nearest, `window_positions.rs`
+    /// `anchored`). Whether it changed.
+    pub(crate) fn set_ui_scale(&mut self, setting: ac2_ui::UiScaleSetting) -> bool {
+        if self.setting == setting {
+            return false;
+        }
+        self.setting = setting;
+        self.resize(self.size.0, self.size.1);
+        true
     }
 
     /// The frame's UI actions (`IUIManager` start / stop: `UIElementManager::StartInput` /

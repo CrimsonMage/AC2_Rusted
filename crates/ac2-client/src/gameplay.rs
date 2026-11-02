@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use ac2_net::protocol::{ExaminationRequest, SelectionInfo};
 use ac2_script::host::skill_requests::SkillRequests;
-use ac2_script::host::{IFunArg, OutValue};
+use ac2_script::host::IFunArg;
 use ac2_ui::SavedWindow;
 use ac2_weenie::{SessionEvent, NO_SELECTION};
 
@@ -481,9 +481,9 @@ impl Client {
                         self.session.select(id)
                     }
                 }
-                Command::Examine(request) => self.session.examine(*request),
-                Command::StartExamination(context) => self.session.start_examination(*context),
-                Command::StopExamination => self.session.stop_examination(),
+                Command::Examine(request) => self.examine_request(*request),
+                Command::StartExamination(context) => self.start_examination_request(*context),
+                Command::StopExamination => self.stop_examination_request(),
                 Command::Say(text) => {
                     self.session.say(text);
                     Vec::new()
@@ -653,66 +653,12 @@ impl Client {
                     self.session.log_off_character();
                     Vec::new()
                 }
-                Command::MoveItem {
-                    item,
-                    from,
-                    from_slot,
-                    target,
-                    target_slot,
-                    quantity,
-                } => {
-                    let cell = self
-                        .player
-                        .as_ref()
-                        .and_then(|p| p.body.as_ref())
-                        .map(|b| b.physics.movement_state().cell_id);
-                    match cell {
-                        // No target: a drop on the ground, which names the landblock.
-                        Some(cell) if *target == 0 => {
-                            self.session
-                                .drop_item(*item, *from, *from_slot, cell, *quantity);
-                        }
-                        _ => self.session.move_item(
-                            *item,
-                            *from,
-                            *from_slot,
-                            *target,
-                            *target_slot,
-                            *quantity,
-                        ),
-                    }
-                    Vec::new()
-                }
-                Command::EquipItem { item, location } => {
-                    refused(self.session.equip_item(*item, *location))
-                }
-                Command::UnequipItem { item, target_slot } => {
-                    refused(self.session.unequip_item(*item, *target_slot))
-                }
-                Command::SetContainerOpen { container, open } => {
-                    self.session.set_container_open(*container, *open);
-                    Vec::new()
-                }
-                Command::LootAll(container) => {
-                    // `CPlayer` 0x157 -> `CInventorySystem` 0x1C sends the take-all of a
-                    // container the player has open and that lists something (its check,
-                    // 0x1E). The request is composed here and not by the script: the packet the
-                    // script's VM builds tags the ids 0x84 where the retail client's has 0x82,
-                    // and AC2e refuses it (`loot::decode`).
-                    let listed = self
-                        .session
-                        .inventory()
-                        .contents(*container)
-                        .is_some_and(|c| !c.items.is_empty() || !c.packs.is_empty());
-                    if listed {
-                        self.session.loot_all(*container);
-                    }
-                    Vec::new()
-                }
-                Command::TransmuteAll(container) => {
-                    self.session.transmute_all(*container);
-                    Vec::new()
-                }
+                Command::MoveItem { .. }
+                | Command::EquipItem { .. }
+                | Command::UnequipItem { .. }
+                | Command::SetContainerOpen { .. }
+                | Command::LootAll(_)
+                | Command::TransmuteAll(_) => self.inventory_command(command),
                 Command::OpenTrade(other) => {
                     self.session.open_trade(*other);
                     Vec::new()
@@ -850,6 +796,16 @@ impl Client {
         events
     }
 
+    /// `VisualDesc::GetTotalIconDesc` of object `id`'s local description: the layers of its
+    /// visual's DAT chain with the local layers on top (empty until the loader read the chain).
+    fn total_icon_layers(&self, id: u64, local: &ac2_physics::Appearance) -> Vec<(u32, u32, u32)> {
+        let parent = ac2_physics::Appearance {
+            icon: self.total_icons.get(&id).cloned().unwrap_or_default(),
+            ..ac2_physics::Appearance::default()
+        };
+        local.total_icon_layers(Some(&parent))
+    }
+
     /// The inventory for [`crate::ClientFrame::inventory`].
     pub(crate) fn inventory_frame(&self) -> InventoryFrame {
         let player = self.session.player().unwrap_or_default();
@@ -895,7 +851,7 @@ impl Client {
             items.push(ItemFrame {
                 id,
                 name: stats.display_name(stats.quantity as u32, tables),
-                icon_layers: object.appearance.icon.clone(),
+                icon_layers: self.total_icon_layers(id, &object.appearance),
                 stats,
             });
         }
@@ -1013,9 +969,11 @@ impl Client {
         if !self.scripts_own(function) {
             return None;
         }
-        let args = [IFunArg::Long(item), IFunArg::Out(OutValue::Word(0))];
-        self.call_ifun(function, &args)
+        // `ggmCWInterface::CallIFun_GetMaxPurchaseQuantity` pushes the return slot, then the item
+        // (two words) and reads the quantity back from the return slot (`*retval`): there is no
+        // out parameter.
+        self.call_ifun(function, &[IFunArg::Long(item)])
             .ok()
-            .map(|result| result.out_word(0))
+            .map(|result| result.retval as u32)
     }
 }

@@ -59,6 +59,8 @@ impl OnlineSession {
                         out.push(SessionEvent::Notice(refused));
                     }
                 }
+                ShellAction::SaveUiLayout { name } => out.push(SessionEvent::SaveUiLayout { name }),
+                ShellAction::LoadUiLayout { name } => out.push(SessionEvent::LoadUiLayout { name }),
                 ShellAction::Command {
                     handler,
                     text,

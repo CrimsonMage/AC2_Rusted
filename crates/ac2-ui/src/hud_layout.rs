@@ -64,6 +64,28 @@ impl HudLayout {
         names
     }
 
+    /// The settings a preset saves: every key that is not a saved layout's, in key order.
+    pub fn settings(&self) -> Vec<(&str, &str)> {
+        self.values
+            .iter()
+            .filter(|(k, _)| !k.starts_with(PRESET))
+            .map(|(k, v)| (k.as_str(), v.as_str()))
+            .collect()
+    }
+
+    /// `settings` made the settings, as a preset load does (the saved layouts kept, every other
+    /// key replaced). A key that is empty, holds `=` or a line break, or is a saved layout's is
+    /// left out.
+    pub fn replace_settings(&mut self, settings: &[(String, String)]) {
+        self.values.retain(|k, _| k.starts_with(PRESET));
+        for (k, v) in settings {
+            let key = k.trim();
+            if !key.is_empty() && !key.starts_with(PRESET) && !key.contains(['=', '\n', '\r']) {
+                self.values.insert(key.to_string(), v.clone());
+            }
+        }
+    }
+
     /// The settings (not the saved layouts) and the windows' places `windows` (window position
     /// lines) saved as the layout `name` (its `.`, `=` and line breaks made spaces), replacing one
     /// of that name. The name used, or `None` for an empty one.

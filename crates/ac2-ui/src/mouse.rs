@@ -253,6 +253,11 @@ impl UiTree {
             self.update_mouse();
             return;
         }
+        // A press in a window's header band moves it (modern exception).
+        if self.header_move_mouse_down(action) {
+            self.update_mouse();
+            return;
+        }
         let mut processed = false;
         let wheel = matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT);
         self.wheel_scrolled = false;

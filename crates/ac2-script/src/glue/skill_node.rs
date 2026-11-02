@@ -39,10 +39,7 @@ pub(crate) fn empty_node() -> SkillUiNode {
         dependencies: Vec::new(),
         is_passive: 0,
         untrainable: 0,
-        perk: match ac2_core::data_release() {
-            ac2_core::DataRelease::Release7230 => Some(0),
-            ac2_core::DataRelease::Legions => None,
-        },
+        perk: ac2_core::data_release().reads_7230_layouts().then_some(0),
     }
 }
 

@@ -8,7 +8,7 @@ use ac2_net::protocol::{
 
 use super::history::{ChatHistory, CommandHistory, HistoryList};
 use super::lines::*;
-use super::{expand_aliases, handler, process_text, ChatCommands, Parsed};
+use super::{expand_aliases, handler, process_text, ChatCommands, Parsed, UI_DEFAULT_NAME};
 use crate::notice::GameplayNotice;
 use crate::tables::StringTableIds;
 
@@ -22,6 +22,10 @@ pub enum ShellAction {
     /// `gmCWInterface::RequestGUN_SendToRoom`: `text` to chat room `room` with the script's
     /// chat flags; when it fails (no room, empty text) the script shows the chat-server line.
     SendToRoom { room: u32, text: String, flags: u32 },
+    /// `/saveui [name]` (0930 efun 0x85001C): write the HUD windows' places to the file `name`.
+    SaveUiLayout { name: String },
+    /// `/loadui [name]` (0930 efun 0x85001D): read them back.
+    LoadUiLayout { name: String },
     /// A registered command the port does not run natively: its `CPlayer` handler, the text
     /// after the command and the tokens (the command's first).
     Command {
@@ -283,6 +287,7 @@ impl ChatState {
                     out.push(self.channel(channel, text, tables));
                 }
             }
+            handler::SAVE_UI | handler::LOAD_UI => self.ui_layout(id, &args, &mut out),
             _ => out.push(ShellAction::Command {
                 handler: id,
                 text,
@@ -290,6 +295,35 @@ impl ChatState {
             }),
         }
         out
+    }
+
+    /// 0930's `CPlayer` 0x1F5 (`/saveui`) and 0x1F8 (`/loadui`): more than one argument shows the
+    /// usage; otherwise the name is the argument or `UI-Default`, the "Saving UI to file
+    /// <name>.txt." line is shown (display type 8) and the save or load follows. Turbine's
+    /// `/loadui` shows the saving line too (and has no loading line for an unnamed load; the
+    /// loading line 0x6F243A7C is used only with a name): kept as it is.
+    fn ui_layout(&self, id: u32, args: &[String], out: &mut Vec<ShellAction>) {
+        if args.len() > 2 {
+            out.push(self.help(id));
+            return;
+        }
+        let named = args.get(1);
+        let name = named.map_or(UI_DEFAULT_NAME, String::as_str).to_owned();
+        let saving = id == handler::SAVE_UI || named.is_none();
+        let verb = if saving {
+            "Saving UI to"
+        } else {
+            "Loading UI from"
+        };
+        out.push(show(
+            KIND_INFO,
+            literal(&format!("{verb} file {name}.txt.\n")),
+        ));
+        out.push(if id == handler::SAVE_UI {
+            ShellAction::SaveUiLayout { name }
+        } else {
+            ShellAction::LoadUiLayout { name }
+        });
     }
 
     /// `CPlayer` 0x131: the name runs to the first token ending in `,` (or is the first

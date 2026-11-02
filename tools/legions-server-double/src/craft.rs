@@ -15,7 +15,7 @@
 
 use ac2_net::protocol::{CraftMessage, ScriptRequest};
 
-use crate::items::{item_object_bytes, ItemSpawn};
+use crate::items::ItemSpawn;
 use crate::State;
 
 /// The first id of a crafted item (`answer_execute` counts up from it).
@@ -94,7 +94,7 @@ impl State {
             "Crafted item",
             self.player(),
         );
-        self.send_event(&item_object_bytes(&item));
+        self.send_item_object(&item);
         let items = &mut self
             .script_world
             .contents

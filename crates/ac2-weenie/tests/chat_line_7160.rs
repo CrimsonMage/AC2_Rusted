@@ -167,7 +167,9 @@ fn chat_lines_send_what_their_commands_send() {
     for unit in "hi team".encode_utf16() {
         payload.extend(unit.to_le_bytes());
     }
-    words(&mut payload, &[16, 1, 0, 1, 0]);
+    // The blob's length, then `GunChatExtraInfo`: u16 version 1, u16 misc 0 (one word), the
+    // weenie flags, the empty string.
+    words(&mut payload, &[12, 1, 1, 0]);
     let mut packet = Vec::new();
     words(&mut packet, &[3, 2, 1, 0, 0, 0, 0, payload.len() as u32]);
     packet.extend(payload);

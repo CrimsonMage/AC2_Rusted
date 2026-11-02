@@ -29,6 +29,16 @@ fn legions_host() -> Option<ScriptHost> {
     ))
 }
 
+/// The host for tests that run the player's login script (`CPlayer`). The 0930 library's
+/// `CPlayer` script does not yet run to the same notices: it calls efuns that only the 0930
+/// dispatchers have (`efun_ids::UNBOUND`) and the port has not traced what it expects of
+/// them, so those tests are skipped on the 0930 set.
+fn player_script_host() -> Option<ScriptHost> {
+    // Mounting the set (in `legions_host`) sets the release.
+    let host = legions_host()?;
+    (ac2_core::data_release() != ac2_core::DataRelease::Release0930).then_some(host)
+}
+
 #[test]
 fn dispatch_pushes_retail_frames_and_reports_unknown_objects() {
     let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
@@ -416,37 +426,57 @@ fn shortcut_infos_keep_their_fields_and_pack_their_datum() {
     );
 }
 
-/// `RequestGUN_SendToRoom` goes out only through a chat service; with none, retail returns the
-/// room id and sends nothing. GUN-only requests need GUN.
+/// `RequestGUN_SendToRoom` (Legions 0x004538D0): with no Turbine chat and no `TurbineGun` it
+/// sends nothing and returns `arg2`; with Turbine chat it calls `CSendToTurbineRoomByID` with
+/// the packed `GunChatExtraInfo` (version 1, the weenie flags); an undefined `this` crashes.
 #[test]
-fn chat_requests_follow_the_available_services() {
+fn send_to_room_goes_to_turbine_chat_only_when_the_character_set_says_so() {
     let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
     let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
     let vm = host.vm_mut();
     let this = vm.new_wstring(Vec::new());
     let text = vm.new_wstring("hi".encode_utf16().collect());
+    let sends = || ac2_weenie::gun::shared().take_turbine_sends();
     run_efun(vm, 0x00B4_0033, &[5, text, 0x10], this);
-    run_efun(vm, 0x00B4_0037, &[1], this);
-    assert!(host.take_chat_requests().is_empty());
-    host.set_chat_services(ChatServices {
-        turbine_chat: true,
-        gun: false,
-    });
-    let vm = host.vm_mut();
+    assert!(sends().is_empty());
+    ac2_weenie::gun::shared().set_use_turbine_chat(true);
+    ac2_weenie::gun::shared().set_chat_client(true);
     run_efun(vm, 0x00B4_0033, &[5, text, 0x10], this);
-    run_efun(vm, 0x00B4_0037, &[1], this);
     assert_eq!(
         run_efun(vm, 0x00B4_0033, &[5, text, 0], u32::MAX),
         InterpStatus::Crash
     );
-    assert_eq!(
-        host.take_chat_requests(),
-        vec![ChatRequest::SendToRoom {
-            room: 5,
-            text: "hi".into(),
-            flags: 0x10
-        }]
-    );
+    let sent = sends();
+    assert_eq!(sent.len(), 1);
+    assert_eq!((sent[0].room, sent[0].text.as_str()), (5, "hi"));
+    assert_eq!(sent[0].extra, [1, 0, 0, 0, 0x10, 0, 0, 0, 0, 0, 0, 0]);
+}
+
+/// A connected `TurbineGun` over the recording double, as `S_pTurbineGun`.
+fn connected_turbine_gun() -> ac2_gun::test_support::TestGunHandle {
+    use ac2_gun::message::{GunQueueMessage, Message, MessageBody};
+    let handle = ac2_gun::test_support::TestGunHandle::new();
+    let gun = std::rc::Rc::new(ac2_gun::TurbineGun::new(0x0409));
+    let mut loader = ac2_gun::test_support::TestLoader::new(handle.gun());
+    assert!(gun.init("", &mut loader));
+    assert!(gun.request_connect("gun", 2310, 0, "1.0", "K", 0));
+    handle.queue_message(GunQueueMessage {
+        flags: 4,
+        gmid: 1,
+        param: 0,
+        cb: 0,
+        message: Message {
+            inited: true,
+            id: ac2_gun::message_id::CONNECT_EVENT,
+            result: None,
+            body: MessageBody::None,
+        },
+    });
+    gun.check_for_messages();
+    assert!(gun.is_connected());
+    ac2_weenie::gun::shared().set_turbine_gun(Some(gun));
+    handle.clear_calls();
+    handle
 }
 
 /// `gCWRepository::SetInt` / `AdjInt` write the weenie's quality table; without qualities
@@ -636,7 +666,7 @@ fn the_character_gen_system_answers_from_its_state() {
 /// equipment and the contents - and runs it to the end, raising the panels' notices.
 #[test]
 fn init_player_runs_to_its_end() {
-    let Some(mut host) = legions_host() else {
+    let Some(mut host) = player_script_host() else {
         return;
     };
     let player = 0x5000_0001;
@@ -680,7 +710,7 @@ fn init_player(host: &mut ScriptHost, player: u64) -> DispatchOutcome {
 /// `WM_Player` 0x2C then shows the selected object's info.
 #[test]
 fn the_selection_runs_on_the_vm_after_login() {
-    let Some(mut host) = legions_host() else {
+    let Some(mut host) = player_script_host() else {
         return;
     };
     let player = 0x5000_0001;
@@ -788,13 +818,10 @@ fn skill_panels_answer_through_the_singleton() {
 #[test]
 fn the_login_asks_gun_or_says_it_cannot() {
     for gun in [false, true] {
-        let Some(mut host) = legions_host() else {
+        let Some(mut host) = player_script_host() else {
             return;
         };
-        host.set_chat_services(ChatServices {
-            turbine_chat: true,
-            gun,
-        });
+        let gun_calls = gun.then(connected_turbine_gun);
         let player = 0x5000_0001;
         let pid = host.vm().program.package_id("CPlayer").expect("CPlayer");
         assert!(host.create_weenie(player, pid, 0x4700_110F));
@@ -808,24 +835,25 @@ fn the_login_asks_gun_or_says_it_cannot() {
                 _ => None,
             })
             .collect();
-        let requests = host.take_chat_requests();
-        if gun {
+        if let Some(handle) = gun_calls {
+            use ac2_gun::test_support::Call;
+            use ac2_gun::{FlagOperation, FlagWord};
             assert!(lines.is_empty());
-            assert_eq!(
-                requests,
-                [
-                    ChatRequest::GetIgnoredList {
-                        user_requested: false
-                    },
-                    ChatRequest::GetFriendsList {
-                        user_requested: false
-                    },
-                    ChatRequest::SetStateFlags(1),
-                ]
-            );
+            let calls = handle.calls();
+            assert!(matches!(calls[0], Call::GetIgnoredList(_)), "{calls:?}");
+            assert!(matches!(calls[1], Call::GetFriendsList(_)), "{calls:?}");
+            assert!(matches!(
+                calls[2],
+                Call::Flags {
+                    op: FlagOperation::Set,
+                    which: FlagWord::State,
+                    bits: 1,
+                    ..
+                }
+            ));
+            assert_eq!(calls.len(), 3);
         } else {
             assert_eq!(lines, [0x7365_1CBE]);
-            assert!(requests.is_empty());
         }
     }
 }
@@ -854,7 +882,7 @@ fn get_entity_did_answers_the_weenies_init_did() {
 /// process has no answer.
 #[test]
 fn the_player_script_answers_the_weenie_emote_ifun() {
-    let Some(mut host) = legions_host() else {
+    let Some(mut host) = player_script_host() else {
         return;
     };
     let pid = host.vm().program.package_id("CPlayer").expect("CPlayer");

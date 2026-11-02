@@ -46,23 +46,9 @@ impl InventorySource for ClientPlayer<'_> {
                 .as_ref()
                 .is_some_and(|p| p.id == container);
         if is_player {
-            // The script's answer; on AC2e's logon unless it has lost an item the session's mirror
-            // of the server's messages lists, over all its segments (the order and the paging are the script's).
-            // The script follows the messages through request-side state (`CInventorySystem` 0xE
-            // keeps a pending move the request sets), which a request sent natively does not
-            // set, so after a reorganization it can lose the item; the mirror, which the
-            // server's messages set, is then what the panel shows.
-            let mut script = self.client.borrow_mut();
-            if let Ok(info) = script.contents_info(segment) {
-                let listed: Vec<u64> = (0..4)
-                    .filter_map(|s| script.contents_info(s).ok())
-                    .flat_map(|i| i.0)
-                    .collect();
-                if !script.session().ac2e_logon()
-                    || inventory.pack.items.iter().all(|i| listed.contains(i))
-                {
-                    return info;
-                }
+            // The player's script answers for the player, over all its segments.
+            if let Ok(info) = self.client.borrow_mut().contents_info(segment) {
+                return info;
             }
         }
         let found = if is_player {

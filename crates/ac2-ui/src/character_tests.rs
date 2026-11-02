@@ -191,7 +191,7 @@ fn the_page_lists_the_expanders_and_options_in_setup_order() {
     let page = hud.character.take().expect("CharacterPage");
     // 7230's page has the classic examination after the pet panel (7230 `Setup` 0x00447D85).
     let mut order = ORDER.to_vec();
-    if ac2_core::data_release() == ac2_core::DataRelease::Release7230 {
+    if ac2_core::data_release().reads_7230_layouts() {
         let at = order
             .iter()
             .position(|n| *n == "ID_Option_ShowPetUI")

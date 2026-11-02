@@ -151,7 +151,7 @@ fn view_store_lists_the_sales_in_order_with_their_prices() {
     let price = |quantity: SkillVar| {
         s.render_string(&UiString::ui(
             tokenize("ID_Store_Quantity"),
-            vec![(tokenize("Quantity"), quantity)],
+            vec![(tokenize("quantity"), quantity)],
         ))
     };
     let rows: Vec<usize> = ITEMS
@@ -175,7 +175,7 @@ fn view_store_lists_the_sales_in_order_with_their_prices() {
         text_of(tree, rows[1], "StockQuantity"),
         s.render_string(&UiString::ui(
             tokenize("ID_Store_Quantity"),
-            vec![(tokenize("Quantity"), SkillVar::Int(2))],
+            vec![(tokenize("quantity"), SkillVar::Int(2))],
         ))
     );
     assert_eq!(

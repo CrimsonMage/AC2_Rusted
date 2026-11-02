@@ -62,7 +62,7 @@ fn a_countdown_shows_its_time_and_the_global_loop_counts_it_down() {
     let strings = Strings;
     let tree = &mut hud.tree;
 
-    // A text node, then a countdown of 61 seconds at time 1000.
+    // A text node, then a countdown ending at 1061 (61 seconds left) at time 1000.
     panel.update_profile(
         tree,
         &strings,
@@ -74,7 +74,7 @@ fn a_countdown_shows_its_time_and_the_global_loop_counts_it_down() {
             },
             ExaminationItem::Countdown {
                 appearance: 0,
-                seconds: 61.0,
+                end: 1061.0,
             },
         ],
         (0x203, 0x203),
@@ -321,7 +321,7 @@ fn the_classic_option_switches_the_panel_between_its_lists() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    if ac2_core::data_release() != ac2_core::DataRelease::Release7230 {
+    if !ac2_core::data_release().reads_7230_layouts() {
         return;
     }
     let store = Arc::new(ResourceStore::new(dataset));

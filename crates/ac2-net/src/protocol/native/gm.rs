@@ -200,9 +200,10 @@ impl SkillUiNode {
             dependencies: words(r)?,
             is_passive: r.u32()?,
             untrainable: r.u32()?,
-            perk: match ac2_core::data_release() {
-                ac2_core::DataRelease::Release7230 => Some(r.u32()?),
-                ac2_core::DataRelease::Legions => None,
+            perk: if ac2_core::data_release().reads_7230_layouts() {
+                Some(r.u32()?)
+            } else {
+                None
             },
         })
     }

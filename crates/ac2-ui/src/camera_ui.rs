@@ -76,6 +76,13 @@ impl CameraUi {
         self.update_camera()
     }
 
+    /// The right-hold look (a client improvement, `Controls::start_right_look`): mouse look wanted
+    /// or not, then `UpdateCamera`.
+    pub fn set_want_mouse_look(&mut self, want: bool) -> CameraUiEffect {
+        self.want_mouse_look = want;
+        self.update_camera()
+    }
+
     /// `ListenToMessage` for a UI action starting or stopping.
     pub fn action(&mut self, action: u32, start: bool) -> Option<CameraUiEffect> {
         let extent = if start { 1.0 } else { 0.0 };

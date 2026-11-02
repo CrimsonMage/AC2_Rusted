@@ -15,7 +15,7 @@
 
 use ac2_net::protocol::{InstanceIdWithStamp, QualityUpdate, QualityValue};
 
-use crate::items::{item_object_bytes, ItemSpawn};
+use crate::items::ItemSpawn;
 use crate::objects::{weenie_object_bytes, ObjectSpawn};
 use crate::{State, FELLOW};
 
@@ -140,7 +140,7 @@ impl State {
             });
         }
         for item in loot {
-            self.send_event(&item_object_bytes(item));
+            self.send_item_object(item);
         }
         let world = &mut self.script_world;
         world.capacities.insert(id, CORPSE_CAPACITY);

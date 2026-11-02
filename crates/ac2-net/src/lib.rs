@@ -12,7 +12,6 @@ mod client;
 mod controller;
 mod error;
 mod flow;
-pub mod gun;
 mod handshake;
 mod header;
 pub mod iid;

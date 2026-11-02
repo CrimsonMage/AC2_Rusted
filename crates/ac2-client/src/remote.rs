@@ -60,6 +60,11 @@ fn describer(session: &OnlineSession) -> impl Fn(&mut PhysicsBody, u64) + '_ {
     move |body, id| {
         if let Some(object) = session.objects().get(id) {
             body.set_description_physics(&object.physics);
+            // `CWPhysicsObject::InitPhysics`: the weenie's `Scale` quality (0x12A, 1.0 when it has
+            // none) goes to the body as `CWRepository::BuildPhysObjProfile`'s `_scale` and
+            // `CPhysicsObj::ApplyPhysObjProfile`'s `SetScale(float)`. (The profile's state bits
+            // and placement frame are not applied yet.)
+            body.set_uniform_scale(object.qualities.inq_float(0x12A).unwrap_or(1.0));
             crate::motion::describe(
                 body,
                 object.mode.unwrap_or(0),
@@ -204,6 +209,7 @@ impl RemoteCalls for Remotes {
             fx_follow,
             alpha_moves: start.alpha_moves,
             behavior: start.behavior,
+            collision: start.collision,
         };
         let effects = {
             let describe = describer(cx.session);

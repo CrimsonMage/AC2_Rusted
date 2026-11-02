@@ -19,7 +19,7 @@ use ac2_net::protocol::{
 };
 
 use crate::corpse::{CORPSE, MONSTER_CORPSE_TARGET};
-use crate::items::{item_object_bytes, ItemSpawn};
+use crate::items::ItemSpawn;
 use crate::{State, PLAYER};
 
 /// The butchery tool in the player's pack, and the skin a butchered corpse gives.
@@ -54,7 +54,7 @@ impl State {
             entity: Some(BUTCHERY_TOOL_ENTITY),
             ..ItemSpawn::new(BUTCHER_KNIFE, ITEM_PACKAGE, "Butchering Knife", PLAYER)
         };
-        self.send_event(&item_object_bytes(&knife));
+        self.send_item_object(&knife);
         for (quality, value) in [
             (ENTITIES_USED_WITH, QualityValue::Int(1)),
             (INVENTORY_REQUIRED, QualityValue::Bool(1)),
@@ -129,7 +129,7 @@ impl State {
             value: 25,
             ..ItemSpawn::new(BUTCHER_SKIN, ITEM_PACKAGE, "Mimbu Skin", player)
         };
-        self.send_event(&item_object_bytes(&skin));
+        self.send_item_object(&skin);
         self.script_world
             .contents
             .entry(player)

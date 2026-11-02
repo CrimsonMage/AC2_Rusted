@@ -185,13 +185,31 @@ impl PlayerScript {
         out
     }
 
-    /// The selection as `CPlayer` 0x6A leaves it, without its messages or notices (the script
-    /// VM sent them).
-    pub fn mirror_selection(&mut self, id: u64) {
-        if self.selection != id {
-            self.last_selection = self.selection;
-            self.selection = id;
+    /// The selection as `CPlayer` 0x6A leaves it, without its `SetTarget` or notices (the script
+    /// VM sent them), and the examination request the selection changes (`CPlayer` 0xE6, as
+    /// [`Self::set_selection`] sets it): an object's profile is the server's, so the stand-in
+    /// keeps the request and asks the server for it while the examination panel shows. Returns
+    /// the server requests that asks for.
+    pub fn mirror_selection(&mut self, id: u64, combat_target: bool) -> Vec<ScriptRequest> {
+        if self.selection == id {
+            return Vec::new();
         }
+        self.last_selection = self.selection;
+        self.selection = id;
+        let mut out = ScriptOutput::default();
+        if id != NO_SELECTION {
+            let mut request = ExaminationRequest::object(id);
+            if combat_target {
+                request.kind = ExaminationRequest::OBJECT_EXTENDED;
+            }
+            self.set_examination_request(request, &mut out);
+        } else if matches!(
+            self.examination.kind,
+            ExaminationRequest::OBJECT | ExaminationRequest::OBJECT_EXTENDED
+        ) {
+            self.set_examination_request(ExaminationRequest::default(), &mut out);
+        }
+        out.requests
     }
 
     /// `CPlayer` 0xE6 (`SetExaminationRequest`, IFun `SetExaminationRequest`).
@@ -401,6 +419,35 @@ mod tests {
         assert!(matches!(
             out.notices[1],
             GameplayNotice::ExaminationRequestChanged(ExaminationRequest {
+                kind: ExaminationRequest::OBJECT_EXTENDED,
+                iid: 9,
+                ..
+            })
+        ));
+    }
+
+    /// The script VM owns `SetSelection`: the stand-in follows the selection and its examination
+    /// request, so the panel opening asks the server for the selected object's profile.
+    #[test]
+    fn a_selection_the_vm_made_is_examined_when_the_panel_shows() {
+        let mut script = PlayerScript::default();
+        assert!(script.mirror_selection(7, false).is_empty());
+        assert_eq!(script.examination_request(), ExaminationRequest::object(7));
+        let out = script.start_examination(0x203);
+        assert_eq!(
+            out.requests,
+            vec![ScriptRequest::Examine(ExaminationRequest::object(7))]
+        );
+        // Another selection while examining stops the first and asks for the second.
+        let asked = script.mirror_selection(9, true);
+        assert_eq!(asked.len(), 2);
+        assert_eq!(
+            asked[0],
+            ScriptRequest::Examine(ExaminationRequest::default())
+        );
+        assert!(matches!(
+            asked[1],
+            ScriptRequest::Examine(ExaminationRequest {
                 kind: ExaminationRequest::OBJECT_EXTENDED,
                 iid: 9,
                 ..

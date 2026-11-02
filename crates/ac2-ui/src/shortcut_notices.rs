@@ -22,6 +22,9 @@ pub enum ShortcutCheck {
     Created(u64),
     /// `RecvNotice_RemoveRecipe(didRecipe)`.
     RemoveRecipe(u32),
+    /// `RecvNotice_UpdateAttackState(attacking)`: the attack buttons swap their ghosting and
+    /// the attack key's toggle follows.
+    AttackState(bool),
 }
 
 /// The bar's checks, in the order the notices arrived.
@@ -39,6 +42,7 @@ pub fn apply_shortcut_checks(
             ShortcutCheck::Item(item, pending) => bar.check_item(tree, source, item, pending),
             ShortcutCheck::Created(object) => bar.create_object(tree, source, object),
             ShortcutCheck::RemoveRecipe(did) => bar.remove_recipe(tree, source, did),
+            ShortcutCheck::AttackState(attacking) => bar.update_attack_state(tree, attacking),
         }
     }
 }
@@ -73,6 +77,9 @@ pub fn shortcut_checks_of(notice: &GameplayNotice) -> Vec<ShortcutCheck> {
         GameplayNotice::UpdateContainer { code, item, .. } => vec![items(*code, *item)],
         GameplayNotice::UpdateResetTime => vec![ShortcutCheck::Skills],
         GameplayNotice::CreateObject(object) => vec![ShortcutCheck::Created(*object)],
+        GameplayNotice::UpdateAttackState(attacking) => {
+            vec![ShortcutCheck::AttackState(*attacking)]
+        }
         GameplayNotice::RemoveRecipe(did) => vec![ShortcutCheck::RemoveRecipe(*did)],
         _ => Vec::new(),
     }

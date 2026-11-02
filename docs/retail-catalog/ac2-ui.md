@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1655 done, 0 partial, 0 to do, 592 skipped.
+2247 retail functions: 1656 done, 0 partial, 0 to do, 591 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (43/53)
@@ -1034,7 +1034,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
 - [x] `gmExaminationUI::ListenToMessage` · 00430c80 — ac2-ui examination.rs message + examination_tabs.rs: tab presses (Ctrl toggles bits) and SELECTION_NEXT/PREV_EXAM_TAB_KEY choose the filter and restart the examination with it (Legions 0x00431990, 0x00431900); wired in hud_message.rs; tests examination_tests.rs
 - [x] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80 — ac2-ui examination.rs + ac2-client ui_sources
-- [x] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — ac2-ui examination.rs layout per node type; countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client; type 5 images (AddImageToState, draw mode 0) and type 9 icon descriptions with every layer and shift colour (SetIconDesc, examination_tests.rs)
+- [x] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — ac2-ui examination.rs layout per node type; countdowns tick from the node's end time (TimeDisplay::Init m_endTime, ComputeTimeLeft against the global clock; QuestTimeDisplay, global loop); effect nodes expanded by the client; type 5 images (AddImageToState, draw mode 0) and type 9 icon descriptions with every layer and shift colour (SetIconDesc, examination_tests.rs)
 - [x] `gmExaminationUI::gmExaminationUI` · 004312e0 — ac2-ui examination.rs create: field, list, timers, hidden start, the four filter tabs (GeneralTab 0x203, DetailsTab 0x18C, EffectsTab 0x10, UsageTab 0x60) in the construction state (Legions 0x00431C40); ExaminationProfile now carries the trailing available-tabs word (ac2-net)
 - [x] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410 — ac2-ui examination.rs + ac2-client ui_sources
 
@@ -1612,7 +1612,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410 — ac2-ui social_page.rs SocialPanel: field shown/hidden, SocialButton toggle, SocialCloseButton, SocialHelpButton -> OpenHelp; child frameworks follow the field (allegiance follow_show_state), their elements live inside SocialField
 - [x] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470 — ac2-ui social_page.rs SocialPanel: field shown/hidden, SocialButton toggle, SocialCloseButton, SocialHelpButton -> OpenHelp; child frameworks follow the field (allegiance follow_show_state), their elements live inside SocialField
 
-## `ac2/client/src/ui/gmuiflow.cpp.c` (13/37)
+## `ac2/client/src/ui/gmuiflow.cpp.c` (14/37)
 
 ### gmUIFlow
 - [x] `gmUIFlow::~gmUIFlow` · 00405d80 · legions 00405a60 — ac2-ui pregame/flow.rs, pregame/ui.rs
@@ -1639,7 +1639,7 @@ Legend and workflow: [README](README.md).
 ### gmUIFlow
 - [x] `gmUIFlow::RecvNotice_CharacterError` · 00406220 — ac2-ui pregame/flow.rs, pregame/ui.rs
 - [x] `gmUIFlow::RecvNotice_ServerDied` · 00406410 — ac2-ui pregame/flow.rs, pregame/ui.rs
-- [-] `gmUIFlow::RecvNotice_GunConnectionLost` · 004064a0 — GUN chat servers are not used (Turbine chat)
+- [x] `gmUIFlow::RecvNotice_GunConnectionLost` · 004064a0 — GUN phase 3 (gun-phase3)
 - [x] `gmUIFlow::RecvNotice_CharacterError` · 00406af0 — ac2-ui pregame/flow.rs, pregame/ui.rs
 - [x] `gmUIFlow::RecvNotice_ServerDied` · 00406b00 — ac2-ui pregame/flow.rs, pregame/ui.rs
 - [x] `gmUIFlow::gmUIFlow` · 00406b10 — ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view

@@ -258,10 +258,31 @@ impl ClientView {
         size: (u32, u32),
         style: ac2_ui::HudStyle,
     ) -> Self {
+        Self::with_hud_options(
+            world,
+            gpu,
+            format,
+            radius,
+            size,
+            style,
+            ac2_ui::UiScaleSetting::default(),
+        )
+    }
+
+    /// [`Self::with_hud_style`] with the HUD at the UI scale `setting`.
+    pub fn with_hud_options(
+        world: Arc<Ac2WorldSource>,
+        gpu: &Gpu,
+        format: wgpu::TextureFormat,
+        radius: i32,
+        size: (u32, u32),
+        style: ac2_ui::HudStyle,
+        setting: ac2_ui::UiScaleSetting,
+    ) -> Self {
         let store = Arc::clone(world.resource_store());
         Self {
             block_size: world.block_size(),
-            hud: HudView::new(Arc::clone(&store), gpu, format, size, style),
+            hud: HudView::new(Arc::clone(&store), gpu, format, size, style, setting),
             deselect: false,
             doll: crate::paper_doll_scene::PaperDollScene::new(
                 Arc::clone(&store),
@@ -316,6 +337,24 @@ impl ClientView {
         }
         self.hud = self.hud.rebuilt(gpu, format, style);
         true
+    }
+
+    /// The logical display the HUD is laid out on, in UI pixels, and the window pixels each
+    /// UI pixel is drawn as.
+    pub fn hud_display(&self) -> ((u32, u32), f64) {
+        (self.hud.scale.display, self.hud.scale.scale)
+    }
+
+    /// The UI scale the HUD is laid out at.
+    pub fn ui_scale(&self) -> ac2_ui::UiScaleSetting {
+        self.hud.setting
+    }
+
+    /// Lays the HUD out again at the UI scale `setting` (the options page's `UiScale`). The
+    /// panels stay; windows keep their distance from the edges they were nearest. Whether it
+    /// changed.
+    pub fn set_ui_scale(&mut self, setting: ac2_ui::UiScaleSetting) -> bool {
+        self.hud.set_ui_scale(setting)
     }
 
     /// What the options pages' applies changed that the window or the scene must take: the scene's
@@ -438,6 +477,7 @@ impl ClientView {
         let update = self.scene.wait();
         self.renderer.apply(gpu, update);
         if let Some(camera) = self.camera(frame) {
+            self.scene.set_viewer_cell(frame.camera.map(|c| c.cell));
             self.scene.frame(&camera, aspect);
             let update = self.scene.wait();
             self.renderer.apply(gpu, update);
@@ -509,6 +549,8 @@ impl ClientView {
         self.follow_holders(&drawn, &mut frames, &mut placed);
         let placements = object_placements(&self.scene, &slots, &frames, &placed);
         self.scene.place_objects(&placements);
+        // `WorldRender::Render` gathers from the camera's own cell (`mRenderPosition`).
+        self.scene.set_viewer_cell(frame.camera.map(|c| c.cell));
         let scene_frame = self.scene.frame(&camera, aspect);
         let distances = viewer_distances(&drawn, &frames, camera.eye);
         let hover_opacity = self.player_hover.opacity();
@@ -546,6 +588,7 @@ impl ClientView {
                         drawn.cell & 0xFFFF >= FIRST_ENV_CELL,
                     ),
                     detail: lod.detail,
+                    cell: drawn.cell,
                 })
             })
             .collect();

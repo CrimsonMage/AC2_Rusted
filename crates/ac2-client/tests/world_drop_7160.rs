@@ -51,8 +51,11 @@ fn an_item_dropped_on_the_world_moves_to_the_ground() {
     );
     rig.release();
     // The sword was in slot 1 of the pack, dropped on the ground: the player's landblock (the
-    // double puts the player in 0xCB4D), no slot, one of it.
-    let expected = InvMoveDesc::new(SWORD, PLAYER, 1, 0xCB4D_0000, -1, 1).with_native_tags();
+    // double puts the player in 0xCB4D), as the script writes it for a move to the world (type
+    // 33, the UI's slot 0), one of it.
+    let expected = InvMoveDesc::new(SWORD, PLAYER, 1, 0xCB4D_0000, 0, 1)
+        .with_script_tags()
+        .with_move_type(33, 0);
     let sent = moves(&rig);
     assert_eq!(sent.len(), 1, "{sent:?}");
     assert_eq!(sent[0].0, expected);
@@ -92,7 +95,9 @@ fn a_stack_dropped_on_the_world_asks_how_many_first() {
     assert_eq!(sent.len(), 1, "{sent:?}");
     assert_eq!(
         sent[0].0,
-        InvMoveDesc::new(POTIONS, PLAYER, 0, 0xCB4D_0000, -1, 5).with_native_tags()
+        InvMoveDesc::new(POTIONS, PLAYER, 0, 0xCB4D_0000, 0, 5)
+            .with_script_tags()
+            .with_move_type(33, 0)
     );
 }
 

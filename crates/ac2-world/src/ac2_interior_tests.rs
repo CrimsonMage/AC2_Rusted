@@ -35,7 +35,10 @@ fn every_ac2_cell_mesh_structure_decodes_exactly() {
     let meshes = dataset
         .ids_in_range(DatFileKind::Portal, 0x0100_0000, 0x01FF_FFFF)
         .collect::<Vec<_>>();
-    assert_eq!(meshes.len(), ac2_dat::test_support::pinned(329, 335));
+    assert_eq!(
+        meshes.len(),
+        ac2_dat::test_support::pinned(329, 335, /*0930*/ 335)
+    );
     let mut portals = 0;
     for did in &meshes {
         let structure = world
@@ -56,7 +59,10 @@ fn every_ac2_cell_mesh_structure_decodes_exactly() {
             .expect("listed record exists");
         assert_eq!(mesh.vertices.len(), structure.positions.len());
     }
-    assert_eq!(portals, ac2_dat::test_support::pinned(934, 944));
+    assert_eq!(
+        portals,
+        ac2_dat::test_support::pinned(934, 944, /*0930*/ 944)
+    );
 }
 
 #[test]
@@ -65,7 +71,10 @@ fn every_ac2_env_cell_decodes_and_resolves_its_structure() {
         return;
     };
     let ids = cell_ids(&dataset, |low| (0x0100..0xFFFC).contains(&low));
-    assert_eq!(ids.len(), ac2_dat::test_support::pinned(57_984, 50_826));
+    assert_eq!(
+        ids.len(),
+        ac2_dat::test_support::pinned(57_984, 50_826, /*0930*/ 54494)
+    );
     let (mut outside, mut inside_own, mut with_key) = (0, 0, 0);
     for did in &ids {
         let cell = world
@@ -91,10 +100,13 @@ fn every_ac2_env_cell_decodes_and_resolves_its_structure() {
             .local_to_global_point(centre);
         inside_own += usize::from(world.env_cell_contains(&cell, world_centre).unwrap());
     }
-    assert_eq!(outside, ac2_dat::test_support::pinned(167, 164));
+    assert_eq!(
+        outside,
+        ac2_dat::test_support::pinned(167, 164, /*0930*/ 136)
+    );
     assert_eq!(
         with_key,
-        ac2_dat::test_support::pinned(36_654 - 1_464, 31_204)
+        ac2_dat::test_support::pinned(36_654 - 1_464, 31_204, /*0930*/ 32811)
     );
     assert!(
         inside_own * 10 > ids.len() * 9,
@@ -133,9 +145,15 @@ fn every_ac2_landblock_interior_and_light_info_decodes() {
         .count();
     assert!(ambient > 0, "no landblock interior kept its properties");
     // Two landblocks carry env cell records without a LandBlockInfo listing them.
-    assert_eq!(cells, ac2_dat::test_support::pinned(57_013, 50_448));
+    assert_eq!(
+        cells,
+        ac2_dat::test_support::pinned(57_013, 50_448, /*0930*/ 54548)
+    );
     let lights = cell_ids(&dataset, |low| low == 0xFFFC);
-    assert_eq!(lights.len(), ac2_dat::test_support::pinned(1_042, 929));
+    assert_eq!(
+        lights.len(),
+        ac2_dat::test_support::pinned(1_042, 929, /*0930*/ 590)
+    );
     let mut vertex_counts = HashMap::<DataId, usize>::new();
     let mut point_lights = 0;
     let mut coronas = Vec::new();
@@ -164,10 +182,16 @@ fn every_ac2_landblock_interior_and_light_info_decodes() {
             }
         }
     }
-    assert_eq!(point_lights, ac2_dat::test_support::pinned(39_859, 33_879));
+    assert_eq!(
+        point_lights,
+        ac2_dat::test_support::pinned(39_859, 33_879, /*0930*/ 35512)
+    );
     // `CEnvCell::CreateLightSource`: point lights with a corona texture draw a corona, each a
     // `RenderTexture`.
-    assert_eq!(coronas.len(), ac2_dat::test_support::pinned(3_125, 2_807));
+    assert_eq!(
+        coronas.len(),
+        ac2_dat::test_support::pinned(3_125, 2_807, /*0930*/ 2894)
+    );
     assert!(coronas
         .iter()
         .all(|c| c.texture.raw() >> 24 == 0x40 && c.size > 0.0 && c.fade_speed > 0.0));
@@ -348,9 +372,9 @@ fn every_static_light_of_the_dats_belongs_to_an_interior_cell() {
         }
     }
     assert_eq!(outdoor, 0);
-    assert_eq!(unlisted, 4);
+    assert_eq!(unlisted, ac2_dat::test_support::pinned(4, 4, 0));
     assert_eq!(
         interior,
-        ac2_dat::test_support::pinned(39_855 + 1_135 + 2, 34_819)
+        ac2_dat::test_support::pinned(39_855 + 1_135 + 2, 34_819, /*0930*/ 36228)
     );
 }

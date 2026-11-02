@@ -54,9 +54,13 @@ impl OnlineSession {
     }
 
     /// `CPlayer` 0x6A's state without its output: when the script VM runs `SetSelection`, the
-    /// stand-ins that still read the selection (use, combat checks) follow it.
+    /// stand-ins that still read the selection (use, combat checks, the examination request of
+    /// an object, whose profile the server sends) follow it.
     pub fn mirror_selection(&mut self, id: u64) {
-        self.script.mirror_selection(id);
+        let combat_target = self.is_combat_target(id);
+        for request in self.script.mirror_selection(id, combat_target) {
+            self.send(request.to_event());
+        }
     }
 
     /// `gmCWInterface::SetShortcut` -> `CPlayer` 0x87: the shortcut into slot `index` of the

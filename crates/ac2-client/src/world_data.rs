@@ -63,6 +63,12 @@ pub trait WorldServices: Send + Sync {
     fn class_defaults(&self, _did: u32) -> Option<Arc<ac2_weenie::WeenieQualities>> {
         None
     }
+    /// `VisualDesc::GetTotalIconDesc` of the DAT `VisualDesc` `visual` (its parent chain and its
+    /// icon atoms): the icon layers `ItemDisplay::Update` draws an item with (layer id, image,
+    /// shift colour); empty without any.
+    fn total_icon(&self, _visual: u32) -> Vec<(u32, u32, u32)> {
+        Vec::new()
+    }
     /// The region's ambient sound data, if it has any.
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {
         None
@@ -169,6 +175,15 @@ impl ac2_smartbox::ResidentWorld for DatWorld {
             .map_err(|e| e.to_string())
     }
 
+    fn camera_object_shape(&self) -> Result<Option<ac2_physics::BodyShape>, String> {
+        let Some(did) = ac2_smartbox::camera_collision::camera_object_did(&self.store)
+            .map_err(|e| e.to_string())?
+        else {
+            return Ok(None);
+        };
+        ac2_physics::load_body_shape(&self.store, did).map_err(|e| e.to_string())
+    }
+
     fn camera_fx(&self, did: u32) -> Result<Option<ac2_smartbox::camera_fx::CameraFx>, String> {
         let fx =
             ac2_smartbox::camera_fx::load_camera_fx(&self.store, did).map_err(|e| e.to_string())?;
@@ -192,6 +207,21 @@ impl WorldServices for DatWorld {
             current_table,
         )
         .map_err(|e| e.to_string())
+    }
+
+    fn total_icon(&self, visual: u32) -> Vec<(u32, u32, u32)> {
+        if visual == 0 {
+            return Vec::new();
+        }
+        ac2_assets::ac2_total_icon_desc(&self.store, ac2_core::DataId::new(visual), None)
+            .ok()
+            .flatten()
+            .map_or_else(Vec::new, |d| {
+                d.layers
+                    .iter()
+                    .map(|l| (l.layer_id, l.image, l.shift_color))
+                    .collect()
+            })
     }
 
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {

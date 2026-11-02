@@ -14,7 +14,7 @@
 use ac2_net::protocol::PackValue;
 use ac2_script::host::game_time::{GameDate, GameTimeRequest, GameTimeState};
 use ac2_script::host::lifecycle::ScriptLifecycle;
-use ac2_script::host::{ChatServices, IFunArg, ScriptHost, ScriptState};
+use ac2_script::host::{IFunArg, ScriptHost, ScriptState};
 use ac2_weenie::SessionEvent;
 
 use crate::client::Client;
@@ -52,6 +52,11 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_CONFIRM_USE,
     IFUN_STOP_ATTACKING,
     IFUN_STOP_ATTACKING_IF_AUTO_MOVING,
+    // The examination requests that are not an object's (an effect of the status bar): the
+    // player's script builds their profiles ([`crate::ui_examination`]).
+    ac2_script::host::interface_calls::ids::SET_EXAMINATION_REQUEST,
+    ac2_script::host::interface_calls::ids::START_EXAMINATION,
+    ac2_script::host::interface_calls::ids::STOP_EXAMINATION,
     // The pet panel's requests (`gmCWInterface::RequestPet*`, `RequestSetPetName`).
     IFUN_REQUEST_PET_ATTACK,
     IFUN_REQUEST_PET_BUFF,
@@ -164,6 +169,11 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_REQUEST_RAISE_SKILL,
     // The loot-all (`gmCWInterface::LootAllFromContainer`, see [`crate::gameplay`]).
     IFUN_LOOT_ALL_FROM_CONTAINER,
+    IFUN_MOVE_ITEM,
+    IFUN_EQUIP_ITEM,
+    IFUN_UNEQUIP_ITEM,
+    IFUN_UPDATE_OPEN,
+    IFUN_TRANSMUTE_ALL_FROM_CONTAINER,
     // The inventory queries (`gmCWInterface::DoIHaveItem`, `InqSimpleInvByLocTable`,
     // `InqAllInventoryIIDList`, `IsOnInventory`, see [`ac2_script::host::inventory_queries`]).
     ac2_script::host::inventory_queries::DO_I_HAVE_ITEM,
@@ -217,15 +227,8 @@ impl Client {
     /// `preload_states`) and set cache-only, and the client's `DatWorld` a clone of it
     /// (`DatWorld::with_script_data`): reads the VM misses go to the loader threads and the
     /// waiting calls resume when they land.
-    pub fn attach_scripts(&mut self, mut host: ScriptHost, functions: &[u32]) {
+    pub fn attach_scripts(&mut self, host: ScriptHost, functions: &[u32]) {
         self.session.set_script_functions(functions);
-        host.set_world_name(&self.world_name);
-        // Room chat goes through Turbine chat; a GUN server only when the client has one
-        // (`Client::set_gun_service`), as `gmClient::Init` builds `TurbineGun` for `-gunserver`.
-        host.set_chat_services(ChatServices {
-            turbine_chat: true,
-            gun: false,
-        });
         self.scripts = Some(ScriptState::new(host, functions));
         // Objects already known get their processes too.
         let known: Vec<u64> = self.session.objects().iter().map(|o| o.id).collect();

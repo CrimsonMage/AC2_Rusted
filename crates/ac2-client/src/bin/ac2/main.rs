@@ -46,7 +46,7 @@ use std::time::{Duration, Instant};
 
 use ac2_client::pregame_view::PregameView;
 use ac2_client::view::ClientView;
-use ac2_client::{frame_input, pick_targets, Client, Command, DatWorld, WindowPresentation};
+use ac2_client::{Client, Command, DatWorld, WindowPresentation};
 use ac2_gpu::{render_to, screenshot, Gpu};
 use ac2_net::Credential;
 use ac2_ui::{wheel_event_delta, Controls, InputEvent, SelectionUi, WheelAccumulator};
@@ -162,23 +162,6 @@ struct App {
     /// The server's host (as given, `--host`, else its address) and port
     /// (`Turbine::Client`'s host and port strings, which a failed connection's text names).
     server: (String, u16),
-    /// `gmClient::m_pTurbineGun`: the GUN service, when `-gunserver` started one.
-    gun: Option<ac2_client::gun_service::GunService>,
-}
-
-/// `gmClient::RecvNotice_WorldName`: the world's name also names the GUN world
-/// (`TurbineGun::SetWorldName`).
-fn gun_world_names(gun: &mut Option<ac2_client::gun_service::GunService>, events: &[SessionEvent]) {
-    let Some(gun) = gun.as_mut() else {
-        return;
-    };
-    for event in events {
-        if let SessionEvent::WorldName(info) = event {
-            if let Some(name) = info.literal.as_deref().filter(|n| !n.is_empty()) {
-                gun.set_world_name(name);
-            }
-        }
-    }
 }
 
 impl State {
@@ -314,59 +297,17 @@ impl App {
         let Some(state) = self.state.as_mut() else {
             return;
         };
-        // The UI tree takes the UI actions first; its messages reach the camera UI.
-        let ui_input = state.controls.take_ui_input();
-        let modifiers = state.controls.modifiers();
-        let mut messages = view.ui_input(&ui_input, modifiers);
-        // `gmUIFlow::ListenToMessage`: the screenshot key's release saves the frame below.
-        let screenshot = messages.iter().any(|message| {
-            message.message == ac2_ui::GLOBAL_KEY_RELEASE
-                && message.element.is_none()
-                && message.data as u32 == ac2_client::keys::SCREENSHOT_KEY
-        });
-        let (actions, characters, _) = state.controls.take_text_input();
-        messages.extend(view.text_input(&actions, &characters, modifiers));
-        for request in view.take_chat_requests() {
-            match request {
-                ac2_ui::ChatRequest::Line(line) => state.commands.push(Command::ChatLine(line)),
-                // `ChatWindow::DisplayCmdHistory` / `DisplayRetellHistory` /
-                // `DisplayReplyHistory`.
-                ac2_ui::ChatRequest::History { history, prev } => {
-                    let kind = match history {
-                        ac2_ui::ChatHistory::Command => ac2_weenie::ChatHistory::Command,
-                        ac2_ui::ChatHistory::Retell => ac2_weenie::ChatHistory::Retell,
-                        ac2_ui::ChatHistory::Reply => ac2_weenie::ChatHistory::Reply,
-                    };
-                    let Some(item) = self.client.session_mut().chat_history(kind, prev) else {
-                        continue;
-                    };
-                    if history == ac2_ui::ChatHistory::Command {
-                        view.set_chat_entry(&item);
-                    } else {
-                        view.assisted_tell(&item);
-                    }
-                }
-            }
-        }
-        let (stamp, now) = state.now();
-        state.controls.set_text_mode(view.text_mode(), stamp, now);
-        state.controls.set_ime_allowed(view.ime_allowed());
-        state.controls.set_copy_text(view.text_copy_focus());
-        state
-            .controls
-            .set_camera_keys_blocked(view.camera_keys_blocked());
-        state.controls.ui_messages(&messages, now);
-        let notices = view.take_mouse_look_notices();
-        let notices = notices
-            .into_iter()
-            .chain(self.client.take_mouse_look_notices());
-        state.controls.update_can_mouse_look(notices);
-        for message in &messages {
-            state.selection.message(message);
-        }
-        let mut input = frame_input(state.controls.frame());
-        input.commands.append(&mut state.commands);
-        let events = match self.client.use_time(&input) {
+        let clock = state.now();
+        let begun = ac2_client::world_input::begin_frame(
+            &mut state.controls,
+            &mut state.selection,
+            &mut state.commands,
+            view,
+            &mut self.client,
+            clock,
+        );
+        let screenshot = begun.screenshot;
+        let events = match self.client.use_time(&begun.input) {
             Ok(events) => events,
             Err(error) => {
                 eprintln!("ac2: {error}");
@@ -382,11 +323,6 @@ impl App {
             return;
         }
         show_world_names(&state.window, &events);
-        gun_world_names(&mut self.gun, &events);
-        if let Some(gun) = self.gun.as_mut() {
-            // `TurbineGun::CheckForMessages`, once a frame.
-            gun.pump(&mut self.client);
-        }
         for saved in screenshot::finished(&mut state.screenshots) {
             // Retail's SaveScreenshot shows no chat line, on success or failure.
             match saved {
@@ -439,6 +375,11 @@ impl App {
                         state.apply_presentation(WindowPresentation::from_bank(prefs.bank()));
                     }
                 }
+                ac2_client::OptionsEffect::UiScale => {
+                    if let Some(prefs) = self.client.prefs() {
+                        view.set_ui_scale(ac2_ui::ui_scale_pref::ui_scale(prefs.bank()));
+                    }
+                }
                 ac2_client::OptionsEffect::HudStyle => {
                     if let Some(prefs) = self.client.prefs() {
                         let style = ac2_ui::hud_style::hud_style(prefs.bank());
@@ -449,22 +390,16 @@ impl App {
         }
         // The selection render: the object under the pointer, selected (or the selection
         // cleared) by `gmSelectionUI::Finish3DSelection`.
-        if state.selection.wants_pick() {
-            let screen = (state.config.width, state.config.height);
-            let potential = view.pick_list(&frame, screen, view.pointer());
-            let (targets, player_type, player_id) = pick_targets(&self.client, &frame, &potential);
-            if let Some(outcome) = state.selection.finish(&targets, player_type, player_id) {
-                state.commands.push(Command::Select(outcome.select));
-                state
-                    .commands
-                    .push(Command::LookAtSelection(outcome.select));
-                if outcome.use_selection {
-                    state.commands.push(Command::UseSelection);
-                }
-                if outcome.open_examination {
-                    view.open_examination();
-                }
-            }
+        if ac2_client::world_input::finish_selection(
+            &mut state.selection,
+            &mut state.controls,
+            &mut state.commands,
+            view,
+            &self.client,
+            &frame,
+            (state.config.width, state.config.height),
+        ) {
+            view.open_examination();
         }
         // The particle systems the objects' FX started and stopped since the last frame.
         let starts = self.client.take_object_particle_starts();
@@ -859,23 +794,18 @@ fn run(args: Args) -> Result<(), String> {
         .map_err(|e| e.to_string())?
         .ok_or("the DATs hold no action map")?;
     let server_address = args.server_address()?;
-    // `gmClient::StartupGUN`, before the logon (see `Args::gun_config` for the default).
-    let (gun_config, gun_explicit) = args.gun_config(server_address);
-    let gun = match ac2_client::gun_service::GunService::startup(&gun_config) {
-        Ok(gun) => gun,
-        Err(e) if !gun_explicit => {
-            eprintln!("ac2: the server's GUN service is not reachable ({e}); no friends list");
-            None
-        }
-        Err(e) => return Err(e),
-    };
+    let gun_options = args.gun.clone();
+    let gun_tchat = args.chat.tchat;
+    let gun_primer = args.ticket.clone();
     let server = (
         args.host
             .clone()
             .unwrap_or_else(|| server_address.ip().to_string()),
         server_address.port(),
     );
-    let mut session = OnlineSession::connect(OnlineConfig {
+    // `gmClient::Connect`: `StartupGUN` before the game connection, so the logon is held
+    // until the client's first frames have run it (`Client::attach_gun`).
+    let mut session = OnlineSession::connect_held(OnlineConfig {
         server: server_address,
         account: args.account,
         credential: Credential::from_ticket(&args.ticket),
@@ -906,6 +836,20 @@ fn run(args: Args) -> Result<(), String> {
     // The loader threads serve the script VM's missed reads (the frame thread never reads).
     let dat_world = dat_world.with_script_data(script_data.clone());
     let mut client = Client::new(session, Arc::new(dat_world));
+    // `gmClient::Init`'s GUN steps: the program's own GunDll (`-gunclientdll` is parsed and
+    // ignored), the player's LCID, the registry values in the configuration directory.
+    let gun = ac2_weenie::gun::GunClient::new(
+        gun_options,
+        gun_tchat,
+        &gun_primer,
+        ac2_client::gun_env::default_lcid(),
+        Box::new(ac2_client::gun_env::OwnGunLoader::new(std::rc::Rc::new(
+            ac2_client::gun_env::FileRegistry::user(),
+        ))),
+    );
+    // `StringInfo::IsOnDisk` for `ID_GunReAuthenticationFailed`.
+    gun.set_string_on_disk(ac2_client::gun_env::string_on_disk(&store));
+    client.attach_gun(gun);
     // The weenies' scripts on the VM (`CWDistributor`), over the script library.
     let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
         .map_err(|e| e.to_string())?
@@ -926,8 +870,6 @@ fn run(args: Args) -> Result<(), String> {
     let script_data_for_chargen = script_data.clone();
     let host = ac2_script::host::ScriptHost::new(Arc::clone(&program), Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
-    // `gmCWInterface::RequestGUN_*` work only with a `TurbineGun`.
-    client.set_gun_service(gun.is_some());
     // `SoundManager`: the speakers, or silence without an output device.
     client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), speakers()));
     client.set_portal_sound_ids(ac2_client::portal_sound_ids(&store));
@@ -967,7 +909,6 @@ fn run(args: Args) -> Result<(), String> {
             winit::dpi::PhysicalSize::new(args.width.unwrap_or(1024), args.height.unwrap_or(768))
         }),
         server,
-        gun,
     };
     event_loop.run_app(&mut app).map_err(|e| e.to_string())
 }

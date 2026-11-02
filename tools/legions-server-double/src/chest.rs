@@ -7,7 +7,7 @@
 
 use ac2_net::protocol::{InstanceIdWithStamp, QualityUpdate, QualityValue};
 
-use crate::items::{item_object_bytes, ItemSpawn, CONTAINER_PACKAGE, ICON_POTION, ICON_QUEST};
+use crate::items::{ItemSpawn, CONTAINER_PACKAGE, ICON_POTION, ICON_QUEST};
 use crate::objects::{weenie_object_bytes, ObjectSpawn};
 use crate::State;
 
@@ -56,7 +56,7 @@ impl State {
             },
         ];
         for item in &items {
-            self.send_event(&item_object_bytes(item));
+            self.send_item_object(item);
         }
         self.send_quality(&QualityUpdate {
             object: Some(InstanceIdWithStamp {

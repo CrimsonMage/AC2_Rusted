@@ -38,6 +38,7 @@ impl HudView {
         format: wgpu::TextureFormat,
         size: (u32, u32),
         style: ac2_ui::HudStyle,
+        setting: ac2_ui::UiScaleSetting,
     ) -> Self {
         let store_for_rebuild = Arc::clone(&store);
         let chat_text = ac2_ui::chat_text::ChatText::new((*store).clone());
@@ -52,7 +53,7 @@ impl HudView {
             })
             .expect("spawn the UI strings loader");
         let (send, receive) = mpsc::channel();
-        let scale = crate::ui_scale::UiScale::fill(size);
+        let scale = crate::ui_scale::UiScale::hud(size, setting);
         let (width, height) = (scale.display.0 as i32, scale.display.1 as i32);
         std::thread::Builder::new()
             .name("ac2 hud".into())
@@ -133,6 +134,7 @@ impl HudView {
             layer_roots: Vec::new(),
             size,
             scale,
+            setting,
             dirty: false,
             sounds: Vec::new(),
         }
@@ -146,7 +148,14 @@ impl HudView {
         format: wgpu::TextureFormat,
         style: ac2_ui::HudStyle,
     ) -> Self {
-        Self::new(Arc::clone(&self.store), gpu, format, self.size, style)
+        Self::new(
+            Arc::clone(&self.store),
+            gpu,
+            format,
+            self.size,
+            style,
+            self.setting,
+        )
     }
 
     /// Takes a finished build, then recomposes if anything changed.

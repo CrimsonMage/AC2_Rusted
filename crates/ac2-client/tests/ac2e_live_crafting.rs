@@ -4,21 +4,15 @@
 //! the recipe's slots, the craft button, the result in the pack.
 //! Needs the development kit (`--training-kit true`: AC2e sends the craft registry only with it);
 //! `scripts/ac2e-live-test.sh` with `AC2E_LIVE_TEST=ac2e_live_crafting` sets that up.
+//! The panel's driving is shared with the other live files (`live/craft.rs`).
 
 #![cfg(feature = "window")]
 
 mod live;
 
-use ac2_ui::{tokenize, AttributeValue, ToolbarChild};
 use ac2_weenie::{GameplayNotice, SessionEvent};
+use live::craft::*;
 use live::LiveRig;
-
-const CRAFT_SKILL: u32 = 0x6F00_28D7;
-const VIGOR_RECIPE: u32 = 0x6F00_1F18;
-const PACK: &str = "PackMainContainer";
-/// The second press of a double click as the input layer sends it (`ac2_ui::Controls`: a second
-/// press of the same action inside the double-click time is the action plus three).
-const DOUBLE_CLICK: u32 = 0x4000_0007;
 
 fn rig_for(name: &str) -> Option<LiveRig> {
     if std::env::var_os("AC2E_LIVE_TRAINING_KIT").is_none() {
@@ -26,94 +20,6 @@ fn rig_for(name: &str) -> Option<LiveRig> {
         return None;
     }
     LiveRig::new(name)
-}
-
-fn wait(rig: &mut LiveRig, what: &str, mut ready: impl FnMut(&mut LiveRig) -> bool) {
-    for _ in 0..60 * 60 {
-        if ready(rig) {
-            return;
-        }
-        rig.frame(&[]);
-    }
-    panic!("{what}");
-}
-
-/// The rows of the list `name` on the HUD.
-fn rows(rig: &LiveRig, name: &str) -> Vec<usize> {
-    let Some(tree) = rig.view.ui_tree() else {
-        return Vec::new();
-    };
-    tree.roots()
-        .iter()
-        .find_map(|&r| tree.child_recursive(r, tokenize(name)))
-        .map(|list| tree.list_items(list).to_vec())
-        .unwrap_or_default()
-}
-
-/// A click on the centre of the shown HUD element `name`, once it shows.
-fn press(rig: &mut LiveRig, name: &str) {
-    let mut center = None;
-    wait(rig, name, |r| {
-        center = r.view.ui_element_center(name);
-        center.is_some()
-    });
-    rig.click(center.unwrap());
-}
-
-/// Waits for the player's craft registry, then opens the craft tab of the skill panel.
-fn open_craft_tab(rig: &mut LiveRig) {
-    wait(rig, "the craft recipes", |r| {
-        r.client.recipes(CRAFT_SKILL).is_some_and(|x| x.len() == 2)
-    });
-    rig.panel(ToolbarChild::Skill, true);
-    press(rig, "CraftTab");
-    rig.run(0.5);
-}
-
-/// The craft page's view (`craftskillview`, `craftskillcategoryview` or `recipeview`).
-fn craft_view(rig: &LiveRig) -> u32 {
-    let tree = rig.view.ui_tree().expect("the HUD");
-    let page = tree
-        .roots()
-        .iter()
-        .find_map(|&r| tree.child_recursive(r, tokenize("CraftPage")))
-        .expect("the craft page");
-    tree.get(page).unwrap().state()
-}
-
-/// A double click on the craft page's row `row` (an element index).
-fn double_click_row(rig: &mut LiveRig, row: usize) {
-    let at = rig.view.ui_index_center(row).expect("the HUD");
-    rig.point(at);
-    rig.button(true);
-    rig.button(false);
-    rig.frame(&[(DOUBLE_CLICK, 1.0, true)]);
-    rig.frame(&[(DOUBLE_CLICK, 1.0, false)]);
-    rig.run(0.3);
-}
-
-/// The `did` a craft row carries.
-fn row_did(rig: &LiveRig, row: usize) -> u32 {
-    let tree = rig.view.ui_tree().expect("the HUD");
-    match tree.get(row).unwrap().attribute(tokenize("did")) {
-        Some(AttributeValue::Id(did)) => *did,
-        _ => 0,
-    }
-}
-
-/// The objects in the ingredient panel's slots, in list order.
-fn filled_slots(rig: &LiveRig) -> Vec<Option<u64>> {
-    let tree = rig.view.ui_tree().expect("the HUD");
-    rows(rig, "IngredientListBox")
-        .into_iter()
-        .map(|row| {
-            let icon = tree.child_recursive(row, tokenize("ItemIcon"))?;
-            match tree.get(icon)?.attribute(tokenize("id")) {
-                Some(AttributeValue::InstanceId(id)) if *id != 0 => Some(*id),
-                _ => None,
-            }
-        })
-        .collect()
 }
 
 #[test]
@@ -127,55 +33,6 @@ fn the_craft_panel_lists_the_players_craft_skills() {
         "the craft skill list: {} rows",
         rows(&rig, "CraftSkillList").len()
     );
-}
-
-/// Down the craft panel's views as the player goes (the skill, its category, the vigor recipe),
-/// to the ingredient panel open on the recipe's two slots; then the inventory drawer in place of
-/// the craft panel. Returns the pack's items.
-fn open_vigor_recipe(rig: &mut LiveRig) -> Vec<u64> {
-    open_craft_tab(rig);
-    assert!(
-        rig.until(10.0, |r| rows(r, "CraftSkillList").len() == 1),
-        "the craft skill list"
-    );
-    let skill = rows(rig, "CraftSkillList")[0];
-    double_click_row(rig, skill);
-    assert_eq!(craft_view(rig), tokenize("craftskillcategoryview"));
-    // The rows fill once the records they name are read (the panel refreshes then).
-    assert!(
-        rig.until(10.0, |r| rows(r, "CraftSkillCategoryList").len() == 1),
-        "one category of recipes"
-    );
-    let categories = rows(rig, "CraftSkillCategoryList");
-    double_click_row(rig, categories[0]);
-    assert_eq!(craft_view(rig), tokenize("recipeview"));
-    assert!(
-        rig.until(10.0, |r| rows(r, "RecipeList").len() == 2),
-        "the health and the vigor recipe"
-    );
-    let recipes = rows(rig, "RecipeList");
-    let vigor = recipes
-        .iter()
-        .copied()
-        .find(|&r| row_did(rig, r) == VIGOR_RECIPE)
-        .expect("the vigor recipe's row");
-    double_click_row(rig, vigor);
-    assert!(
-        rig.until(5.0, |r| r
-            .view
-            .ui_element_center("RealIngredientField")
-            .is_some()
-            && rows(r, "IngredientListBox").len() == 2),
-        "the ingredient panel opens on the recipe's two ingredients"
-    );
-
-    // The craft panel is out of the inventory drawer's way; the ingredient panel stays.
-    rig.panel(ToolbarChild::Skill, false);
-    rig.panel(ToolbarChild::Inventory, true);
-    rig.run(1.0);
-    let pack = rig.view.item_icons(PACK);
-    assert!(pack.len() >= 2, "the development kit's items");
-    pack
 }
 
 /// The crafted result: the craft is done, the ingredients left the pack, one new item came,
@@ -216,7 +73,7 @@ fn a_recipe_is_crafted_from_the_panel() {
     let Some(mut rig) = rig_for("Craftdo") else {
         return;
     };
-    let pack_before = open_vigor_recipe(&mut rig);
+    let pack_before = open_recipe(&mut rig, VIGOR_RECIPE);
 
     // Each ingredient is dragged from the pack into its slot: the pack item the recipe accepts
     // for the slot (`CheckIngredient`, which the panel asks to take a drop), the slot's row.
@@ -269,7 +126,7 @@ fn an_auto_populated_recipe_is_crafted() {
     let Some(mut rig) = rig_for("Craftauto") else {
         return;
     };
-    let pack_before = open_vigor_recipe(&mut rig);
+    let pack_before = open_recipe(&mut rig, VIGOR_RECIPE);
     press(&mut rig, "AutoPopulateButton");
     assert!(
         rig.until(5.0, |r| filled_slots(r).iter().all(Option::is_some)),

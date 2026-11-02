@@ -155,8 +155,9 @@ fn an_alt_drag_moves_a_window_by_ui_pixels_at_a_scaled_window() {
     let Some(mut rig) = Rig::classic_in(None) else {
         return;
     };
-    // A 1280 x 960 window lays the UI out at 1024 x 768, scaled by 1.25.
+    // A 1280 x 960 window with the UI scale on Fill lays the UI out at 1024 x 768, scaled by 1.25.
     rig.view.resize(1280, 960);
+    rig.view.set_ui_scale(ac2_ui::UiScaleSetting::Fill);
     rig.idle(4);
     let dir = test_dir("scale");
     rig.client.set_window_positions_dir(Some(dir.clone()));

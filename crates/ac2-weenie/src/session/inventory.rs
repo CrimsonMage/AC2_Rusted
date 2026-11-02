@@ -1,138 +1,18 @@
-//! The session's inventory entry points: the IFuns the inventory panels call on the player's
-//! weenie (`gmCWInterface::MoveItem`, `EquipItem`, `UnEquipItem`, `UpdateOpen`), as the
-//! `CContainer` / `CInventorySystem` scripts send them, and the `WM_Inventory` answers kept in
-//! [`InventoryState`].
+//! The `WM_Inventory` answers kept in [`InventoryState`] (`CInventorySystem`'s state). The
+//! requests themselves (`gmCWInterface::MoveItem`, `EquipItem`, `UnEquipItem`, `UpdateOpen`,
+//! `LootAllFromContainer`) are the player's script's: it builds and sends the descriptors.
 
 use ac2_net::protocol::{
-    script_function as function, unpack_values, ContainerContents, Equipment, InvEquipDesc,
-    InvMoveDesc, InvTakeAllDesc, InvTransmuteAllDesc, ScriptMessage, ScriptRequest,
+    script_function as function, unpack_values, ContainerContents, Equipment, ScriptMessage,
 };
 
 use super::{OnlineSession, SessionEvent};
 use crate::inventory::InventoryState;
 
 impl OnlineSession {
-    /// Whether this is a logon to AC2e's profile (data version 7148 or 7230).
-    pub fn ac2e_logon(&self) -> bool {
-        self.ac2e
-    }
-
     /// The inventory as the player's scripts would keep it.
     pub fn inventory(&self) -> &InventoryState {
         &self.inventory
-    }
-
-    /// `gmCWInterface::MoveItem` -> `CContainer` 0x7 -> `CInventorySystem` 0x12
-    /// (`DirectiveMoveItem`): move `quantity` of `item` from slot `from_slot` of `from` to slot
-    /// `target_slot` (-1: anywhere) of `target`. A drop targets the world, a give another
-    /// creature, a split moves less than the whole stack. A move inside the player's own pack
-    /// goes as a reorganization (`CInventorySystem` 0x19), and one onto its own slot sends
-    /// nothing.
-    pub fn move_item(
-        &mut self,
-        item: u64,
-        from: u64,
-        from_slot: i32,
-        target: u64,
-        target_slot: i32,
-        quantity: i32,
-    ) {
-        // An item taken out of another container into the player (a body's loot): the player is
-        // the target, not a slot of it, so the packet has the source slot 0 and no target slot
-        // (-1), where it lands in the first free slot, as the retail client's packets do (AC2e
-        // checks them, `loot::decode`).
-        let into_player = Some(target) == self.world.player() && target != from;
-        let (from_slot, target_slot) = if into_player && from != 0 {
-            (0, -1)
-        } else {
-            (from_slot, target_slot)
-        };
-        let desc = InvMoveDesc::new(item, from, from_slot, target, target_slot, quantity);
-        let own_pack = Some(target) == self.world.player() && target == from;
-        let request = if own_pack {
-            if from_slot == target_slot {
-                return;
-            }
-            ScriptRequest::ReorganizeContents(desc.with_native_tags())
-        } else {
-            ScriptRequest::MoveItem(desc)
-        };
-        self.send(request.to_event());
-    }
-
-    /// `gm3DItemsUI::FinishItemDrop` -> `gmCWInterface::MoveItem` with no target (the ground):
-    /// the player's scripts name the landblock `landblock_cell` is in as the target, with no
-    /// slot (-1), as the retail client's packets do (the ids and numbers typed like a
-    /// reorganization's, [`InvMoveDesc::with_native_tags`]).
-    pub fn drop_item(
-        &mut self,
-        item: u64,
-        from: u64,
-        from_slot: i32,
-        landblock_cell: u32,
-        quantity: i32,
-    ) {
-        let landblock = u64::from(landblock_cell & 0xFFFF_0000);
-        let desc =
-            InvMoveDesc::new(item, from, from_slot, landblock, -1, quantity).with_native_tags();
-        self.send(ScriptRequest::MoveItem(desc).to_event());
-    }
-
-    /// `gmCWInterface::EquipItem` -> `Inventory` 0x21 -> `CInventorySystem` 0x16: wield `item`
-    /// at `location`. Retail refuses an item not in the player's containers
-    /// (`LocateItemInContents`), as this does.
-    pub fn equip_item(&mut self, item: u64, location: u32) -> Result<(), String> {
-        let player = self.world.player().ok_or("not in the world")?;
-        let (from, slot) = self
-            .inventory
-            .locate(item)
-            .ok_or_else(|| format!("{item:#018x} is not in the player's containers"))?;
-        let desc = InvEquipDesc::equip(item, player, location, from, slot);
-        self.send(ScriptRequest::EquipItem(desc).to_event());
-        Ok(())
-    }
-
-    /// `gmCWInterface::UnEquipItem` -> `Inventory` 0x9: take `item` off into slot
-    /// `target_slot` of the player's pack; its location is the one it is equipped at
-    /// (`InventorySystem` 0x20).
-    pub fn unequip_item(&mut self, item: u64, target_slot: i32) -> Result<(), String> {
-        let player = self.world.player().ok_or("not in the world")?;
-        let location = self
-            .inventory
-            .location_of(item)
-            .ok_or_else(|| format!("{item:#018x} is not equipped"))?;
-        let desc = InvEquipDesc::unequip(item, player, location, target_slot);
-        self.send(ScriptRequest::UnequipItem(desc).to_event());
-        Ok(())
-    }
-
-    /// `gmCWInterface::UpdateOpen` -> `CContainer` 0x9 / 0x3 -> `CInventorySystem` 0x11 / 0x18:
-    /// open or close `container`.
-    pub fn set_container_open(&mut self, container: u64, open: bool) {
-        let request = if open {
-            ScriptRequest::OpenContainer(container)
-        } else {
-            ScriptRequest::CloseContainer(container)
-        };
-        self.send(request.to_event());
-    }
-
-    /// `gmCWInterface::LootAllFromContainer` -> `CPlayer` 0x157 -> `CInventorySystem` 0x1C:
-    /// take everything in `container` (its checks, `CInventorySystem` 0x1E, not mirrored).
-    pub fn loot_all(&mut self, container: u64) {
-        if let Some(player) = self.world.player() {
-            let desc = InvTakeAllDesc::new(container, player);
-            self.send(ScriptRequest::LootAll(desc).to_event());
-        }
-    }
-
-    /// `gmCWInterface::TransmuteAllFromContainer` -> `CPlayer` 0x158 -> `CInventorySystem`
-    /// 0x21: transmute everything in `container` (checks, 0x1F, not mirrored).
-    pub fn transmute_all(&mut self, container: u64) {
-        if let Some(player) = self.world.player() {
-            let desc = InvTransmuteAllDesc::new(container, player);
-            self.send(ScriptRequest::TransmuteAll(desc).to_event());
-        }
     }
 
     /// `CPlayer` 0x65's inventory part (`WM_Player` 0x27): arguments 7-9 to

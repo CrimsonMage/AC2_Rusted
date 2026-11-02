@@ -30,10 +30,13 @@ pub const TABLE_ENUM_SHELL: u32 = 0x4000_0009;
 /// String table enum 0x4100001C (the emote strings: `gmFriendsUI::HandleStatusChange`'s
 /// `StringInfo` for `DoEmote`).
 pub const TABLE_ENUM_EMOTE: u32 = 0x4100_001C;
+/// String table enum 0x4100000E (`ID_GunReAuthenticationFailed` and the other GUN strings
+/// `gmClient` and `gmUIFlow` show).
+pub const TABLE_ENUM_GUN: u32 = 0x4100_000E;
 
 impl StringTableIds {
     /// The enums the stand-in uses.
-    pub const ENUMS: [u32; 8] = [
+    pub const ENUMS: [u32; 9] = [
         TABLE_ENUM_TELL,
         TABLE_ENUM_COMMUNICATION,
         TABLE_ENUM_USAGE,
@@ -42,6 +45,7 @@ impl StringTableIds {
         TABLE_ENUM_CHAT_WINDOW,
         TABLE_ENUM_EMOTE,
         TABLE_ENUM_SHELL,
+        TABLE_ENUM_GUN,
     ];
 
     pub fn insert(&mut self, table_enum: u32, did: u32) {

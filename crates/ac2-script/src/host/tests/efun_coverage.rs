@@ -17,6 +17,7 @@ fn referenced_efuns(program: &Program) -> BTreeMap<u32, usize> {
             op::CALL_EFUN | op::THIS_CALL_EFUN | op::LOAD_CALL_EFUN | op::RLOAD_CALL_EFUN
         ) {
             if let Some(&efun) = program.code.get(pc + 1) {
+                let efun = crate::vm::efun_ids::efun_from_release(program.release_0930, efun);
                 *found.entry(efun).or_insert(0) += 1;
             }
         }
@@ -45,6 +46,7 @@ fn every_efun_the_library_calls_is_bound() {
         return;
     };
     let efuns = host_efuns();
+    let program_is_0930 = host.vm().program.release_0930;
     let referenced = referenced_efuns(&host.vm().program);
     let unbound: Vec<(u32, usize)> = referenced
         .iter()
@@ -93,5 +95,8 @@ fn every_efun_the_library_calls_is_bound() {
             .collect();
         std::fs::write(path, lines.join("\n")).unwrap();
     }
-    assert!(unbound.len() <= 75, "{} unbound", unbound.len());
+    // The 0930 library calls 63 efuns no 7160/7230 dispatcher has; they all count as the one
+    // unbound id `efun_ids::UNBOUND`.
+    let allowed = if program_is_0930 { 77 } else { 75 };
+    assert!(unbound.len() <= allowed, "{} unbound", unbound.len());
 }

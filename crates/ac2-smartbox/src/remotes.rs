@@ -13,10 +13,11 @@ use ac2_anim::{Ac2AnimEvent, FxScripts};
 use ac2_core::Random;
 use ac2_physics::{
     CellSource, ConflictPeer, FxFollow, LookTarget, ObjectShape, PhysicsBody, Position,
-    SetPositionError, StaticObject, TargetOwner, Terrain, Vector,
+    SetPositionError, TargetOwner, Terrain, Vector,
 };
 use ac2_world::Ac2MotionInterpDesc;
 
+use crate::body_shadow::sync_body_shadow;
 use crate::collision_traffic::Touch;
 use crate::membership::CellMembership;
 use crate::remote_membership::sync_membership;
@@ -64,7 +65,7 @@ pub enum MoveOutcome {
 
 /// A client-made object (`CObjectMaint::CreateTemporaryObject`), such as an FX's, with no
 /// session entry.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct LocalObject {
     pub visual: u32,
     pub position: Position,
@@ -74,14 +75,28 @@ pub struct LocalObject {
     /// The behaviour the created object runs and destroys itself after (`FXNode::m_behavior`,
     /// `DoCreateObjectFX`; 0 for none).
     pub behavior: u32,
+    /// The collision state set before the object enters the world.
+    pub collision: Option<MissileCollision>,
+}
+
+/// A missile's collision state (`MissileInfo::GetCollisionParameters`): `StoryManager::CreateMissile`
+/// sets it on the temporary object at once (`CPhysicsObj::SetCollisionState`), so it holds before
+/// the object's Setup is in and it enters the world.
+#[derive(Clone, Debug, PartialEq)]
+pub struct MissileCollision {
+    pub sets: ac2_physics::CollisionParameters,
+    pub min_reported_impact_xy: f32,
+    pub min_reported_impact_z: f32,
 }
 
 /// How a client-made object starts: its two alpha moves and the behaviour it runs and destroys
 /// itself after (`FXManager::DoCreateObjectFX`; 0 for none).
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct LocalStart {
     pub alpha_moves: [(f32, f32); 2],
     pub behavior: u32,
+    /// A missile's collision state, set before the object enters the world.
+    pub collision: Option<MissileCollision>,
 }
 
 /// The session's view of the objects, by id: `None` for an object the session does not have.
@@ -136,6 +151,8 @@ pub struct Remote {
     pub behavior: u32,
     /// The emitter and attach point of an FX object that hangs from one (`FXSetParent`).
     pub fx_follow: Option<FxFollow>,
+    /// A missile's collision state, set on its body before it enters the world.
+    pub collision: Option<MissileCollision>,
 }
 
 /// `CPhysicsObj::add_to_cells` / `remove_from_cells` and `CObjCell::AddObject` /
@@ -148,79 +165,15 @@ fn sync_shadow(
     membership: &mut CellMembership,
 ) {
     sync_membership(guid, remote, membership);
-    // The entry's blocking mask is the body's (`CPhysicsObj::IsBlocking` reads m_blocking_mask),
-    // so it is re-read on every sync: a body's bits can change between syncs.
-    // The Setup's root scale times the body's own (`CPhysicsObj::SetScale`, which a script's
-    // `CWRepository::SetScale` changes at run time): a new scale lists the object again.
-    let wanted = match (&remote.body, &remote.object, remote.in_world) {
-        (Some(body), Some((shape, scale)), true) => {
-            let own = body.effects_scale();
-            let times = |a: f32, b: f32| (f64::from(a) * f64::from(b)) as f32;
-            Some((
-                body.position(),
-                Arc::clone(shape),
-                Vector::new(
-                    times(scale.x, own.x),
-                    times(scale.y, own.y),
-                    times(scale.z, own.z),
-                ),
-                body.is_mobile(),
-                body.blocking_bits(),
-            ))
-        }
-        _ => None,
-    };
-    if let (Some((_, _, scale, _, _)), Some(id)) = (&wanted, remote.shadow) {
-        if terrain
-            .object_scale(id)
-            .is_some_and(|listed| listed != *scale)
-        {
-            terrain.remove_object(id);
-            remote.shadow = None;
-        }
-    }
-    match (wanted, remote.shadow) {
-        (Some((position, shape, scale, mobile, blocking)), None) => {
-            // The object is named by its guid, so a collision report lists it.
-            let mut object = StaticObject::dynamic(position, scale, shape, mobile)
-                .with_blocking_mask(blocking)
-                .with_instance_id(guid);
-            object.set_ethereal(remote.ethereal);
-            let id = terrain.insert_object(object);
-            if let Some(body) = &remote.body {
-                terrain.set_object_ignores_collisions(id, body.ignores_collisions());
-                terrain.set_object_collision(
-                    id,
-                    body.collision_state_ptr(),
-                    body.current_properties(),
-                );
-            }
-            remote.shadow = Some(id);
-            if let Some(body) = remote.body.as_mut() {
-                body.set_world_id(Some(id));
-            }
-        }
-        (Some((position, _, _, _, blocking)), Some(id)) => {
-            terrain.move_object(id, position);
-            terrain.set_object_blocking(id, blocking);
-            if let Some(body) = &remote.body {
-                terrain.set_object_ignores_collisions(id, body.ignores_collisions());
-                terrain.set_object_collision(
-                    id,
-                    body.collision_state_ptr(),
-                    body.current_properties(),
-                );
-            }
-        }
-        (None, Some(id)) => {
-            terrain.remove_object(id);
-            remote.shadow = None;
-            if let Some(body) = remote.body.as_mut() {
-                body.set_world_id(None);
-            }
-        }
-        (None, None) => {}
-    }
+    sync_body_shadow(
+        guid,
+        remote.body.as_mut(),
+        remote.object.as_ref(),
+        remote.in_world,
+        remote.ethereal,
+        &mut remote.shadow,
+        terrain,
+    );
 }
 
 impl Remote {
@@ -838,6 +791,7 @@ impl<B: AsRef<BodyData>> Remotes<B> {
                 alpha_moves: None,
                 behavior: 0,
                 fx_follow: None,
+                collision: None,
             },
         );
         self.try_create_into(id, records, terrain, describe, &mut effects);
@@ -872,6 +826,7 @@ impl<B: AsRef<BodyData>> Remotes<B> {
                 alpha_moves: Some(local.alpha_moves),
                 behavior: local.behavior,
                 fx_follow: local.fx_follow,
+                collision: local.collision,
             },
         );
         let mut effects = Vec::new();
@@ -923,9 +878,13 @@ impl<B: AsRef<BodyData>> Remotes<B> {
         let stored = remote.stored;
         let alpha_moves = remote.alpha_moves.take();
         let behavior = std::mem::take(&mut remote.behavior);
+        let collision = remote.collision.take();
         remote.object = data.object;
         let mut body = PhysicsBody::new(start, data.shape, data.motion);
         body.set_radius(data.radius);
+        // `CPhysicsObj::m_id`: the object's id, which `GetHeightAboveWalkable` puts in its ethereal
+        // list so the probe ray does not stop on the body it starts in.
+        body.set_instance_id(id);
         if let Some(parts) = data.parts {
             body.set_part_group(parts);
             // `CPhysicsObj::InitObjectEnd`: `PHYSICSOBJREP::CacheHasPhysicsBSP` sets the state bit.
@@ -938,6 +897,16 @@ impl<B: AsRef<BodyData>> Remotes<B> {
         }
         if let Some(bits) = self.entity_mask(id) {
             body.apply_blocking_bits(bits);
+        }
+        // `StoryManager::CreateMissile`: the missile's collision state is set on the object as it
+        // is made, before it enters the world, so its placement at the shooter's hand is not
+        // blocked by the shooter.
+        if let Some(collision) = collision {
+            body.set_collision_state(&collision.sets, &|_| None);
+            body.set_collision_minimums(
+                collision.min_reported_impact_xy,
+                collision.min_reported_impact_z,
+            );
         }
         if let Some(animation) = data.animation {
             body.set_animation(animation);

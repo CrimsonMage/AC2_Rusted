@@ -28,7 +28,8 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-math` | Math and geometry (04) | `Vector`, `Frame`, `Plane`, bounds, `Heading`, cell `Position` and its offset rules | math, world `coordinates` |
 | `ac2-dat` | Database access (06) | DAT mounting, B-tree lookup, record reads, the binary unpack cursor | dat, archive cursor |
 | `ac2-db` | Database objects (06) | typed `DBObj` decode cache, `MasterProperty`/`PropertyCollection`, `EnumIDMap` | resources (cache core only), render-codec `ac2_property`, `EnumIdMap` |
-| `ac2-net` | Network and protocol (07) | transport (`ProtoHeader`, checksums, ISAAC, fragments, flow, logon), event codecs, the GUN client (`gun`: `TurbineGun` over AC2e's GUN transport) | net, protocol, gun |
+| `ac2-net` | Network and protocol (07) | transport (`ProtoHeader`, checksums, ISAAC, fragments, flow, logon), event codecs | net, protocol |
+| `ac2-gun` | GUN, the MSN Gaming Zone service (retail: Microsoft's `GunDll.dll` and Turbine's `ac2/shared/src/gun`) | the DirectPlay 8 client wire (`dpnet.dll`/`dpnwsock.dll` as `decompiled-pdb/dplay8/spec_client.md` gives them), GunDll's `CGun` behind the ten `IGun*` interfaces (session, the handshake and its CryptoAPI key exchange, the XML codec, the message queue and `DispatchQueue`), and `NSTurbineGun::TurbineGun` with `TurbineGunUtils`; the specs are `decompiled-pdb/gundll/spec/` | new, from the decompile |
 | `ac2-anim` | Animation (08 `animsys`) | `CSetup`, `AnimMap`, `DBAnimator`/`AnimCube`/`AMHuman`, locomotion sliders | render-codec `ac2_animation`/`ac2_animator`/`ac2_setup`, body locomotion |
 | `ac2-assets` | Render asset codecs (12) | `RenderSurface`/`RenderTexture`, materials and modifiers, `CDataMesh`, `VisualDesc`, `PSDesc`, `DBFXTable` | render-codec `ac2_*` decoders |
 | `ac2-world` | Regions, cells (08 `region`, `cell`) | `LandscapeDefs`, landblocks, terrain/surface descs, scenery and grass placement, `CEnvCell`/`CCellMesh`, lights, water, region sky and game time | world `ac2_*` modules |
@@ -56,7 +57,12 @@ ac2-core → ac2-prefs → ac2-math → ac2-dat → ac2-db → ac2-net
          → ac2-smartbox → ac2-weenie → ac2-render → ac2-gpu → ac2-ui → ac2-client
 ```
 
-`ac2-net` depends only on `ac2-core`. `ac2-prefs` has no crate dependencies (the names are passed in,
+`ac2-net` depends only on `ac2-core`.
+`ac2-gun` depends only on `ac2-core` and sits after `ac2-net`; it speaks DirectPlay 8 to a GUN server and
+shares nothing with the game protocol. `ac2-weenie` takes it: the `CT*`/`CCli*` result and event
+handlers and `gmCWInterface::RequestGUN_*` live there, and `gmClient`'s GUN start
+(`StartupGUN`, `AuthenticateWithGUN`) and `InitAuth`'s GUN-ticket logon belong to its session flow;
+`ac2-client` only wires them (the command line, the per-frame `CheckForMessages`). `ac2-prefs` has no crate dependencies (the names are passed in,
 so it needs no DAT access). `ac2-script`, `ac2-gameplay` and `ac2-audio` slot in when
 they are built: script after `ac2-weenie`, gameplay after script (it depends on `ac2-net` only), audio after `ac2-world`
 (it needs only `ac2-db` so far; `ac2-client` drives it).
@@ -67,7 +73,7 @@ script's native layout, `ac2_ui::window_locations`); script sits before ui in th
 `ac2-ui` also depends on `ac2-gameplay` (the quest journal's rules, `ac2_gameplay::quest`).
 `ac2-ui` also depends on `ac2-render` (the client options page's scene options, `ac2_ui::OptionsPages`);
 render sits before ui in the order.
-`ac2-launcher` stands beside `ac2-client` and depends only on `ac2-net` (the protocol and GUN port
+`ac2-launcher` stands beside `ac2-client` and depends only on `ac2-net` (the protocol
 constants) and `ac2-prefs` (the configuration directory); it runs the `ac2` program, never links it.
 `ac2-guide` depends only on `ac2-physics` (`LandDefs` cell addressing for its coordinates) and the
 `image` decoder (the site's pictures), and sits after it; `ac2-ui` takes the guide from it (the navigation map's guide layers, the quest guide window).

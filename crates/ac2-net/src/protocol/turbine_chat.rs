@@ -92,11 +92,13 @@ pub enum ChatMessage {
 }
 
 /// `GunChatExtraInfo` (AC2's `remoteBlob` on room chat, `GunChatExtraInfo::PackIntoBlob`):
-/// AC2 `StreamPack`, so 4-aligned and with the AC2 string munging, unlike the chat archive.
+/// AC2 `StreamPack` (Legions 0x004545F0): `m_version` and `m_miscFlags` are `ushort`s packed by
+/// the 2-byte `STREAMPACK` (Legions 0x005E6F90), then `m_weenieFlags` (4 bytes) and the munged,
+/// 4-aligned `PStringBase<ushort>`; unlike the chat archive. An empty string packs to 12 bytes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GunChatExtraInfo {
-    pub version: u32,
-    pub misc_flags: u32,
+    pub version: u16,
+    pub misc_flags: u16,
     /// The script's weenie chat flags (`RequestGUN_SendToRoom`'s third argument).
     pub weenie_flags: u32,
     /// `StringTableMetaLanguage::RetrieveMetaLetters` of the sender's name.
@@ -117,22 +119,23 @@ impl GunChatExtraInfo {
     /// `GunChatExtraInfo::StreamPack` (pack).
     pub fn encode(&self) -> Vec<u8> {
         let mut w = Writer::new();
-        w.u32(self.version)
-            .u32(self.misc_flags)
+        w.u16(self.version)
+            .u16(self.misc_flags)
             .u32(self.weenie_flags);
         w.wide_string(&self.meta_letters);
         w.bytes
     }
 
-    /// `GunChatExtraInfo::StreamPack` (unpack): the flags and letters only for version 1.
+    /// `GunChatExtraInfo::StreamPack` (unpack): under 8 bytes is refused; the flags and letters
+    /// only for version 1.
     pub fn decode(bytes: &[u8]) -> Result<Self, ProtocolError> {
         if bytes.len() < 8 {
             return Err(ProtocolError::Truncated);
         }
         let mut r = Reader::new(bytes);
         let mut info = Self {
-            version: r.u32()?,
-            misc_flags: r.u32()?,
+            version: r.u16()?,
+            misc_flags: r.u16()?,
             weenie_flags: 0,
             meta_letters: String::new(),
         };
@@ -420,13 +423,8 @@ mod tests {
     fn gun_chat_extra_info_is_an_ac2_stream_pack() {
         let info = GunChatExtraInfo::new(0x4, String::new());
         let bytes = info.encode();
-        assert_eq!(
-            bytes,
-            [1u32, 0, 4, 0]
-                .iter()
-                .flat_map(|v| v.to_le_bytes())
-                .collect::<Vec<_>>()
-        );
+        // u16 version 1, u16 misc 0, u32 weenie flags 4, the empty string's u32: 12 bytes.
+        assert_eq!(bytes, [1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0]);
         assert_eq!(GunChatExtraInfo::decode(&bytes), Ok(info));
         let named = GunChatExtraInfo::new(0, "m".into());
         assert_eq!(GunChatExtraInfo::decode(&named.encode()), Ok(named));

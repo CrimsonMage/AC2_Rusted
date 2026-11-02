@@ -515,7 +515,11 @@ pub(super) fn the_credits_scroll_then_return_to_character_selection() {
     let area = find(&ui, "TextArea");
     let text = ui.tree().get(area).unwrap().text().unwrap();
     // 7230's credits open with the Legions team.
-    let first = ac2_dat::test_support::pinned("ASHERON'S CALL 2", "AC2: LEGIONS TEAM");
+    let first = ac2_dat::test_support::pinned(
+        "ASHERON'S CALL 2",
+        "AC2: LEGIONS TEAM",
+        /*0930*/ "AC2: LEGIONS TEAM",
+    );
     assert!(text.starts_with(first), "{:?}", &text[..40]);
     assert!(text.lines().count() > 400);
     // The first loop shows a picture, fading, and the text starts below the field and rises.

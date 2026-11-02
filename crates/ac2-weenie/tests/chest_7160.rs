@@ -26,6 +26,18 @@ fn config() -> OnlineConfig {
     }
 }
 
+/// Sends `request` as the player's script would (`WM_Inventory`): the double answers it.
+fn send(session: &mut OnlineSession, request: ScriptRequest) {
+    if let ac2_net::protocol::ClientEvent::Interp {
+        function,
+        arguments,
+        encrypted,
+    } = request.to_event()
+    {
+        session.send_interp(function, arguments, encrypted);
+    }
+}
+
 type Double = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 
 fn settle(session: &mut OnlineSession, state: &Double) -> Vec<SessionEvent> {
@@ -87,7 +99,7 @@ fn the_chest_opens_lists_its_items_and_gives_one_to_the_player() {
     assert!(session.inventory().contents(CHEST).is_none());
 
     // Opening it: the open notice, then its contents (the gem, then the scroll).
-    session.set_container_open(CHEST, true);
+    send(&mut session, ScriptRequest::OpenContainer(CHEST));
     let events = settle(&mut session, &state);
     assert_eq!(
         notices(&events),
@@ -109,14 +121,17 @@ fn the_chest_opens_lists_its_items_and_gives_one_to_the_player() {
         .is_empty());
 
     // The gem into the player's pack (slot -1: the end): the chest shrinks, the pack grows.
-    session.move_item(CHEST_GEM, CHEST, 0, PLAYER, -1, 1);
+    send(
+        &mut session,
+        ScriptRequest::MoveItem(InvMoveDesc::new(CHEST_GEM, CHEST, 0, PLAYER, -1, 1)),
+    );
     let events = settle(&mut session, &state);
     assert_eq!(notices(&events), [refresh(CHEST), refresh(PLAYER)]);
     assert_eq!(items(&session, CHEST), [CHEST_SCROLL]);
     assert_eq!(items(&session, PLAYER), [POTIONS, SWORD, CHEST_GEM]);
 
     // Closing it: the close notice, and no container open.
-    session.set_container_open(CHEST, false);
+    send(&mut session, ScriptRequest::CloseContainer(CHEST));
     let events = settle(&mut session, &state);
     assert_eq!(
         notices(&events),

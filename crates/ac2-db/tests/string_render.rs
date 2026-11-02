@@ -158,6 +158,10 @@ fn every_table_entry_renders() {
     }
     assert_eq!(
         (rendered, private, shipped),
-        ac2_dat::test_support::pinned((47_423, 1779, 0), (53_329, 1539, 332))
+        ac2_dat::test_support::pinned(
+            (47_423, 1779, 0),
+            (53_329, 1539, 332),
+            /*0930*/ (50_249, 944, 928)
+        )
     );
 }

@@ -147,6 +147,7 @@ mod tests {
             no_cull: false,
             draw_sky: false,
             shared_cells: Vec::new(),
+            stab_list: Vec::new(),
             structure: None,
             inverse: world.inverse(),
             geometry: Some(geometry),

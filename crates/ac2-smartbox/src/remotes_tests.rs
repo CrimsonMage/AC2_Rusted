@@ -58,6 +58,7 @@ fn in_world_remote(bits: Option<u64>) -> Remote {
         alpha_moves: None,
         behavior: 0,
         fx_follow: None,
+        collision: None,
     }
 }
 
@@ -276,12 +277,13 @@ fn a_local_object_with_a_behaviour_reports_whether_it_started() {
         visual: 0x1F00_0797,
         position: Default::default(),
         fx_follow: None,
+        collision: None,
         alpha_moves: [(0.0, 0.0), (1.0, 0.25)],
         behavior: 0x4100_0086,
     };
     let mut terrain = ac2_physics::Terrain::new();
     let records = |_: u64| None;
-    remotes.create_local(9, local, &records, &mut terrain, &|_, _| {});
+    remotes.create_local(9, local.clone(), &records, &mut terrain, &|_, _| {});
     assert!(remotes.get(9).is_some_and(|r| r.body().is_some()));
     let results = remotes.take_behavior_results();
     assert_eq!(results.len(), 1);

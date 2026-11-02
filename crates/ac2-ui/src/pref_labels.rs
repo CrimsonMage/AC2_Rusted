@@ -108,6 +108,12 @@ const PREF_LABELS: &[(u32, u32, &str)] = &[
         crate::hud_style::CLASSIC_HUD,
         "ID_Misc_ClassicHud",
     ),
+    // The UI scale, a client-only key likewise (`UiScale`).
+    (
+        crate::ui_scale_pref::UI_SCALE_SECTION,
+        crate::ui_scale_pref::UI_SCALE,
+        "ID_Misc_UiScale",
+    ),
 ];
 
 #[cfg(test)]

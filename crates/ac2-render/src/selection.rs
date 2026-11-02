@@ -19,6 +19,9 @@ pub struct PickMesh {
     pub min: Vec3,
     pub max: Vec3,
     pub parts: Vec<(Mat4, Vec<[Vec3; 3]>)>,
+    /// Per part whose vertices blend, each triangle corner's (bone, weight) influences, in the
+    /// order of the part's triangles.
+    pub skins: Vec<Option<Vec<[Influences; 3]>>>,
     /// `CGfxObj::mesh_type` per part (`ObjectSelection::meshType` of a hit on it).
     pub part_types: Vec<u32>,
 }
@@ -27,6 +30,24 @@ impl PickMesh {
     /// The model's triangles and bounds at rest (parts at their own mesh-to-model transforms).
     pub fn from_model(model: &ObjectModel) -> Self {
         let (mut min, mut max) = (Vec3::splat(f32::MAX), Vec3::splat(f32::MIN));
+        let skins = model
+            .parts
+            .iter()
+            .map(|part| {
+                let skin = part.skin.as_ref()?;
+                Some(
+                    part.drawn_batches(&crate::object::DrawDetail::FULL)
+                        .iter()
+                        .flat_map(|batch| batch.indices.chunks_exact(3))
+                        .filter(|tri| tri.iter().all(|&i| (i as usize) < part.vertices.len()))
+                        .map(|tri| {
+                            let corner = |i: u32| skin.get(i as usize).copied().unwrap_or_default();
+                            [corner(tri[0]), corner(tri[1]), corner(tri[2])]
+                        })
+                        .collect(),
+                )
+            })
+            .collect();
         let parts = model
             .parts
             .iter()
@@ -63,6 +84,7 @@ impl PickMesh {
             min,
             max,
             parts,
+            skins,
             part_types,
         }
     }
@@ -84,10 +106,9 @@ pub struct PickCandidate<'a> {
 fn check_object_selection(
     view_projection: Mat4,
     world: Mat4,
-    mesh: &PickMesh,
+    (lo, hi): (Vec3, Vec3),
     ndc: (f32, f32),
 ) -> Option<f32> {
-    let (lo, hi) = (mesh.min, mesh.max);
     let mut in_front = 0;
     let (mut min, mut max) = (Vec3::splat(f32::MAX), Vec3::splat(f32::MIN));
     for i in 0..8 {
@@ -156,7 +177,8 @@ fn trace_ray(candidate: &PickCandidate<'_>, origin: Vec3, direction: Vec3) -> Op
             continue;
         }
         let local_direction = local_direction / scale;
-        for tri in triangles {
+        let posed = posed_triangles(candidate, index, triangles);
+        for tri in posed.iter() {
             if let Some(t) = ray_triangle(local_origin, local_direction, tri) {
                 let t = t / scale;
                 if nearest.is_none_or(|(n, _)| t < n) {
@@ -193,6 +215,76 @@ pub fn pick_part(
         .copied()
 }
 
+/// One vertex's (bone, weight) influences (`ObjectPart::skin`).
+pub type Influences = [(u8, f32); 4];
+
+/// A part's triangles as drawn: a part whose vertices blend is deformed by its group's matrices
+/// in the pose's palette, as the object vertex stage does (`BlendLitVertices`: each non-zero
+/// weight adds its deformed point over the homogeneous w); retail's selection render drew the
+/// posed mesh, so a body whose pose leaves its bind pose (a creature lying dead) is picked where
+/// it lies.
+fn posed_triangles<'a>(
+    candidate: &PickCandidate<'_>,
+    index: usize,
+    triangles: &'a [[Vec3; 3]],
+) -> std::borrow::Cow<'a, [[Vec3; 3]]> {
+    let skin = candidate.mesh.skins.get(index).and_then(Option::as_ref);
+    let base = candidate
+        .pose
+        .and_then(|pose| Some((pose, (*pose.skins.get(index)?)?)));
+    let (Some(skin), Some((pose, base))) = (skin, base) else {
+        return std::borrow::Cow::Borrowed(triangles);
+    };
+    let deform = |p: Vec3, influences: &Influences| {
+        let mut out = Vec3::ZERO;
+        for &(bone, weight) in influences {
+            if weight == 0.0 {
+                continue;
+            }
+            let Some(m) = pose.palette.get(base as usize + usize::from(bone)) else {
+                continue;
+            };
+            let h = *m * p.extend(1.0);
+            out += h.truncate() * (weight / h.w);
+        }
+        out
+    };
+    std::borrow::Cow::Owned(
+        triangles
+            .iter()
+            .zip(skin)
+            .map(|(tri, inf)| {
+                [
+                    deform(tri[0], &inf[0]),
+                    deform(tri[1], &inf[1]),
+                    deform(tri[2], &inf[2]),
+                ]
+            })
+            .collect(),
+    )
+}
+
+/// The model-space box of a candidate whose parts blend, posed (`None` when no part blends):
+/// its rest box would miss a body the pose moved away from it.
+fn posed_bounds(candidate: &PickCandidate<'_>) -> Option<(Vec3, Vec3)> {
+    let pose = candidate.pose?;
+    if !candidate.mesh.skins.iter().any(Option::is_some) {
+        return None;
+    }
+    let (mut min, mut max) = (Vec3::splat(f32::MAX), Vec3::splat(f32::MIN));
+    for (index, (rest, triangles)) in candidate.mesh.parts.iter().enumerate() {
+        let part = pose.parts.get(index).copied().unwrap_or(*rest);
+        for tri in posed_triangles(candidate, index, triangles).iter() {
+            for p in tri {
+                let q = part.transform_point3(*p);
+                min = min.min(q);
+                max = max.max(q);
+            }
+        }
+    }
+    (min.x <= max.x).then_some((min, max))
+}
+
 /// The whole potential list under `cursor`, as `SceneTool::SelectObject` keeps it: each object
 /// with its `meshType`, nearest first (`gmSelectionUI::Finish3DSelection` reads its first entry).
 pub fn pick_list(
@@ -214,7 +306,8 @@ pub fn pick_list(
     let origin = eye;
     let mut selected: Vec<(f32, u64, u32)> = Vec::new();
     for candidate in candidates {
-        if check_object_selection(view_projection, candidate.world, candidate.mesh, ndc).is_none() {
+        let bounds = posed_bounds(candidate).unwrap_or((candidate.mesh.min, candidate.mesh.max));
+        if check_object_selection(view_projection, candidate.world, bounds, ndc).is_none() {
             continue;
         }
         let Some((depth, part)) = trace_ray(candidate, origin, direction) else {

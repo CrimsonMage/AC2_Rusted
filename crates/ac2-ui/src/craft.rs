@@ -304,7 +304,12 @@ impl CraftUi {
         let Some(element) = message.element else {
             return;
         };
-        let did = match tree.el(element).attribute(TOKEN_DID) {
+        // A row the panel rebuilt (a record arrived) between the press and this dispatch is gone:
+        // the message is dropped, as retail's destroyed element no longer received it.
+        let Some(live) = tree.get(element) else {
+            return;
+        };
+        let did = match live.attribute(TOKEN_DID) {
             Some(AttributeValue::Id(did)) => *did,
             _ => 0,
         };

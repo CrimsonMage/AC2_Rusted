@@ -31,15 +31,45 @@ pub struct Ac2ParticleSource {
     pub seed: u32,
 }
 
-/// The startup particle systems of one AC2 landblock's entities.
+/// The startup particle systems of one AC2 landblock's entities: the landscape's placed entities
+/// and, in the interior cells (`CEnvCell::InitStaticObjects` makes a `CPhysicsObj` per entity
+/// through the same `ICPhysicsObj::makeObject` path, which runs `ApplyStartupFX`), each env cell's
+/// static entities.
 pub fn ac2_block_particle_sources(
     world: &Ac2WorldSource,
     block_cell_id: CellId,
 ) -> ResourceResult<Arc<[Ac2ParticleSource]>> {
     let markers = world.entity_markers(block_cell_id)?;
-    let store = world.resource_store();
     let mut visuals = HashMap::<DataId, Option<Arc<Ac2VisualParticles>>>::new();
     let mut sources = Vec::new();
+    marker_sources(
+        world,
+        &markers,
+        block_cell_id.raw(),
+        &mut visuals,
+        &mut sources,
+    )?;
+    if let Some(interior) = world.landblock_interior(block_cell_id)? {
+        for id in interior.cell_ids(block_cell_id) {
+            let Some(cell) = world.env_cell(id)? else {
+                continue;
+            };
+            let markers = world.env_cell_markers(&cell);
+            marker_sources(world, &markers, mix(id.raw()), &mut visuals, &mut sources)?;
+        }
+    }
+    Ok(Arc::from(sources))
+}
+
+/// The startup systems of `markers`, seeded from `base` (the block or the env cell).
+fn marker_sources(
+    world: &Ac2WorldSource,
+    markers: &[crate::Ac2OutdoorEntityMarker],
+    base: u32,
+    visuals: &mut HashMap<DataId, Option<Arc<Ac2VisualParticles>>>,
+    sources: &mut Vec<Ac2ParticleSource>,
+) -> ResourceResult<()> {
+    let store = world.resource_store();
     for (index, marker) in markers
         .iter()
         .enumerate()
@@ -58,7 +88,7 @@ pub fn ac2_block_particle_sources(
         };
         let frame = marker.world_frame();
         for (slot, attachment) in particles.attachments.iter().enumerate() {
-            let seed = mix(block_cell_id.raw() ^ mix(index as u32) ^ mix(slot as u32 + 0x9E37));
+            let seed = mix(base ^ mix(index as u32) ^ mix(slot as u32 + 0x9E37));
             let pick = seed as usize % attachment.particle_descs.len().max(1);
             let Some(particle_desc) = attachment.particle_descs.get(pick).copied() else {
                 continue;
@@ -76,7 +106,7 @@ pub fn ac2_block_particle_sources(
             });
         }
     }
-    Ok(Arc::from(sources))
+    Ok(())
 }
 
 /// Landblocks whose square lies within `radius` metres of `center` (world AC axes).

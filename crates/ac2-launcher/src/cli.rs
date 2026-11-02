@@ -136,23 +136,10 @@ fn play(args: &[String]) -> Result<String, String> {
         settings.accounts.insert(server.key(), account);
         settings.save()?;
     }
-    // The GUN ticket is a secret: shown as `***`.
-    let shown: Vec<&str> = plan
-        .args
-        .iter()
-        .enumerate()
-        .map(|(i, a)| {
-            if i > 0 && plan.args[i - 1] == "--gunticketoverride" {
-                "***"
-            } else {
-                a.as_str()
-            }
-        })
-        .collect();
     eprintln!(
         "ac2-launcher: {} {}",
         plan.program.display(),
-        shown.join(" ")
+        plan.args.join(" ")
     );
     match launch::start(&plan, Duration::from_secs(60))? {
         Started::Running => Ok(format!("{} is starting in the client", server.name)),

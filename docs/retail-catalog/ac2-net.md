@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 234 done, 41 partial, 66 to do, 215 skipped.
+556 retail functions: 301 done, 23 partial, 57 to do, 175 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -9,28 +9,28 @@ Legend and workflow: [README](README.md).
 - [-] `ClientGunInterface::ClientGunInterface` · 00728240 · legions 006a6520 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [-] `ClientGunInterface::GetPlayerInterface` · 00728290 · legions 006a6570 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
 
-## `ac2/client/src/gun/event/cclichatevent.cpp.c` (1/2)
+## `ac2/client/src/gun/event/cclichatevent.cpp.c` (2/2)
 
 ### CCliChatEvent
-- [x] `CCliChatEvent::HearRoom` · 007281f0 · legions 006a64d0 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
-- [ ] `CCliChatEvent::HearUser` · 00728220 · legions 006a6500 — needs port (check): GUN chat receive (HearUser); Rust room chat is protocol/turbine_chat.rs, confirm same path
+- [x] `CCliChatEvent::HearRoom` · 007281f0 · legions 006a64d0 — GUN phase 3 (gun-phase3)
+- [x] `CCliChatEvent::HearUser` · 00728220 · legions 006a6500 — GUN phase 3 (gun-phase3)
 
-## `ac2/client/src/gun/event/ccliconnectevent.cpp.c` (0/1)
+## `ac2/client/src/gun/event/ccliconnectevent.cpp.c` (1/1)
 
 ### CCliConnectEvent
-- [-] `CCliConnectEvent::HandleConnectEvent` · 00728380 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
+- [x] `CCliConnectEvent::HandleConnectEvent` · 00728380 — GUN phase 3 (gun-phase3)
 
-## `ac2/client/src/gun/event/cclifriendsevent.cpp.c` (0/3)
+## `ac2/client/src/gun/event/cclifriendsevent.cpp.c` (2/3)
 
 ### CCliFriendsEvent
-- [ ] `CCliFriendsEvent::FriendStatus` · 007283c0 · legions 006a66d0 — needs port (check): FriendStatus event; implemented as ac2-client/src/friends.rs FriendEvent::Status, uncited
+- [x] `CCliFriendsEvent::FriendStatus` · 007283c0 · legions 006a66d0 — GUN phase 3 (gun-phase3)
 - [-] `CCliFriendsEvent::CCliFriendsEvent` · 00728470 · legions 006a6780 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [ ] `CCliFriendsEvent::FriendStart` · 00728500 · legions 006a6810 — needs port (check): friends list start is reached through gmCWInterface::GUNEvent_FriendStart / CM_Friends notices; verify and cite
+- [x] `CCliFriendsEvent::FriendStart` · 00728500 · legions 006a6810 — GUN phase 3 (gun-phase3)
 
-## `ac2/client/src/gun/result/cclicallcreateresult.cpp.c` (0/3)
+## `ac2/client/src/gun/result/cclicallcreateresult.cpp.c` (1/3)
 
 ### CCliCallCreateResult
-- [-] `CCliCallCreateResult::HandleCallCreateResult` · 00728ee0 · legions 006a71c0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
+- [x] `CCliCallCreateResult::HandleCallCreateResult` · 00728ee0 · legions 006a71c0 — GUN phase 3 (gun-phase3)
 
 ### CTCallCreateResult
 - [-] `CTCallCreateResult::CTCallCreateResult` · 00728f20 · legions 006a7200 — ctor/dtor/operator= of plain data or container: Rust owns the state
@@ -38,101 +38,101 @@ Legend and workflow: [README](README.md).
 ### CCliCallCreateResult
 - [-] `CCliCallCreateResult::CCliCallCreateResult` · 00728fc0 · legions 006a72a0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
-## `ac2/client/src/gun/result/cclifriendaddresult.cpp.c` (0/2)
+## `ac2/client/src/gun/result/cclifriendaddresult.cpp.c` (1/2)
 
 ### CCliFriendAddResult
-- [~] `CCliFriendAddResult::HandleFriendAddResult` · 00728690 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+- [x] `CCliFriendAddResult::HandleFriendAddResult` · 00728690 — GUN phase 3 (gun-phase3)
 - [-] `CCliFriendAddResult::CCliFriendAddResult` · 007286d0 · legions 006a69d0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
-## `ac2/client/src/gun/result/cclifrienddeleteresult.cpp.c` (0/2)
+## `ac2/client/src/gun/result/cclifrienddeleteresult.cpp.c` (1/2)
 
 ### CCliFriendDeleteResult
-- [ ] `CCliFriendDeleteResult::HandleFriendDeleteResult` · 00728780 · legions 006a6ae0 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [x] `CCliFriendDeleteResult::HandleFriendDeleteResult` · 00728780 · legions 006a6ae0 — GUN phase 3 (gun-phase3)
 - [-] `CCliFriendDeleteResult::CCliFriendDeleteResult` · 007287c0 · legions 006a6b10 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
-## `ac2/client/src/gun/result/ccligetfriendslistresult.cpp.c` (0/2)
+## `ac2/client/src/gun/result/ccligetfriendslistresult.cpp.c` (1/2)
 
 ### CCliGetFriendsListResult
 - [-] `CCliGetFriendsListResult::CCliGetFriendsListResult` · 00728870 · legions 006a6bc0 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [~] `CCliGetFriendsListResult::HandleGetFriendsListResult` · 00728910 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+- [x] `CCliGetFriendsListResult::HandleGetFriendsListResult` · 00728910 — GUN phase 3 (gun-phase3)
 
-## `ac2/client/src/gun/result/ccligetignoredlistresult.cpp.c` (0/2)
+## `ac2/client/src/gun/result/ccligetignoredlistresult.cpp.c` (1/2)
 
 ### CCliGetIgnoredListResult
 - [-] `CCliGetIgnoredListResult::CCliGetIgnoredListResult` · 00728d00 · legions 006a7020 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [ ] `CCliGetIgnoredListResult::HandleGetIgnoredListResult` · 00728dd0 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [x] `CCliGetIgnoredListResult::HandleGetIgnoredListResult` · 00728dd0 — GUN phase 3 (gun-phase3)
 
-## `ac2/client/src/gun/result/ccliignoredaddresult.cpp.c` (0/2)
+## `ac2/client/src/gun/result/ccliignoredaddresult.cpp.c` (1/2)
 
 ### CCliIgnoredAddResult
-- [ ] `CCliIgnoredAddResult::HandleIgnoredAddResult` · 00728ad0 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [x] `CCliIgnoredAddResult::HandleIgnoredAddResult` · 00728ad0 — GUN phase 3 (gun-phase3)
 - [-] `CCliIgnoredAddResult::CCliIgnoredAddResult` · 00728b10 · legions 006a6e70 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
-## `ac2/client/src/gun/result/ccliignoreddeleteresult.cpp.c` (0/3)
+## `ac2/client/src/gun/result/ccliignoreddeleteresult.cpp.c` (1/3)
 
 ### CCliIgnoredDeleteResult
-- [ ] `CCliIgnoredDeleteResult::HandleIgnoredDeleteResult` · 00728bc0 · legions 006a6f20 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [x] `CCliIgnoredDeleteResult::HandleIgnoredDeleteResult` · 00728bc0 · legions 006a6f20 — GUN phase 3 (gun-phase3)
 - [-] `CCliIgnoredDeleteResult::CCliIgnoredDeleteResult` · 00728c00 · legions 006a6f50 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
 ### CCliFriendAddResult
 - [-] `CCliFriendAddResult::`vbase_destructor'` · 00728ce0 · legions 006a7000 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
-## `ac2/client/src/gun/result/cclisendtoroomresult.cpp.c` (0/3)
+## `ac2/client/src/gun/result/cclisendtoroomresult.cpp.c` (1/3)
 
 ### CCliSendToRoomResult
-- [~] `CCliSendToRoomResult::HandleSendToRoomResult` · 007291f0 · legions 006a74c0 — ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
+- [x] `CCliSendToRoomResult::HandleSendToRoomResult` · 007291f0 · legions 006a74c0 — GUN phase 3 (gun-phase3)
 - [-] `CCliSendToRoomResult::CCliSendToRoomResult` · 00729240 · legions 006a7500 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [-] `CCliSendToRoomResult::`vbase_destructor'` · 00729320 · legions 006a75e0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
-## `ac2/client/src/gun/result/cclisendtouserresult.cpp.c` (0/3)
+## `ac2/client/src/gun/result/cclisendtouserresult.cpp.c` (1/3)
 
 ### CCliSendToUserResult
-- [ ] `CCliSendToUserResult::HandleSendToUserResult` · 00729060 — needs port (check): GUN friends/chat message, Rust sends via ChatRequest/FriendEvent; confirm whether it is on a live path
+- [x] `CCliSendToUserResult::HandleSendToUserResult` · 00729060 — GUN phase 3 (gun-phase3)
 - [-] `CCliSendToUserResult::CCliSendToUserResult` · 007290b0 · legions 006a7380 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
 ### CTCallCreateResult
 - [-] `CTCallCreateResult::~CTCallCreateResult` · 007291a0 · legions 006a7470 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
-## `ac2/client/src/gun/result/ccliticketresult.cpp.c` (0/3)
+## `ac2/client/src/gun/result/ccliticketresult.cpp.c` (3/3)
 
 ### CCliTicketResult
-- [-] `CCliTicketResult::HandleTicketArrived` · 007282a0 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-- [-] `CCliTicketResult::HandleAuthenticationResult` · 007282c0 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-- [-] `CCliTicketResult::CCliTicketResult` · 007282e0 · legions 006a65c0 — ctor/dtor/operator= of plain data or container: Rust owns the state
+- [x] `CCliTicketResult::HandleTicketArrived` · 007282a0 — GUN phase 3 (gun-phase3)
+- [x] `CCliTicketResult::HandleAuthenticationResult` · 007282c0 — GUN phase 3 (gun-phase3)
+- [x] `CCliTicketResult::CCliTicketResult` · 007282e0 · legions 006a65c0 — GUN phase 3 (gun-phase3)
 
 ## `ac2/shared/src/gun/ctbullet.cpp.c` (1/1)
 
 ### CTBullet
-- [x] `CTBullet::ConvertToWeenieResult` · 00735c60 · legions 006b1900 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+- [x] `CTBullet::ConvertToWeenieResult` · 00735c60 · legions 006b1900 — ported in ac2-gun (gun-phase2), cited per item
 
-## `ac2/shared/src/gun/helper/turbineuserstatus.cpp.c` (3/10)
+## `ac2/shared/src/gun/helper/turbineuserstatus.cpp.c` (10/10)
 
 ### TurbineUserStatus
-- [x] `TurbineUserStatus::InqMode` · 00604530 · legions 005c5410 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-- [-] `TurbineUserStatus::~TurbineUserStatus` · 00604550 · legions 005c5430 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [-] `TurbineUserStatus::Clear` · 006045a0 · legions 005c5480 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-- [-] `TurbineUserStatus::operator=` · 00604630 · legions 005c5510 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [x] `TurbineUserStatus::InqName` · 006046c0 · legions 005c55a0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-- [-] `TurbineUserStatus::SetLocation` · 00604720 · legions 005c5600 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-- [x] `TurbineUserStatus::InqLocation` · 00604770 · legions 005c5650 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-- [-] `TurbineUserStatus::TurbineUserStatus` · 006047d0 · legions 005c56b0 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [-] `TurbineUserStatus::TurbineUserStatus` · 00604830 · legions 005c5710 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [-] `TurbineUserStatus::StreamPack` · 00604880 · legions 005c5760 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
+- [x] `TurbineUserStatus::InqMode` · 00604530 · legions 005c5410 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::~TurbineUserStatus` · 00604550 · legions 005c5430 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::Clear` · 006045a0 · legions 005c5480 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::operator=` · 00604630 · legions 005c5510 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::InqName` · 006046c0 · legions 005c55a0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::SetLocation` · 00604720 · legions 005c5600 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::InqLocation` · 00604770 · legions 005c5650 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::TurbineUserStatus` · 006047d0 · legions 005c56b0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::TurbineUserStatus` · 00604830 · legions 005c5710 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineUserStatus::StreamPack` · 00604880 · legions 005c5760 — ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
 
-## `ac2/shared/src/gun/result/ctresult.cpp.c` (0/1)
+## `ac2/shared/src/gun/result/ctresult.cpp.c` (1/1)
 
 ### CTResult
-- [-] `CTResult::GetHResultString` · 006075b0 · legions 005c8450 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
+- [x] `CTResult::GetHResultString` · 006075b0 · legions 005c8450 — ported in ac2-gun (gun-phase2), cited per item
 
-## `ac2/shared/src/gun/result/ctticketresult.cpp.c` (0/4)
+## `ac2/shared/src/gun/result/ctticketresult.cpp.c` (4/4)
 
 ### CTTicketResult
-- [-] `CTTicketResult::CTTicketResult` · 00607400 · legions 005c82a0 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [-] `CTTicketResult::~CTTicketResult` · 00607470 · legions 005c8310 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [-] `CTTicketResult::AdoptTicket` · 006074b0 · legions 005c8350 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
-- [-] `CTTicketResult::CopyTicket` · 00607500 · legions 005c83a0 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
+- [x] `CTTicketResult::CTTicketResult` · 00607400 · legions 005c82a0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `CTTicketResult::~CTTicketResult` · 00607470 · legions 005c8310 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `CTTicketResult::AdoptTicket` · 006074b0 · legions 005c8350 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `CTTicketResult::CopyTicket` · 00607500 · legions 005c83a0 — ported in ac2-gun (gun-phase2), cited per item
 
-## `ac2/shared/src/gun/turbinegun.cpp.c` (4/49)
+## `ac2/shared/src/gun/turbinegun.cpp.c` (37/49)
 
 ### Gun::CGetListOfRoomsResult
 - [-] `Gun::CGetListOfRoomsResult::GetRoomList` · 006048d0 · legions 005c5840 — GUN result/event accessor (Gaming Zone)
@@ -151,65 +151,65 @@ Legend and workflow: [README](README.md).
 - [-] `Gun::CGetTicketResult::GetTicket` · 006049c0 · legions 005c57e0 — GUN ticket fetch (Gaming Zone auth; the login path sends the password, auth 0x40000002, handshake.rs)
 
 ### NSTurbineGun::TurbineGun
-- [~] `NSTurbineGun::TurbineGun::CheckForMessages` · 006049f0 · legions 005c58d0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [x] `NSTurbineGun::TurbineGun::GetAuthenticationTicket` · 00604a20 · legions 005c5900 — ported: ac2_net::gun::TurbineGun
-- [-] `NSTurbineGun::TurbineGun::Read` · 00604a80 · legions 005c5960 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvEvent` · 00604ad0 · legions 005c59b0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvAccountsEvent` · 00604b70 · legions 005c5a50 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvPersonaEvent` · 00604b90 · legions 005c5a70 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvAccountsResult` · 00604bb0 · legions 005c5a90 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvSupportResult` · 00604c10 · legions 005c5af0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvNewsResult` · 00604ca0 · legions 005c5b80 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [~] `NSTurbineGun::TurbineGun::RcvChatResult` · 00604cf0 · legions 005c5bd0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RcvFriendsResult` · 00605140 · legions 005c6020 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [-] `NSTurbineGun::TurbineGun::RcvMatchResult` · 00605440 · legions 005c6320 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [~] `NSTurbineGun::TurbineGun::RcvAuthenticateResult` · 006054d0 · legions 005c63b0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestPresentAuthenticationTicket` · 00605640 · legions 005c6520 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestFinishWithTicket` · 006056a0 · legions 005c6580 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [-] `NSTurbineGun::TurbineGun::RequestSendToRoomEx` · 006056f0 · legions 005c65d0 — GUN rooms are not served; room chat goes to Turbine chat
-- [~] `NSTurbineGun::TurbineGun::RequestGetFriendsList` · 00605770 · legions 005c6650 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestGetIgnoredList` · 006057d0 · legions 005c66b0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestFlags` · 00605830 · legions 005c6710 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestSetLocation` · 006058a0 · legions 005c6780 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [-] `NSTurbineGun::TurbineGun::RcvResult` · 00605900 · legions 005c67e0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::UnRegisterEvents` · 00605a10 · legions 005c68f0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [~] `NSTurbineGun::TurbineGun::RequestConnect` · 00605ac0 · legions 005c69a0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [x] `NSTurbineGun::TurbineGun::SetAuthenticationTicket` · 00605ba0 · legions 005c6a80 — ported: ac2_net::gun::TurbineGun
-- [~] `NSTurbineGun::TurbineGun::RcvConnectEvent` · 00605ca0 · legions 005c6b80 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [-] `NSTurbineGun::TurbineGun::RegisterForConnectEvents` · 00605e00 · legions 005c6ce0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [~] `NSTurbineGun::TurbineGun::RegisterForChatEvents` · 00605e40 · legions 005c6d20 — events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
-- [~] `NSTurbineGun::TurbineGun::RegisterForFriendsEvents` · 00605e80 · legions 005c6d60 — events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
-- [-] `NSTurbineGun::TurbineGun::Init` · 00605f00 · legions 005c6da0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::TurbineGun` · 00606250 · legions 005c70f0 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [-] `NSTurbineGun::TurbineGun::~TurbineGun` · 00606330 · legions 005c71d0 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [x] `NSTurbineGun::TurbineGun::LocalToGlobalName` · 006064b0 · legions 005c7350 — ported: ac2_net::gun::TurbineGun
-- [x] `NSTurbineGun::TurbineGun::GlobalToLocalName` · 00606590 · legions 005c7430 — ported: ac2_net::gun::TurbineGun
-- [~] `NSTurbineGun::TurbineGun::RcvChatEvent` · 00606710 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RcvFriendsEvent` · 00606c20 · legions 005c7ac0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
+- [x] `NSTurbineGun::TurbineGun::CheckForMessages` · 006049f0 · legions 005c58d0 — ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+- [x] `NSTurbineGun::TurbineGun::GetAuthenticationTicket` · 00604a20 · legions 005c5900 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::Read` · 00604a80 · legions 005c5960 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvEvent` · 00604ad0 · legions 005c59b0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvAccountsEvent` · 00604b70 · legions 005c5a50 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvPersonaEvent` · 00604b90 · legions 005c5a70 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvAccountsResult` · 00604bb0 · legions 005c5a90 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvSupportResult` · 00604c10 · legions 005c5af0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvNewsResult` · 00604ca0 · legions 005c5b80 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvChatResult` · 00604cf0 · legions 005c5bd0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvFriendsResult` · 00605140 · legions 005c6020 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvMatchResult` · 00605440 · legions 005c6320 — ported in ac2-gun (gun-phase2), cited per item
+- [~] `NSTurbineGun::TurbineGun::RcvAuthenticateResult` · 006054d0 · legions 005c63b0 — ac2-gun rcv_authenticate_result: done; NULL ctx / NULL ticket crash paths not ported (open)
+- [x] `NSTurbineGun::TurbineGun::RequestPresentAuthenticationTicket` · 00605640 · legions 005c6520 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestFinishWithTicket` · 006056a0 · legions 005c6580 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestSendToRoomEx` · 006056f0 · legions 005c65d0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestGetFriendsList` · 00605770 · legions 005c6650 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestGetIgnoredList` · 006057d0 · legions 005c66b0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestFlags` · 00605830 · legions 005c6710 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestSetLocation` · 006058a0 · legions 005c6780 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvResult` · 00605900 · legions 005c67e0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::UnRegisterEvents` · 00605a10 · legions 005c68f0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestConnect` · 00605ac0 · legions 005c69a0 — ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+- [x] `NSTurbineGun::TurbineGun::SetAuthenticationTicket` · 00605ba0 · legions 005c6a80 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RcvConnectEvent` · 00605ca0 · legions 005c6b80 — ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+- [x] `NSTurbineGun::TurbineGun::RegisterForConnectEvents` · 00605e00 · legions 005c6ce0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RegisterForChatEvents` · 00605e40 · legions 005c6d20 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RegisterForFriendsEvents` · 00605e80 · legions 005c6d60 — ported in ac2-gun (gun-phase2), cited per item
+- [~] `NSTurbineGun::TurbineGun::Init` · 00605f00 · legions 005c6da0 — ac2-gun TurbineGun::init: LoadLibrary/GunCreateInstance behind GunLoader; QI checks trivial; AddDllToDumpCapture skipped; missing-export NULL crash not ported
+- [x] `NSTurbineGun::TurbineGun::TurbineGun` · 00606250 · legions 005c70f0 — ported in ac2-gun (gun-phase2), cited per item
+- [~] `NSTurbineGun::TurbineGun::~TurbineGun` · 00606330 · legions 005c71d0 — ac2-gun Drop: m_pGunSupport is never released in retail; Rust drops the whole CGun box
+- [x] `NSTurbineGun::TurbineGun::LocalToGlobalName` · 006064b0 · legions 005c7350 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::GlobalToLocalName` · 00606590 · legions 005c7430 — ported in ac2-gun (gun-phase2), cited per item
+- [~] `NSTurbineGun::TurbineGun::RcvChatEvent` · 00606710 — ac2-gun rcv_chat_event: done; uninited events read uninitialised stack in retail (open)
+- [~] `NSTurbineGun::TurbineGun::RcvFriendsEvent` · 00606c20 · legions 005c7ac0 — ac2-gun rcv_friends_event: done; uninited events read uninitialised stack in retail (open)
 
 ### PList<PStringBase<unsigned_short>_>
 - [-] `PList<PStringBase<unsigned_short>_>::PList<PStringBase<unsigned_short>_>` · 00606d50 · legions 005c7bf0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
 ### NSTurbineGun::TurbineGun
-- [~] `NSTurbineGun::TurbineGun::RequestSendToUserEx` · 00606df0 · legions 005c7c90 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestFriendAdd` · 00606ec0 · legions 005c7d60 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestFriendDelete` · 00606f50 · legions 005c7df0 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestIgnoredAdd` · 00606fe0 · legions 005c7e80 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `NSTurbineGun::TurbineGun::RequestIgnoredDelete` · 00607070 · legions 005c7f10 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [-] `NSTurbineGun::TurbineGun::RequestCallCreate` · 00607100 · legions 005c7fa0 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
-- [-] `NSTurbineGun::TurbineGun::RcvPersonaResult` · 006071f0 · legions 005c8090 — MSN Gaming Zone GUN plumbing (not the community login path; login is glsticketdirect password auth, ac2-net handshake.rs)
+- [x] `NSTurbineGun::TurbineGun::RequestSendToUserEx` · 00606df0 · legions 005c7c90 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestFriendAdd` · 00606ec0 · legions 005c7d60 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestFriendDelete` · 00606f50 · legions 005c7df0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestIgnoredAdd` · 00606fe0 · legions 005c7e80 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestIgnoredDelete` · 00607070 · legions 005c7f10 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `NSTurbineGun::TurbineGun::RequestCallCreate` · 00607100 · legions 005c7fa0 — ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
+- [x] `NSTurbineGun::TurbineGun::RcvPersonaResult` · 006071f0 · legions 005c8090 — ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
 
-## `ac2/shared/src/gun/turbinegunutils.cpp.c` (0/8)
+## `ac2/shared/src/gun/turbinegunutils.cpp.c` (6/8)
 
 ### TurbineGunUtils
-- [-] `TurbineGunUtils::GetModeText` · 006075d0 · legions 005c8470 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-- [-] `TurbineGunUtils::GetRoomModeText` · 00607690 · legions 005c8530 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-- [-] `TurbineGunUtils::GunCreateInstance` · 00607780 · legions 005c8620 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-- [~] `TurbineGunUtils::GetWorldName` · 00607830 · legions 005c86d0 — GUN-only in retail (reads TurbineGun::m_worldName); the client answers from Turbine::Client's copy, which retail also keeps without GUN
-- [ ] `TurbineGunUtils::GetWorldSuffix` · 00607870 · legions 005c8710 — needs port (check): GUN world suffix; confirm whether Turbine chat room names use it
-- [-] `TurbineGunUtils::StringFromHR` · 006078b0 · legions 005c8750 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-- [-] `TurbineGunUtils::PrintCmdHRESULT` · 00607930 · legions 005c87d0 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
-- [-] `TurbineGunUtils::GlobalToLocalName` · 006079a0 · legions 005c8840 — GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
+- [x] `TurbineGunUtils::GetModeText` · 006075d0 · legions 005c8470 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineGunUtils::GetRoomModeText` · 00607690 · legions 005c8530 — ported in ac2-gun (gun-phase2), cited per item
+- [~] `TurbineGunUtils::GunCreateInstance` · 00607780 · legions 005c8620 — ac2-gun gun_create_instance over GunModule; leak of the factory after a failed CreateInstance not reproduced
+- [x] `TurbineGunUtils::GetWorldName` · 00607830 · legions 005c86d0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineGunUtils::GetWorldSuffix` · 00607870 · legions 005c8710 — ported in ac2-gun (gun-phase2), cited per item
+- [~] `TurbineGunUtils::StringFromHR` · 006078b0 · legions 005c8750 — ac2-gun string_from_hr: 112-entry table done; FormatMessageA text for codes outside it is open
+- [x] `TurbineGunUtils::PrintCmdHRESULT` · 00607930 · legions 005c87d0 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `TurbineGunUtils::GlobalToLocalName` · 006079a0 · legions 005c8840 — ported in ac2-gun (gun-phase2), cited per item
 
 ## `portal/client/src/cchat/ac2clientchatmanager.cpp.c` (0/4)
 

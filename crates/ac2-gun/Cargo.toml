@@ -1,0 +1,30 @@
+[package]
+name = "ac2-gun"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# GUN, the MSN Gaming Zone service (retail: Microsoft's GunDll.dll and Turbine's
+# ac2/shared/src/gun), ported from the decompile specs in the analysis workspace
+# (decompiled-pdb/gundll/spec/, decompiled-pdb/dplay8/spec_client.md).
+[features]
+# `test_support`: a recording GunObject double (the CGun::DispatchQueue loop, scripted results)
+# for tests of TurbineGun and of the crates that drive it.
+test-support = []
+
+[dependencies]
+ac2-core = { path = "../ac2-core" }
+# GunDll's CryptoAPI use (gundll/crypto.rs): MD5 of the two randoms, PKCS#1 v1.5 under the server key.
+md-5 = "0.10"
+rsa = { version = "0.9", default-features = false, features = ["std"] }
+rand_core = "0.6"
+getrandom = "0.2"
+
+# `SO_SNDBUF = 0` on the DirectPlay 8 provider's UDP socket (dpnwsock.dll.c:7799), which `std`
+# cannot set.
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

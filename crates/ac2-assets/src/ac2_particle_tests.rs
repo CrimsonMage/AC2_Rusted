@@ -47,7 +47,10 @@ fn every_legions_particle_system_decodes_to_its_exact_length() {
         return;
     };
     let ids = portal_ids(&dataset, 0x3900_0000);
-    assert_eq!(ids.len(), ac2_dat::test_support::pinned(1729, 1735));
+    assert_eq!(
+        ids.len(),
+        ac2_dat::test_support::pinned(1729, 1735, /*0930*/ 1560)
+    );
     let (mut emitters, mut keyframes, mut world_space) = (0, 0, 0);
     for did in &ids {
         let desc = load::<Ac2ParticleSystemDesc>(&store, *did);
@@ -76,7 +79,11 @@ fn every_legions_particle_system_decodes_to_its_exact_length() {
     }
     assert_eq!(
         (emitters, keyframes, world_space),
-        ac2_dat::test_support::pinned((3067, 11799, 1029), (3116, 11954, 1035))
+        ac2_dat::test_support::pinned(
+            (3067, 11799, 1029),
+            (3116, 11954, 1035),
+            /*0930*/ (2800, 10829, 898)
+        )
     );
 }
 
@@ -86,7 +93,10 @@ fn every_legions_fx_table_decodes_to_its_exact_length() {
         return;
     };
     let ids = portal_ids(&dataset, 0x1E00_0000);
-    assert_eq!(ids.len(), ac2_dat::test_support::pinned(312, 327));
+    assert_eq!(
+        ids.len(),
+        ac2_dat::test_support::pinned(312, 327, /*0930*/ 319)
+    );
     let mut particle_nodes = 0;
     let mut sound_refs = 0;
     for did in &ids {

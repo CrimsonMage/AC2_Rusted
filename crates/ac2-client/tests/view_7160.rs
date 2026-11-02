@@ -795,6 +795,13 @@ fn the_client_walks_with_w_and_draws_its_character() {
     assert!(client.show_radar_coords());
     // The world chest: opening it shows `gmExternalContainerUI` with its two items.
     server.borrow_mut().spawn_chest();
+    // The chest's own process starts as its object and script state load (`CWDistributor::
+    // Construct`); the window's `UpdateOpen` call goes to that process, so it waits for it.
+    for _ in 0..40 {
+        client.settle_loads(Duration::from_secs(30)).unwrap();
+        client.use_time(&idle).unwrap();
+        server.borrow_mut().elapsed += STEP;
+    }
     let open = FrameInput {
         commands: vec![ac2_client::Command::SetContainerOpen {
             container: legions_server_double::CHEST,

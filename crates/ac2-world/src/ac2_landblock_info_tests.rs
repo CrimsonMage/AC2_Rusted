@@ -67,7 +67,16 @@ fn a_template_with_a_false_no_object_property_places_nothing() {
     let store = ResourceStore::new(Arc::clone(&dataset));
     assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
     let mut seen = (0, 0);
-    for block in [0x2102_0000u32, 0x2002_0000, 0x2202_0000] {
+    // The DVD and 7230 blocks 0x2102, 0x2002 and 0x2202, then the first blocks of the set (the
+    // end-of-retail set has no record for those three: the relaunch renumbered the blocks).
+    let first_blocks = dataset
+        .ids_in_range(DatFileKind::Cell, 0x0000_FFFE, 0xFFFF_FFFE)
+        .filter(|did| did & 0xFFFF == 0xFFFE)
+        .take(400);
+    let blocks = [0x2102_FFFEu32, 0x2002_FFFE, 0x2202_FFFE]
+        .into_iter()
+        .chain(first_blocks);
+    for block in blocks {
         let did = DataId::new((block & 0xFFFF_0000) | 0xFFFE);
         let Some(record) = store
             .load_cached_packed::<Ac2LandBlockEntities>(TypedResourceRef::new(

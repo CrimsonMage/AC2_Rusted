@@ -8,7 +8,7 @@ use ac2_net::protocol::{
     StoreView,
 };
 
-use crate::items::{item_object_bytes, ItemSpawn};
+use crate::items::ItemSpawn;
 use crate::State;
 
 /// The first id of an item a purchase gives the player (`answer_purchase` counts up from it).
@@ -91,7 +91,7 @@ impl State {
             "Purchased item",
             self.player(),
         );
-        self.send_event(&item_object_bytes(&item));
+        self.send_item_object(&item);
         self.script_world
             .contents
             .entry(self.player())

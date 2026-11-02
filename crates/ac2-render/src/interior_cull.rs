@@ -44,6 +44,8 @@ pub struct CullCell {
     pub draw_sky: bool,
     /// `m_sharedCells`.
     pub shared_cells: Vec<u32>,
+    /// `m_stabList`: the cells seen from this one (`CEnvCell::find_visible_child_cell` scans it).
+    pub stab_list: Vec<u32>,
     /// The cell mesh's structure, to tell whether a point is in the cell (`PointInCell`).
     pub structure: Option<Arc<Ac2CellStruct>>,
     /// `world` inverted: the scene's space into the cell's.
@@ -94,11 +96,27 @@ pub struct BlockCull {
 }
 
 impl BlockCull {
-    /// The cell holding `point`, if any (`CEnvCell::find_visible_child_cell`'s scan).
+    /// The first of the block's cells, by id, holding `point`, if any. Retail never searches a
+    /// block by geometry to find the viewer (`WorldRender::Render` starts from the camera's own
+    /// cell, [`Self::visible_child_cell`]); this is for tools and tests that have only a point.
     pub fn cell_at(&self, point: Vec3) -> Option<u32> {
         let mut ids: Vec<u32> = self.cells.keys().copied().collect();
         ids.sort_unstable();
         ids.into_iter().find(|id| self.cells[id].contains(point))
+    }
+
+    /// `CEnvCell::find_visible_child_cell`: `cell` itself when it holds `point`, else the first
+    /// cell of its stab list (`m_stabList`) that is loaded and holds it, else `None`.
+    pub fn visible_child_cell(&self, cell: u32, point: Vec3) -> Option<u32> {
+        let start = self.cells.get(&cell)?;
+        if start.contains(point) {
+            return Some(cell);
+        }
+        start
+            .stab_list
+            .iter()
+            .copied()
+            .find(|id| self.cells.get(id).is_some_and(|c| c.contains(point)))
     }
 }
 
@@ -397,6 +415,7 @@ mod tests {
             no_cull: false,
             draw_sky: false,
             shared_cells: Vec::new(),
+            stab_list: Vec::new(),
             structure: None,
             inverse: Mat4::IDENTITY,
             geometry: None,

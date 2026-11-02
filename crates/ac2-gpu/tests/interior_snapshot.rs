@@ -57,7 +57,7 @@ fn dungeon_cells_render_with_baked_light() {
     };
     // `AC2_SNAPSHOT_BLOCK`: the dungeon block (hex); by default the DVD's 005D, which 7230
     // removed, or 7230's 03D7.
-    let default_block = ac2_dat::test_support::pinned(0x005D_u32, 0x03D7);
+    let default_block = ac2_dat::test_support::pinned(0x005D_u32, 0x03D7, /*0930*/ 0x03D7);
     let block = CellId::new(
         std::env::var("AC2_SNAPSHOT_BLOCK")
             .ok()

@@ -44,6 +44,17 @@ pub fn weenie_object_with(
     package: u32,
     name: &str,
 ) -> Vec<u8> {
+    weenie_object_with_scale(object, visual, package, name, None)
+}
+
+/// [`weenie_object_with`] with the weenie's `Scale` (`gmWeenieDesc` bit `0x80`, after the name).
+pub fn weenie_object_with_scale(
+    object: &ObjectSpawn,
+    visual: &[u8],
+    package: u32,
+    name: &str,
+    scale: Option<f32>,
+) -> Vec<u8> {
     let mut b = 0x0001_0058u32.to_le_bytes().to_vec();
     b.extend(object.id.to_le_bytes());
     b.extend(visual);
@@ -57,13 +68,18 @@ pub fn weenie_object_with(
     for stamp in object.stamps {
         b.extend(stamp.to_le_bytes());
     }
-    let mask = u32::from(package != 0) | if name.is_empty() { 0 } else { 4 };
+    let mask = u32::from(package != 0)
+        | if name.is_empty() { 0 } else { 4 }
+        | if scale.is_some() { 0x80 } else { 0 };
     words(&mut b, &[mask]);
     if package != 0 {
         words(&mut b, &[package]);
     }
     if !name.is_empty() {
         b.extend(ac2_net::protocol::StringInfo::literal(name).to_bytes());
+    }
+    if let Some(scale) = scale {
+        b.extend(scale.to_le_bytes());
     }
     b
 }

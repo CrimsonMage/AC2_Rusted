@@ -261,7 +261,10 @@ fn read_heap_object(r: &mut Reader<'_>) -> Result<HeapObject, ProtocolError> {
     };
     let native = match word & 0xFFFF {
         0 => None,
-        ntype => Some(NativeObject::read(ntype, r)?),
+        ntype => Some(NativeObject::read(
+            ac2_core::native_type_from_release(ntype),
+            r,
+        )?),
     };
     let size = r.u32()? as usize;
     if size > MAX_ITEMS || size * 5 > r.remaining() {
@@ -281,7 +284,9 @@ fn read_heap_object(r: &mut Reader<'_>) -> Result<HeapObject, ProtocolError> {
 
 /// `HeapObject::Pack`.
 fn write_heap_object(object: &HeapObject, w: &mut Writer) {
-    let ntype = object.native.as_ref().map_or(0, NativeObject::native_type);
+    let ntype = object.native.as_ref().map_or(0, |native| {
+        ac2_core::native_type_to_release(native.native_type())
+    });
     w.u32(object.pkg_state_id)
         .u32((object.pkg_id << 16) | (ntype & 0xFFFF));
     if let Some(native) = &object.native {

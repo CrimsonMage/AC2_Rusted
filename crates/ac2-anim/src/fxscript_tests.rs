@@ -87,7 +87,7 @@ fn every_fx_script_in_the_dat_decodes() {
         .collect();
     assert_eq!(
         ids.len(),
-        ac2_dat::test_support::pinned(22, 23),
+        ac2_dat::test_support::pinned(22, 23, /*0930*/ 23),
         "FX script records in portal.dat"
     );
     let mut effects = 0;

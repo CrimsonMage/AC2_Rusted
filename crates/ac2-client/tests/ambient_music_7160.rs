@@ -71,7 +71,7 @@ fn town_spawn() -> Option<legions_server_double::Spawn> {
     let world = ac2_client::DatWorld::new(Arc::new(store)).ok()?;
     // The town block: the DVD's CB4D; 7230 gave part of CB4D's land points another
     // environment, so its spawn is the neighbouring CB4C, all of whose points are the town's.
-    let block = ac2_dat::test_support::pinned(0xCB4D_u32, 0xCB4C) << 16;
+    let block = ac2_dat::test_support::pinned(0xCB4D_u32, 0xCB4C, /*0930*/ 0xCB4C) << 16;
     let top = world
         .world()
         .load_landblock(ac2_core::CellId::new(block | 1))

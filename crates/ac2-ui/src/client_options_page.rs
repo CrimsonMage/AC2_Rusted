@@ -704,6 +704,9 @@ fn choice_label(labels: Labels, names: &dyn NameTable, pref: &Pref, choice: &Cho
         let (width, height) = ac2_render::prefs::mode_of(choice.value);
         return format!("{width} x {height}");
     }
+    if pref.key == crate::ui_scale_pref::UI_SCALE {
+        return crate::ui_scale_pref::UiScaleSetting::label(choice.value);
+    }
     let name = pref.map.and_then(|map| names.enum_name(map, choice.label));
     if let Some(name) = &name {
         let prefix = match pref.section {

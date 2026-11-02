@@ -6,6 +6,8 @@
 #![allow(dead_code)]
 #![cfg(feature = "window")]
 
+mod window;
+
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -42,6 +44,9 @@ pub struct Rig {
     pub alt: bool,
     /// The world the view draws, kept to rebuild the HUD.
     pub world: Arc<ac2_world::Ac2WorldSource>,
+    /// The window loop's input state (`window.rs`): the retail controls, the 3D selection and the
+    /// commands waiting for the next window frame.
+    pub(crate) win: window::WindowState,
     /// The cross-process GPU lock ([`gpu_process_lock`]), held for the rig's life.
     _gpu_process: std::fs::File,
     /// Held for the rig's life ([`GPU_SLOT`]); dropped last.
@@ -152,6 +157,7 @@ impl Rig {
             asked: Vec::new(),
             shift: false,
             alt: false,
+            win: window::WindowState::new(&store),
             world: Arc::clone(&world),
             _gpu_process: gpu_process,
             _gpu_slot: gpu_slot,

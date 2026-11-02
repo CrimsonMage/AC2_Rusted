@@ -106,6 +106,52 @@ impl State {
         self.send_event(&create_object_bytes(&object));
     }
 
+    /// `CreateObject` for a creature `id` of `visual` in `cell` at `origin`: a plain create with no
+    /// script, which the client places once the cell is resident.
+    pub fn spawn_creature(&mut self, id: u64, visual: u32, cell: u32, origin: [f32; 3]) {
+        let object = ObjectSpawn {
+            id,
+            instance: 1,
+            visual,
+            cell,
+            origin,
+            rotation: [1.0, 0.0, 0.0, 0.0],
+            stamps: [CREATED_STAMP, 0, 0, 0],
+            name: "Creature",
+        };
+        self.send_event(&create_object_bytes(&object));
+    }
+
+    /// [`Self::spawn_creature`] with the weenie's `Scale` quality.
+    pub fn spawn_scaled_creature(
+        &mut self,
+        id: u64,
+        visual: u32,
+        cell: u32,
+        origin: [f32; 3],
+        scale: f32,
+    ) {
+        let object = ObjectSpawn {
+            id,
+            instance: 1,
+            visual,
+            cell,
+            origin,
+            rotation: [1.0, 0.0, 0.0, 0.0],
+            stamps: [CREATED_STAMP, 0, 0, 0],
+            name: "Creature",
+        };
+        let mut vdesc = Vec::new();
+        words(&mut vdesc, &[2, visual]);
+        self.send_event(&crate::objects::weenie_object_with_scale(
+            &object,
+            &vdesc,
+            0,
+            object.name,
+            Some(scale),
+        ));
+    }
+
     /// A physics mode event for `object` (`CPhysicsObj::RecvEvt_SetMode` or `RecvEvt_DoMode`).
     fn send_mode(&mut self, object: u64, mode: u32, opcode: u32) {
         self.send_event(&object_event_bytes(opcode, object, 1, &[mode]));

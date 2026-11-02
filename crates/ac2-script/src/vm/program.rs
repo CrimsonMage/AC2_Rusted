@@ -148,6 +148,9 @@ pub struct Program {
     /// Per export (vtable index): the package's id and its parent's export index
     /// (`ExportPackageArgs::m_pkg_id`, `m_parent_index`).
     pub exports: Vec<(u32, u32)>,
+    /// Whether the library is the 0930 one, whose efun and native type numbers differ from
+    /// the 7160/7230 ones the glue is bound by ([`super::efun_ids`]).
+    pub release_0930: bool,
 }
 
 impl Program {
@@ -175,6 +178,8 @@ impl Program {
                 .iter()
                 .map(|e| (e.args.pkg_id, e.args.parent_index))
                 .collect(),
+            // The library loads from the mounted set, so its release is the process's.
+            release_0930: ac2_core::data_release() == ac2_core::DataRelease::Release0930,
         };
         program.resolve_virtual_calls();
         program

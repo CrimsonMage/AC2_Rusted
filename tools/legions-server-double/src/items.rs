@@ -12,6 +12,13 @@ use ac2_net::protocol::{
 use crate::{words, State, PLAYER};
 
 /// The side pack, the potions, the sword, the rations.
+/// `gmweenietype.emp` `Item`, `GameplayContainer`, `Weapon`, `Shield`, `Potion`.
+pub const ITEM_WEENIE_TYPE: i32 = 0x81;
+pub const CONTAINER_WEENIE_TYPE: i32 = 0x103;
+const WEAPON_WEENIE_TYPE: i32 = 0x2_0081;
+const SHIELD_WEENIE_TYPE: i32 = 0x1_0081;
+const POTION_WEENIE_TYPE: i32 = 0x8_0081;
+
 pub const PACK: u64 = 0x8000_0000_0000_0101;
 pub const POTIONS: u64 = 0x8000_0000_0000_0102;
 pub const SWORD: u64 = 0x8000_0000_0000_0103;
@@ -85,6 +92,10 @@ pub struct ItemSpawn {
     /// The item's `VisualDesc` (a DAT visual), for an item that is drawn when wielded; `None` for
     /// one with no parts.
     pub visual: Option<u32>,
+    /// The weenie type (int 20, `gmweenietype.emp`): `Item` 0x81 unless set. The script's
+    /// inventory checks read it (`EngineWeenieTypeSystem` 0x17: `(type & 0x81) == 0x81` for an
+    /// item, 0x15: `(type & 0x103) == 0x103` for a gameplay container).
+    pub weenie_type: i32,
 }
 
 impl ItemSpawn {
@@ -105,6 +116,7 @@ impl ItemSpawn {
             locations: None,
             entity: None,
             visual: None,
+            weenie_type: ITEM_WEENIE_TYPE,
         }
     }
 }
@@ -149,6 +161,7 @@ pub fn starter_items() -> Vec<ItemSpawn> {
             icon: ICON_PACK,
             value: 10,
             capacity: Some(24),
+            weenie_type: CONTAINER_WEENIE_TYPE,
             ..ItemSpawn::new(PACK, CONTAINER_PACKAGE, "Pack", PLAYER)
         },
         ItemSpawn {
@@ -158,6 +171,7 @@ pub fn starter_items() -> Vec<ItemSpawn> {
             value: 20,
             stackable: true,
             max_stack: Some(10),
+            weenie_type: POTION_WEENIE_TYPE,
             ..ItemSpawn::new(POTIONS, 0x1AA9, "Healing Potion", PLAYER)
         },
         ItemSpawn {
@@ -165,6 +179,7 @@ pub fn starter_items() -> Vec<ItemSpawn> {
             value: 50,
             durability: Some((40, 50)),
             locations: Some((PRIMARY_HAND | SECONDARY_HAND, PRIMARY_HAND)),
+            weenie_type: WEAPON_WEENIE_TYPE,
             ..ItemSpawn::new(SWORD, 0x1AAB, "Practice Sword", PLAYER)
         },
         ItemSpawn {
@@ -237,9 +252,33 @@ impl State {
         self.give_money(STARTER_MONEY);
     }
 
+    /// `CreateObject` of an item and its weenie type (int 20).
+    pub(crate) fn send_item_object(&mut self, item: &ItemSpawn) {
+        self.send_event(&item_object_bytes(item));
+        self.send_quality(&QualityUpdate {
+            object: Some(InstanceIdWithStamp {
+                id: item.id,
+                instance: 1,
+                other: 0,
+            }),
+            quality: 20,
+            value: QualityValue::Int(item.weenie_type),
+        });
+        // `IsTakeable` (bool 625), which the script's move check reads (`gmEntity` 0x10C).
+        self.send_quality(&QualityUpdate {
+            object: Some(InstanceIdWithStamp {
+                id: item.id,
+                instance: 1,
+                other: 0,
+            }),
+            quality: 625,
+            value: QualityValue::Bool(1),
+        });
+    }
+
     /// An item's object and its stackable, stack, capacity and equip-location qualities.
     fn send_item(&mut self, item: &ItemSpawn) {
-        self.send_event(&item_object_bytes(item));
+        self.send_item_object(item);
         let object = Some(InstanceIdWithStamp {
             id: item.id,
             instance: 1,
@@ -283,13 +322,14 @@ impl State {
                 ..item
             })
             .expect("the starter sword");
-        self.send_event(&item_object_bytes(&sword));
+        self.send_item_object(&sword);
         let shield = ItemSpawn {
             icon: ICON_SHIELD,
             value: 30,
             durability: Some((60, 60)),
             locations: Some((SECONDARY_HAND, SECONDARY_HAND)),
             visual: Some(SHIELD_VISUAL),
+            weenie_type: SHIELD_WEENIE_TYPE,
             ..ItemSpawn::new(SHIELD, 0x1AAB, "Round Shield", player)
         };
         self.send_item(&shield);
@@ -350,7 +390,7 @@ impl State {
                 container,
             )
         };
-        self.send_event(&item_object_bytes(&coin));
+        self.send_item_object(&coin);
         let object = Some(InstanceIdWithStamp {
             id: coin.id,
             instance: 1,

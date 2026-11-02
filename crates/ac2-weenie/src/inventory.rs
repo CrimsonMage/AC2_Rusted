@@ -224,22 +224,35 @@ impl InventoryState {
     }
 
     /// `CInventorySystem` 0x2 / 0xE (`MoveItem_Done`, `ReorganizeContents_Done`): a successful
-    /// move leaves its container and, when the target is a listed container, lands at the
-    /// server's slot (or the end); a drop or a give only leaves.
+    /// move takes the item out of its container when all its units were taken
+    /// (`allItemUnitsTakenFlag`, `InventorySystem` 0x26), then adds the descriptor's
+    /// `splitItemID` (the item itself for a whole move, the new stack for a split) where the
+    /// server says (`actualTargetSlot`, or the end) when it is not listed yet
+    /// (`InventorySystem` 0x1D); a drop or a give only leaves.
     pub fn move_done(&mut self, d: &InvMoveDesc) -> Vec<GameplayNotice> {
         if d.status() != 0 {
             return Vec::new();
         }
         let item = d.item();
-        let is_pack = self.contents.values().any(|c| c.packs.contains(&item));
         let mut out = Vec::new();
-        if let Some(from) = self.remove(item) {
-            out.push(refresh_container(from));
+        if d.all_units_taken() {
+            if let Some(from) = self.remove(item) {
+                out.push(refresh_container(from));
+            }
         }
-        if self.insert(d.target(), item, d.actual_target_slot(), is_pack) {
-            let target = refresh_container(d.target());
-            if !out.contains(&target) {
-                out.push(target);
+        let added = d.split_item();
+        let listed = |s: &Self| {
+            s.contents
+                .values()
+                .any(|c| c.packs.contains(&added) || c.items.contains(&added))
+        };
+        if added != 0 && !listed(self) {
+            let is_pack = self.contents.values().any(|c| c.packs.contains(&item));
+            if self.insert(d.target(), added, d.actual_target_slot(), is_pack) {
+                let target = refresh_container(d.target());
+                if !out.contains(&target) {
+                    out.push(target);
+                }
             }
         }
         out

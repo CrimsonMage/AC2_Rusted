@@ -162,6 +162,19 @@ impl OnlineSession {
     /// `None` for empty text or room 0 (retail sends nothing). The sender's meta letters
     /// (`StringTableMetaLanguage::RetrieveMetaLetters` of its name) are left empty.
     pub fn send_to_room(&mut self, room: u32, text: &str, weenie_flags: u32) -> Option<u32> {
+        let extra = GunChatExtraInfo::new(weenie_flags, String::new()).encode();
+        self.send_to_room_with_extra(room, text, extra)
+    }
+
+    /// [`OnlineSession::send_to_room`] with the packed `GunChatExtraInfo`
+    /// (`GunChatExtraInfo::PackIntoBlob`, `crate::gun::chat_extra`) `RequestGUN_SendToRoom`
+    /// built: the remote blob of `CSendToTurbineRoomByID`.
+    pub fn send_to_room_with_extra(
+        &mut self,
+        room: u32,
+        text: &str,
+        extra: Vec<u8>,
+    ) -> Option<u32> {
         if text.is_empty() || room == 0 {
             return None;
         }
@@ -170,7 +183,7 @@ impl OnlineSession {
             context: self.chat_context,
             room,
             text: text.to_owned(),
-            extra: GunChatExtraInfo::new(weenie_flags, String::new()).encode(),
+            extra,
         };
         self.send_chat(&request.to_packet().encode());
         Some(self.chat_context)
@@ -236,7 +249,7 @@ impl OnlineSession {
     /// `CCombatSystem` 0x1 as far as the client knows it: another object whose weenie is a
     /// creature (`CWInterface::IsCreature`). Retail also asks `CCombatSystem` 0x5 and the
     /// weenie type system.
-    fn is_combat_target(&self, id: u64) -> bool {
+    pub(super) fn is_combat_target(&self, id: u64) -> bool {
         Some(id) != self.world.player()
             && self
                 .world

@@ -93,6 +93,7 @@ fn a_viewport_scene_casts_its_objects_shadows() {
                 tint: [1.0; 4],
                 point_lights: Vec::new(),
                 detail: Default::default(),
+                cell: 0,
             })
             .to_vec();
         let frame = SceneFrame {

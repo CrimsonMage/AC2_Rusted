@@ -7,7 +7,9 @@
 //! offline world viewer both drive it with plain data.
 
 mod blocks;
+pub mod body_shadow;
 pub mod camera;
+pub mod camera_collision;
 pub mod camera_fx;
 mod camera_mouse;
 mod camera_rig;
@@ -32,6 +34,7 @@ pub use blocks::{
     load_dat_block, prefetch_dat_far_block, BlockLoaded, BlockLoader, BlockPool, BlockSource,
 };
 pub use camera::{action as camera_action, CameraManager, CameraSubject};
+pub use camera_collision::CameraCollision;
 pub use cells::{block_radius, BlockChange, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use collision_traffic::Touch;
 pub use player::{load_body_data, BodyData, PlayerBody, HUMAN_MOTION_INTERP_DESC};

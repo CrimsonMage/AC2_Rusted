@@ -122,7 +122,11 @@ fn every_wstate_decodes_to_its_last_byte() {
     // `m_bUseCache` 0, and `ReferenceIDWrapper::StreamPack` sets it to 1 on unpack.
     assert_eq!(mismatched, vec![0x7000_1ABD]);
     assert_eq!(current + legacy, ids.len());
-    assert_eq!(legacy, 1638);
+    // The end-of-retail set holds no record of the older layout.
+    assert_eq!(
+        legacy,
+        ac2_dat::test_support::pinned(1638, 1638, /*0930*/ 0)
+    );
 }
 
 fn wire_name(native: &ac2_net::protocol::NativeObject) -> &'static str {
@@ -239,7 +243,10 @@ fn every_enum_table_decodes_and_the_master_map_names_the_mapper_group() {
         mappers.len(),
         id_maps.len()
     );
-    assert_eq!((mappers.len(), id_maps.len()), (87, 18));
+    assert_eq!(
+        (mappers.len(), id_maps.len()),
+        ac2_dat::test_support::pinned((87, 18), (87, 18), /*0930*/ (85, 18))
+    );
     let data = DatScriptData::new(dataset, store);
     let master = data.enum_id_map(MASTER_MAP_DID).unwrap();
     assert_eq!(master.name(EMAPPER_GROUP), Some(&b"EMAPPER"[..]));

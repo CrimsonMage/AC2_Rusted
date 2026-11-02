@@ -27,7 +27,7 @@ impl UiTree {
     }
 
     /// `UIElement::GetPositionFromDesc` for an element in state `state`.
-    fn position_from_desc(desc: &ElementDesc, state: u32) -> (UiBox, i32) {
+    pub(crate) fn position_from_desc(desc: &ElementDesc, state: u32) -> (UiBox, i32) {
         Self::position_from_state(desc, state)
             .or_else(|| Self::position_from_state(desc, STATELESS))
             .unwrap_or_else(|| {
@@ -257,10 +257,13 @@ impl UiTree {
     /// with the display). The shortcut bar's `0xffff0008` re-fit is the client's
     /// (`ShortcutUi::refresh_after_display`).
     pub fn set_display(&mut self, width: i32, height: i32) {
+        let candidates = self.default_candidates();
         self.display = (width, height);
         for root in self.roots.clone() {
             self.update_size_and_position(root);
         }
+        self.apply_default_locations(&candidates);
+        self.reapply_server_locations();
         if !self.saved_positions.is_empty() {
             for root in self.roots.clone() {
                 self.apply_saved_position(root);

@@ -366,6 +366,7 @@ impl Client {
                 LocalStart {
                     alpha_moves: create_alpha_moves(object.ramp_time),
                     behavior: object.behavior,
+                    collision: None,
                 },
                 &mut cx,
             );

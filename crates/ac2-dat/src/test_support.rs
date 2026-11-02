@@ -19,10 +19,12 @@ pub fn env_dataset() -> Option<Arc<DatDataset>> {
         .clone()
 }
 
-/// A count pinned per release: the Legions DVD's or the 7230 set's (the mounted DATs' release).
-pub fn pinned<T>(legions: T, release_7230: T) -> T {
+/// A count pinned per release: the Legions DVD's, the 7230 set's or the end-of-retail (0930)
+/// set's (the mounted DATs' release).
+pub fn pinned<T>(legions: T, release_7230: T, release_0930: T) -> T {
     match ac2_core::data_release() {
         ac2_core::DataRelease::Legions => legions,
         ac2_core::DataRelease::Release7230 => release_7230,
+        ac2_core::DataRelease::Release0930 => release_0930,
     }
 }

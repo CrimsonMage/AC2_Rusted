@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 128 done, 52 partial, 67 to do, 107 skipped.
+354 retail functions: 145 done, 46 partial, 59 to do, 104 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `WinMain` · 004013a0 · legions 00401370 — WinMain: Win32 entry point, Rust main
 
-## `ac2/client/src/main/gmclient.cpp.c` (27/92)
+## `ac2/client/src/main/gmclient.cpp.c` (44/92)
 
 ### PackObj
 - [x] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980 — crates/ac2-script/src/unpack.rs `align` cites PackObj::ALIGN_PTR (4-byte alignment)
@@ -87,8 +87,8 @@ Legend and workflow: [README](README.md).
 ### gmClient
 - [ ] `gmClient::InitWeenie` · 00401da0 · legions 00401d10 — needs port (check): gmClient::InitWeenie, weenie session setup at startup; uncited
 - [ ] `gmClient::OnDDDEvent` · 00401dc0 · legions 00401d30 — needs port: DDD event handling (data-patch progress, OnDDDEvent); crates/ac2-ui/src/pregame/data_patch.rs says the patch is not modelled
-- [~] `gmClient::RecvNotice_CharacterSet` · 00401e00 — CharacterSet.turbine_chat is decoded (ac2-net) but the port keeps Turbine chat on: the double sends 0 and room chat must still work
-- [~] `gmClient::UseTime` · 00401e30 · legions 00401da0 — no TurbineGun (GUN) step
+- [~] `gmClient::RecvNotice_CharacterSet` · 00401e00 — GUN: GunClient::recv_notice_character_set sets S_fUseTurbineChatInsteadOfGUN/strip; the trailing [this-0xBC vtbl+0x9C] call is not modelled
+- [x] `gmClient::UseTime` · 00401e30 · legions 00401da0 — GUN phase 3 (gun-phase3)
 
 ### PStringBase<char>
 - [x] `PStringBase<char>::GetPackSize` · 00401e70 · legions 00401e10
@@ -102,12 +102,12 @@ Legend and workflow: [README](README.md).
 - [-] `Turbine::Client::ChatInterfaceProvider::QueryInterface` · 00402180 — inline copy of 00402170
 
 ### CTBullet
-- [-] `CTBullet::NumEventsHandled` · 00402190 · legions 00402130 — GUN bullet event counter; statistics only, no client behaviour
-- [-] `CTBullet::IncEventsHandled` · 004021a0 · legions 00402140 — GUN bullet event counter; statistics only, no client behaviour
+- [x] `CTBullet::NumEventsHandled` · 00402190 · legions 00402130 — ported in ac2-gun (gun-phase2), cited per item
+- [x] `CTBullet::IncEventsHandled` · 004021a0 · legions 00402140 — ported in ac2-gun (gun-phase2), cited per item
 
 ### gmClient::gmChatInterfaceProvider
-- [-] `gmClient::gmChatInterfaceProvider::~gmChatInterfaceProvider` · 004021d0 · legions 00402170 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
-- [~] `gmClient::gmChatInterfaceProvider::OnSendToRoomByIDResult` · 00402240 — admin-only forwarder of the async result; Legions answers through the chat response (CCliSendToRoomResult::HandleSendToRoomResult -> GameplayNotice::SendToRoomResult)
+- [-] `gmClient::gmChatInterfaceProvider::~gmChatInterfaceProvider` · 004021d0 · legions 00402170 — COM refcount and object lifetime: Rust ownership (the chat provider keeps no GUN state here)
+- [x] `gmClient::gmChatInterfaceProvider::OnSendToRoomByIDResult` · 00402240 — GunShared::answer_turbine_send: ctx.m_hr = hr, Result_SendToRoom
 
 ### PStringBase<unsigned_short>
 - [-] `PStringBase<unsigned_short>::operator=` · 00402380 · legions 00402300 — operator==/=/+/!= of plain data (string, id, error); Rust derives or uses String
@@ -116,7 +116,7 @@ Legend and workflow: [README](README.md).
 - [-] `StringInfo::IsOnDisk` · 004025c0 · legions 00402540 — string-table cache flag; strings read on demand (AGENTS.md cache rules)
 
 ### gmClient
-- [ ] `gmClient::~gmClient` · 00402650 · legions 004025a0 — needs port (check): client construction and teardown (gmClient ctor/dtor); Client::new and Drop in crates/ac2-client/src/client.rs uncited
+- [x] `gmClient::~gmClient` · 00402650 · legions 004025a0 — GUN phase 3 (gun-phase3)
 
 ### Turbine::Client
 - [x] `Turbine::Client::GetWidth` · 00402830 · legions 00402780 — Args (account, host, port, width, height) and Args::server_address, the window size
@@ -133,8 +133,8 @@ Legend and workflow: [README](README.md).
 - [-] `CCliChatEvent::CCliChatEvent` · 00402940 · legions 00402890 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 
 ### gmClient
-- [ ] `gmClient::RecvNotice_GunAuthenticated` · 004029d0 — needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
-- [~] `gmClient::AuthenticateWithGUN` · 00402ae0 · legions 00402a30 — events go straight to the client (ac2_client::gun_service); wire is AC2e's GUN transport
+- [x] `gmClient::RecvNotice_GunAuthenticated` · 004029d0 — GUN phase 3 fix round
+- [x] `gmClient::AuthenticateWithGUN` · 00402ae0 · legions 00402a30 — GUN phase 3 (gun-phase3)
 
 ### RefCountIUnknown<gmClient::gmChatInterfaceProvider>
 - [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::RefCountIUnknown<gmClient::gmChatInterfaceProvider>` · 00402d00 · legions 00402c50 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
@@ -156,22 +156,22 @@ Legend and workflow: [README](README.md).
 - [ ] `ArgumentParser::CommandLineArgList::AddCmd` · 004032f0 · legions 00403260 — needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
 
 ### NSTurbineGun::TurbineGun
-- [x] `NSTurbineGun::TurbineGun::SetWorldName` · 004033a0 · legions 00403310 — ported: ac2_net::gun::TurbineGun
+- [x] `NSTurbineGun::TurbineGun::SetWorldName` · 004033a0 · legions 00403310 — ported in ac2-gun (gun-phase2), cited per item
 
 ### gmClient
-- [ ] `gmClient::gmClient` · 004034a0 · legions 00403410 — needs port (check): client construction and teardown (gmClient ctor/dtor); Client::new and Drop in crates/ac2-client/src/client.rs uncited
+- [x] `gmClient::gmClient` · 004034a0 · legions 00403410 — GUN phase 3 (gun-phase3)
 
 ### CCliConnectEvent
-- [-] `CCliConnectEvent::CCliConnectEvent` · 004035c0 · legions 00403530 — ctor of plain data (presentation, event, dialog gateway)
+- [x] `CCliConnectEvent::CCliConnectEvent` · 004035c0 · legions 00403530 — GUN phase 3 (gun-phase3)
 
 ### gmClient
-- [ ] `gmClient::BuildCommandLineArgs` · 00403650 · legions 004035c0 — needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
-- [ ] `gmClient::EvaluateCommandLineArg` · 00403ae0 · legions 00403a50 — needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
-- [ ] `gmClient::OnCommandLineEvaluationDone` · 00403b60 · legions 00403ad0 — needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
-- [ ] `gmClient::RegisterForGunEvents` · 00403c10 · legions 00403b80 — needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
+- [x] `gmClient::BuildCommandLineArgs` · 00403650 · legions 004035c0 — GUN phase 3 fix round
+- [x] `gmClient::EvaluateCommandLineArg` · 00403ae0 · legions 00403a50 — GUN phase 3 fix round
+- [x] `gmClient::OnCommandLineEvaluationDone` · 00403b60 · legions 00403ad0 — GUN phase 3 (gun-phase3)
+- [x] `gmClient::RegisterForGunEvents` · 00403c10 · legions 00403b80 — GUN phase 3 (gun-phase3)
 - [~] `gmClient::InitKeymap` · 00403d30 · legions 00403c80 — ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
-- [~] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40 — window title (main.rs) and the script copy (Client::set_world_name); the GUN copy (NSTurbineGun::SetWorldName) is not kept, no GUN service
-- [ ] `gmClient::RecvNotice_GunReconnected` · 00404080 — needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
+- [x] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40 — GUN phase 3 (gun-phase3)
+- [x] `gmClient::RecvNotice_GunReconnected` · 00404080 — GUN phase 3 (gun-phase3)
 
 ### gmClient::gmChatInterfaceProvider
 - [x] `gmClient::gmChatInterfaceProvider::OnSendToRoom` · 00404100 · legions 00404050 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
@@ -189,10 +189,10 @@ Legend and workflow: [README](README.md).
 - [ ] `Turbine::Client::SetAccount` · 004043f0 · legions 00404320 — needs port (check): Turbine::Client::SetAccount stores the account; implemented as cmdline.rs Args::account but uncited
 
 ### gmClient
-- [~] `gmClient::Init` · 00404410 · legions 00404340 — gmClient::Init: same start-up as ac2 run(); see Turbine::Client::Init
-- [~] `gmClient::StartupGUN` · 00404a40 · legions 00404820 — ported: ac2_net::gun and ac2_client::gun_service; the wire is AC2e's GUN transport, not GunDll's undecoded session layer
-- [~] `gmClient::InitAuth` · 00404e10 · legions 00404bb0 — ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
-- [~] `gmClient::Connect` · 00404f80 · legions 00404d20 — ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
+- [~] `gmClient::Init` · 00404410 · legions 00404340 — GUN phase 3: Init step 5 (billing migration) not ported
+- [~] `gmClient::StartupGUN` · 00404a40 · legions 00404820 — ui_alive (KeepUIAlive) is always true in the frame loop
+- [x] `gmClient::InitAuth` · 00404e10 · legions 00404bb0 — GUN phase 3 (gun-phase3)
+- [x] `gmClient::Connect` · 00404f80 · legions 00404d20 — GUN phase 3 fix round
 
 ### gmNoticeHandler
 - [-] `gmNoticeHandler::RecvNotice_GUNResult_GetFriendsList` · 00405050 — GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
@@ -336,7 +336,7 @@ Legend and workflow: [README](README.md).
 - [x] `Turbine::Client::IsAlreadyRunning` · 00720230 · legions 006a0a60 — bin/ac2/instance.rs: exclusive lock on Turbine Client.lock in the AC2 config directory; a second client stops with a message (retail dialog text not known)
 - [~] `Turbine::Client::Connect` · 007202b0 · legions 006a0ae0 — ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
 - [~] `Turbine::Client::Disconnect` · 00720450 · legions 006a0c40 — ac2-net NetClient::disconnect sends the logoff; leave order is session.rs (LogOffCharacter, CharExitGame, transport logoff); PacketController cleanup and error dialog not ported
-- [~] `Turbine::Client::BuildCommandLineArgs` · 007205d0 · legions 006a0db0 — cmdline.rs option table (retail names and short forms); no launch-line builder or help text
+- [~] `Turbine::Client::BuildCommandLineArgs` · 007205d0 · legions 006a0db0 — tchat stored and used for GUN; tchatdll stored, no chat DLL to load
 - [~] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0 — ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag or FILE), rodat, language (kept, not applied), chargen, prefs; other retail options not ported
 - [~] `Turbine::Client::StartupTurbineChat` · 00722600 · legions 006a2a30 — Legions: a vtable slot, no direct caller in the DVD client. The port has the Turbine chat service on the game connection from logon (no chatclient.dll load, no AC2ClientChatManager)
 - [~] `Turbine::Client::Client` · 00722720 · legions 006a2b30 — no Client object: state is Args, ClientPrefs and OnlineSession built in run()

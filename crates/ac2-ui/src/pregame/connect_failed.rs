@@ -40,9 +40,19 @@ pub(crate) fn connect_failed_text(
     port: u16,
 ) -> Option<String> {
     let id = net_error_id(error)?;
+    // A `NetError` names its own table: the connection errors' (enum 0x40000005) or, for the
+    // GUN start (`ID_DataPatch_GUNFailed`), the UI table (0x41000018).
+    let table = match error {
+        NetError::Server { table_id, .. }
+            if *table_id == crate::pregame::strings::UI_STRING_TABLE =>
+        {
+            strings.table()
+        }
+        _ => strings.net_table(),
+    };
     let own = |string_id: u32| RenderInfo {
         string_id,
-        table_id: strings.net_table(),
+        table_id: table,
         ..RenderInfo::default()
     };
     let ui = |name: &str, variables: Vec<(u32, RenderVar)>| RenderInfo {

@@ -168,26 +168,33 @@ impl InvMoveDesc {
         d
     }
 
-    /// The tags a drag in the pack and a drop onto the ground carry: the ids and slot numbers the
-    /// drag takes from the UI's natives are typed (0x84 on a 64-bit id, 4 on a number), where
-    /// the script's own integers are 0x82 and 2. A reorganization or drop is the one request
-    /// whose graph has them (a move out of a container, `LootAll` and the rest keep the
-    /// script's); AC2e checks them against the retail client's packets
-    /// (`inventory_request::TAGS`). The source slot and the quantity are typed only when they are
-    /// not the zero and one of the script's constants.
-    pub fn with_native_tags(mut self) -> Self {
+    /// The tags of the descriptor the player's script builds for a UI move
+    /// (`ggmCWInterface::CallIFun_MoveItem` pushes each id as two words tagged 0x84 and each
+    /// number tagged 4, and the script copies them into the descriptor's fields as they are):
+    /// 0x84 on the 64-bit ids, 4 on the slots and the quantity taken from the call
+    /// (`actualFromSlot`, `targetSlot`, `actualTargetSlot`, both quantities, `fromSlot`,
+    /// `status` slot 50), against 2 on the numbers the script wrote itself. A test's expected
+    /// bytes; the VM produces them.
+    pub fn with_script_tags(mut self) -> Self {
         let i = &mut self.0;
         for slot in [2, 8, 16, 28, 32, 36, 44] {
             i.set_tag(slot, 0x84);
         }
-        for slot in [6, 11, 22, 24, 26, 38, 39, 50] {
+        for slot in [1, 11, 24, 25, 26, 39, 50] {
             i.set_tag(slot, 4);
         }
-        if i.word(1) != 0 {
-            i.set_tag(1, 4);
-        }
-        if i.word(25) > 1 {
-            i.set_tag(25, 4);
+        self
+    }
+
+    /// The classification the script writes into the descriptor (`CInventorySystem` 0x4 ->
+    /// `InventorySystem` 0xD): `moveType` (slot 12; 33 a move to the world, 34 into a container
+    /// the player has open) and the target's weenie type (slot 15: a native's int, tag 4, or the
+    /// script's own 0 when there is no target object).
+    pub fn with_move_type(mut self, move_type: u32, target_type: u32) -> Self {
+        self.0.set_word(12, move_type);
+        self.0.set_word(15, target_type);
+        if target_type != 0 {
+            self.0.set_tag(15, 4);
         }
         self
     }
@@ -240,6 +247,11 @@ impl InvMoveDesc {
     pub fn split_item(&self) -> u64 {
         self.0.long(28)
     }
+    /// Slot 23, "allItemUnitsTakenFlag" (`InvMoveDesc` 0x2E dumps it): clear when only part of a
+    /// stack moves, so the answer's handlers do not take the item out of its container.
+    pub fn all_units_taken(&self) -> bool {
+        self.0.word(23) != 0
+    }
     /// Slot 32, "mergeContainerID".
     pub fn merge_container(&self) -> u64 {
         self.0.long(32)
@@ -278,7 +290,7 @@ impl InvEquipDesc {
     /// The tags of an equip or unequip request: the item, the user, the location and the slot
     /// come from natives, typed 0x84 and 4 (AC2e checks them against the retail client's packets,
     /// `equipment::EquipRequest`).
-    fn native_tags(mut self) -> Self {
+    fn ifun_tags(mut self) -> Self {
         let i = &mut self.0;
         for slot in [3, 8, 10] {
             i.set_tag(slot, 0x84);
@@ -311,7 +323,7 @@ impl InvEquipDesc {
         let mut d = Self::base(item, user, location);
         d.0.set_long(10, from);
         d.0.set_word(18, from_slot as u32);
-        d.native_tags()
+        d.ifun_tags()
     }
 
     /// `gmCWInterface::UnEquipItem` -> `Inventory` 0x9: take `item` off `location` into slot
@@ -322,7 +334,7 @@ impl InvEquipDesc {
         d.0.set_word(18, target_slot as u32);
         d.0.set_long(10, user);
         d.0.set_tag(6, 4);
-        d.native_tags()
+        d.ifun_tags()
     }
 
     pub fn from_reference(reference: &PackedReference) -> Result<Self, ProtocolError> {
@@ -517,33 +529,27 @@ mod tests {
         object.tags.clone()
     }
 
-    /// The tags AC2e checks a reorganization against (its `inventory_request::TAGS`, from the
-    /// retail client's packets): 0x84 on the ids, 4 on the numbers the UI's natives give.
+    /// The tags of the descriptor the script builds for a UI move: 0x84 on the ids and 4 on the
+    /// numbers that came through `CallIFun_MoveItem`'s arguments (slots 1, 11, 24, 25, 26, 39,
+    /// 50), 2 on the rest.
     #[test]
-    fn a_reorganization_carries_the_native_tags() {
-        let tagged = |from_slot, quantity| {
-            tags(
-                &InvMoveDesc::new(0x42, 0x7, from_slot, 0x7, 0, quantity)
-                    .with_native_tags()
-                    .to_reference(),
-            )
-        };
+    fn a_script_move_carries_the_ifun_tags() {
+        let tagged = tags(
+            &InvMoveDesc::new(0x42, 0x7, 0, 0x7, 0, 1)
+                .with_script_tags()
+                .to_reference(),
+        );
         let expected: [u8; 51] = [
-            2, 2, 0x84, 0xcd, 2, 2, 4, 2, 0x84, 0xcd, 2, 4, 2, 2, 2, 2, 0x84, 0xcd, 0x82, 0xcd, 2,
-            2, 4, 2, 4, 2, 4, 2, 0x84, 0xcd, 1, 2, 0x84, 0xcd, 2, 2, 0x84, 0xcd, 4, 4, 2, 2, 2, 2,
+            2, 4, 0x84, 0xcd, 2, 2, 2, 2, 0x84, 0xcd, 2, 4, 2, 2, 2, 2, 0x84, 0xcd, 0x82, 0xcd, 2,
+            2, 2, 2, 4, 4, 4, 2, 0x84, 0xcd, 1, 2, 0x84, 0xcd, 2, 2, 0x84, 0xcd, 2, 4, 2, 2, 2, 2,
             0x84, 0xcd, 2, 2, 2, 2, 4,
         ];
-        assert_eq!(tagged(0, 1), expected);
-        // A source slot that is not 0 and a stack are typed as numbers too.
-        let mut moved = expected;
-        moved[1] = 4;
-        moved[25] = 4;
-        assert_eq!(tagged(3, 5), moved);
+        assert_eq!(tagged, expected);
     }
 
-    /// The tags of an equip and an unequip request (AC2e's `equipment::EquipRequest`).
+    /// The tags of an equip and an unequip request as the script builds them.
     #[test]
-    fn an_equip_carries_the_native_tags() {
+    fn an_equip_carries_the_ifun_tags() {
         let equip = InvEquipDesc::equip(0x42, 0x7, 0x40, 0x7, 3);
         assert_eq!(
             tags(&equip.to_reference()),

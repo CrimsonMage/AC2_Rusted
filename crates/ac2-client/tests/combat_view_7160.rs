@@ -442,7 +442,10 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         // Made at the player; its body loads first, and the next physics quantum gives it its
         // missile manager, places it at the hand and fires it.
         if !flying {
-            assert!(flat(at, player) < 0.5, "made at the player: {at:?}");
+            // The player is listed in the object lists like any object, so the arrow's world
+            // entry (`SLIDE_SPF`) slides it clear of the player's spheres (under 1 m); the next
+            // quantum places it at the hand.
+            assert!(flat(at, player) < 1.0, "made at the player: {at:?}");
             continue;
         }
         // `CMissileManager::TargetUpdate`'s `SetTarget(0, target, 1.0, 0.0)`: the arrow watches

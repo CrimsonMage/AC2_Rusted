@@ -17,6 +17,9 @@ pub enum HudRequest {
     SetWindowOpacity { window: u32, opacity: f32 },
     /// `gmCWInterface::Dismount`: the toolbar's dismount button.
     Dismount,
+    /// `gmShortcutUI::RequestAttackStateChange`: the toolbar's attack buttons and the attack key
+    /// (start attacking the selection, or stop).
+    Attack(bool),
     /// `gmCWInterface::DisplaySaleReminders`: the consignments button.
     DisplaySaleReminders,
     /// `gmSelectionUI::Select`: a target key's or the selection's calls.

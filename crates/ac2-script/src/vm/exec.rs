@@ -93,7 +93,10 @@ impl Vm {
                 s(ctx.push(r, tag::REF), self)
             }
             op::NEW_NATIVE | 0x87 => {
-                let native_type = self.operand(ctx)?;
+                // The 0930 bytecode names a few native types by their renumbered ids.
+                let operand = self.operand(ctx)?;
+                let native_type =
+                    super::efun_ids::native_type_from_release(self.program.release_0930, operand);
                 let object = NativeObject::new_empty(native_type);
                 let r = self.refs.create_native(native_type, object);
                 s(ctx.push(r, tag::REF), self)
@@ -425,6 +428,8 @@ impl Vm {
     }
 
     fn efun(&mut self, ctx: &mut Context, efun: u32) -> Step {
+        // The 0930 library numbers some efuns differently (`efun_ids`).
+        let efun = super::efun_ids::efun_from_release(self.program.release_0930, efun);
         match self.run_efun(efun, ctx) {
             InterpStatus::Success => Ok(()),
             status => Err(status),
