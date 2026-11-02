@@ -660,6 +660,15 @@ game rules and server-visible behaviour exactly retail.
   The collision stays retail's and applies on top of that: `SmartBox::UpdateCamera`'s line-of-sight
   pull-in (`CameraCollision::trace`, `SceneCamera::update_collided`) runs from the drawn player's
   origin where retail used the physics frame's, so the camera and the body it follows stay together.
+  Exception: the camera's traces pass through the player they follow (`LosParameters::
+  ignore_instance`, set by `CameraCollision::trace` on the head-to-camera ray and the wall
+  stand-off). Retail's traces test every object in the cells with the camera-ethereal set
+  (`CPhysicsObj::IsLOSBlocking`), and the player blocks unless its blocking mask has the
+  camera-ethereal bit; the player's EntityDesc AC2e names (`0x4700110F`) sets no ethereal
+  property, and the ray starts at the shoulder offset (radius 0.785 times 0.7, 0.549 m) at
+  0.75 of the height, 0.551 m from the centre of the human Setup's upper sphere (radius 0.555),
+  so it began inside the player and the camera was held in the model. Where retail's player
+  took the bit is not traced. Every other object and the walls still block.
 - Exception: a body's environment collision response does not wait for a collision manager. Retail's
   `CPhysicsObj::handle_all_collisions` returns at once for an object that has no
   `m_pCollisionManager`, which only `CPhysicsObj::SetCollisionState` makes, so such an object never

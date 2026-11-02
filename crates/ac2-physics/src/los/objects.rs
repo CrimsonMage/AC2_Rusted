@@ -46,6 +46,9 @@ impl<'a> LosTrace<'a> {
 /// shortened to `delta`; otherwise the nearest sphere (or, without spheres, cylinder) in the
 /// object's unscaled frame sets `delta` and the impact normal `-dir`.
 fn check_ray_intersect(object: &StaticObject, params: &mut LosParameters) -> u32 {
+    if object.instance_id.is_some() && object.instance_id == params.ignore_instance {
+        return 0;
+    }
     // `CPhysicsObj::IsLOSBlocking` -> `IsBlocking(m_weenie_LOS, m_physics_LOS)`.
     if !is_blocking(
         &params.weenie_los,

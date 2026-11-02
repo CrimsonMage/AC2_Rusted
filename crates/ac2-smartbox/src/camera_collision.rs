@@ -137,6 +137,9 @@ impl CameraCollision {
         let ethereal = camera_ethereal_mask();
         let solid = WeenieTypes::default();
         los.set_los_params(&solid, ethereal);
+        // The player the camera follows never blocks it (an AGENTS.md exception): the ray
+        // starts inside the player's upper sphere.
+        los.ignore_instance(subject.id);
         let mut clear = terrain.los_check(&mut los);
         let end = los.end_point();
         let mut position = Position::new(los.final_cell_id(), desired.frame);
@@ -157,6 +160,7 @@ impl CameraCollision {
             back.set_ray(Ray::from_offset(end, push), los.final_cell_id());
             back.intersect = RayIntersection::PhysicsRep;
             back.set_los_params(&solid, ethereal);
+            back.ignore_instance(subject.id);
             clear &= terrain.los_check(&mut back);
             position.frame.origin = back.end_point();
             position.cell_id = back.final_cell_id();

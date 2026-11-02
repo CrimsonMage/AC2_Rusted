@@ -140,6 +140,9 @@ pub struct LosParameters {
     portal_index: Option<usize>,
     direction: u32,
     next_block_id: u32,
+    /// An object the ray passes through (its instance id): the client's camera traces skip the
+    /// player they follow (an AGENTS.md exception; retail's `LOSParameters` has no such field).
+    ignore_instance: Option<u64>,
 }
 
 impl Default for LosParameters {
@@ -169,7 +172,13 @@ impl LosParameters {
             portal_index: None,
             direction: 0,
             next_block_id: 0,
+            ignore_instance: None,
         }
+    }
+
+    /// Lets the ray pass through the object with this instance id (the camera's own player).
+    pub fn ignore_instance(&mut self, id: u64) {
+        self.ignore_instance = Some(id);
     }
 
     /// `LOSParameters::SetLOSParams`: the weenie and physics sets that block the ray

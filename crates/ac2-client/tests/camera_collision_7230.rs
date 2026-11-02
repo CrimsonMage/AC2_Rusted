@@ -137,6 +137,9 @@ fn the_turning_camera_stays_inside_the_dungeon() {
         ..FrameInput::default()
     };
     let (mut pulled, mut frames_seen, mut worst) = (0, 0, (0.0_f64, None));
+    // The camera never stands in the player it follows: its ray starts inside the player's upper
+    // sphere (0.551 m from its centre, radius 0.555), and the player does not block it.
+    let mut shortest = f64::MAX;
     for _ in 0..240 {
         client.use_time(&turn).unwrap();
         server.borrow_mut().elapsed += STEP;
@@ -172,6 +175,7 @@ fn the_turning_camera_stays_inside_the_dungeon() {
             .hypot(f64::from(reach.y))
             .hypot(f64::from(reach.z));
         let wanted = f64::from(client.camera().camera_distance);
+        shortest = shortest.min(length);
         assert!(length <= wanted + 0.6, "{length} past the wanted {wanted}");
         // Nothing the camera cannot pass lies between the player's head and the camera.
         let mut los = ac2_physics::LosParameters::new();
@@ -190,8 +194,12 @@ fn the_turning_camera_stays_inside_the_dungeon() {
         }
     }
     eprintln!(
-        "{pulled} of {frames_seen} frames pulled in (worst by {:.2} m)",
+        "{pulled} of {frames_seen} frames pulled in (worst by {:.2} m), nearest {shortest:.3} m",
         worst.0
+    );
+    assert!(
+        shortest > 0.6,
+        "the camera came {shortest:.3} m from the head: it stood in the player"
     );
     assert!(
         pulled > 0,
