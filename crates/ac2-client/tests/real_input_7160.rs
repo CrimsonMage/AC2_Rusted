@@ -289,9 +289,13 @@ fn the_attack_button_works_at_2x_and_in_the_modern_style() {
 fn header_drag_window(rig: &mut Rig, name: &str, by: (i32, i32)) -> (UiBox, UiBox) {
     let root = window_root(rig, name);
     let before = rig.view.ui_tree().unwrap().screen_box(root);
-    let y = before.y0 + 6;
+    // The middle of the title, where a player takes the window (the examination panel's top
+    // resize grip spans the title there, 45 pixels tall).
+    let y = before.y0 + 12;
+    let centre = (before.x0 + before.x1) / 2;
     let mut from = None;
-    for x in (before.x0 + 4..before.x1 - 4).step_by(3) {
+    let span = (before.x1 - before.x0) / 2 - 8;
+    for x in (0..span).step_by(3).flat_map(|d| [centre - d, centre + d]) {
         rig.win_point((x, y));
         let t = rig.view.ui_tree().unwrap();
         if t.mouse_top().is_some_and(|top| t.root_of(top) == root) {

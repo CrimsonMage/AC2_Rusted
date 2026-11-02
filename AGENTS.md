@@ -208,7 +208,10 @@ game rules and server-visible behaviour exactly retail.
   drag bar and saved only `save_loc` windows to the server (`gmCWInterface::SetUISaveLocations`).
   Here a window with a drag bar still moves by it, any other top-level HUD window moves by a
   left press in its header band (the top 24 pixels, `ac2_ui::window_locations::HEADER_BAND`;
-  a press on a button, entry, list, scrollbar or resize bar there stays with that control) and
+  a press on a button, an editable or selectable text, a list, a scrollbar or a dragable item
+  there stays with that control, a static title does not, and a resize grip keeps it only within
+  6 pixels of the window edge it drags: the side panels' top grip spans the whole title, 45
+  pixels tall) and
   by Alt + left drag anywhere on it; a locked window (`UiTree::set_locked`, the modern HUD's
   lock) moves by neither. Every window's position is saved locally per character (the
   client's config directory, `ac2_prefs::paths`) and restored at login, over the server's

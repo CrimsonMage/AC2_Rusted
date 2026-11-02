@@ -13,7 +13,7 @@
 use ac2_net::protocol::{UiLocation, UiSaveLocations};
 use ac2_script::native::{add_ui_location, GameplayOptions};
 
-use crate::element::UiTree;
+use crate::element::{UiBox, UiTree};
 use crate::token::{
     tokenize, ALLOW_RESIZE, BROADCAST_LOC_CHANGE, BUTTON, DRAGBAR, DRAGBAR_DISABLED, RESIZEBAR,
     SAVE_LOC, TEXT,
@@ -121,6 +121,10 @@ pub(crate) struct Movement {
 pub const HEADER_BAND: i32 = 24;
 
 /// The element classes whose own press the header band leaves alone.
+/// How near a window edge (pixels) a press on a resize grip in the header band resizes; farther
+/// in, the band moves the window.
+const GRIP_EDGE: i32 = 6;
+
 const TAKES_PRESS: [u32; 10] = [
     BUTTON,
     TEXT,
@@ -314,16 +318,39 @@ impl UiTree {
         // The control under the pointer, or any parent up to the window, that takes the press.
         let mut at = self.mouse_top;
         while let Some(index) = at {
-            let kind = self.el(index).kind();
-            if index != root
-                && (TAKES_PRESS.contains(&kind)
-                    || self.bool_attribute(index, tokenize("dragable")))
-            {
+            if index != root && self.keeps_header_press(index, b) {
                 return false;
             }
             at = self.el(index).parent;
         }
         self.start_movement(root);
+        true
+    }
+
+    /// Whether a press in the header band on `index` stays with it rather than moving the window
+    /// (`b`, its screen box): a control that takes presses, a dragable item, a text only when it
+    /// can be edited or selected (a title cannot), and a resize grip only within
+    /// [`GRIP_EDGE`] of a window edge it drags (the side panels' top grips span the whole title,
+    /// 45 pixels tall, so the band would never move them).
+    fn keeps_header_press(&self, index: usize, b: UiBox) -> bool {
+        let kind = self.el(index).kind();
+        if self.bool_attribute(index, tokenize("dragable")) {
+            return true;
+        }
+        if !TAKES_PRESS.contains(&kind) {
+            return false;
+        }
+        if kind == TEXT {
+            return self.selectable(index);
+        }
+        if kind == RESIZEBAR {
+            let (px, py) = self.pointer;
+            let near = |attr: &str, gap: i32| self.bool_attribute(index, tokenize(attr)) && gap < GRIP_EDGE;
+            return near("border_top", py - b.y0)
+                || near("border_left", px - b.x0)
+                || near("border_right", b.x1 - px)
+                || near("border_bottom", b.y1 - py);
+        }
         true
     }
 
