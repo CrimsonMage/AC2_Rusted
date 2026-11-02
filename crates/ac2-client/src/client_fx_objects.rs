@@ -228,7 +228,8 @@ impl Client {
     }
 
     /// `CPhysicsObj::InitObjectEnd` -> `ApplyStartupFX(rep, object)`: each object whose body
-    /// exists runs its visual's startup FX once. The objects they create are made here; their
+    /// exists runs its visual's startup FX once, after the rep's own `ApplyStartupFX(rep, NULL)`
+    /// has started their particle systems (`start_startup_particles`). The objects they create are made here; their
     /// lights (`DoLightSourceFX`, gated by `LightSourceEffects`) and sounds (`DoSoundFX`) need
     /// the sound pass's state, so they start only with a sound device.
     pub(crate) fn start_startup_fx(&mut self, now: f64) {
@@ -251,6 +252,7 @@ impl Client {
                 continue;
             };
             let (table, sounds) = (table.as_ref(), sounds.as_deref());
+            self.start_startup_particles(id, table);
             if let Some(audio) = self.audio.as_mut() {
                 if audio.light_effects {
                     audio.object_lights.extend(startup_light_starts(id, table));

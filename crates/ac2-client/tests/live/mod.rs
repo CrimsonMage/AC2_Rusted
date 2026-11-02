@@ -114,17 +114,24 @@ impl LiveRig {
     /// selection (the first avatar) and avatar modification, entered into the world, the HUD
     /// built. `None` without `AC2E_LIVE`, `AC2_DAT_DIR` or a GPU adapter.
     pub fn new(name: &str) -> Option<Self> {
-        Self::with_loads(name, true)
+        Self::with_loads(name, true, false)
+    }
+
+    /// [`Self::new`] with a silent sound manager attached before the login, as the window
+    /// attaches its own: the objects' FX then start their particle systems (`FXManager`'s
+    /// particle part runs with the sound device), which each frame hands the view.
+    pub fn new_with_sound(name: &str) -> Option<Self> {
+        Self::with_loads(name, true, true)
     }
 
     /// [`Self::new`] with the frames not waiting for the loader threads (`settle` false): the
     /// window's frame never does (`Client::settle_loads` is for tests), so a DAT read finishes
     /// some frames after what asked for it.
     pub fn new_unsettled(name: &str) -> Option<Self> {
-        Self::with_loads(name, false)
+        Self::with_loads(name, false, false)
     }
 
-    fn with_loads(name: &str, settle: bool) -> Option<Self> {
+    fn with_loads(name: &str, settle: bool, sound: bool) -> Option<Self> {
         let server = server()?;
         let name = &unique_name(name);
         let dataset = ac2_dat::test_support::env_dataset()?;
@@ -165,6 +172,12 @@ impl LiveRig {
         script_data.preload_skill_states(&program);
         script_data.set_cache_only(true);
         client.set_load_budget(Duration::from_secs(30));
+        if sound {
+            client.attach_audio(ac2_client::sound_manager(
+                Arc::clone(&store),
+                Box::new(ac2_audio::NullSink),
+            ));
+        }
         // As `bin/ac2/main.rs` does, before the connection is used: the weenies' scripts must
         // hear the login (`WM_Player` 0x27), or the vitals and the HUD never get their notices.
         client.attach_scripts(
@@ -261,6 +274,10 @@ impl LiveRig {
             self.client.settle_loads(Duration::from_secs(5)).unwrap();
         }
         let events = self.client.use_time(&input).unwrap();
+        // As the window does: the particle systems the objects' FX started and stopped.
+        let starts = self.client.take_object_particle_starts();
+        let stops = self.client.take_object_particle_stops();
+        self.view.set_object_particles(&starts, &stops);
         let frame = self.client.frame();
         let notices = self.client.take_script_notices();
         let asked = self

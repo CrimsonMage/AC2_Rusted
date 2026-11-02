@@ -109,6 +109,46 @@ fn lights(
         .collect()
 }
 
+/// The particle systems an object's startup FX start when its part array is made
+/// (`PHYSICSOBJREP::InitInternal` -> `ApplyStartupFX(rep, NULL)` -> `FXManager::DoStartupFX`,
+/// whose branch without an object runs `DoParticleFX` for each node of each startup FX that
+/// names a `PSDesc`, with no target). That branch reads no day, night or player gate and runs
+/// no `FireParticleFX`, so a fire-and-forget node attaches like any other and no water surface
+/// is read. As in `DoParticleFX`, only a looping system keeps its handle on the FX (`looping`).
+/// `terrain` is the emitter's `FXManager::m_terrain` (`FXData::GetData`). The handles are left at
+/// zero for the caller.
+pub fn startup_particle_starts(
+    emitter: u64,
+    table: &Ac2VisualFxParticles,
+    random: &mut Random,
+    terrain: u32,
+) -> Vec<ObjectParticleStart> {
+    let mut starts = Vec::new();
+    for &fx in table.startup() {
+        let Some(nodes) = table.get_on(fx, terrain) else {
+            continue;
+        };
+        for node in nodes.iter().filter(|node| !node.particle_descs.is_empty()) {
+            let pick = random.roll_dice(0, node.particle_descs.len() as i32 - 1) as usize;
+            starts.push(ObjectParticleStart {
+                handle: 0,
+                emitter,
+                fx,
+                desc: node.particle_descs[pick],
+                anchor: ParticleAnchor {
+                    anchor: node.anchor,
+                    remove_rotation: node.remove_rotation,
+                    water_plane: false,
+                    water_z: None,
+                },
+                fire_and_forget: false,
+                looping: node.looping.get(pick).copied().unwrap_or(false),
+            });
+        }
+    }
+    starts
+}
+
 /// The lights an object's startup FX place when the object is created
 /// (`CPhysicsObj::InitObjectEnd` -> `PHYSICSOBJREP::ApplyStartupFX(rep, object)` ->
 /// `FXManager::DoStartupFX`, whose object branch runs `DoLightSourceFX` for each node of each
@@ -189,6 +229,31 @@ mod tests {
         let no_startup =
             Ac2VisualFxParticles::from_entries([(7, vec![attachment(&[], Some(light(2.0)))])]);
         assert!(startup_light_starts(3, &no_startup).is_empty());
+    }
+
+    /// `DoStartupFX` without an object: each startup FX's systems start, gated or not, a
+    /// fire-and-forget node attached like any other; an FX that is not a startup one starts none.
+    #[test]
+    fn startup_fx_start_their_particle_systems() {
+        let mut night_only = attachment(&[9], None);
+        night_only.object.gate.day_time = false;
+        night_only.fire_and_forget = true;
+        let table = Ac2VisualFxParticles::from_entries([
+            (7, vec![attachment(&[5], None), night_only]),
+            (8, vec![attachment(&[6], None)]),
+            (10, vec![attachment(&[], Some(light(2.0)))]),
+        ])
+        .with_startup(vec![7, 10]);
+        let mut random = Random::default();
+        let starts = startup_particle_starts(3, &table, &mut random, 0);
+        assert_eq!(
+            starts
+                .iter()
+                .map(|s| (s.emitter, s.fx, s.desc.raw(), s.fire_and_forget))
+                .collect::<Vec<_>>(),
+            vec![(3, 7, 5, false), (3, 7, 9, false)]
+        );
+        assert!(starts.iter().all(|s| s.looping && s.handle == 0));
     }
 
     #[test]

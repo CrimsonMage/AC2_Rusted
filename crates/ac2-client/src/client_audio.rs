@@ -22,7 +22,7 @@ use ac2_render::portal::PortalSound;
 use crate::client::Client;
 use crate::sound_space::PhysicsSpace;
 use ac2_render::fx_particles::{
-    light_starts, particle_starts, ObjectLightStart, ObjectParticleStart,
+    light_starts, particle_starts, startup_particle_starts, ObjectLightStart, ObjectParticleStart,
 };
 
 /// A visual's FX sounds, read on the loader thread: `FXTable::GetFXData` per FX id, and which of
@@ -461,6 +461,34 @@ impl Client {
             self.remotes.get(id)?.position()?.cell_id
         };
         self.terrain.water_surface_z(cell)
+    }
+
+    /// `ApplyStartupFX(rep, NULL)` for object `id` (`PHYSICSOBJREP::InitInternal`): its startup
+    /// FX start their particle systems (`FXManager::DoStartupFX`'s branch without an object, see
+    /// [`startup_particle_starts`]). Each FX keeps the handles of its looping systems
+    /// (`FXState::m_particle_system_id`), so the object's leaving stops them; a startup FX is
+    /// never stopped by an animation's `StopFX`. Like every FX particle system here, they start
+    /// only with a sound device.
+    pub(crate) fn start_startup_particles(
+        &mut self,
+        id: u64,
+        table: &ac2_assets::Ac2VisualFxParticles,
+    ) {
+        let terrain = self.fx_terrain(id);
+        let Some(audio) = self.audio.as_mut() else {
+            return;
+        };
+        let mut starts = startup_particle_starts(id, table, &mut self.random, terrain);
+        let fx = audio.objects.entry(id).or_default();
+        for start in &mut starts {
+            audio.particle_handles += 1;
+            start.handle = audio.particle_handles;
+            let kept = fx.particles.entry(start.fx).or_default();
+            if start.looping {
+                kept.push(start.handle);
+            }
+        }
+        audio.object_particles.extend(starts);
     }
 
     /// After `CPhysics::UpdateAllAnimation`: each object's started and stopped effects, then

@@ -800,6 +800,20 @@ game rules and server-visible behaviour exactly retail.
   says what the server set). `scripts/ac2e-live-test.sh` runs
   `ac2e_live_effects` (the creature test needs `AC2E_LIVE_THRASHER=1`, a Banderling Thrasher placed beside the start through `AC2E_EXTRA_WORLD`) against a server whose timed effects last `AC2E_DEV_EFFECT_SCALE` (0.1) of
   their record's time and whose new characters start with 2,000,000 experience.
+- Portals against AC2e: the client is retail's, travel by walking in is the server's. A portal's
+  visual (AC2e's `it_portal_shard.vd`, 0x1F00031E) draws one mesh that is an invisible click
+  volume (`invisible_click.mi`); the portal seen is the looping particle systems of the visual's
+  startup FX, which every object's part array starts when it is made (`PHYSICSOBJREP::InitInternal`
+  -> `ApplyStartupFX(rep, NULL)` -> `FXManager::DoStartupFX` -> `DoParticleFX`; the client's
+  `start_startup_particles`, for server objects as the landblock sources do for static ones). Its
+  root Setup's sphere blocks the player, and the client sends only positions: no client script
+  handles the player's collision with a portal (`CWInterface::HandleCollision`, IFun 0x7F0043, is
+  owned only by effect packages in the wlib), so retail's server, which ran every body's physics,
+  moved the player. AC2Hero (`quest/omishan_virinditraining.html`) records walking into a portal
+  taking the player through. AC2e has no server physics; its policy (`portals::Contacts`) takes a
+  reported position whose root Setup spheres touch a routed portal's (within 5 cm) as that
+  collision and travels as a use does, silently when the use is refused. Live:
+  `ac2e_live_portals`; double: `portal_object_7160`.
 - Story scenes (the Quest panel's Story page) are retail's client path, and AC2e's trigger is its own
   policy. Retail: the server calls `WM_Quest` 0x23 -> `CPlayer` 0x2A -> `CQuestSystem::UpdateStoryQuest_Done`
   with `(errorCode, bAdd, sceneId)` (stack order: the script branches on the second on add or
