@@ -136,3 +136,28 @@ fn no_tooltip_opens_while_the_left_button_is_held() {
     tree.global_loop(1.5);
     assert!(tree.tooltip_element().is_none(), "the button is held");
 }
+
+/// `StartTooltip` makes the tooltip `UISurfaceObject(1, -1.0)`: the object list is drawn in
+/// descending depth, so it is the last surface drawn, over every window, and a window raised
+/// afterwards does not cover it. (A z of `0xFFFF` put it first in the draw order, under the
+/// inventory it was a tooltip of.)
+#[test]
+fn the_tooltip_is_drawn_over_every_window() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap().tree;
+    let (_, x, y) = hover_target(&tree).expect("an element with a tooltip");
+    tree.global_loop(1.0);
+    tree.start_input(UI_POINTER_X, x as f32);
+    tree.start_input(UI_POINTER_Y, y as f32);
+    tree.global_loop(1.3);
+    let tip = tree.tooltip_element().expect("the tooltip");
+    let drawn = |tree: &UiTree| tree.placements().last().map(|p| p.root);
+    assert_eq!(drawn(&tree), Some(tip), "the last root drawn");
+    // A window given a z afterwards (as a window re-sorted among the roots) stays under it.
+    let other = tree.roots().iter().copied().find(|&r| r != tip).unwrap();
+    tree.set_z_level(other, 0);
+    assert_eq!(drawn(&tree), Some(tip), "still the last root drawn");
+}

@@ -21,6 +21,13 @@ const TOOLTIPS_ON: u32 = tokenize("tooltips_on");
 const TOOLTIP_ID: u32 = tokenize("tooltip_ID");
 const TOOLTIP_TEXT_ID: u32 = tokenize("tooltip_text_ID");
 const TOOLTIP_ENTRY: u32 = tokenize("tooltip_entry");
+/// The tooltip's surface object depth: `StartTooltip` makes it `UISurfaceObject(1, -1.0)`.
+/// `RenderUI::LinkObject` keeps the object list in descending depth and draws it head first, so
+/// the lowest depth is drawn last and found first by `UpdateMouse`: below every window's depth
+/// (>= 0), the tooltip is always the topmost surface. Here the roots list is topmost first by
+/// ascending z ([`UiTree::add_root`]), so -1 puts the tooltip at its head (z `0xFFFF` would put
+/// it last, under every window).
+const TOOLTIP_DEPTH: i32 = -1;
 /// `RenderUI::cursorWidth` / `cursorHeight`.
 const CURSOR_SIZE: (i32, i32) = (32, 32);
 
@@ -218,7 +225,7 @@ impl UiTree {
             .max(0)
             .min(self.display.1 - height);
         self.el_mut(tip).object = Some((x, y));
-        self.el_mut(tip).z = 0xFFFF;
+        self.el_mut(tip).z = TOOLTIP_DEPTH;
         self.add_root(tip);
         self.set_visible(tip, true);
         self.tooltip.element = Some(tip);
