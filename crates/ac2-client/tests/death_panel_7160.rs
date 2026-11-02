@@ -129,3 +129,29 @@ fn a_resurrection_offer_asks_yes_for_the_respawn_and_no_for_the_death_dialog() {
     );
     assert_eq!(death.context(), 0);
 }
+
+/// The dialogs are made after the HUD's text is frozen (`DialogFactory::CreateDialogInternal`
+/// when one is asked for), so their buttons' `entry` labels must already be read: the
+/// resurrect button says "Resurrect" (ui.stt), where it once showed blank.
+#[test]
+fn the_resurrect_button_shows_its_label() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let ui_store = Arc::new(ac2_db::ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&ui_store, 1024, 768).unwrap();
+    let mut death = DeathPanel::default();
+    death.notice(&mut hud.tree, &mut hud.dialogs, &Strings, true);
+    let root = root_named(&hud.tree, "ResurrectField");
+    let button = hud
+        .tree
+        .child_recursive(root, tokenize("ResurrectButton"))
+        .expect("the resurrect button");
+    let label = hud
+        .tree
+        .children(button)
+        .iter()
+        .find_map(|&c| hud.tree.get(c)?.text())
+        .expect("the button's text element");
+    assert_eq!(label, "Resurrect");
+}

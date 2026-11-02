@@ -51,8 +51,9 @@ impl Default for TooltipState {
     }
 }
 
-/// Reads every `tooltip_entry` string of `layout` through `data` while it may still read
-/// files (the tree's text is frozen once the HUD is built; the frame thread reads none).
+/// Reads every `tooltip_entry` and text `entry` string of `layout` through `data` while it may
+/// still read files (the tree's text is frozen once the HUD is built; the frame thread reads
+/// none), so elements made later find their strings.
 pub(crate) fn prefetch_tooltip_strings(
     data: &dyn crate::text::UiTextData,
     layout: &crate::layout::LayoutDesc,
@@ -60,7 +61,10 @@ pub(crate) fn prefetch_tooltip_strings(
     fn walk(data: &dyn crate::text::UiTextData, table: u32, desc: &crate::layout::ElementDesc) {
         for state in &desc.states {
             for attribute in &state.attributes {
-                if let (TOOLTIP_ENTRY, AttributeValue::StringId(id)) =
+                // The tooltip's text, and a text element's `entry` string (`UIElement_Text::
+                // SetAttribute_StringID` -> `SetString`), which an element made after the freeze
+                // (a dialog, `DialogFactory::CreateDialogInternal`) reads: its button labels.
+                if let (TOOLTIP_ENTRY | crate::token::TEXT_ENTRY, AttributeValue::StringId(id)) =
                     (attribute.id, &attribute.value)
                 {
                     let _ = data.string(table, *id);
