@@ -70,3 +70,48 @@ fn an_item_tooltip_shows_over_the_inventory() {
     let drawn = tree.placements().last().map(|p| p.root);
     assert_eq!(drawn, Some(tip), "the tooltip is the last root drawn");
 }
+
+/// The inventory's top grip pulled up by `dy` pixels with the pointer, the way a player does.
+fn pull_inventory_up(rig: &mut Rig, dy: i32) {
+    let tree = rig.view.hud_tree().unwrap();
+    let id = ac2_ui::tokenize("InventoryResizeBar");
+    let grip = (0..tree.slots_len())
+        .find(|&i| tree.get(i).is_some_and(|e| e.id() == id))
+        .expect("the inventory's grip");
+    let b = tree.screen_box(grip);
+    let from = ((b.x0 + b.x1) / 2, b.y0 + 2);
+    rig.drag(from, (from.0, from.1 - dy));
+}
+
+fn right_panel(rig: &Rig) -> ac2_ui::UiBox {
+    let tree = rig.view.hud_tree().unwrap();
+    let id = ac2_ui::tokenize("RightSidePanel");
+    let root = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| tree.get(r).unwrap().id() == id)
+        .unwrap();
+    tree.screen_box(root)
+}
+
+#[test]
+fn the_classic_inventory_resizes_taller() {
+    let Some(mut rig) = classic_big() else {
+        return;
+    };
+    rig.open_inventory();
+    rig.idle(8);
+    let before = right_panel(&rig);
+    pull_inventory_up(&mut rig, 150);
+    rig.idle(4);
+    let after = right_panel(&rig);
+    snapshot(&mut rig, "inventory_tall.png");
+    // 150 pixels is four rows (144) and a bit: the window grows by whole pack rows, upward, and
+    // the list shows them.
+    assert_eq!(after.height(), before.height() + 4 * 36);
+    assert_eq!(
+        after.y1, before.y1,
+        "the bottom edge stays on the display's"
+    );
+}

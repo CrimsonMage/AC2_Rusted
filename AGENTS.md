@@ -224,6 +224,21 @@ game rules and server-visible behaviour exactly retail.
   world's overlays (targeting reticle, name plates, damage text), the heading ring (it follows the
   radar), the doll's 3D viewport (docked to the inventory), the consignment's portrait (docked to
   its panel, kept at its `SyncPortrait` place each loop), full-display backdrops and tooltips.
+- Exception: the classic inventory resizes vertically. Retail's `InventoryField` (in
+  `RightSidePanel`, toolbar layout `0x41000003`) has no resize grip, no `allow_resize` and no
+  `min_height` / `max_height`: the window had one size and the pack page showed three rows of six
+  slots. Here the classic layout is copied with a `UIElement_Resizebar` along the window's top
+  edge (cloned from the shortcut bar's top grip, `border_top`; the window sits on the display's
+  bottom edge, so it grows upward), `allow_resize` and a height of at least the layout's own
+  (414) and at most 24 rows more, and the page's parts anchored for a taller window
+  (`UIElement::UpdateSizeAndPosition` edges on the references: the paper doll half and the page
+  tabs keep their height, the bottom border follows the bottom edge, the pack half takes the
+  growth), so the pack list (`UIElement_ListBox::ResizeTo`) shows more rows. The resize itself is
+  retail's (`UIElement::MouseResizeElement`, `StopResizing`, the saved size applied by
+  `ApplyLocation`); the one addition is that the height moves in whole pack rows (36 pixels, the
+  window attribute `resize_height_step`, `inventory_resize.rs`), measured from the pointer where the
+  resize started. The other right-side panels keep their height in the taller window, and the grip
+  is only there while the inventory page is shown. The modern style's inventory is not changed.
 - Exception: the HUD has two styles, modern and classic. Retail drew only its DAT layouts' HUD.
   Here the classic style is that HUD, unchanged; the modern style (the mockup "variant D" the
   user chose) builds the same frameworks over the same elements, restyling their layout

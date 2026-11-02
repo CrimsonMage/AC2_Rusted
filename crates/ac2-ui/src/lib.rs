@@ -271,6 +271,7 @@ pub use text_edit::TextPress;
 pub mod ac1_buttons;
 mod default_cursor;
 pub mod hud_style;
+mod inventory_resize;
 mod modern_all_view;
 pub mod modern_art;
 mod modern_art_chat;
@@ -543,6 +544,8 @@ mod fellowship_tests;
 mod friends_panel_tests;
 #[cfg(test)]
 mod indicators_tests;
+#[cfg(test)]
+mod inventory_resize_tests;
 #[cfg(test)]
 mod journal_quests_tests;
 #[cfg(test)]

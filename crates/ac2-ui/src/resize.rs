@@ -15,6 +15,7 @@
 //! window opens at its size again (`UIElement::ApplyLocation` resizes when `allow_resize` is set).
 
 use crate::element::{UiBox, UiTree};
+use crate::inventory_resize::RESIZE_HEIGHT_STEP_ATTRIBUTE;
 use crate::token::{
     BORDER_BOTTOM, BORDER_LEFT, BORDER_RIGHT, BORDER_TOP, BROADCAST_LOC_CHANGE, MAX_HEIGHT,
     MAX_WIDTH, MIN_HEIGHT, MIN_WIDTH, RESIZEBAR, RESIZEBAR_DISABLED, RESIZE_LINE, SAVE_LOC,
@@ -181,6 +182,44 @@ pub fn resized_box(
     b
 }
 
+/// `next` with its height a whole number of `step`s above `min` (rounded to the nearest, then
+/// down while it would leave the display or the window's `max_height`), the edge the border drags
+/// moving and the other kept.
+fn stepped_height(
+    border: Border,
+    start: UiBox,
+    next: UiBox,
+    min: i32,
+    step: i32,
+    display: (i32, i32),
+) -> UiBox {
+    let edges = border.edges();
+    let bottom = edges.contains(&Edge::Bottom);
+    if !bottom && !edges.contains(&Edge::Top) {
+        return next;
+    }
+    let mut b = next;
+    let mut rows = (next.height() - min + step / 2).div_euclid(step);
+    let fits = |rows: i32| {
+        let height = min + rows * step;
+        if bottom {
+            start.y0 + height <= display.1
+        } else {
+            start.y1 + 1 - height >= 0
+        }
+    };
+    while rows > 0 && !fits(rows) {
+        rows -= 1;
+    }
+    let height = min + rows.max(0) * step;
+    if bottom {
+        b.y1 = start.y0 + height - 1;
+    } else {
+        b.y0 = start.y1 + 1 - height;
+    }
+    b
+}
+
 /// A resize in progress (`UIElement::m_resizing`, `m_currentBorder`, the mouse offsets, and the
 /// outline's rectangle when the window has `resize_line`).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -190,6 +229,8 @@ pub(crate) struct Resizing {
     pub(crate) border: Border,
     /// The pointer at the last move (`m_mouseXOffset`, `m_mouseYOffset`).
     pub(crate) pointer: (i32, i32),
+    /// The pointer when the resize started (a window that resizes in steps measures from it).
+    pub(crate) origin: (i32, i32),
     /// The window's box when the resize started (its change is what the release reports).
     pub(crate) start: UiBox,
     /// The outline's box for a `resize_line` window; applied at the release.
@@ -240,6 +281,7 @@ impl UiTree {
             window,
             border,
             pointer: self.pointer,
+            origin: self.pointer,
             start,
             outline,
         });
@@ -252,11 +294,30 @@ impl UiTree {
         let Some(r) = self.resizing else {
             return;
         };
-        let base = r.outline.unwrap_or_else(|| self.screen_box(r.window));
         let (px, py) = self.pointer;
-        let delta = (px - r.pointer.0, py - r.pointer.1);
         let limits = self.size_limits(r.window);
-        let next = resized_box(r.border, base, delta, limits, self.display);
+        let next = match self.int_attribute(r.window, RESIZE_HEIGHT_STEP_ATTRIBUTE) {
+            // A window that grows in whole steps (client exception, `inventory_resize.rs`): the
+            // pointer's whole change since the start moves the start box, the height then rounded
+            // to a step.
+            Some(step) if step > 0 => {
+                let delta = (px - r.origin.0, py - r.origin.1);
+                let next = resized_box(r.border, r.start, delta, limits, self.display);
+                stepped_height(
+                    r.border,
+                    r.start,
+                    next,
+                    limits.min_height.unwrap_or(0),
+                    step,
+                    self.display,
+                )
+            }
+            _ => {
+                let base = r.outline.unwrap_or_else(|| self.screen_box(r.window));
+                let delta = (px - r.pointer.0, py - r.pointer.1);
+                resized_box(r.border, base, delta, limits, self.display)
+            }
+        };
         if r.outline.is_some() {
             if let Some(current) = self.resizing.as_mut() {
                 current.outline = Some(next);

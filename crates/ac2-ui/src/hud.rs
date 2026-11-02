@@ -276,6 +276,10 @@ pub fn build_styled_hud(
             // The modern windows' parts (`modern_windows::restyle`).
             e.insert(match style {
                 HudStyle::Modern => layout.map(|l| Arc::new(crate::modern_windows::restyle(&l))),
+                // The classic inventory resizes vertically (`inventory_resize`).
+                HudStyle::Classic if layout_enum == LAYOUT_TOOLBAR => {
+                    layout.map(|l| Arc::new(crate::inventory_resize::restyle(&l)))
+                }
                 HudStyle::Classic => layout,
             });
         }

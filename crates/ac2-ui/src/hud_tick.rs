@@ -363,6 +363,7 @@ pub fn tick_pass<P: HudSource>(
     if let Some(skills) = skills.as_mut() {
         out.extend(skills.take_requests().into_iter().map(HudRequest::Skill));
     }
+    tree.sync_inventory_grip();
     if let Some(bar) = shortcuts.as_mut() {
         bar.resize_loop(tree, player);
         for request in bar.take_requests() {
