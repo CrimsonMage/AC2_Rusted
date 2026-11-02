@@ -4,8 +4,10 @@ A Rust client for **Asheron's Call 2**, built end to end. It reads the game's ow
 speaks the AC2 network protocol. It contains no game data, executables or decompiled code: you
 point it at your own installation.
 
-Every behaviour is ported from the retail client (Legions build 7160, checked against the admin
-7148 decompile) and cites the class and function it reproduces. See
+**DAT target: the 7230 release** (client 02.00.20.7230, portal iteration 5064 and later), the
+data the AC2e server serves. Every behaviour is ported from the retail client (Legions build 7160,
+checked against the admin 7148 decompile; the 7230 executable where 7230 changed a packed layout
+or added script calls) and cites the class and function it reproduces. See
 [ARCHITECTURE.md](ARCHITECTURE.md) for the design and milestones, and
 [docs/retail-catalog](docs/retail-catalog/README.md) for the work list: every retail function, by
 owning crate, with what is done.
@@ -14,9 +16,13 @@ owning crate, with what is done.
 
 - **Rust 1.96.1** (pinned in `rust-toolchain.toml`; `rustup` installs it on first use) with
   `rustfmt` and `clippy`.
-- **The game's DATs**: a directory holding `portal.dat`, `cell_1.dat` and `local_English.dat`
-  (and `highres.dat` for the high-resolution textures). Point everything at it with
-  `AC2_DAT_DIR`, or `--dat-dir` where a program takes it.
+- **The game's DATs, 7230 release**: a directory holding `portal.dat`, `cell_1.dat` and
+  `local_English.dat` (and `highres.dat` for the high-resolution textures), from the 2012 7230
+  client package. Point everything at it with `AC2_DAT_DIR`, or `--dat-dir` where a program
+  takes it. The client finds the release from the portal iteration (`ac2_core::DataRelease`), so
+  the Legions DVD's 7160 DATs and the end-of-retail 0930 set (client build 0930, 2013) also read,
+  but 7230 is the supported target: tests that pin record counts pin each release, and live
+  testing runs on 7230.
 - **Linux build libraries** for the window programs: ALSA headers (audio output) and a Vulkan or
   GL driver (wgpu 30). A missing GPU only affects the programs that draw; the tests that need one
   skip themselves.
@@ -39,6 +45,7 @@ AC2 class has one home. A crate may depend only on crates above it.
 | `ac2-dat` | DAT mounting: B-tree lookup, positioned record reads, the binary unpack cursor |
 | `ac2-db` | typed `DBObj` decode cache, `MasterProperty`, enum id maps, string tables |
 | `ac2-net` | transport (checksums, ISAAC, fragments, flow, logon) and the event codecs |
+| `ac2-gun` | GUN, the MSN Gaming Zone service: the DirectPlay 8 client wire, GunDll's `CGun` and its `IGun*` interfaces, `NSTurbineGun::TurbineGun` |
 | `ac2-anim` | `CSetup`, `AnimMap`, animators, locomotion sliders |
 | `ac2-assets` | render asset codecs: surfaces, materials and modifiers, meshes, `VisualDesc`, `PSDesc`, FX tables |
 | `ac2-world` | regions, landblocks, terrain and scenery, `CEnvCell` interiors, lights, water, sky, game time |
@@ -62,7 +69,7 @@ AC2 class has one home. A crate may depend only on crates above it.
 |---|---|
 | `world-viewer` | the offline world viewer (below); never connects, changes no client crate |
 | `race-table` | runs the `CharacterGenSystem` script once and writes the playable race and sex models the viewer reads |
-| `legions-server-double` | an in-process Legions 7160 server for the client's tests |
+| `legions-server-double` | an in-process Legions 7160 server for the client's tests (the 7160 logon path; live 7230 testing uses AC2e) |
 | `ac2-login-probe` | the network logon alone against a real or local server, stage by stage |
 | `dat-diff` | compares two DAT sets record by record |
 | `ac2hero-guide` | the quest guide as a standalone egui window |
@@ -112,8 +119,8 @@ cargo run --release -p ac2-client --bin ac2 -- --dat-dir "$AC2_DAT_DIR" \
 | `--language NAME` | the language, mounting its `local_NAME.dat` |
 | `--content-dir DIR` | the help pages (else `Content` beside the DATs, then `AC2_CONTENT_DIR`) |
 | `--chargen FILE` | also capture every created character to FILE |
-| `--gunserver HOST`, `--gunport N`, `--gunticket`, `--gunticketoverride T` | a shared GUN server, retail's arguments |
-| `--no-gun` | no GUN; without it the client uses the game server's own GUN service (port 2310) |
+| `--gunserver HOST`, `--gunport N` (default 2310), `--gunticket`, `--gunticketoverride T` | a GUN server, retail's arguments; GUN stays off without `--gunserver`, as in retail |
+| `--tchat`, `--tchatdll NAME` | Turbine chat, retail's arguments |
 
 ### The launcher
 
@@ -135,8 +142,7 @@ The launcher finds `ac2` beside itself unless `set client` names it.
 ```bash
 # Log on alone and report each stage, quitting at character selection
 cargo run --release -p ac2-login-probe -- --host 127.0.0.1 --port 9000 --account local \
-    [--version 7230] [--glsticketdirect PASS] [--dat-dir DIR] [--timeout 45] \
-    [--gunserver HOST [--gunport 2310] [--gunticketoverride T] [--gunfriend NAME]]
+    [--version 7230] [--glsticketdirect PASS] [--dat-dir DIR] [--timeout 45]
 
 # Headless: log on, enter, walk forward over the DATs' terrain, print the frames, log off
 cargo run -p ac2-client --example headless_probe -- --dat-dir "$AC2_DAT_DIR" \
@@ -159,9 +165,11 @@ Live testing is against a local AC2e server on the 7230 DATs. `AC2E_DIR` names t
 (default `../third_party/ac2e-src/repo`); `AC2E_BIND` and `AC2E_GUN_BIND` move its ports:
 
 ```bash
-scripts/ac2e-server.sh                 # keep a server running on 127.0.0.1:9000 (GUN on 2310)
-scripts/ac2e-login-test.sh             # start one, log on to the character set (and GUN), stop it
+scripts/ac2e-server.sh                 # keep a server running on 127.0.0.1:9000
+scripts/ac2e-login-test.sh             # start one, log on to the character set, stop it
 scripts/ac2e-launcher-test.sh          # the launcher's sign-in and start against AC2e accounts
+scripts/ac2e-live-test.sh [FILTER]     # the gameplay suite (quests, crafting, combat, effects)
+                                       # on a fresh server of its own; AC2E_LIVE_TEST picks the target
 ```
 
 The HUD is the client's modern style by default: the retail frameworks over the DAT layouts,
@@ -262,10 +270,12 @@ the functions you port in the same commit.
 
 - Port from the retail decompile and cite the class and function; never commit decompiled code,
   game data or data-derived fixtures. Tests that need data read `AC2_DAT_DIR` and skip without it.
-- Where admin 7148 and Legions 7160 differ, follow Legions.
+- Where admin 7148 and Legions 7160 differ, follow Legions. Where the 7230 data changed a layout,
+  follow the 7230 executable (`ac2_core::data_release`).
 - New code goes in the crate that owns the subsystem; the dependency graph is one-way (the order
   of the table above). Change `ARCHITECTURE.md` first when no crate fits.
-- Every `.rs` file stays under 800 lines; keep public APIs small and plain-data.
+- A `.rs` file reaching 1000 lines is split by responsibility (`scripts/check_file_sizes.sh` fails at
+  1500); keep public APIs small and plain-data.
 - Retail ran x87 at 53-bit precision: evaluate multi-operation expressions in `f64` and round to
   `f32` where retail stores a `float`.
 - The frame thread never decodes or reads files: DAT reads happen on loader threads.
