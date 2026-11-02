@@ -163,12 +163,19 @@ impl UiTree {
             return false;
         };
         self.clear_drag_and_drop();
-        let rect = self.el(copy).rect;
+        // The dragged element's own size (its box, `m_x1 - m_x0 + 1`): the pointer offset is
+        // clamped to it, and the copy's surface is made that size (`UISurface::CreateSurface`).
+        let rect = self.el(element).rect;
         let (width, height) = (rect.width(), rect.height());
         let offset = (offset_x.clamp(0, width), offset_y.clamp(0, height));
         let (x, y) = (self.pointer.0 + offset.0, self.pointer.1 + offset.1);
         self.set_parent(copy, None);
         self.move_to(copy, 0, 0);
+        // The copy has no parent, so `CreateElement`'s `Update` laid it out against the display:
+        // an item whose edges stretch with its slot grew by the display's growth over the layout's
+        // 1024 x 768. Retail drew the copy on that slot-sized surface; here the copy's box is the
+        // surface, so it takes the dragged element's size.
+        self.resize_to(copy, width, height);
         let el = self.el_mut(copy);
         el.object = Some((x, y));
         el.z = 0xFFFF;

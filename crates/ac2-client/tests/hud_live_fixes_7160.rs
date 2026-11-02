@@ -11,8 +11,14 @@ use legions_server_double::SWORD;
 
 const BIG: (u32, u32) = (2560, 1440);
 
+/// The rig with its window positions in a fresh directory of its own: a resized inventory is
+/// saved there, and the player's AC2 directory (or an earlier run) must not size the next one.
 fn classic_big() -> Option<Rig> {
-    let mut rig = Rig::new()?;
+    static RUN: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let run = RUN.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let dir = std::env::temp_dir().join(format!("ac2-hudfix-{}-{run}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let mut rig = Rig::new_in(Some(dir))?;
     rig.view
         .set_hud_style(&rig.gpu, ac2_gpu::COLOR_FORMAT, HudStyle::Classic);
     rig.wait("the HUD", |r| r.view.hud_tree().is_some());
@@ -155,6 +161,15 @@ fn a_shortcut_icon_pressed_anywhere_in_its_slot_moves_on_the_classic_bar() {
             );
             rig.press_and_move(at, other);
             let dragging = rig.view.is_dragging();
+            // The icon that follows the pointer is the slot's size, not stretched over the screen.
+            let tree = rig.view.hud_tree().unwrap();
+            if let Some(copy) = tree.dragged() {
+                let b = tree.screen_box(copy);
+                assert!(
+                    b.width() <= 64 && b.height() <= 64,
+                    "the dragged icon is {b:?}"
+                );
+            }
             rig.release();
             assert!(
                 dragging,
@@ -166,4 +181,33 @@ fn a_shortcut_icon_pressed_anywhere_in_its_slot_moves_on_the_classic_bar() {
             assert_eq!(shortcut(&mut rig, 3), ShortcutInfo::Instance(SWORD));
         }
     }
+}
+
+#[test]
+fn a_dragged_pack_item_keeps_its_slot_size() {
+    let Some(mut rig) = classic_big() else {
+        return;
+    };
+    rig.open_inventory();
+    rig.wait("the sword in the pack", |r| {
+        r.view
+            .item_icon_center("PackMainContainer", SWORD)
+            .is_some()
+    });
+    let from = rig
+        .view
+        .item_icon_center("PackMainContainer", SWORD)
+        .unwrap();
+    rig.press_and_move(from, (from.0 - 300, from.1 - 200));
+    rig.idle(4);
+    snapshot(&mut rig, "dragging.png");
+    let tree = rig.view.hud_tree().unwrap();
+    let copy = tree.dragged().expect("an item is dragged");
+    let b = tree.screen_box(copy);
+    eprintln!("dragged {copy} box {b:?}");
+    assert!(
+        b.x1 - b.x0 <= 64 && b.y1 - b.y0 <= 64,
+        "the dragged copy is the size of a slot, not {b:?}"
+    );
+    rig.release();
 }
