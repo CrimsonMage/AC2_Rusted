@@ -115,3 +115,55 @@ fn the_classic_inventory_resizes_taller() {
         "the bottom edge stays on the display's"
     );
 }
+
+fn shortcut(rig: &mut Rig, index: usize) -> ac2_net::protocol::ShortcutInfo {
+    rig.client.shortcut_array().unwrap()[index].clone()
+}
+
+/// A shortcut icon pressed anywhere inside its slot on the classic bar (the header band of the
+/// bar's window, its top grip and the slot numbers are all there) follows the pointer and drops
+/// into the next slot: the way a player moves an icon, at the user's setup.
+#[test]
+fn a_shortcut_icon_pressed_anywhere_in_its_slot_moves_on_the_classic_bar() {
+    use ac2_net::protocol::ShortcutInfo;
+    let Some(mut rig) = classic_big() else {
+        return;
+    };
+    rig.open_inventory();
+    rig.wait("the sword in the pack", |r| {
+        r.view
+            .item_icon_center("PackMainContainer", SWORD)
+            .is_some()
+    });
+    let from = rig
+        .view
+        .item_icon_center("PackMainContainer", SWORD)
+        .unwrap();
+    let centre = rig.view.shortcut_slot_center(3).unwrap();
+    rig.drag(from, centre);
+    assert_eq!(shortcut(&mut rig, 3), ShortcutInfo::Instance(SWORD));
+    let other = rig.view.shortcut_slot_center(7).unwrap();
+    for dy in [-14, -8, 0, 8, 14] {
+        for dx in [-14, -8, 0, 8, 14] {
+            let at = (centre.0 + dx, centre.1 + dy);
+            // A player rests the pointer on the icon first: its tooltip is up at the press.
+            rig.point(at);
+            rig.idle(30);
+            assert!(
+                rig.view.hud_tree().unwrap().tooltip_element().is_some() || (dx, dy) != (0, 0),
+                "the tooltip is up"
+            );
+            rig.press_and_move(at, other);
+            let dragging = rig.view.is_dragging();
+            rig.release();
+            assert!(
+                dragging,
+                "the icon pressed at {dx}, {dy} from its centre follows the pointer"
+            );
+            assert_eq!(shortcut(&mut rig, 7), ShortcutInfo::Instance(SWORD));
+            assert_eq!(shortcut(&mut rig, 3), ShortcutInfo::Empty(0));
+            rig.drag(other, centre);
+            assert_eq!(shortcut(&mut rig, 3), ShortcutInfo::Instance(SWORD));
+        }
+    }
+}
