@@ -294,8 +294,7 @@ fn the_craft_pages_show_the_known_skill_and_recipe() {
 
     // The selected skill's level text (`RefreshCraftSkillDisplay` through `MakeLevelText`): the
     // enchanted level, with its buffed or debuffed difference when it differs from the raw one.
-    // The raise button is not under this layout's craft page (the test above), so the raise text
-    // does not replace it here.
+    // The raise text goes to `MiscText`, never over the level.
     let (raw, enchanted) = source.skill_level(SKILL).expect("the skill's level");
     let mut vars = vec![(tokenize("level"), i64::from(enchanted))];
     let id = if enchanted == raw {
@@ -321,9 +320,8 @@ fn the_craft_pages_show_the_known_skill_and_recipe() {
         "the level text"
     );
 
-    // The raise button's request: the selected skill is raised. The button itself is a page
-    // element the layout links (`SelectedField` / `ButtonField`), not under the craft page here,
-    // so the message is sent to the page.
+    // The raise button's request: the selected skill is raised. The panel answers the message by
+    // the element id, so it is sent to the page.
     let raise_click = message(page, "RaiseCraftButton", "mouse_release_on", 0);
     craft.message(tree, &source, &raise_click);
     assert_eq!(craft.take_commands(), vec![CraftCommand::RaiseSkill(SKILL)]);

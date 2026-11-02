@@ -7,10 +7,10 @@ use ac2_net::protocol::StringInfo;
 use ac2_weenie::{CraftSkill, Recipe};
 
 use crate::craft::{
-    CraftSource, CraftUi, AVAILABLE_XP_RAISE, BACK_BUTTON, CANT_RAISE, CATEGORY_HEADER,
-    CATEGORY_LIST, CATEGORY_TEMPLATE, CRAFT_RATING, ELLIPSIS, ENTRY_TEMPLATE, FORWARD_BUTTON,
-    LEVEL, NAME, RAISE_CRAFT_BUTTON, RECIPE_BUTTON, RECIPE_HEADER, RECIPE_ICON, RECIPE_LIST,
-    RECIPE_TEMPLATE, SELECTED_FIELD, SELECTED_ICON, SELECTED_LEVEL, SELECTED_NAME,
+    CraftSource, CraftUi, AVAILABLE_XP_RAISE, BACK_BUTTON, BUTTON_FIELD, CANT_RAISE,
+    CATEGORY_HEADER, CATEGORY_LIST, CATEGORY_TEMPLATE, CRAFT_RATING, ELLIPSIS, ENTRY_TEMPLATE,
+    FORWARD_BUTTON, LEVEL, MISC_TEXT, NAME, RAISE_CRAFT_BUTTON, RECIPE_BUTTON, RECIPE_HEADER,
+    RECIPE_ICON, RECIPE_LIST, RECIPE_TEMPLATE, SELECTED_ICON, SELECTED_LEVEL, SELECTED_NAME,
     SKILL_LEVEL_BUFFED, SKILL_LEVEL_DEBUFFED, SKILL_LEVEL_NORMAL, SKILL_LIST, STATE_CATEGORY,
     STATE_RECIPE, STATE_SKILL, TOKEN_BUFF, TOKEN_COST, TOKEN_DEBUFF, TOKEN_DID, TOKEN_DISABLED,
     TOKEN_ENABLED, TOKEN_LEVEL, TOKEN_SELECTED, TOKEN_VALUE, TOKEN_XP,
@@ -44,7 +44,7 @@ impl CraftUi {
             let Some(row) = self.create_template(tree, ENTRY_TEMPLATE) else {
                 continue;
             };
-            self.make_skill(tree, source, &skill, row);
+            self.make_skill(tree, source, &skill, row, false);
             tree.list_add_item(list, row);
             self.skill_rows.insert(skill.did, row);
         }
@@ -62,7 +62,7 @@ impl CraftUi {
             let Some(header) = self.child(tree, CATEGORY_HEADER) else {
                 return;
             };
-            self.make_skill(tree, source, &skill, header);
+            self.make_skill(tree, source, &skill, header, true);
             self.skill_rows.insert(skill.did, header);
             self.refresh_skill_display(tree, source, &skill);
         }
@@ -122,10 +122,14 @@ impl CraftUi {
         }
     }
 
-    /// `gmCraftUI::RefreshCraftSkillDisplay`: the selected skill's name, icon, level and raise
-    /// button, on the category and recipe views. The level text (`MakeLevelText` in the buffed
-    /// state) is set first; with a raise button the raise text replaces it on the same element, as
-    /// the decompile does.
+    /// `gmCraftUI::RefreshCraftSkillDisplay` (Legions 0x44a360): on the category and recipe views,
+    /// with all five of the page's `SelectedName`, `SelectedLevel`, `MiscText`, `SelectedIcon` and
+    /// `ButtonField` there (else nothing changes), the selected skill's icon (draw mode 2, or
+    /// cleared), its name, its level (`MakeLevelText` in the buffed state) and `ButtonField` set
+    /// `selected`; then, with a `RaiseCraftButton` on the page, the button ghosted unless the skill
+    /// can be raised and the raise text in `MiscText` (the stack slots of the five elements read
+    /// back in the Legions code: the name at `[esp+0x10]`, the level at `[esp+0x14]`, the raise
+    /// text's element at `[esp+0x18]`, which is `MiscText`).
     pub(crate) fn refresh_skill_display(
         &mut self,
         tree: &mut UiTree,
@@ -135,45 +139,48 @@ impl CraftUi {
         if self.state != STATE_CATEGORY && self.state != STATE_RECIPE {
             return;
         }
-        if let Some(name) = self.child(tree, SELECTED_NAME) {
-            let text = source.text(&skill.name);
-            tree.set_text(name, &text);
-        }
-        if let Some(icon) = self.child(tree, SELECTED_ICON) {
-            set_icon(tree, icon, skill.icon, 2);
-        }
-        if let Some(field) = self.child(tree, SELECTED_FIELD) {
-            tree.set_state(field, TOKEN_SELECTED);
-        }
-        if let Some(level) = self.child(tree, SELECTED_LEVEL) {
-            if let Some(text) = level_text(source, skill.did, true) {
-                tree.set_text(level, &text);
-            }
-        }
+        let (Some(name), Some(level), Some(misc), Some(icon), Some(field)) = (
+            self.child(tree, SELECTED_NAME),
+            self.child(tree, SELECTED_LEVEL),
+            self.child(tree, MISC_TEXT),
+            self.child(tree, SELECTED_ICON),
+            self.child(tree, BUTTON_FIELD),
+        ) else {
+            return;
+        };
+        set_icon(tree, icon, skill.icon, 2);
+        let text = source.text(&skill.name);
+        tree.set_text(name, &text);
+        let text = level_text(source, skill.did, true);
+        tree.set_text(level, &text);
+        tree.set_state(field, TOKEN_SELECTED);
         if let Some(raise) = self.child(tree, RAISE_CRAFT_BUTTON) {
+            let text = raise_text(source, skill);
             let can = source.can_raise(skill.did);
             tree.set_bool(raise, BUTTON_GHOSTED, !can);
-            if let Some(level) = self.child(tree, SELECTED_LEVEL) {
-                let text = raise_text(source, skill);
-                tree.set_text(level, &text);
-            }
+            tree.set_text(misc, &text);
         }
     }
 
-    /// `gmCraftUI::MakeCraftSkill`: a skill's row (or the header): its DID on the row and its
-    /// back button, its name in the enabled or disabled state (a modifier of at least 1.0 enables
-    /// it), and the row selected when it is the selected skill.
+    /// `gmCraftUI::MakeCraftSkill` (Legions 0x44a640): a skill's row (or, `header`, the categories'
+    /// header): its DID on the row and on its forward button (a row; `RefreshCraftSkillPage` passes
+    /// 0) or back button (the header; `RefreshCraftSkillCategoryPage` passes 1), its name in the
+    /// enabled or disabled state (a modifier of at least 1.0 enables it), and the row selected
+    /// when it is the selected skill. Without that button or the name nothing more is set.
     pub(crate) fn make_skill(
         &mut self,
         tree: &mut UiTree,
         source: &dyn CraftSource,
         skill: &CraftSkill,
         row: usize,
+        header: bool,
     ) {
         tree.set_attribute_id(row, TOKEN_DID, skill.did);
-        if let Some(button) = tree.child_recursive(row, BACK_BUTTON) {
-            tree.set_attribute_id(button, TOKEN_DID, skill.did);
-        }
+        let button = if header { BACK_BUTTON } else { FORWARD_BUTTON };
+        let Some(button) = tree.child_recursive(row, button) else {
+            return;
+        };
+        tree.set_attribute_id(button, TOKEN_DID, skill.did);
         if let Some(name) = tree.child_recursive(row, NAME) {
             let state = if skill.xp_mod >= 1.0 {
                 TOKEN_ENABLED
@@ -216,7 +223,7 @@ impl CraftUi {
 
     /// `gmCraftUI::MakeCraftSkillCategory`: a category's row (or the recipes' header): its DID, its
     /// forward button (`forward`) or back button, its name, and the row selected when it is the
-    /// selected category.
+    /// selected category. Without that button nothing more is set.
     pub(crate) fn make_category(
         &mut self,
         tree: &mut UiTree,
@@ -228,9 +235,10 @@ impl CraftUi {
     ) {
         tree.set_attribute_id(row, TOKEN_DID, category);
         let button = if forward { FORWARD_BUTTON } else { BACK_BUTTON };
-        if let Some(button) = tree.child_recursive(row, button) {
-            tree.set_attribute_id(button, TOKEN_DID, category);
-        }
+        let Some(button) = tree.child_recursive(row, button) else {
+            return;
+        };
+        tree.set_attribute_id(button, TOKEN_DID, category);
         if let Some(text) = tree.child_recursive(row, NAME) {
             let string = source.text(name);
             tree.set_text(text, &string);
@@ -316,9 +324,10 @@ impl CraftUi {
 
 /// `gmCraftUI::MakeLevelText`: the skill's level (the enchanted one) and, when the level is
 /// enchanted, its buffed or debuffed text with the difference (`buffed` is the state argument: the
-/// selected skill shows it, a row does not). `None` when the level query fails.
-fn level_text(source: &dyn CraftSource, skill: u32, buffed: bool) -> Option<String> {
-    let (raw, enchanted) = source.skill_level(skill)?;
+/// selected skill shows it, a row does not). A failed level query reads both levels as 0, the
+/// out words' initial values (Legions 0x44a270).
+fn level_text(source: &dyn CraftSource, skill: u32, buffed: bool) -> String {
+    let (raw, enchanted) = source.skill_level(skill).unwrap_or((0, 0));
     let level = i64::from(enchanted);
     let difference = i64::from(enchanted) - i64::from(raw);
     let (id, vars) = if difference == 0 || !buffed {
@@ -334,7 +343,7 @@ fn level_text(source: &dyn CraftSource, skill: u32, buffed: bool) -> Option<Stri
             vec![(TOKEN_LEVEL, level), (TOKEN_VALUE, difference.abs())],
         )
     };
-    Some(source.ui_text(id, &vars))
+    source.ui_text(id, &vars)
 }
 
 /// `gmCraftUI::RefreshCraftSkillDisplay`'s raise text: the skill cannot be raised (`CantRaise`), or

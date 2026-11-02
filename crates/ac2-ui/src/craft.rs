@@ -56,7 +56,10 @@ pub(crate) const NAME: u32 = tokenize("Name");
 pub(crate) const RECIPE_ICON: u32 = tokenize("RecipeIcon");
 pub(crate) const SELECTED_NAME: u32 = tokenize("SelectedName");
 pub(crate) const SELECTED_ICON: u32 = tokenize("SelectedIcon");
-pub(crate) const SELECTED_FIELD: u32 = tokenize("SelectedField");
+/// The selected skill's button field (`ButtonField`, set `selected` by `RefreshCraftSkillDisplay`)
+/// and its description text (`MiscText`, the raise text).
+pub(crate) const BUTTON_FIELD: u32 = tokenize("ButtonField");
+pub(crate) const MISC_TEXT: u32 = tokenize("MiscText");
 pub(crate) const SKILL_LIST: u32 = tokenize("CraftSkillList");
 pub(crate) const CATEGORY_LIST: u32 = tokenize("CraftSkillCategoryList");
 pub(crate) const RECIPE_LIST: u32 = tokenize("RecipeList");
