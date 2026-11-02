@@ -222,6 +222,8 @@ pub fn build_styled_hud(
     style: HudStyle,
 ) -> ResourceResult<GameplayHud> {
     let mut tree = UiTree::new(width, height);
+    // `gmUIFlow::gmUIFlow`: the default cursor the pointer goes back to over nothing.
+    crate::default_cursor::install_default_cursor(&mut tree, store)?;
     tree.set_smooth_scaling(style == HudStyle::Modern);
     let text_data = Arc::new(StoreTextData::new(Arc::clone(store)));
     tree.set_text_data(text_data.clone());

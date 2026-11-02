@@ -124,7 +124,7 @@ key	status	note
 004064a0	x	GUN phase 3 (gun-phase3)
 00406af0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406b00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
-00406b10	x	ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view
+00406b10	x	ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); the default cursor SetCursor(GetDIDFromEnum(0x41000002, 0x40000003), 0, 0, 1) is default_cursor.rs (the HUD tree); gameplay is the client's view
 00406c60	x	ac2-script reads script packages (unpack); the pack direction is authoring-tool only, never run by the client
 00406cb0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00406d90	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them

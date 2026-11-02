@@ -1642,7 +1642,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmUIFlow::RecvNotice_GunConnectionLost` · 004064a0 — GUN phase 3 (gun-phase3)
 - [x] `gmUIFlow::RecvNotice_CharacterError` · 00406af0 — ac2-ui pregame/flow.rs, pregame/ui.rs
 - [x] `gmUIFlow::RecvNotice_ServerDied` · 00406b00 — ac2-ui pregame/flow.rs, pregame/ui.rs
-- [x] `gmUIFlow::gmUIFlow` · 00406b10 — ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view
+- [x] `gmUIFlow::gmUIFlow` · 00406b10 — ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); the default cursor SetCursor(GetDIDFromEnum(0x41000002, 0x40000003), 0, 0, 1) is default_cursor.rs (the HUD tree); gameplay is the client's view
 
 ### ImportData
 - [x] `ImportData::StreamPack` · 00406c60 · legions 00406970 — ac2-script reads script packages (unpack); the pack direction is authoring-tool only, never run by the client

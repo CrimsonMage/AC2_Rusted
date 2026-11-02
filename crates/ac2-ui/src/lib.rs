@@ -269,6 +269,7 @@ mod text_data;
 mod text_edit;
 pub use text_edit::TextPress;
 pub mod ac1_buttons;
+mod default_cursor;
 pub mod hud_style;
 mod modern_all_view;
 pub mod modern_art;
@@ -524,6 +525,8 @@ mod backpack_tests;
 mod chat_tests;
 #[cfg(test)]
 mod damage_text_tests;
+#[cfg(test)]
+mod default_cursor_tests;
 #[cfg(test)]
 mod dialog_tests;
 #[cfg(test)]
