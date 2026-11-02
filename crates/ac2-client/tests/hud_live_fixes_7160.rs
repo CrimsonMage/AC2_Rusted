@@ -211,3 +211,64 @@ fn a_dragged_pack_item_keeps_its_slot_size() {
     );
     rig.release();
 }
+
+/// A trained skill dragged from the classic skill panel onto the bar at 2560 x 1440 becomes a
+/// shortcut there (`gmSkillTreeUI`'s node, `gmShortcutUI::SetShortcut`).
+#[test]
+fn a_skill_dragged_from_the_classic_skill_panel_lands_on_the_bar() {
+    use ac2_net::protocol::ShortcutInfo;
+    const SKILL: u32 = 0xB0;
+    let Some(mut rig) = classic_big() else {
+        return;
+    };
+    {
+        let mut server = rig.server.borrow_mut();
+        server.give_starter_items();
+        server.send_init_player();
+        server.grant_xp(100);
+        server.set_skill_cost(
+            SKILL,
+            legions_server_double::SkillCost { credits: 2, xp: 7 },
+        );
+    }
+    rig.idle(16);
+    rig.command(ac2_client::Command::Skill(ac2_weenie::SkillRequest::Train(
+        SKILL,
+    )));
+    rig.idle(16);
+    rig.wait("the bar", |r| r.view.shortcut_slots() > 0);
+    rig.panel(ac2_ui::ToolbarChild::Skill, true);
+    let melee = rig
+        .client
+        .root_panel_from_race(ac2_ui::ROOT_MELEE_PANEL)
+        .unwrap()
+        .unwrap();
+    rig.command(ac2_client::Command::Examine(
+        ac2_net::protocol::ExaminationRequest {
+            kind: ac2_ui::EXAMINE_PANEL,
+            data_enum: melee,
+            ..Default::default()
+        },
+    ));
+    rig.wait("the skill node", |r| {
+        r.view.skill_node_center(SKILL).is_some()
+    });
+    rig.idle(8);
+    snapshot(&mut rig, "skill_panel.png");
+    let from = rig.view.skill_node_center(SKILL).unwrap();
+    let to = rig.view.shortcut_slot_center(5).unwrap();
+    eprintln!("skill node at {from:?}, slot 5 at {to:?}");
+    rig.press_and_move(from, to);
+    let dragging = rig.view.is_dragging();
+    snapshot(&mut rig, "skill_dragging.png");
+    rig.release();
+    rig.idle(8);
+    assert!(dragging, "the skill follows the pointer");
+    assert_eq!(
+        shortcut(&mut rig, 5),
+        ShortcutInfo::Enum {
+            kind: 0x4000_0001,
+            value: SKILL
+        }
+    );
+}
