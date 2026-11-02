@@ -867,6 +867,17 @@ game rules and server-visible behaviour exactly retail.
   as `RecvNotice_ItemUpdate`. `ac2e_live_item_icons` proves it with frames that do not wait for the
   loader (`LiveRig::new_unsettled`); the other live files settle the loads each frame and cannot see
   the race.
+- Exception: a server call that names an object whose process is still loading waits for it.
+  Retail made an object's weenie object (`gmCWAllocator::AllocateWeenieObject_Internal`,
+  `CWDistributor::Construct`) as its `CreateObject` was handled, so a later call in the same
+  batch found it. Here the loader reads the object's WState first, so `EquipItem_Done`
+  (0x820E0051), which AC2e sends right after it makes the equipped item anew, ran its
+  `GetInternalWeenieObject(item)` while the item had no process: the 0x1F9 equipment record
+  kept no implement and every skill wanting a weapon stayed unusable on the bar. A call to a
+  running process whose arguments name a loading object (a `LongInt`, or an id's two slots,
+  low word tagged 0x82 or 0x84 then 0xCD, in a packed object) is held
+  (`ScriptState::held`, `ScriptLifecycle::release_held`) and run, in arrival order per target,
+  once those processes start; later calls to the same target wait behind it.
 - Exception: an item's icon is its visual's total icon description, read on a loader thread. Retail's
   `ItemDisplay::Update` draws `VisualDesc::GetTotalIconDesc` of the object's local visual desc (the
   parent DAT chain's icon layers with the local ones on top) and only falls back to the `ICON`

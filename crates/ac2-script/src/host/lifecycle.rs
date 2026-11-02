@@ -5,6 +5,8 @@
 //! the scripts produce goes out through [`outcome`]. Written against [`ScriptPort`]; the client
 //! answers the port's hooks (the session's objects, the loader).
 
+use std::collections::BTreeSet;
+
 use ac2_net::protocol::{unpack_values, ObjectAction, PackValue};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
@@ -100,7 +102,38 @@ pub trait ScriptLifecycle: ScriptPort {
         }
         // `CWInterface::HandleEnterWorld`: the object is in the world as its process starts.
         self.lifecycle_ifun(id, lifecycle_ifun::HANDLE_ENTER_WORLD, &mut events);
+        self.release_held(&mut events);
         self.push_produced(events);
+    }
+
+    /// Runs the held server calls ([`ScriptState::held`]) that no longer wait, in order; a call
+    /// still waiting keeps the later calls to its object behind it.
+    fn release_held(&mut self, out: &mut Vec<SessionEvent>) {
+        loop {
+            let Some(scripts) = self.script_state() else {
+                return;
+            };
+            let mut blocked = BTreeSet::new();
+            let mut ready = None;
+            for (index, (target, _, arguments)) in scripts.held.iter().enumerate() {
+                if blocked.contains(target) {
+                    continue;
+                }
+                if scripts.names_waiting(arguments) {
+                    blocked.insert(*target);
+                } else {
+                    ready = Some(index);
+                    break;
+                }
+            }
+            let Some(index) = ready else {
+                return;
+            };
+            let (target, function, arguments) = scripts.held.remove(index).expect("held call");
+            if scripts.running.contains(&target) {
+                self.dispatch_script(target, function, &arguments, out);
+            }
+        }
     }
 
     /// A script data read landed (`answered`: the world resolved it, see `Loaded::ScriptData`);
@@ -179,7 +212,9 @@ pub trait ScriptLifecycle: ScriptPort {
                         scripts.host.remove_weenie(*id);
                         scripts.running.remove(id);
                         scripts.waiting.remove(id);
+                        scripts.held.retain(|(target, _, _)| target != id);
                     }
+                    self.release_held(&mut produced);
                 }
                 SessionEvent::Interp {
                     object,
@@ -190,7 +225,13 @@ pub trait ScriptLifecycle: ScriptPort {
                     if let Some(queue) = scripts.waiting.get_mut(object) {
                         queue.push((*function, arguments.clone()));
                     } else if scripts.running.contains(object) {
-                        self.dispatch_script(*object, *function, arguments, &mut produced);
+                        if scripts.holds(*object, arguments) {
+                            scripts
+                                .held
+                                .push_back((*object, *function, arguments.clone()));
+                        } else {
+                            self.dispatch_script(*object, *function, arguments, &mut produced);
+                        }
                     }
                 }
                 _ => {}

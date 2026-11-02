@@ -4,9 +4,9 @@
 //! is the VM's, the server calls, chat lines and notices it produced. Everything the host needs
 //! from the client goes through [`ScriptPort`].
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
-use ac2_net::protocol::pack_values;
+use ac2_net::protocol::{pack_values, HeapObject, PackValue, PackedEntry};
 use ac2_weenie::SessionEvent;
 
 use super::latent;
@@ -22,6 +22,12 @@ pub struct ScriptState {
     pub waiting: BTreeMap<u64, Vec<(u32, Vec<u8>)>>,
     /// Objects with a process.
     pub running: BTreeSet<u64>,
+    /// Server calls to a running process that name an object whose process is still being read
+    /// (target, function, packed arguments), in arrival order: they run once those processes
+    /// start. Retail made an object's weenie object as its `CreateObject` was handled, so a call
+    /// after it found it (`EquipItem_Done`'s `GetInternalWeenieObject` of the item the server
+    /// just made anew).
+    pub held: VecDeque<(u64, u32, Vec<u8>)>,
     /// What the boundary dropped and dispatches that failed, for diagnostics.
     pub problems: Vec<String>,
     /// The server calls and UI IFuns handed to the VM.
@@ -50,12 +56,39 @@ pub struct ScriptState {
 }
 
 impl ScriptState {
+    /// Whether the packed `arguments` name an object whose process is still being read.
+    pub fn names_waiting(&self, arguments: &[u8]) -> bool {
+        if self.waiting.is_empty() {
+            return false;
+        }
+        let Ok(values) = ac2_net::protocol::unpack_values(arguments) else {
+            return false;
+        };
+        values.iter().any(|value| match value {
+            PackValue::LongInt(id) => self.waiting.contains_key(id),
+            PackValue::Reference(graph) => graph.entries.iter().any(|entry| match entry {
+                PackedEntry::Heap { object, .. } => {
+                    instance_ids(object).any(|id| self.waiting.contains_key(&id))
+                }
+                _ => false,
+            }),
+            _ => false,
+        })
+    }
+
+    /// Whether a call to `object` arriving now waits behind [`Self::held`] (an earlier call to
+    /// it is held, or it names an object still loading).
+    pub fn holds(&self, object: u64, arguments: &[u8]) -> bool {
+        self.held.iter().any(|(target, _, _)| *target == object) || self.names_waiting(arguments)
+    }
+
     /// A fresh state over `host`, with the server calls and UI IFuns in `functions` handed to it.
     pub fn new(host: ScriptHost, functions: &[u32]) -> Self {
         Self {
             host,
             waiting: BTreeMap::new(),
             running: BTreeSet::new(),
+            held: VecDeque::new(),
             problems: Vec::new(),
             owned: functions.iter().copied().collect(),
             produced: Vec::new(),
@@ -68,6 +101,17 @@ impl ScriptState {
             no_draw: BTreeSet::new(),
         }
     }
+}
+
+/// The instance ids a packed package object holds: a slot tagged as an id's low word (0x82, or
+/// 0x84 as `CallIFun_*` pushes it) followed by its high word (tag 0xCD).
+fn instance_ids(object: &HeapObject) -> impl Iterator<Item = u64> + '_ {
+    object
+        .tags
+        .windows(2)
+        .enumerate()
+        .filter(|(_, pair)| matches!(pair[0], 0x82 | 0x84) && pair[1] == 0xCD)
+        .map(|(i, _)| u64::from(object.slots[i + 1]) << 32 | u64::from(object.slots[i]))
 }
 
 /// The end of one dispatch, resume or IFun on object `id`: problems noted, a call that stopped for
