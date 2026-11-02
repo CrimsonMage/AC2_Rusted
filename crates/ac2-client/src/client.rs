@@ -793,6 +793,12 @@ impl Client {
             for event in &events {
                 self.apply(event)?;
             }
+            // The objects `CObjectMaint::UseTime` destroyed leave the scripts too
+            // (`CWInterface::HandleDestruction`, the process removed), as the dispatched events'
+            // do: without it an object destroyed from the queue kept its process marked running,
+            // and the same id created again (a respawned creature, an item the server makes anew
+            // when it is equipped) never had its process or class defaults loaded.
+            self.run_scripts(&mut events);
             self.remotes.sync_shadows(&mut self.terrain);
             // `CPhysics::UpdatePhysics` on `Timer::local_time`.
             let quanta = self.physics_clock.advance(now);
