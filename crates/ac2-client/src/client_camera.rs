@@ -212,6 +212,13 @@ impl Client {
             interpolation: self.render_interpolation,
             children: &children,
         };
+        // The head trace starts at the physics position when the subject is the drawn body.
+        let physics = (!interpolate)
+            .then_some(self.player.as_ref())
+            .flatten()
+            .and_then(|p| p.body.as_ref())
+            .map(|b| b.physics.position());
+        self.camera_collision.set_trace_origin(physics);
         self.scene.update_collided(
             &mut self.camera,
             &subject,

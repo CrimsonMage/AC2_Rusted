@@ -660,6 +660,11 @@ game rules and server-visible behaviour exactly retail.
   The collision stays retail's and applies on top of that: `SmartBox::UpdateCamera`'s line-of-sight
   pull-in (`CameraCollision::trace`, `SceneCamera::update_collided`) runs from the drawn player's
   origin where retail used the physics frame's, so the camera and the body it follows stay together.
+  The first trace (to the point the camera looks at) starts at the physics position, as retail's
+  does, and ends at the drawn body's point (`CameraCollision::set_trace_origin`): the drawn origin
+  is interpolated between two quanta and sinks a few centimetres into the ground over a crease
+  between terrain cells, and a trace started there stopped at once, dropping the camera onto the
+  player for a frame.
   Exception: the camera's traces pass through the player they follow (`LosParameters::
   ignore_instance`, set by `CameraCollision::trace` on the head-to-camera ray and the wall
   stand-off). Retail's traces test every object in the cells with the camera-ethereal set

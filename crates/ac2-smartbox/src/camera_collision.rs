@@ -61,6 +61,12 @@ pub struct CameraCollision {
     after_transit: Position,
     /// `SmartBox::m_cameraVelocity`: the camera's move this update, times the quantum.
     pub velocity: Vector,
+    /// Where the head trace starts when the subject is the drawn body (an AGENTS.md
+    /// exception): the subject's physics position, which the physics keeps clear of the world.
+    /// The drawn origin is interpolated between two quanta and can sink a few centimetres
+    /// into the ground (a crease between terrain cells), where the trace stopped at once and
+    /// the camera fell onto the player for a frame.
+    trace_origin: Option<Position>,
 }
 
 impl Default for CameraCollision {
@@ -77,7 +83,14 @@ impl CameraCollision {
             before_transit: Position::default(),
             after_transit: Position::default(),
             velocity: Vector::new(0.0, 0.0, 0.0),
+            trace_origin: None,
         }
+    }
+
+    /// The physics position to start the head trace from for the next [`Self::trace`] (the
+    /// subject's position is then its drawn one); `None` starts it at the subject, as retail.
+    pub fn set_trace_origin(&mut self, origin: Option<Position>) {
+        self.trace_origin = origin;
     }
 
     /// `SmartBox::Init`'s camera object: a body of the camera Setup's `shape`, its placement and
@@ -113,13 +126,31 @@ impl CameraCollision {
     ) -> Option<Position> {
         // The line to the point the camera looks at, from just above the player's origin.
         let offset = camera.get_target_offset(Some(subject));
-        let origin = subject.position.frame.origin;
         let lift = 2.0 * ld(F_EPSILON);
+        let from = self.trace_origin.unwrap_or(subject.position);
+        let origin = from.frame.origin;
         let start = Vector::new(origin.x, origin.y, st(ld(origin.z) + lift));
+        // To the drawn subject's target point: the same line as retail's when the two agree.
+        let offset = if self.trace_origin.is_some() {
+            let drawn = subject.position.frame.origin;
+            let lifted = Vector::new(drawn.x, drawn.y, st(ld(drawn.z) + lift));
+            let mut begin = from;
+            begin.frame.origin = start;
+            let mut end = subject.position;
+            end.frame.origin = lifted;
+            let to_drawn = begin.offset_to(&end);
+            Vector::new(
+                st(ld(to_drawn.x) + ld(offset.x)),
+                st(ld(to_drawn.y) + ld(offset.y)),
+                st(ld(to_drawn.z) + ld(offset.z)),
+            )
+        } else {
+            offset
+        };
         let mut head = LosParameters::new();
         head.intersect = RayIntersection::EnvironmentOnly;
         head.set_blocked_by_water(false);
-        head.set_ray(Ray::from_offset(start, offset), subject.position.cell_id);
+        head.set_ray(Ray::from_offset(start, offset), from.cell_id);
         if !terrain.los_check(&mut head) {
             return None;
         }
