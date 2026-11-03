@@ -265,6 +265,12 @@ impl UiTree {
         self.cursor
     }
 
+    /// A framework's own `SoundManager::Play` of `did` with `PlaySoundData`'s defaults, taken
+    /// with the media's sounds (`gmToolbarUI::RecvNotice_ShowSaleReminder`).
+    pub(crate) fn play_sound(&mut self, did: u32) {
+        self.sounds.push(did);
+    }
+
     /// The sounds (`MD_Data_Sound`'s DIDs) the media played since the last call.
     pub fn take_sounds(&mut self) -> Vec<u32> {
         std::mem::take(&mut self.sounds)

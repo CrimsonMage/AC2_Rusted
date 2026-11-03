@@ -295,9 +295,25 @@ impl ToolbarUi {
     }
 
     /// `gmToolbarUI::RecvNotice_ShowSaleReminder`: the consignments button shows in its
-    /// consignments state, or hides in the stateless one.
+    /// consignments state and plays the sale sound, or hides in the stateless one. The sound is
+    /// the button's `alert` attribute (`m_didSaleSound`, read by `gmToolbarUI::gmToolbarUI` with
+    /// `UIElement::GetAttribute_DataID`), played with `PlaySoundData`'s defaults when it is set.
     pub fn sale_reminder(&self, tree: &mut UiTree, show: bool) {
         button_state(tree, self.consignments, "consignments", show);
+        if !show {
+            return;
+        }
+        let sound = self
+            .consignments
+            .and_then(|button| tree.get(button))
+            .and_then(|button| match button.attribute(tokenize("alert")) {
+                Some(AttributeValue::DataId(did)) => Some(*did),
+                _ => None,
+            })
+            .filter(|&did| did != 0);
+        if let Some(did) = sound {
+            tree.play_sound(did);
+        }
     }
 
     /// `gmToolbarUI::RecvNotice_UpdateMountState`: the dismount button shows in its dismount

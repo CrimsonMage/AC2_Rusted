@@ -35,11 +35,18 @@ fn the_sale_reminder_shows_the_consignments_button_in_its_state() {
     let consignments = button(&hud.tree, "ConsignmentsButton");
     // Hidden until a sale needs it.
     assert!(!hud.tree.get(consignments).unwrap().visible());
+    hud.tree.take_sounds();
     hud.toolbar.sale_reminder(&mut hud.tree, true);
     let shown = hud.tree.get(consignments).unwrap();
     assert!(shown.visible());
     assert_eq!(shown.state(), tokenize("consignments"));
+    // `m_didSaleSound`: the button's `alert` sound plays as it shows.
+    let sounds = hud.tree.take_sounds();
+    eprintln!("sale sounds {sounds:08X?}");
+    assert_eq!(sounds.len(), 1, "the sale sound");
+    assert_eq!(sounds[0] >> 24, 0x2A, "a SoundInfo DID");
     hud.toolbar.sale_reminder(&mut hud.tree, false);
+    assert!(hud.tree.take_sounds().is_empty(), "hiding plays nothing");
     let hidden = hud.tree.get(consignments).unwrap();
     assert!(!hidden.visible());
     assert_eq!(hidden.state(), tokenize("stateless"));
