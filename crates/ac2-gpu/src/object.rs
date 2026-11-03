@@ -110,8 +110,11 @@ struct FrameUniform {
 /// Byte stride of one draw group's frame uniform (the dynamic-offset alignment; the frame
 /// uniform is 560 bytes).
 const FRAME_STRIDE: u64 = 768;
-/// Draw groups one `prepare` lays out.
-const MAX_GROUPS: usize = 16;
+/// Draw groups one `prepare` lays out: the sky before and after, the world, one per interior
+/// cell in view (each its own environment), the shore and the particles. A large dungeon shows
+/// dozens of cells at once (16 overflowed at a new character's start in cell 03FD0113); the
+/// buffer is 96 KiB.
+const MAX_GROUPS: usize = 128;
 /// Bytes of one bone matrix in the storage buffer.
 const BONE_BYTES: u64 = 64;
 
