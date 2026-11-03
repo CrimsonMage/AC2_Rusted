@@ -126,6 +126,10 @@ trap stop EXIT
 start() {
   state=$(mktemp -d "$scratch/server.XXXXXX")
   export AC2E_STATE=$state
+  # The live tests play the training kit's authored world (the start-room Idols, lifestone, mentor,
+  # training portals): `ac2e-server.sh` strips it by default for the user's server, so keep it
+  # unless a test opts out with AC2E_TRAINING_WORLD=0.
+  export AC2E_TRAINING_WORLD=${AC2E_TRAINING_WORLD:-1}
   # shellcheck disable=SC2086 # AC2E_LIVE_SERVER_ARGS is a list of options
   "$root/scripts/ac2e-server.sh" --account livetest ${AC2E_LIVE_SERVER_ARGS---training-kit true} > "$state/server.log" 2>&1 &
   server=$!
