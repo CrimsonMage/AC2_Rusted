@@ -245,10 +245,11 @@ fn the_client_walks_with_w_and_draws_its_character() {
     );
     // The floating arrow's two overlays (`guide_arrow`: copies of the reticle's own indicator and
     // name) compose with the reticle's objects, and the modern style's card behind the
-    // selection's name (`modern_target`).
+    // selection's name (`modern_target`), and the examination window's own root
+    // (`examination_window`).
     assert_eq!(
         view.hud_layers(),
-        19,
+        20,
         "every HUD root (and the reticle's, its card's and the floating arrow's objects, the shortcut bar and the first chat window) is drawn"
     );
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));

@@ -55,6 +55,7 @@ mod element_order;
 mod examination;
 mod examination_effects;
 mod examination_tabs;
+mod examination_window;
 pub use examination_effects::{expand_examination_effects, splice_effects, ExaminationSource};
 #[cfg(test)]
 mod examination_tests;
@@ -193,6 +194,7 @@ mod shop_tests;
 mod shortcut;
 mod shortcut_notices;
 mod shortcut_states;
+mod skill_level_label;
 mod skill_tree;
 mod stack;
 mod status_notices;

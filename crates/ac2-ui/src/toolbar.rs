@@ -5,7 +5,7 @@
 //! field and sends `mouse_release`) toggles it, its close button (`XxxCloseButton`) hides it, and
 //! the child keys (`0x41000001`..`07`, `gmToolbarUI::ChildKeyPress`) toggle it.
 //! `ManageChildren` hides the children that share a side panel when one shows (their
-//! `MExList`).
+//! `MExList`); the examination is a window of its own here (`examination_window`).
 //!
 //! Each child's button carries its tooltip (`ManageChildren`): `ID_Toolbar_TT_<child>` with the
 //! `ID_Toolbar_TT_Hide` text while the child shows and `ID_Toolbar_TT_Show` while it is hidden,
@@ -84,6 +84,16 @@ impl ToolbarChild {
     /// The left side panel's children exclude each other, as do the right's.
     fn left(self) -> bool {
         matches!(self, Self::Examination | Self::Navigation | Self::Option)
+    }
+
+    /// Whether showing `self` hides `other` (`ManageChildren`'s `MExList`: the children of one
+    /// side panel). The examination is a window of its own (`examination_window`, an AGENTS.md
+    /// exception): it neither hides nor is hidden by the navigation and option panels.
+    fn excludes(self, other: Self) -> bool {
+        self != other
+            && self.left() == other.left()
+            && self != Self::Examination
+            && other != Self::Examination
     }
 }
 
@@ -287,7 +297,7 @@ impl ToolbarUi {
         self.set_field(tree, child, shown);
         if shown {
             for other in ToolbarChild::ALL {
-                if other != child && other.left() == child.left() {
+                if child.excludes(other) {
                     self.set_field(tree, other, false);
                 }
             }

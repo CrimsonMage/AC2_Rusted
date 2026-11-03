@@ -166,3 +166,42 @@ fn a_child_button_says_whether_a_click_hides_or_shows_its_panel() {
         Some(tip("ID_Toolbar_TT_Skill", "ID_Toolbar_TT_Hide").as_str())
     );
 }
+
+/// The examination is a window of its own (`examination_window`): it shows beside the option and
+/// navigation panels, in its own root, while those two still exclude each other.
+#[test]
+fn the_examination_window_stands_apart_from_the_left_side_panel() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    use crate::ToolbarChild::{Examination, Navigation, Option};
+    let root_of = |tree: &UiTree, name: &str| {
+        tree.roots()
+            .iter()
+            .copied()
+            .find(|&r| tree.child_recursive(r, tokenize(name)).is_some())
+            .unwrap_or_else(|| panic!("{name}"))
+    };
+    let window = root_of(&hud.tree, "ExaminationField");
+    assert_eq!(
+        hud.tree.get(window).unwrap().id(),
+        tokenize(crate::examination_window::EXAMINATION_PANEL)
+    );
+    let side = root_of(&hud.tree, "OptionField");
+    assert_eq!(hud.tree.get(side).unwrap().id(), tokenize("LeftSidePanel"));
+    assert_eq!(root_of(&hud.tree, "NavigationField"), side);
+    // Beside the panel, not over it.
+    let (w, s) = (hud.tree.screen_box(window), hud.tree.screen_box(side));
+    assert!(w.x0 > s.x1, "{w:?} {s:?}");
+    let toolbar = &hud.toolbar;
+    toolbar.show(&mut hud.tree, Examination, true);
+    toolbar.show(&mut hud.tree, Option, true);
+    assert!(toolbar.shown(&hud.tree, Examination));
+    assert!(toolbar.shown(&hud.tree, Option));
+    toolbar.show(&mut hud.tree, Navigation, true);
+    assert!(toolbar.shown(&hud.tree, Examination));
+    assert!(!toolbar.shown(&hud.tree, Option));
+    toolbar.show(&mut hud.tree, Examination, false);
+    toolbar.show(&mut hud.tree, Examination, true);
+    assert!(toolbar.shown(&hud.tree, Navigation));
+}

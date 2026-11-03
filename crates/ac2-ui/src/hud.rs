@@ -4,7 +4,8 @@
 //! `gmRadarUI` makes `RadarField` and `HeadingField` from the gameplay layout (`0x41000009`),
 //! `gmSelectionUI` makes `ItemSelectionField` from it, `gmStatusbarUI` makes `StatusbarField`
 //! from the status bar layout (`0x4100000F`) and `gmToolbarUI` makes `ToolbarField`,
-//! `LeftSidePanel` and `RightSidePanel` from the toolbar layout (`0x41000003`), in that order.
+//! `LeftSidePanel` and `RightSidePanel` from the toolbar layout (`0x41000003`), in that order
+//! (the client makes the examination window, `examination_window`, after the left panel).
 //! `gmStackUI` and `gmExternalContainerUI` make their hidden `StackableField` and
 //! `ExternalContainerField` from the gameplay layout; `gmSecureTradeUI` takes the gameplay layout
 //! too and makes its `SecureTradeField` when a trade opens. The other children
@@ -75,13 +76,15 @@ pub const LAYOUT_GAMEPLAY: u32 = 0x4100_0009;
 pub const LAYOUT_STATUSBAR: u32 = 0x4100_000F;
 
 /// The HUD roots in creation order: (layout enum, element name).
-pub const GAMEPLAY_ROOTS: [(u32, &str); 7] = [
+pub const GAMEPLAY_ROOTS: [(u32, &str); 8] = [
     (LAYOUT_GAMEPLAY, "RadarField"),
     (LAYOUT_GAMEPLAY, "HeadingField"),
     (LAYOUT_GAMEPLAY, "ItemSelectionField"),
     (LAYOUT_STATUSBAR, "StatusbarField"),
     (LAYOUT_TOOLBAR, "ToolbarField"),
     (LAYOUT_TOOLBAR, "LeftSidePanel"),
+    // The examination window, out of `LeftSidePanel` (`examination_window`).
+    (LAYOUT_TOOLBAR, crate::examination_window::EXAMINATION_PANEL),
     (LAYOUT_TOOLBAR, "RightSidePanel"),
 ];
 
@@ -272,7 +275,16 @@ pub fn build_styled_hud(
     layouts.insert(LAYOUT_GAMEPLAY, gameplay);
     for (layout_enum, name) in GAMEPLAY_ROOTS {
         if let std::collections::hash_map::Entry::Vacant(e) = layouts.entry(layout_enum) {
-            let layout = load_layout_by_enum(store, layout_enum)?;
+            let mut layout = load_layout_by_enum(store, layout_enum)?;
+            // Both styles: the examination window apart from the left side panel
+            // (`examination_window`) and the skill levels under their nodes (`skill_level_label`).
+            if layout_enum == LAYOUT_TOOLBAR {
+                layout = layout.map(|l| {
+                    Arc::new(crate::skill_level_label::restyle(
+                        &crate::examination_window::restyle(&l),
+                    ))
+                });
+            }
             // The modern windows' parts (`modern_windows::restyle`).
             e.insert(match style {
                 HudStyle::Modern => layout.map(|l| Arc::new(crate::modern_windows::restyle(&l))),

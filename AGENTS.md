@@ -503,6 +503,24 @@ game rules and server-visible behaviour exactly retail.
   time the panel is shown with nothing loaded asks for the melee page as its tab does
   (`SkillTreeUi::open_first_page`, the same `SetExaminationRequest` the tab makes). The classic
   style keeps retail's bottom-up layout and the empty first show.
+- Exception (both HUD styles, the user's request): a skill's level is a label under its node.
+  Retail's `SkillNodeTemplate` (toolbar layout `0x41000003`, 38 x 52) drew
+  `SkillNodeLevelText` (`gmSkillTreeUI::RefreshSkillNode`, `MakeLevelText`) in the foot of the
+  node's frame, over its art. Here (`ac2_ui` `skill_level_label.rs`, a restyle of the layout
+  before the panel is made) the template is 16 pixels taller, the text sits under the frame across
+  the node's width, the frame's parts keep their height, and `SkillTree`'s `node_height` grows by
+  16 (72 to 88), so the connector lines still leave a parent at its foot, now under the label.
+  The text, its `buff` / `debuff` states and when it shows (trained skills) stay retail's.
+- Exception (both HUD styles, the user's request): the examination panel is a window of its own.
+  Retail's `ExaminationField` is a field of `LeftSidePanel` beside `NavigationField` and
+  `OptionField`, and `gmToolbarUI::ManageChildren` hid the side's other fields when one showed,
+  so examining something closed the options or the map and opening either closed the
+  examination. Here (`ac2_ui` `examination_window.rs`) the toolbar layout's `ExaminationField`
+  moves into `ExaminationPanel`, a copy of the side panel's shell made a root of its own and
+  first placed just right of it, so it moves and keeps its place apart (window positions, `/saveui`'s
+  `<EXAMI>` follows it); `ToolbarChild::excludes` leaves it out of the side's exclusion (the
+  navigation and option panels still exclude each other). The field and `gmExaminationUI` are
+  retail's.
 - Exception: the radar shows the player's map coordinates under the compass by default.
   Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
   profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it

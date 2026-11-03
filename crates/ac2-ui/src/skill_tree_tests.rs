@@ -555,3 +555,50 @@ fn the_modern_panel_lays_out_top_down_and_opens_on_melee() {
     ui.open_first_page(&mut tree, &Stub);
     assert!(ui.take_requests().is_empty());
 }
+
+/// The skill's level is a label under its node's frame (`skill_level_label`), and the connector
+/// line leaves the parent under that label.
+#[test]
+fn the_level_shows_under_the_skill_node() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut tree = hud.tree;
+    let layout = hud.toolbar_layout.unwrap();
+    let field = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("SkillField")))
+        .unwrap();
+    let mut ui = SkillTreeUi::create(&tree, &layout, field);
+    ui.set_modern(&mut tree);
+    let skill_tree = tree.child_recursive(field, tokenize("SkillTree")).unwrap();
+    ui.examination_request_changed(&mut tree, &Stub, EXAMINE_PANEL, PANEL);
+    ui.refresh_skill_panel(&mut tree, &Stub);
+    let base = tree.tree_item(skill_tree, 0, 0).expect("base node");
+    let level = tree
+        .child_recursive(base, tokenize("SkillNodeLevelText"))
+        .unwrap();
+    let icon = tree.child_recursive(base, tokenize("IconArea")).unwrap();
+    let (level_box, icon_box) = (tree.screen_box(level), tree.screen_box(icon));
+    assert!(!tree
+        .get(level)
+        .unwrap()
+        .text()
+        .unwrap_or_default()
+        .is_empty());
+    assert!(level_box.y0 > icon_box.y1, "{level_box:?} {icon_box:?}");
+    // The frame keeps retail's height; the label spans the node.
+    assert_eq!(icon_box.y1 - icon_box.y0, 49);
+    assert_eq!(level_box.x0, tree.screen_box(base).x0);
+    // The line to the child starts at the node's foot, under the label.
+    let (segments, _) = tree.tree_segments(skill_tree);
+    let node = tree.get(base).unwrap().rect;
+    assert!(
+        segments.iter().any(|(from, _)| from.1 == node.y1),
+        "{segments:?} {node:?}"
+    );
+    assert!(node.y1 >= tree.get(level).unwrap().rect.y1 + node.y0);
+}
