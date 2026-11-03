@@ -27,7 +27,9 @@ fn wait(rig: &mut LiveRig, what: &str, mut ready: impl FnMut(&mut LiveRig) -> bo
 #[test]
 fn a_wielded_weapon_keeps_the_skill_usable_after_a_relog() {
     if std::env::var_os("AC2E_DEV_START_XP").is_none() {
-        eprintln!("run through scripts/ac2e-live-test.sh with AC2E_LIVE_TEST=ac2e_live_skills_relog");
+        eprintln!(
+            "run through scripts/ac2e-live-test.sh with AC2E_LIVE_TEST=ac2e_live_skills_relog"
+        );
         return;
     }
     let Some(mut rig) = LiveRig::new("Skillrelog") else {
@@ -88,5 +90,9 @@ fn a_wielded_weapon_keeps_the_skill_usable_after_a_relog() {
     let usable = rig.client.is_skill_usable_by_inventory(HEAL);
     eprintln!("after the relog: weapon worn {worn}, usable {usable:?}");
     assert!(worn, "the weapon is still wielded after the relog");
-    assert_eq!(usable, Ok(true), "the wielded weapon still makes the skill usable");
+    assert_eq!(
+        usable,
+        Ok(true),
+        "the wielded weapon still makes the skill usable"
+    );
 }

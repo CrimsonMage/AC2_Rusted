@@ -261,6 +261,13 @@ fn a_skill_dragged_from_the_classic_skill_panel_lands_on_the_bar() {
     rig.press_and_move(from, to);
     let dragging = rig.view.is_dragging();
     snapshot(&mut rig, "skill_dragging.png");
+    // Over the bar, the dragged icon is the last surface drawn (`UISurfaceObject(1, -1.0)`).
+    {
+        let tree = rig.view.hud_tree().unwrap();
+        let copy = tree.dragged().expect("the skill is dragged");
+        let drawn = tree.placements().last().map(|p| p.root);
+        assert_eq!(drawn, Some(copy), "the dragged skill is drawn over the bar");
+    }
     rig.release();
     rig.idle(8);
     assert!(dragging, "the skill follows the pointer");

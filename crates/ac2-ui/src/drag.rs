@@ -91,6 +91,9 @@ const ITEM_TYPE: u32 = 0x4000_0002;
 /// `ContainerDisplay::s_coinFieldElementName`.
 const COINS_FIELD: u32 = tokenize("CoinsField");
 
+/// The dragged copy's surface depth, as the tooltip's (`tooltip.rs`): above every window.
+const DRAG_DEPTH: i32 = -1;
+
 impl UiTree {
     /// `MouseDownEvent`'s part: when and where the press was.
     pub(crate) fn drag_mouse_down(&mut self, action: u32) {
@@ -178,7 +181,10 @@ impl UiTree {
         self.resize_to(copy, width, height);
         let el = self.el_mut(copy);
         el.object = Some((x, y));
-        el.z = 0xFFFF;
+        // `UISurfaceObject(1, -1.0)` (admin 0x5E4554): the lowest depth `RenderUI::LinkObject`
+        // keeps, drawn last, over every window (z `0xFFFF` put it last in the topmost-first
+        // roots list, under the windows it was dragged over).
+        el.z = DRAG_DEPTH;
         self.add_root(copy);
         self.set_visible(copy, true);
         self.drag.element = Some(copy);
