@@ -172,11 +172,13 @@ impl ResourcePackedDecode for Ac2RenderMaterial {
             .collect::<Result<Vec<_>, _>>()?;
         let sort_mode = cursor.read_u32()?;
         expect_end(qdid, Self::TYPE_NAME, &cursor)?;
-        Ok(Self {
+        let mut material = Self {
             properties,
             layers,
             sort_mode,
-        })
+        };
+        crate::ac2_material_instance::apply_own_properties(&mut material);
+        Ok(material)
     }
 
     fn cache_retained_bytes(&self) -> usize {

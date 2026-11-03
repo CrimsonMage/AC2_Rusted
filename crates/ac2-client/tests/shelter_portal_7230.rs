@@ -166,5 +166,35 @@ fn the_shelter_pink_portal_is_drawn() {
             &format!("shelter_portal_seq{i}.png"),
         );
     }
+    // The same frames with the modern pass's ambient occlusion and temporal anti-aliasing off,
+    // one at a time and together (`SHELTER_PORTAL_VARIANTS`).
+    if std::env::var_os("SHELTER_PORTAL_VARIANTS").is_some() {
+        use ac2_render::prefs::{SceneOptions, AO_HIGH, AO_OFF};
+        for (name, ao_quality, antialiasing) in [
+            ("noao", AO_OFF, true),
+            ("noaa", AO_HIGH, false),
+            ("none", AO_OFF, false),
+        ] {
+            scene.view.set_scene_options(SceneOptions {
+                ao_quality,
+                antialiasing,
+                ..SceneOptions::default()
+            });
+            scene.draw(
+                &mut client,
+                &server,
+                0.5,
+                &format!("shelter_portal_{name}.png"),
+            );
+            for i in 0..8 {
+                scene.draw(
+                    &mut client,
+                    &server,
+                    0.125,
+                    &format!("shelter_portal_{name}{i}.png"),
+                );
+            }
+        }
+    }
     assert!(systems > 0 && alive > 0, "the portal's particles draw");
 }

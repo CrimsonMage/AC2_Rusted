@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 207 done, 6 partial, 0 to do, 572 skipped.
+785 retail functions: 208 done, 6 partial, 0 to do, 571 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (29/62)
@@ -341,7 +341,7 @@ Legend and workflow: [README](README.md).
 - [-] `MaterialProperty::SaveToFileNode` · 005db420 — writer for DAT/pack output; the client only reads (tool-only)
 - [-] `MaterialProperty::Copy` · 005db680 · legions 0059c4a0 — copy of plain data; Rust clones values
 
-## `portal/client/src/render/material/rendermaterial.cpp.c` (1/17)
+## `portal/client/src/render/material/rendermaterial.cpp.c` (2/17)
 
 ### PStringBase<char>
 - [-] `PStringBase<char>::operator[]` · 005b9690 — operator of plain data or container; Rust value semantics / derived PartialEq
@@ -350,7 +350,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderMaterial::RenderMaterial` · 005b96b0 · legions 00583d10 — ctor/dtor of plain data; Rust constructs and drops values
 - [-] `RenderMaterial::GetDBOType` · 005b9700 — DBO type tag; Rust uses typed resource ids
 - [-] `RenderMaterial::GetSubDataIDs` · 005b9710 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
-- [-] `RenderMaterial::GetSubObjects` · 005b97c0 — RenderMaterial::GetSubObjects is the hardware-class layer filter: ac2-assets object::layer_drawn (class 2 default) in ac2-render; recorded there
+- [x] `RenderMaterial::GetSubObjects` · 005b97c0 — ac2-assets ac2_material.rs decode + ac2_material_instance.rs apply_own_properties: at run time every property of the material's own table is applied to it (MaterialProperty::Apply(prop, this, prop)), overriding the streamed layer fields (pt_twirl 0x2B000023: depth writes off); the hardware-class layer filter itself is ac2-render object::layer_drawn (class 2 default), the stripped layers keep their streamed field indices
 - [-] `RenderMaterial::ReleaseSubObjects` · 005b9ad0 · legions 00584130 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [-] `RenderMaterial::GetDIDsForFilenames` · 005b9b50 — authoring/tool-only: GetDIDsForFilenames maps authored file names to DIDs for the preproc text loaders (callers are LoadFromFileNode paths); the DVD ships no file-name table
 - [-] `RenderMaterial::Allocate` · 005b9bf0 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)

@@ -813,7 +813,10 @@ game rules and server-visible behaviour exactly retail.
   taking the player through. AC2e has no server physics; its policy (`portals::Contacts`) takes a
   reported position whose root Setup spheres touch a routed portal's (within 5 cm) as that
   collision and travels as a use does, silently when the use is refused. Live:
-  `ac2e_live_portals`; double: `portal_object_7160`.
+  `ac2e_live_portals`; double: `portal_object_7160`. The swirl's particles draw without depth
+  writes: their template material (`0x2B000023`) streams its layer with depth writes on, and its
+  own `DepthWrite` property, applied at load (`RenderMaterial::GetSubObjects`), turns them off;
+  with them on, each square card hid the cards behind it (`shelter_portal_7230`).
 - Story scenes (the Quest panel's Story page) are retail's client path, and AC2e's trigger is its own
   policy. Retail: the server calls `WM_Quest` 0x23 -> `CPlayer` 0x2A -> `CQuestSystem::UpdateStoryQuest_Done`
   with `(errorCode, bAdd, sceneId)` (stack order: the script branches on the second on add or

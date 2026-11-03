@@ -104,6 +104,20 @@ pub(crate) fn apply_modifier(
     }
 }
 
+/// `RenderMaterial::GetSubObjects` at run time: once the layers are in, every property of the
+/// material's own table is applied to it (`MaterialProperty::Apply(prop, this, prop)`), so a
+/// property's value overrides the layer field it names. A `pt_twirl` particle template
+/// (`0x2B000023`) streams its layer with depth writes on and its `DepthWrite` property 0: retail
+/// drew those particles without depth writes. The layers a hardware class strips are dropped
+/// later (`object::pass`), and their fields keep the layer indices they were streamed with.
+pub(crate) fn apply_own_properties(material: &mut Ac2RenderMaterial) {
+    let properties = std::mem::take(&mut material.properties);
+    for property in &properties {
+        apply_property(material, property, property);
+    }
+    material.properties = properties;
+}
+
 /// `MaterialProperty::Apply`.
 fn apply_property(
     material: &mut Ac2RenderMaterial,

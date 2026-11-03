@@ -439,3 +439,23 @@ fn total_icon_desc_merges_the_chain_and_applies_icon_atoms() {
     eprintln!("{with_layers} visuals with icon layers, {with_atoms} icon atoms applied");
     assert!(with_layers > 0);
 }
+
+/// `RenderMaterial::GetSubObjects` applies a material's own property table at load: the portal
+/// swirl particles' template (`0x2B000023`, under `pt_twirl.mi` and `pt_twirlfire2.mi`) streams
+/// its layer with depth writes on and its `DepthWrite` property off, so the particles draw
+/// without depth writes (and with culling off), each instance keeping its own texture.
+#[test]
+fn a_materials_own_properties_override_its_streamed_layer() {
+    let Some((_dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    for (did, texture) in [(0x3100_0265u32, 0x4000_033Au32), (0x3100_0264, 0x4000_0339)] {
+        let material = crate::load_ac2_material(&store, DataId::new(did))
+            .unwrap()
+            .expect("the swirl material");
+        let layer = &material.layers[0];
+        assert_eq!(layer.depth_write, 0, "{did:08x} writes no depth");
+        assert_eq!(layer.cull_mode, 1, "{did:08x} culls nothing");
+        assert_eq!(layer.stages[0].texture, Some(DataId::new(texture)));
+    }
+}
