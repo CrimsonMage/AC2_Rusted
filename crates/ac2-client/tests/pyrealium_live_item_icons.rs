@@ -1,5 +1,5 @@
-//! The items' icons and the paper doll's slots against a running AC2e
-//! (`AC2E_LIVE_TEST=ac2e_live_item_icons scripts/ac2e-live-test.sh`), with the frames not waiting
+//! The items' icons and the paper doll's slots against a running Pyrealium
+//! (`PYREALIUM_LIVE_TEST=pyrealium_live_item_icons scripts/pyrealium-live-test.sh`), with the frames not waiting
 //! for the loader threads as the window's do: an item's class defaults (its icon among them,
 //! `CBaseQualities::InitDefaults`) arrive some frames after its `CreateObject`, and the slots
 //! must still draw the icon and the doll still show what is worn.

@@ -15,7 +15,7 @@ cargo run -p ac2-login-probe -- --host HOST --port PORT --account NAME [options]
 | `--port N` | the server's logon port |
 | `--account NAME` | lowercased first, as retail does (`_strlwr`, `EvaluateCommandLineArg`) |
 | `--glsticketdirect PASS` | password logon, auth type `0x40000002` (`gmClient::InitAuth`); omit for a plain account logon (auth type 1) |
-| `--version V` | data version in the logon; by default the DATs' release's: `7230` for the 7230 set (the 7230 client's string), `7160` for the Legions DVD's. `1802` for the 2012-2017 relaunch client (build 0930, `ClientNet::SendLoginRequest` client0930 0x004D3B70). AC2e serves its 7230 data to `7230` logons and converted 7148 data to `7148`. |
+| `--version V` | data version in the logon; by default the DATs' release's: `7230` for the 7230 set (the 7230 client's string), `7160` for the Legions DVD's. `1802` for the 2012-2017 relaunch client (build 0930, `ClientNet::SendLoginRequest` client0930 0x004D3B70). Pyrealium serves its 7230 data to `7230` logons and converted 7148 data to `7148`. |
 | `--dat-dir DIR` | DATs for the interrogation response, default `AC2_DAT_DIR`; without it the response lists no files |
 | `--timeout SECS` | wait for the character set, default 45 (the client gives up on the logon after 20 tries, 2 s apart) |
 
@@ -42,28 +42,28 @@ Legions does (auth type `0x40000002`). The probe never sends the RSA session key
 messages the 7160 decoder does not know; the probe reports each as `undecodable server message`
 with its opcode and length and keeps going.
 
-## Local AC2e server
+## Local Pyrealium server
 
-The client is tested against the AC2e server (github.com/Thwargle/AC2e), run on the 7230 DATs
-(`AC2_DAT_DIR`, default `../dataset-7230`; `AC2E_DATA=legions` with the DVD set instead).
-`scripts/ac2e-login-test.sh` is the live logon test: it starts a server on `127.0.0.1:19380`,
+The client is tested against the Pyrealium server (the `pyrealium-server` repository, which continues Thwargle's AC2E), run on the 7230 DATs
+(`AC2_DAT_DIR`, default `../dataset-7230`; `PYREALIUM_DATA=legions` with the DVD set instead).
+`scripts/pyrealium-login-test.sh` is the live logon test: it starts a server on `127.0.0.1:19380`,
 runs this probe against it and stops the server, exiting with the probe's code.
 
 ```
-scripts/ac2e-login-test.sh
+scripts/pyrealium-login-test.sh
 ```
 
-To keep a server running for the client or the probe, `scripts/ac2e-server.sh` starts one on
-`127.0.0.1:9000` (the client's default `--server`). It builds AC2e from `AC2E_DIR` (default
-`../third_party/ac2e-src/repo`) when needed, keeps only the placements these DATs hold, and runs
-`ac2e serve` with AC2e's launcher options:
+To keep a server running for the client or the probe, `scripts/pyrealium-server.sh` starts one on
+`127.0.0.1:9000` (the client's default `--server`). It builds Pyrealium from `PYREALIUM_DIR` (default
+`../pyrealium-server`) when needed, keeps only the placements these DATs hold, and runs
+`pyrealium serve` with Pyrealium's launcher options:
 
 ```
-scripts/ac2e-server.sh
+scripts/pyrealium-server.sh
 ac2-login-probe --host 127.0.0.1 --port 9000 --account local --dat-dir ../dataset-7230
 ```
 
-AC2e speaks the admin 7148 layouts (7230 is experimental). Without `--auth-data` it takes a plain
+Pyrealium speaks the admin 7148 layouts (7230 is experimental). Without `--auth-data` it takes a plain
 account logon (auth type 1, no password) for its developer account, `local`.
 
 ## What it does not do

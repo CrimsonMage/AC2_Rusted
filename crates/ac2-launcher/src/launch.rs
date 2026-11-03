@@ -3,8 +3,8 @@
 //! password, and starts the client with it; the player never writes it. The command lines
 //! (`docs/server-list.md`):
 //!
-//! - AC2E: `--host HOST --port PORT --version 7230 --account ACCOUNT`, with `--glsticket FILE`
-//!   when the server has a login service (its ticket).
+//! - Pyrealium and AC2E: `--host HOST --port PORT --version 7230 --account ACCOUNT`, with
+//!   `--glsticket FILE` when the server has a login service (its ticket).
 //! - Relaunch: `--host HOST --port PORT --version 1802 --account ACCOUNT --glsticket FILE`
 //!   (the password, as `glsticketdirect`).
 //!
@@ -37,16 +37,16 @@ pub fn client_program(settings: &Settings) -> PathBuf {
         .unwrap_or_else(|| PathBuf::from(name))
 }
 
-/// Whether the server wants a password: a relaunch server always, an AC2E server with a login
-/// service.
+/// Whether the server wants a password: a relaunch server always, a Pyrealium or AC2E server
+/// with a login service.
 pub fn needs_password(server: &Server) -> bool {
     match server.emu {
         Emu::Relaunch => true,
-        Emu::Ac2e => !server.login_server_url.trim().is_empty(),
+        Emu::Pyrealium | Emu::Ac2e => !server.login_server_url.trim().is_empty(),
     }
 }
 
-/// The account to sign in with: what the player typed, else an AC2E server's developer
+/// The account to sign in with: what the player typed, else a Pyrealium or AC2E server's developer
 /// account `local` when it has no login service.
 pub fn account_for(server: &Server, typed: &str) -> Option<String> {
     let typed = typed.trim();
@@ -106,8 +106,8 @@ pub fn prepare(
     let login = server.login_server_url.trim();
     let ticket = match server.emu {
         Emu::Relaunch => Some(password.to_owned()),
-        Emu::Ac2e if login.is_empty() => None,
-        Emu::Ac2e => {
+        Emu::Pyrealium | Emu::Ac2e if login.is_empty() => None,
+        Emu::Pyrealium | Emu::Ac2e => {
             let signed = account::sign_in(login, &account, password)?;
             if let Some(host) = signed.game_host.clone().filter(|h| !h.is_empty()) {
                 address.0 = host;
@@ -220,7 +220,7 @@ mod tests {
     }
 
     #[test]
-    fn an_ac2e_server_without_a_login_service_uses_the_developer_account() {
+    fn a_pyrealium_server_without_a_login_service_uses_the_developer_account() {
         let s = local();
         let account = account_for(&s, "").unwrap();
         let args = args_for(&s, "/dats", &account, ("127.0.0.1", 9000), None);

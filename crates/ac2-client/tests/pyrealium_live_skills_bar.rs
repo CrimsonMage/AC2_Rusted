@@ -1,5 +1,5 @@
-//! The shortcut bar's skill slots and the combat toggle against a running AC2e (the skills run of
-//! `scripts/ac2e-live-test.sh`, `AC2E_LIVE_TEST=ac2e_live_skills_bar`): a skill that wants an item
+//! The shortcut bar's skill slots and the combat toggle against a running Pyrealium (the skills run of
+//! `scripts/pyrealium-live-test.sh`, `PYREALIUM_LIVE_TEST=pyrealium_live_skills_bar`): a skill that wants an item
 //! in the right hand is usable (`IsSkillUsableBasedOnInventoryByEnum`) once a weapon is wielded,
 //! pressing its slot uses it, the slot's `TimeLeftMeter` counts the recharge and clears; and the
 //! attack key toggles combat on a selected creature, the bar's attack buttons swapping with the
@@ -23,8 +23,8 @@ const PRIMARY_HAND: u32 = 0x40;
 const ATTACK_KEY: u32 = 0x4100_0013;
 
 fn rig_for(name: &str) -> Option<LiveRig> {
-    if std::env::var_os("AC2E_DEV_START_XP").is_none() {
-        eprintln!("run through scripts/ac2e-live-test.sh with AC2E_LIVE_TEST=ac2e_live_skills_bar");
+    if std::env::var_os("PYREALIUM_DEV_START_XP").is_none() {
+        eprintln!("run through scripts/pyrealium-live-test.sh with PYREALIUM_LIVE_TEST=pyrealium_live_skills_bar");
         return None;
     }
     LiveRig::new(name)

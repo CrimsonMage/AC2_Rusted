@@ -114,7 +114,7 @@ pub fn filled_slots(rig: &LiveRig) -> Vec<Option<u64>> {
 /// in place of the craft panel. Returns the pack's items.
 pub fn open_recipe(rig: &mut LiveRig, recipe: u32) -> Vec<u64> {
     open_craft_tab(rig);
-    // AC2e lists every discipline of its profession catalog (26 rows, about 17 of them
+    // Pyrealium lists every discipline of its profession catalog (26 rows, about 17 of them
     // visible): the skill row is found by its id.
     assert!(
         rig.until(10.0, |r| rows(r, "CraftSkillList")

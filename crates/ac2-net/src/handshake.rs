@@ -15,7 +15,7 @@ use crate::NetError;
 pub const LEGIONS_VERSION: &str = "7160";
 
 /// The data version the 7230 client sends (its `ClientNet::SendLoginRequest`; the string "7230"
-/// where Legions has "7160"). AC2e serves its 7230 data to this version.
+/// where Legions has "7160"). Pyrealium serves its 7230 data to this version.
 pub const RELEASE_7230_VERSION: &str = "7230";
 
 /// The data version for the mounted DATs' release (`ac2_core::data_release`): 7230's (also for the

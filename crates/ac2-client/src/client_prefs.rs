@@ -94,6 +94,7 @@ impl NameTable for DatNames {
         self.name(KEY_MAP, id)
             .or_else(|| ac2_ui::hud_style::client_key_name(id).map(str::to_owned))
             .or_else(|| ac2_ui::ui_scale_pref::key_name(id).map(str::to_owned))
+            .or_else(|| ac2_ui::damage_text_pref::key_name(id).map(str::to_owned))
     }
 
     fn enum_name(&self, map: u32, label: u32) -> Option<String> {
@@ -137,6 +138,7 @@ impl ClientPrefs {
         ac2_ui::tooltip_prefs::register(bank, names);
         ac2_ui::hud_style::register(bank, names);
         ac2_ui::ui_scale_pref::register(bank, names);
+        ac2_ui::damage_text_pref::register(bank, names);
         Ok(Self {
             file,
             quality_level: None,

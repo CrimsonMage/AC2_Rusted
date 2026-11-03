@@ -288,7 +288,7 @@ impl Default for InvEquipDesc {
 
 impl InvEquipDesc {
     /// The tags of an equip or unequip request: the item, the user, the location and the slot
-    /// come from natives, typed 0x84 and 4 (AC2e checks them against the retail client's packets,
+    /// come from natives, typed 0x84 and 4 (Pyrealium checks them against the retail client's packets,
     /// `equipment::EquipRequest`).
     fn ifun_tags(mut self) -> Self {
         let i = &mut self.0;

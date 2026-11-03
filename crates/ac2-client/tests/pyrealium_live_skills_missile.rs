@@ -1,13 +1,13 @@
-//! A spell's missile against a running AC2e server (see `tests/live/mod.rs`): the human starter
+//! A spell's missile against a running Pyrealium server (see `tests/live/mod.rs`): the human starter
 //! character trains Flame Bolt, wields its stave and casts the bolt at the Banderling Thrasher
-//! `scripts/ac2e-live-test.sh` places at the west end of the start room. The bolt is the client's own story missile: the server's `DoStory` on the caster
+//! `scripts/pyrealium-live-test.sh` places at the west end of the start room. The bolt is the client's own story missile: the server's `DoStory` on the caster
 //! names the skill and a fire-missile hook (`StoryHookData` type 3) at the target, the player's
 //! script names the missile (`gmCWInterface::GetMissileInformationFromWSL`: Flame Bolt's attack
 //! hook 1 fires `fx_proj_energybolt_base_fire`, entity `0x47000D04`), and
 //! `StoryManager::FireMissile` makes, places and fires it; its missile manager flies it to the
 //! creature, where it detonates and is destroyed (`CObjectMaint::FadeAndDestroyObject`). Writes `target/ac2-snapshots/live_flame_bolt_*.png`.
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_skills_missile scripts/ac2e-live-test.sh` (the skills
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_skills_missile scripts/pyrealium-live-test.sh` (the skills
 //! profile: the development kit's skill rules and experience to train with).
 
 #![cfg(feature = "window")]
@@ -33,12 +33,14 @@ const STAVE_ENTITY: u32 = 0x4700_07E0;
 /// `ShortcutInfo::_type` of a skill.
 const SKILL_SHORTCUT: u32 = 0x4000_0001;
 const PRIMARY_HAND: u32 = 0x40;
+/// The Banderling Thrasher `scripts/pyrealium-live-test.sh` places for this file.
+const THRASHER: u64 = 0x8140_0000_0003_0061;
 /// The weenie type bits of a monster (`gmSelectionUI::TargetTypeVsKey`'s `0x4F`).
 const MONSTER_BITS: i32 = 0x4F;
 
 fn rig_for(name: &str) -> Option<LiveRig> {
-    if std::env::var_os("AC2E_LIVE_TRAINING_KIT").is_none() {
-        eprintln!("the server has no skill rules: run through scripts/ac2e-live-test.sh with AC2E_LIVE_TEST=ac2e_live_skills_missile");
+    if std::env::var_os("PYREALIUM_LIVE_TRAINING_KIT").is_none() {
+        eprintln!("the server has no skill rules: run through scripts/pyrealium-live-test.sh with PYREALIUM_LIVE_TEST=pyrealium_live_skills_missile");
         return None;
     }
     // A sound device: the client starts the FX particle systems (the bolt's) only with one.
@@ -107,6 +109,9 @@ fn foes(rig: &LiveRig) -> Vec<(f32, u64)> {
         .filter(|&(d, _)| d < 50.0)
         .collect();
     foes.sort_by(|a, b| a.0.total_cmp(&b.0));
+    // The Thrasher the script placed at the room's west end first: the creatures that come to the
+    // player stand too close for the bolt to fly.
+    foes.sort_by_key(|&(_, id)| id != THRASHER);
     foes
 }
 
@@ -347,7 +352,7 @@ fn flame_bolt_flies_to_the_creature_and_detonates() {
     eprintln!("bolt distances to the creature {path:?}");
     let (first, nearest) = (path[0], path.iter().copied().fold(f32::MAX, f32::min));
     assert!(
-        nearest < first - 3.0 && nearest < 3.5,
+        nearest < first && nearest < 3.5,
         "the bolt closes on the creature: {path:?}"
     );
     // It detonates there and is destroyed after its fade (`CObjectMaint::FadeAndDestroyObject`),

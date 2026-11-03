@@ -1,11 +1,11 @@
-//! The start room's portals against a running AC2e server (`AC2E_LIVE`, see `tests/live/mod.rs`):
-//! AC2e's training world (`training-world.tsv`) places an "Arwic Outland Portal" (entity
+//! The start room's portals against a running Pyrealium server (`PYREALIUM_LIVE`, see `tests/live/mod.rs`):
+//! Pyrealium's training world (`training-world.tsv`) places an "Arwic Outland Portal" (entity
 //! `0x4700084D`, visual `0x1F00031E`) beside a new character's start in the Menhir Vault. The
 //! portal is drawn (its visual's one mesh is an invisible click volume; the portal is the looping
 //! particle systems of its startup FX), and walking into it takes the player through, as using it
-//! does (the server's portal collision: AC2e `portals::Contacts`).
+//! does (the server's portal collision: Pyrealium `portals::Contacts`).
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_portals scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_portals scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 

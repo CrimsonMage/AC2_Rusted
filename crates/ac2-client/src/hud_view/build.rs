@@ -135,6 +135,7 @@ impl HudView {
             size,
             scale,
             setting,
+            damage_text_size: ac2_ui::damage_text_pref::factor(ac2_ui::damage_text_pref::DEFAULT),
             dirty: false,
             sounds: Vec::new(),
         }
@@ -148,14 +149,16 @@ impl HudView {
         format: wgpu::TextureFormat,
         style: ac2_ui::HudStyle,
     ) -> Self {
-        Self::new(
+        let mut hud = Self::new(
             Arc::clone(&self.store),
             gpu,
             format,
             self.size,
             style,
             self.setting,
-        )
+        );
+        hud.damage_text_size = self.damage_text_size;
+        hud
     }
 
     /// Takes a finished build, then recomposes if anything changed.
@@ -239,6 +242,10 @@ impl HudView {
                     pets.show(&mut tree, true);
                 }
                 self.hud = Some((tree, images));
+                let mut damage = damage;
+                if let Some(damage) = damage.as_mut() {
+                    damage.set_size(self.damage_text_size);
+                }
                 self.panels.set_overlays(reticle, names, damage);
                 self.panels.mini_fellow = mini_fellow;
                 self.panels.pets = pets;

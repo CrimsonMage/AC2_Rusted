@@ -15,9 +15,12 @@ pub const PROTOCOL_RELAUNCH: &str = ac2_net::RELAUNCH_VERSION;
 /// The kind of server, which decides the command line ([`crate::launch::args_for`]).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Emu {
-    /// An AC2e server: the 7230 protocol (7230; AC2e serves its 7230 data to it), an account
-    /// service for its tickets when
-    /// it has one (`LoginServerUrlKey`), else the developer account.
+    /// A Pyrealium server: the 7230 protocol (7230; Pyrealium serves its 7230 data to it), an
+    /// account service for its tickets when it has one (`LoginServerUrlKey`), else the developer
+    /// account.
+    Pyrealium,
+    /// An AC2E server (Thwargle's, which Pyrealium continues): the same protocol, account
+    /// service and developer account as [`Emu::Pyrealium`].
     Ac2e,
     /// A relaunch server (2012-2017 client): protocol 1802, the password as the ticket
     /// (`glsticketdirect`).
@@ -25,14 +28,21 @@ pub enum Emu {
 }
 
 impl Emu {
-    pub const ALL: [Emu; 2] = [Emu::Ac2e, Emu::Relaunch];
+    pub const ALL: [Emu; 3] = [Emu::Pyrealium, Emu::Ac2e, Emu::Relaunch];
 
     /// The `emu` element's text.
     pub fn name(self) -> &'static str {
         match self {
+            Emu::Pyrealium => "Pyrealium",
             Emu::Ac2e => "AC2E",
             Emu::Relaunch => "Relaunch",
         }
+    }
+
+    /// Whether the type signs in at an account service (`LoginServerUrlKey`) for its ticket, or
+    /// takes the developer account without one: Pyrealium and AC2E.
+    pub fn has_account_service(self) -> bool {
+        matches!(self, Emu::Pyrealium | Emu::Ac2e)
     }
 
     pub fn parse(text: &str) -> Option<Emu> {
@@ -43,7 +53,7 @@ impl Emu {
 
     pub fn protocol(self) -> &'static str {
         match self {
-            Emu::Ac2e => PROTOCOL_7230,
+            Emu::Pyrealium | Emu::Ac2e => PROTOCOL_7230,
             Emu::Relaunch => PROTOCOL_RELAUNCH,
         }
     }
@@ -65,7 +75,7 @@ pub struct Server {
     pub emu: Emu,
     /// `host:port`.
     pub connect: String,
-    /// An AC2e account service (`LoginServerUrlKey`); empty for none.
+    /// A Pyrealium or AC2E account service (`LoginServerUrlKey`); empty for none.
     pub login_server_url: String,
     pub website_url: String,
     pub discord_url: String,
@@ -127,9 +137,9 @@ impl Server {
                 self.name
             ));
         }
-        if !url.is_empty() && self.emu != Emu::Ac2e {
+        if !url.is_empty() && !self.emu.has_account_service() {
             return Some(format!(
-                "{}: only an AC2E server has a login server",
+                "{}: only a Pyrealium or AC2E server has a login server",
                 self.name
             ));
         }
@@ -154,13 +164,13 @@ pub fn new_id() -> String {
     )
 }
 
-/// The server every launcher starts with: an AC2e server on this computer. Other servers are
+/// The server every launcher starts with: a Pyrealium server on this computer. Other servers are
 /// added by their connect string and type, or come from a published list.
 pub fn built_in() -> Vec<Server> {
-    let mut local = Server::new("Local AC2e", "127.0.0.1:9000", Emu::Ac2e);
+    let mut local = Server::new("Local Pyrealium", "127.0.0.1:9000", Emu::Pyrealium);
     local.id = "00000000-0000-0000-0000-00000000ac2e".into();
-    local.description = "An AC2e server on this computer (scripts/ac2e-server.sh).".into();
-    local.website_url = "https://github.com/Thwargle/AC2e".into();
+    local.description = "A Pyrealium server on this computer (scripts/pyrealium-server.sh).".into();
+    local.website_url = "https://github.com/CrimsonMage/Pyrealium".into();
     vec![local]
 }
 
@@ -353,7 +363,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn the_built_in_server_is_the_local_ac2e() {
+    fn the_built_in_server_is_the_local_pyrealium() {
         let servers = built_in();
         assert_eq!(servers.len(), 1);
         assert_eq!(servers[0].problem(), None);
@@ -398,6 +408,25 @@ mod tests {
             Settings::load_from(&dir.path().join("none")).favorites,
             built_in()
         );
+    }
+
+    /// Pyrealium and Thwargle's AC2E are one kind of server: the 7230 protocol and an optional
+    /// account service; only they may name a login server.
+    #[test]
+    fn pyrealium_and_ac2e_servers_take_the_same_command_line() {
+        assert_eq!(Emu::parse("pyrealium"), Some(Emu::Pyrealium));
+        assert_eq!(Emu::parse("AC2E"), Some(Emu::Ac2e));
+        for emu in [Emu::Pyrealium, Emu::Ac2e] {
+            assert!(emu.has_account_service());
+            assert_eq!(emu.protocol(), PROTOCOL_7230);
+            let mut s = Server::new("x", "ac2.example.net:9000", emu);
+            s.login_server_url = "https://ac2.example.net".into();
+            assert_eq!(s.problem(), None);
+        }
+        let mut relaunch = Server::new("x", "ac2.example.net:8610", Emu::Relaunch);
+        relaunch.login_server_url = "https://ac2.example.net".into();
+        assert!(relaunch.problem().is_some());
+        assert_eq!(built_in()[0].emu, Emu::Pyrealium);
     }
 
     /// A published list in ThwargLauncher's `ServerItem` schema: `server_host` and

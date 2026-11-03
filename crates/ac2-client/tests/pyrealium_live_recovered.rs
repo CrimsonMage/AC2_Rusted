@@ -1,10 +1,10 @@
-//! AC2e's recovered quests against a running AC2e (`AC2E_LIVE`, see `tests/live/mod.rs`): the
+//! Pyrealium's recovered quests against a running Pyrealium (`PYREALIUM_LIVE`, see `tests/live/mod.rs`): the
 //! delivery quest Gambling Debt (Kanten offers it, Orven completes it) and the hunt quests with
 //! elixir and kill starters (`recovered_quests.rs`), played as a player does and read from the
 //! quest journal (`gmJournalQuestsUI`) and the chat.
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_recovered AC2_DAT_DIR=.../dataset-ac2
-//! scripts/ac2e-live-test.sh` (the script starts AC2e's Legions profile for this file).
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_recovered AC2_DAT_DIR=.../dataset-ac2
+//! scripts/pyrealium-live-test.sh` (the script starts Pyrealium's Legions profile for this file).
 
 #![cfg(feature = "window")]
 
@@ -54,7 +54,7 @@ fn wealth(rig: &LiveRig) -> (i32, u64) {
     (gold, rig.client.frame().progress.experience.total_xp)
 }
 
-/// Travels by AC2e's test-server `@maptravel` to the land point (`x`, `y`) and waits for the
+/// Travels by Pyrealium's test-server `@maptravel` to the land point (`x`, `y`) and waits for the
 /// body to arrive (its cell changes). A second travel in one session is not applied by the
 /// client (the server's forced position reaches it but the body stays), so the character logs
 /// off and in again between travels, with the panels open as before.
@@ -386,7 +386,7 @@ fn a_green_wasp_striker_bestows_the_incursion_and_five_wasps_finish_it() {
 }
 
 /// A quest elixir (`recovered_quests` `use_starters`): the Bold Vermin Pilferer and the Brave
-/// Crawlspace Vermin drop the Beetle Slayer and the Wasp Bane elixir (AC2e's observed loot
+/// Crawlspace Vermin drop the Beetle Slayer and the Wasp Bane elixir (Pyrealium's observed loot
 /// bundles, rolled at a chance per body). The elixir is looted from a body, and drinking it
 /// (a use) bestows the quest: the elixir leaves the pack, the chat says so, the journal lists it
 /// with no progress. The vermin are no targets of either quest, so the kills before it count for
@@ -493,10 +493,10 @@ fn a_vermin_elixir_is_looted_and_drunk_to_bestow_its_quest() {
 /// script (`QuestSystem`, `gmCWInterface::InqActInfoList`) lists the story's eight acts from the
 /// DAT alone (names in the `act*.stt` string tables: Prologue, Osteth, Omishan, Linvak, Monthly
 /// Events, Quests, and the two invisible ones, Quests Invisible and Transitions), the first six
-/// visible, and no scene is playable: AC2e bestows none. Retail's server bestowed scenes with
+/// visible, and no scene is playable: Pyrealium bestows none. Retail's server bestowed scenes with
 /// its `Eff_BestowScene*` effect packages (58 in the wlib, run by the retail server's script VM,
-/// which AC2e does not run); which event bestowed which scene is in no DAT table or client code, so
-/// AC2e has no rule to apply and sends none.
+/// which Pyrealium does not run); which event bestowed which scene is in no DAT table or client code, so
+/// Pyrealium has no rule to apply and sends none.
 #[test]
 fn the_story_page_lists_the_dat_acts_and_no_scene_is_playable() {
     /// (act number, name table, visible, scenes) per act, in the script's order.

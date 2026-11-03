@@ -175,3 +175,119 @@ fn damage_texts_are_placed_clear_of_each_other_and_hidden_in_portal_space() {
     assert!(damage.is_empty());
     assert!(damage_root(tree).is_none());
 }
+
+/// The root's composed surface (`UIRegion::ForceDraw`) and how many of its pixels are inked.
+fn composed(tree: &mut UiTree, root: usize) -> (u32, u32, usize) {
+    let surfaces = tree.compose(&std::collections::HashMap::new());
+    let surface = surfaces
+        .iter()
+        .find(|s| s.root == root)
+        .expect("the damage text's surface");
+    let ink = surface.rgba.chunks_exact(4).filter(|p| p[3] > 0).count();
+    (surface.width, surface.height, ink)
+}
+
+fn scaled(text: &str, scale: f32) -> DamageText {
+    DamageText {
+        scale,
+        ..self::text(text, 2.0)
+    }
+}
+
+/// `RecvNotice_Do3DDamage`: the element takes the measured size (`ResizeTo`), the surface is shown
+/// at that size times the blob's scale (`SetScreenPosition`'s view size), and the lettering is
+/// drawn at the scale (retail stretched the small surface; here it is composed at that size), so a
+/// scale of 2 draws about four times the ink. The rise is the shown height's.
+#[test]
+fn a_damage_text_is_drawn_at_its_blobs_scale() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let travel = hud.reticle.as_ref().unwrap().floaty_travel();
+    let damage = hud.damage.as_mut().expect("the damage texts");
+    assert_eq!(
+        damage.size(),
+        1.0,
+        "retail's size until the client sets one"
+    );
+    let tree = &mut hud.tree;
+    assert!(damage.add(tree, 7, &scaled("120", 1.0), 10.0));
+    let small = damage_root(tree).unwrap();
+    assert!(damage.add(tree, 8, &scaled("120", 2.0), 10.0));
+    let large = *tree
+        .roots()
+        .iter()
+        .rev()
+        .find(|&&r| {
+            r != small
+                && tree
+                    .get(r)
+                    .is_some_and(|e| e.id() == tokenize("DamageTextTemplate"))
+        })
+        .unwrap();
+    let (w, h) = {
+        let rect = tree.get(small).unwrap().rect();
+        (rect.width(), rect.height())
+    };
+    assert!(w > 0 && h > 0);
+    // The template's own font (`impact_24`, read before the text data froze) took the blob's
+    // colour: a font that fails to load leaves the default font and its white.
+    assert_eq!(
+        tree.get(small).unwrap().text_color(),
+        Some([1.0, 0.0, 0.0, 1.0])
+    );
+    assert!(h > 20, "impact_24's height, {h}");
+    assert_eq!(
+        tree.get(large).unwrap().rect(),
+        tree.get(small).unwrap().rect()
+    );
+    assert_eq!(damage.view_size(7), Some((w, h)));
+    assert_eq!(damage.view_size(8), Some((w * 2, h * 2)));
+
+    let (sw, sh, small_ink) = composed(tree, small);
+    let (lw, lh, large_ink) = composed(tree, large);
+    assert_eq!((sw, sh), (w as u32, h as u32));
+    assert_eq!((lw, lh), (2 * w as u32, 2 * h as u32));
+    assert!(small_ink > 0);
+    let ratio = large_ink as f64 / small_ink as f64;
+    assert!(
+        (3.0..5.0).contains(&ratio),
+        "ink {small_ink} -> {large_ink}"
+    );
+
+    let places = [8u64].map(|id| DamagePlace {
+        id,
+        bounds: BOUNDS,
+        project: &project,
+    });
+    damage.update(tree, &places, (0, 0), (0, 0), 10.0, false);
+    let start = placed(tree, large);
+    damage.update(tree, &places, (0, 0), (0, 0), 11.0, false);
+    let half = placed(tree, large);
+    assert_eq!(
+        start.y - half.y,
+        (f64::from(2 * h) * f64::from(travel) * 0.5) as i32
+    );
+}
+
+/// The client's damage text size preference multiplies the blob's scale.
+#[test]
+fn the_damage_text_size_multiplies_the_blobs_scale() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let damage = hud.damage.as_mut().expect("the damage texts");
+    let tree = &mut hud.tree;
+    assert!(damage.add(tree, 7, &scaled("45", 1.0), 0.0));
+    let (w, h) = damage.view_size(7).unwrap();
+    damage.clear(tree);
+    damage.set_size(1.5);
+    assert!(damage.add(tree, 7, &scaled("45", 2.0), 0.0));
+    assert_eq!(damage.view_size(7), Some((w * 3, h * 3)));
+    let root = damage_root(tree).unwrap();
+    let (sw, sh, _) = composed(tree, root);
+    assert_eq!((sw, sh), (3 * w as u32, 3 * h as u32));
+    // A bad size is retail's.
+    damage.set_size(f64::NAN);
+    assert_eq!(damage.size(), 1.0);
+}

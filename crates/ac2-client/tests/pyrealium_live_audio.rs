@@ -1,4 +1,4 @@
-//! What a player hears against a running AC2e server (`AC2E_LIVE`, see `tests/live/mod.rs`): a new
+//! What a player hears against a running Pyrealium server (`PYREALIUM_LIVE`, see `tests/live/mod.rs`): a new
 //! character in the Menhir Vault with a sound manager on a recording sink, attached before the
 //! login as `bin/ac2/main.rs` attaches the speakers'. Every `SoundManager::Play` request is
 //! logged (`SoundManager::take_played`, test-support) and sorted by its emitter: the player's
@@ -6,7 +6,7 @@
 //! an ambient emitter's (`WorldRender::UpdateAmbientSounds`' environments), or none (the UI,
 //! music and the portal space).
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_audio scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_audio scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 
@@ -129,7 +129,7 @@ fn a_run_and_the_creatures_play_steps_creatures_and_ambience() {
     rig.wait("no creature came into the world", |r| {
         !monsters(r).is_empty()
     });
-    // The vault's creatures attack at once (AC2e's encounter rules); stand among them.
+    // The vault's creatures attack at once (Pyrealium's encounter rules); stand among them.
     rig.run(12.0);
     let attacked = heard(&mut rig, "attacked");
 

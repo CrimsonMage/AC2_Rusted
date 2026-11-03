@@ -1,9 +1,9 @@
-//! The client against a running AC2e server, driven as the window drives it: a fresh account and
+//! The client against a running Pyrealium server, driven as the window drives it: a fresh account and
 //! character made through the real character creation screens, then the gameplay HUD's
 //! frameworks every frame (`bin/ac2/main.rs`'s `world_frame`), with the server's own clock and
-//! rules. Runs only with `AC2E_LIVE` set to the server's address and `AC2_DAT_DIR` naming the
-//! 7230 DATs; needs a GPU adapter. `scripts/ac2e-live-test.sh` starts a server of its own for
-//! the suite (its own data, ports and developer account, `AC2E_ACCOUNT`), so a player's server
+//! rules. Runs only with `PYREALIUM_LIVE` set to the server's address and `AC2_DAT_DIR` naming the
+//! 7230 DATs; needs a GPU adapter. `scripts/pyrealium-live-test.sh` starts a server of its own for
+//! the suite (its own data, ports and developer account, `PYREALIUM_ACCOUNT`), so a player's server
 //! and characters are never touched.
 //!
 //! Each rig makes a character with a name no other rig uses, logs it off when dropped (so no
@@ -42,16 +42,16 @@ const FRAME: Duration = Duration::from_millis(16);
 
 /// The server's address, when live tests are asked for.
 pub fn server() -> Option<SocketAddr> {
-    let text = std::env::var("AC2E_LIVE").ok()?;
+    let text = std::env::var("PYREALIUM_LIVE").ok()?;
     Some(
         text.parse()
-            .unwrap_or_else(|e| panic!("AC2E_LIVE={text}: {e}")),
+            .unwrap_or_else(|e| panic!("PYREALIUM_LIVE={text}: {e}")),
     )
 }
 
-/// The server's developer account (`ac2e serve --account`), `local` by default.
+/// The server's developer account (`pyrealium serve --account`), `local` by default.
 fn account() -> String {
-    std::env::var("AC2E_ACCOUNT").unwrap_or_else(|_| "local".into())
+    std::env::var("PYREALIUM_ACCOUNT").unwrap_or_else(|_| "local".into())
 }
 
 /// `name` with a letter suffix no other rig of this run uses (names take letters only).
@@ -112,7 +112,7 @@ pub struct LiveRig {
 impl LiveRig {
     /// A new character named `name` (letters only) on a fresh account, made through avatar
     /// selection (the first avatar) and avatar modification, entered into the world, the HUD
-    /// built. `None` without `AC2E_LIVE`, `AC2_DAT_DIR` or a GPU adapter.
+    /// built. `None` without `PYREALIUM_LIVE`, `AC2_DAT_DIR` or a GPU adapter.
     pub fn new(name: &str) -> Option<Self> {
         Self::with_loads(name, true, None)
     }
@@ -157,8 +157,8 @@ impl LiveRig {
             server,
             account: account.clone(),
             credential: Credential::Account,
-            // The logon's data version (AC2e takes 7148 and 7230).
-            version: std::env::var("AC2E_LIVE_VERSION")
+            // The logon's data version (Pyrealium takes 7148 and 7230).
+            version: std::env::var("PYREALIUM_LIVE_VERSION")
                 .unwrap_or_else(|_| ac2_net::default_version().into()),
             character: CharacterChoice::Wait,
             server_key: None,

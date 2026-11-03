@@ -541,7 +541,7 @@ pub fn scenery_reach_for_level(level: u32) -> f32 {
 }
 
 /// The resident ring of landblocks around the camera's (`WorldScene`'s near radius) for a
-/// quality level: retail's 1 (3 x 3 blocks) below level 4, 2 (5 x 5, as the AC2e remake streams)
+/// quality level: retail's 1 (3 x 3 blocks) below level 4, 2 (5 x 5, as the Pyrealium remake streams)
 /// from it, so the scenery reach has blocks to draw (`AGENTS.md` exception).
 pub fn near_radius_for_level(level: u32) -> i32 {
     if level >= SCENERY_REACH_FROM_LEVEL {

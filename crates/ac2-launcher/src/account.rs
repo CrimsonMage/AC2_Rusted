@@ -1,4 +1,4 @@
-//! Signing in at an AC2e account service: `POST {url}/api/login` with the account and password
+//! Signing in at a Pyrealium account service: `POST {url}/api/login` with the account and password
 //! as JSON answers `{account, created, ticket, expires_in, game_host, game_port}`, the ticket
 //! single-use and bound to this computer's address. A first sign-in creates the account.
 

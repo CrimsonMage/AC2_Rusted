@@ -26,7 +26,7 @@ const TAG_FLOAT: u8 = 0x03;
 const TAG_LONG: u8 = 0x82;
 const TAG_UNSET: u8 = 0xCD;
 /// The tag of a 64-bit id a native wrote (`CWRepository::GetID`, the selection): the item and the
-/// user, and a chosen target, as the retail client's packets have them (AC2e checks them,
+/// user, and a chosen target, as the retail client's packets have them (Pyrealium checks them,
 /// `equipment::UseRequest`); a target of none is the script's own 0.
 const TAG_NATIVE_LONG: u8 = 0x84;
 /// A null reference slot.

@@ -1,5 +1,5 @@
 //! `ac2-launcher`: the launcher window, in ThwargLauncher's way. The player's servers (a local
-//! AC2e to start with) and the published server list are on the left; a server is added by its
+//! Pyrealium to start with) and the published server list are on the left; a server is added by its
 //! name, connect string (`host:port`) and type. On the right are the chosen server, the account
 //! and the password, and Play: the launcher builds the client's command line for the server's
 //! type and starts it (`ac2_launcher::launch`). The settings live in the AC2 configuration
@@ -231,7 +231,7 @@ impl Launcher {
                     }
                 });
             ui.end_row();
-            if form.emu == Some(Emu::Ac2e) {
+            if form.emu.is_some_and(Emu::has_account_service) {
                 ui.label("Login server");
                 ui.add(
                     egui::TextEdit::singleline(&mut form.login_server)
@@ -247,7 +247,7 @@ impl Launcher {
                     None => form.note = "choose the server's type".into(),
                     Some(emu) => {
                         let mut server = Server::new(&form.name, &form.connect, emu);
-                        if emu == Emu::Ac2e {
+                        if emu.has_account_service() {
                             server.login_server_url = form.login_server.trim().to_owned();
                         }
                         match server.problem() {
@@ -442,6 +442,7 @@ impl Launcher {
 
 fn type_name(emu: Emu) -> &'static str {
     match emu {
+        Emu::Pyrealium => "Pyrealium",
         Emu::Ac2e => "AC2E",
         Emu::Relaunch => "Relaunch",
     }
@@ -466,7 +467,7 @@ fn edit_server(ui: &mut egui::Ui, server: &mut Server) -> bool {
                 }
             });
         ui.end_row();
-        if server.emu == Emu::Ac2e {
+        if server.emu.has_account_service() {
             ui.label("Login server");
             ui.add(
                 egui::TextEdit::singleline(&mut server.login_server_url)

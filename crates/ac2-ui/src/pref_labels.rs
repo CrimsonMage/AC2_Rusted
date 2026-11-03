@@ -114,6 +114,12 @@ const PREF_LABELS: &[(u32, u32, &str)] = &[
         crate::ui_scale_pref::UI_SCALE,
         "ID_Misc_UiScale",
     ),
+    // The damage text size, a client-only key likewise (`DamageTextSize`).
+    (
+        crate::damage_text_pref::DAMAGE_TEXT_SIZE_SECTION,
+        crate::damage_text_pref::DAMAGE_TEXT_SIZE,
+        "ID_Misc_DamageTextSize",
+    ),
 ];
 
 #[cfg(test)]

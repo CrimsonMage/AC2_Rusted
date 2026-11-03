@@ -1,9 +1,9 @@
-//! Quests against a running AC2e server (`AC2E_LIVE`, see `tests/live/mod.rs`): the training
-//! quest chain AC2e's new characters meet in the Menhir Vault (`quests.rs`: Training Grounds,
+//! Quests against a running Pyrealium server (`PYREALIUM_LIVE`, see `tests/live/mod.rs`): the training
+//! quest chain Pyrealium's new characters meet in the Menhir Vault (`quests.rs`: Training Grounds,
 //! Field Supplies, Potion Practice, A Safe Journey), played as a player does and read from the
 //! quest journal (`gmQuestsUI` / `gmJournalQuestsUI`, the toolbar's Quest panel) and the chat.
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_quests scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_quests scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 
@@ -596,7 +596,7 @@ fn a_safe_journey_binds_the_lifestone_and_travels_the_portal() {
     let portal = rig.object_of(PORTAL).expect("the portal");
     let at = rig.place_of(portal).expect("the portal is in the world");
     rig.walk_to(at, 3.0, 6.0);
-    // AC2e makes a player wait a few seconds between a binding and a portal.
+    // Pyrealium makes a player wait a few seconds between a binding and a portal.
     rig.run(8.0);
     let from = rig.seen.len();
     rig.command(Command::Use(portal));

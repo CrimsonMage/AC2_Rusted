@@ -1,12 +1,12 @@
-//! Buffs and debuffs against a running AC2e server (see `tests/live/mod.rs`): a skill that puts a
+//! Buffs and debuffs against a running Pyrealium server (see `tests/live/mod.rs`): a skill that puts a
 //! timed effect on the player adds it to the status bar's effect strip (`gmEffectsUI`) with its
 //! timer running down; when the time is up the server takes it off (`WM_Effect` 0x16) and the
 //! strip empties; a recast replaces the effect and the strip restarts its timer; a creature's
 //! effects are listed in its examination; death clears the player's effects.
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_effects scripts/ac2e-live-test.sh`: that starts the server
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_effects scripts/pyrealium-live-test.sh`: that starts the server
 //! with the development kit, experience to train the buff chains with, and
-//! `AC2E_DEV_EFFECT_SCALE` (every timed effect lasts that fraction of its record's duration, so
+//! `PYREALIUM_DEV_EFFECT_SCALE` (every timed effect lasts that fraction of its record's duration, so
 //! the tests watch an effect run out in seconds).
 
 #![cfg(feature = "window")]
@@ -31,8 +31,8 @@ const VIGOR_BUFF_CHAIN: [u32; 4] = [0x59, 0x55, 0x64, 0x67];
 
 /// The rig, when the server was started with the effects settings.
 fn rig_for(name: &str) -> Option<LiveRig> {
-    if std::env::var_os("AC2E_DEV_EFFECT_SCALE").is_none() {
-        eprintln!("AC2E_DEV_EFFECT_SCALE is not set: run through scripts/ac2e-live-test.sh with AC2E_LIVE_TEST=ac2e_live_effects");
+    if std::env::var_os("PYREALIUM_DEV_EFFECT_SCALE").is_none() {
+        eprintln!("PYREALIUM_DEV_EFFECT_SCALE is not set: run through scripts/pyrealium-live-test.sh with PYREALIUM_LIVE_TEST=pyrealium_live_effects");
         return None;
     }
     LiveRig::new(name)
@@ -40,7 +40,7 @@ fn rig_for(name: &str) -> Option<LiveRig> {
 
 /// The fraction of a record's duration the server runs effects at.
 fn scale() -> f64 {
-    std::env::var("AC2E_DEV_EFFECT_SCALE")
+    std::env::var("PYREALIUM_DEV_EFFECT_SCALE")
         .ok()
         .and_then(|v| v.parse().ok())
         .unwrap_or(1.0)
@@ -230,7 +230,7 @@ fn a_self_buff_joins_the_strip_counts_down_and_expires() {
     let Some(mut rig) = rig_for("Effectbuff") else {
         return;
     };
-    if std::env::var_os("AC2E_LIVE_TRAINING_KIT").is_none() {
+    if std::env::var_os("PYREALIUM_LIVE_TRAINING_KIT").is_none() {
         eprintln!("the server has no skill rules (--training-kit true); skipped");
         return;
     }
@@ -460,7 +460,7 @@ fn a_heal_over_time_ticks_every_second_while_its_effect_lasts() {
     };
     ready(&mut rig);
     if rig.client.frame().progress.experience.level < 30 {
-        eprintln!("the character is under level 30 (AC2E_DEV_START_XP); skipped");
+        eprintln!("the character is under level 30 (PYREALIUM_DEV_START_XP); skipped");
         return;
     }
     train(&mut rig, &HEAL_OVER_TIME_CHAIN);
@@ -555,7 +555,7 @@ fn examine(rig: &mut LiveRig, target: u64) -> Vec<String> {
     rig.view.examination_texts()
 }
 
-/// The effect lines of an examination (AC2e's own text for a creature's effects).
+/// The effect lines of an examination (Pyrealium's own text for a creature's effects).
 fn effect_lines(texts: &[String]) -> Vec<String> {
     texts
         .iter()
@@ -634,11 +634,11 @@ fn a_burn_on_a_creature_is_listed_in_its_examination_and_runs_out() {
     assert!(effect_lines(&later).is_empty(), "{later:?}");
 }
 
-/// Death takes the player's effects off (AC2e's policy; the retail server's is not known). The
+/// Death takes the player's effects off (Pyrealium's policy; the retail server's is not known). The
 /// creatures beside the start must be able to kill the character before the effect runs out, so
 /// this one runs on a server whose new characters start nearly dead and whose effects last their
-/// record's time: `AC2E_DEV_EFFECT_SCALE=1 AC2E_DEV_START_DAMAGE=760
-/// AC2E_LIVE_TEST=ac2e_live_effects scripts/ac2e-live-test.sh death_takes`; on the ordinary run it
+/// record's time: `PYREALIUM_DEV_EFFECT_SCALE=1 PYREALIUM_DEV_START_DAMAGE=760
+/// PYREALIUM_LIVE_TEST=pyrealium_live_effects scripts/pyrealium-live-test.sh death_takes`; on the ordinary run it
 /// is skipped.
 #[test]
 fn death_takes_the_players_effects_off() {
@@ -649,7 +649,7 @@ fn death_takes_the_players_effects_off() {
     let health = rig.client.frame().player_vitals.health.unwrap();
     if health.current > 100 {
         eprintln!(
-            "the character starts with {health:?}; run with AC2E_DEV_START_DAMAGE=760: skipped"
+            "the character starts with {health:?}; run with PYREALIUM_DEV_START_DAMAGE=760: skipped"
         );
         return;
     }
@@ -736,7 +736,7 @@ fn effects_survive_a_relog_with_their_time_left() {
     wait(&mut rig, "the strip emptied", |r| strip(r).is_empty());
 }
 
-/// The Banderling Thrasher beside the start (`AC2E_LIVE_THRASHER=1`, see the script): its entity
+/// The Banderling Thrasher beside the start (`PYREALIUM_LIVE_THRASHER=1`, see the script): its entity
 /// record gives it skill 0x74b at level 43, a health loss over time on a player for 10 s.
 const THRASHER_SKILL_LEVEL: u32 = 43;
 
@@ -745,8 +745,8 @@ const THRASHER_SKILL_LEVEL: u32 = 43;
 /// 10 s, the effect's examination names its level, and it leaves when the time is up.
 #[test]
 fn a_creature_ability_puts_a_damage_over_time_on_the_player() {
-    if std::env::var_os("AC2E_LIVE_THRASHER").is_none() {
-        eprintln!("no Thrasher beside the start (AC2E_LIVE_THRASHER=1, see the script); skipped");
+    if std::env::var_os("PYREALIUM_LIVE_THRASHER").is_none() {
+        eprintln!("no Thrasher beside the start (PYREALIUM_LIVE_THRASHER=1, see the script); skipped");
         return;
     }
     let Some(mut rig) = rig_for("Effectdebuff") else {

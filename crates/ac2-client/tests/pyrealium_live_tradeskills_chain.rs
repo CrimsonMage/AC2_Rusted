@@ -1,11 +1,11 @@
-//! The gathering-to-tool chain against a running AC2e server (see `tests/live/mod.rs`), as the
+//! The gathering-to-tool chain against a running Pyrealium server (see `tests/live/mod.rs`), as the
 //! player works it: survey and mine iron and wood, merge the motes into stacks of 100 (a stack
 //! dragged onto another), refine them to steel at the craft panel, and craft a pickaxe from
 //! the steel with the rest of its ingredients.
-//! Needs AC2e's tradeskills profile with the chain knobs (`scripts/ac2e-live-test.sh` with
-//! `AC2E_LIVE_TEST=ac2e_live_tradeskills_chain`): `AC2E_DEV_CRAFT_XP` (ranks for the recipes'
-//! minimum levels), `AC2E_DEV_DEPOSIT_CHARGES` (12 strikes a deposit instead of the entity's 3,
-//! so one deposit gives the 100 units a refining recipe wants) and `AC2E_DEV_START_GOLD` (a purse
+//! Needs Pyrealium's tradeskills profile with the chain knobs (`scripts/pyrealium-live-test.sh` with
+//! `PYREALIUM_LIVE_TEST=pyrealium_live_tradeskills_chain`): `PYREALIUM_DEV_CRAFT_XP` (ranks for the recipes'
+//! minimum levels), `PYREALIUM_DEV_DEPOSIT_CHARGES` (12 strikes a deposit instead of the entity's 3,
+//! so one deposit gives the 100 units a refining recipe wants) and `PYREALIUM_DEV_START_GOLD` (a purse
 //! for the traders' coal and flawless pyreal, which the DAT's stores sell; no supplies are granted).
 
 #![cfg(feature = "window")]
@@ -312,7 +312,7 @@ fn the_human_armour_skill_crafts_a_bracket_from_iron_and_the_kits_tallow() {
     wait(&mut rig, "the bracket's icon", |r| {
         r.view.item_icon_center(PACK, bracket).is_some()
     });
-    // The server names the item in its description (AC2e `item_names`); the entity's name is
+    // The server names the item in its description (Pyrealium `item_names`); the entity's name is
     // string table 250080b9 "Iron Bracket[v]".
     assert_eq!(
         rig.view

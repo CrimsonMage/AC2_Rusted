@@ -266,7 +266,7 @@ mod tests {
     use super::*;
 
     /// An `InventProfile`'s appearance (`VisualDesc` with a parent DID) and its empty
-    /// `AppInfoHash`, which AC2e sends with each inventory item.
+    /// `AppInfoHash`, which Pyrealium sends with each inventory item.
     #[test]
     fn an_inventory_items_appearance_natives_read() {
         let bytes = [2u32, 0x1F00_0E3F]

@@ -1,7 +1,7 @@
 //! A synthetic Legions 7160 server double (test tooling): an in-process [`Transport`] that
 //! answers the client as a 7160 server would (`CharGenVerification`, the `CharacterSet` with its
 //! two Legions words, world entry, logoff) on a scripted clock, and verifies every client
-//! checksum against its own ISAAC stream. The AC2e server speaks the admin 7148 layouts, so this
+//! checksum against its own ISAAC stream. The Pyrealium server speaks the admin 7148 layouts, so this
 //! is the 7160 path's test peer.
 
 mod allegiance;
@@ -748,7 +748,7 @@ impl State {
                     }
                 }
                 // `Proto_UI::LogOffCharacter`: `CharExitGame`, then the account's characters again
-                // with their visuals as they are now (as the AC2e server answers), for
+                // with their visuals as they are now (as the Pyrealium server answers), for
                 // character selection.
                 0x0001_0027 => {
                     self.reliable_blob(0x2300_0006_0000_0005, 1, &0x0001_0027u32.to_le_bytes());

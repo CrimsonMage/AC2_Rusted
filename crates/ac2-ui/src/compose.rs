@@ -456,6 +456,20 @@ impl UiTree {
         }
     }
 
+    /// Draws `root` at `scale` times the tree's render scale from the next compose on (1 or
+    /// `None` follows the tree): its surface is that many pixels per UI pixel, drawn the way
+    /// [`UiTree::set_render_scale`] draws every root, and the layer takes the scaled size. The
+    /// floating damage texts are drawn at their blob's scale this way
+    /// (`UISurfaceObject::SetScreenPosition`'s view size, `DamageTexts::add`).
+    pub fn set_root_render_scale(&mut self, root: usize, scale: Option<f64>) {
+        let scale = scale.filter(|s| s.is_finite() && *s > 0.0 && *s != 1.0);
+        let el = self.el_mut(root);
+        if el.render_scale != scale {
+            el.render_scale = scale;
+            self.changed = true;
+        }
+    }
+
     /// Every visible root drawn into its own surface, in the order they go over the scene
     /// (highest z first).
     pub fn compose(&mut self, images: &HashMap<u32, UiPixels>) -> Vec<UiSurface> {
@@ -478,7 +492,7 @@ impl UiTree {
         let el = self.el(root);
         let (width, height) = (el.rect.width(), el.rect.height());
         let (x, y) = el.object.unwrap_or((0, 0));
-        let scale = self.render_scale;
+        let scale = self.render_scale * el.render_scale.unwrap_or(1.0);
         let size = |side: i32| {
             if scale == 1.0 {
                 side

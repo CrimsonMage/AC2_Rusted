@@ -1,9 +1,9 @@
-//! A relog against a running AC2e server (`AC2E_LIVE`, see `tests/live/mod.rs`): the player logs
+//! A relog against a running Pyrealium server (`PYREALIUM_LIVE`, see `tests/live/mod.rs`): the player logs
 //! off to character selection (`gmGamePlayUI::EndSession`) and enters the world again; the second
 //! entry fills the world as the first did (the creatures and objects around the start, the
 //! logon's chat lines). And uses that the server refuses are sent again by the same input.
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_relog scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_relog scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 
@@ -84,7 +84,7 @@ fn uses(rig: &LiveRig) -> usize {
 
 /// After a log off to character selection and the second `EnterWorld` the world is filled again:
 /// the objects around the start are in the object list and drawn, and the logon's chat lines
-/// arrive. AC2e's transport kept the first entry's ordered-stamp counter, so the client's
+/// arrive. Pyrealium's transport kept the first entry's ordered-stamp counter, so the client's
 /// restarted stamps (`ClientNet::EnterWorld`: `Proto_UI::SetOrderingStamp(0)`) were dropped as
 /// old, `SceneRenderingComplete` among them, and the server never sent the scene.
 #[test]

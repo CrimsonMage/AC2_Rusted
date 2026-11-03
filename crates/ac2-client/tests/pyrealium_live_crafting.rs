@@ -1,9 +1,9 @@
-//! Crafting against a running AC2e server (see `tests/live/mod.rs`): the craft panel lists the
+//! Crafting against a running Pyrealium server (see `tests/live/mod.rs`): the craft panel lists the
 //! player's craft skills and recipes, and a recipe is crafted from the panel the way the player
 //! does it: down the skill, category and recipe rows, the ingredients dragged from the pack into
 //! the recipe's slots, the craft button, the result in the pack.
-//! Needs the development kit (`--training-kit true`: AC2e sends the craft registry only with it);
-//! `scripts/ac2e-live-test.sh` with `AC2E_LIVE_TEST=ac2e_live_crafting` sets that up.
+//! Needs the development kit (`--training-kit true`: Pyrealium sends the craft registry only with it);
+//! `scripts/pyrealium-live-test.sh` with `PYREALIUM_LIVE_TEST=pyrealium_live_crafting` sets that up.
 //! The panel's driving is shared with the other live files (`live/craft.rs`).
 
 #![cfg(feature = "window")]
@@ -15,18 +15,18 @@ use live::craft::*;
 use live::LiveRig;
 
 fn rig_for(name: &str) -> Option<LiveRig> {
-    if std::env::var_os("AC2E_LIVE_TRAINING_KIT").is_none() {
+    if std::env::var_os("PYREALIUM_LIVE_TRAINING_KIT").is_none() {
         eprintln!("the server has no craft recipes (--training-kit true); skipped");
         return None;
     }
     LiveRig::new(name)
 }
 
-/// The craft skills AC2e lists: every discipline of its profession catalog
+/// The craft skills Pyrealium lists: every discipline of its profession catalog
 /// (`crafting::initialization_with_quests` sends `professions::catalog().skills` whole once the
 /// development kit authorizes crafting; the server prints the count at start, "Professions: 26
 /// disciplines").
-const AC2E_CRAFT_SKILLS: usize = 26;
+const PYREALIUM_CRAFT_SKILLS: usize = 26;
 
 #[test]
 fn the_craft_panel_lists_the_players_craft_skills() {
@@ -36,7 +36,7 @@ fn the_craft_panel_lists_the_players_craft_skills() {
     open_craft_tab(&mut rig);
     assert!(
         rig.until(10.0, |r| rows(r, "CraftSkillList").len()
-            == AC2E_CRAFT_SKILLS),
+            == PYREALIUM_CRAFT_SKILLS),
         "the craft skill list: {} rows",
         rows(&rig, "CraftSkillList").len()
     );

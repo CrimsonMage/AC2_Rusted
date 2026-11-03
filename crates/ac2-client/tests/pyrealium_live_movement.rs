@@ -1,11 +1,11 @@
-//! Movement against a running AC2e server (`AC2E_LIVE`, see `tests/live/mod.rs`): a new character
+//! Movement against a running Pyrealium server (`PYREALIUM_LIVE`, see `tests/live/mod.rs`): a new character
 //! leaves its start in the Menhir Vault, walks to the room's lifestone and binds to it, and walks
-//! to its portal and travels. AC2e's training world (`training-world.tsv`) keeps its Idol Spawns
+//! to its portal and travels. Pyrealium's training world (`training-world.tsv`) keeps its Idol Spawns
 //! (scale 0.75) clear of the start and of those ways; even where a creature stood on the start, its
 //! world entry would slide it clear of the player (`CPhysicsObj::EnterWorld`, `SLIDE_SPF`), as
 //! the player is listed in the object lists like any object (`CPhysicsObj::add_to_cells`).
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_movement scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_movement scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 
@@ -294,7 +294,7 @@ fn the_player_walks_to_the_portal_and_travels() {
 /// contact on a walkable surface with no height above it (`CPhysicsObj::GetHeightAboveWalkable`
 /// zero, `CPhysicsObj::on_ground`), and stays at one height over several frames (nothing falls,
 /// nothing hovers or climbs). The mentor (a Pectar) is not asked: it is a flier that hovers 2 m
-/// (`ac2e_live_quests`).
+/// (`pyrealium_live_quests`).
 #[test]
 fn the_player_and_the_idols_stand_on_the_floor() {
     let Some(mut rig) = start() else {

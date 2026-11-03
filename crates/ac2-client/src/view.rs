@@ -357,6 +357,12 @@ impl ClientView {
         self.hud.set_ui_scale(setting)
     }
 
+    /// The damage text size preference (`ac2_ui::damage_text_pref`, a factor of each blob's
+    /// scale): the damage texts made from now on, and after a HUD rebuild, take it.
+    pub fn set_damage_text_size(&mut self, size: f64) {
+        self.hud.set_damage_text_size(size);
+    }
+
     /// What the options pages' applies changed that the window or the scene must take: the scene's
     /// options and the fullscreen state (the frame's owner applies them).
     pub fn take_options_effects(&mut self) -> Vec<ac2_ui::OptionsEffect> {

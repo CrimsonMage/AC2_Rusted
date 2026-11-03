@@ -1,4 +1,4 @@
-//! The start dungeon (cell 0x0299011B, 7230 DATs) with the player placed where the AC2e server put
+//! The start dungeon (cell 0x0299011B, 7230 DATs) with the player placed where the Pyrealium server put
 //! the character: the drawn floor under the player is the floor the physics stands it on, the
 //! viewer's cell draws without the landscape, and the dungeon's static entities start their
 //! particle systems. With `AC2_SHOT_DIR` set it also renders views of the room (quality 5 and 1)
@@ -96,7 +96,7 @@ fn the_start_dungeon_at_the_players_spot() {
         assert!(frames < 600);
     }
     server.borrow_mut().send_init_player();
-    // The AC2e training-world placements (content/training-world.tsv): a lifestone and a
+    // The Pyrealium training-world placements (content/training-world.tsv): a lifestone and a
     // Shelter Guard in this block.
     server.borrow_mut().spawn_creature(
         0x8140_0000_0003_0001,

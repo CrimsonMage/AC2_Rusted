@@ -1,7 +1,7 @@
-//! Entering the world already dead against a running AC2e server (`AC2E_LIVE`, see
+//! Entering the world already dead against a running Pyrealium server (`PYREALIUM_LIVE`, see
 //! `tests/live/mod.rs`): the character dies, logs off and enters again.
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_death_login scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_death_login scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 

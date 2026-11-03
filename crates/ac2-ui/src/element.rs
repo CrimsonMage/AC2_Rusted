@@ -163,6 +163,8 @@ pub struct UiElement {
     pub(crate) overlay: bool,
     /// A window the player locked in place (the modern style's lock): no move, no resize.
     pub(crate) locked: bool,
+    /// A root's own surface pixels per UI pixel, times the tree's (`UiTree::set_root_render_scale`).
+    pub(crate) render_scale: Option<f64>,
 }
 
 impl UiElement {
@@ -607,6 +609,7 @@ impl UiTree {
             created_by_layout: false,
             overlay: false,
             locked: false,
+            render_scale: None,
         });
         if is_meter {
             self.meter_create(index);

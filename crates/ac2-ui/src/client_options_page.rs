@@ -713,6 +713,9 @@ fn choice_label(labels: Labels, names: &dyn NameTable, pref: &Pref, choice: &Cho
     if pref.key == crate::ui_scale_pref::UI_SCALE {
         return crate::ui_scale_pref::UiScaleSetting::label(choice.value);
     }
+    if pref.key == crate::damage_text_pref::DAMAGE_TEXT_SIZE {
+        return crate::damage_text_pref::label(choice.value);
+    }
     let name = pref.map.and_then(|map| names.enum_name(map, choice.label));
     if let Some(name) = &name {
         let prefix = match pref.section {

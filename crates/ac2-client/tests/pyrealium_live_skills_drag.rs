@@ -1,5 +1,5 @@
-//! A trained skill dragged from the skill panel onto the shortcut bar against a running AC2e
-//! (`scripts/ac2e-live-test.sh` with `AC2E_LIVE_TEST=ac2e_live_skills_drag`, the skills profile:
+//! A trained skill dragged from the skill panel onto the shortcut bar against a running Pyrealium
+//! (`scripts/pyrealium-live-test.sh` with `PYREALIUM_LIVE_TEST=pyrealium_live_skills_drag`, the skills profile:
 //! experience and credits to train with): the classic HUD at 2560 x 1440, as the player plays.
 
 #![cfg(feature = "window")]
@@ -27,9 +27,9 @@ fn wait(rig: &mut LiveRig, what: &str, mut ready: impl FnMut(&mut LiveRig) -> bo
 
 #[test]
 fn a_trained_skill_drags_from_the_skill_panel_onto_the_bar() {
-    if std::env::var_os("AC2E_DEV_START_XP").is_none() {
+    if std::env::var_os("PYREALIUM_DEV_START_XP").is_none() {
         eprintln!(
-            "run through scripts/ac2e-live-test.sh with AC2E_LIVE_TEST=ac2e_live_skills_drag"
+            "run through scripts/pyrealium-live-test.sh with PYREALIUM_LIVE_TEST=pyrealium_live_skills_drag"
         );
         return;
     }

@@ -113,6 +113,9 @@ impl App {
                 style,
                 setting,
             );
+            if let Some(prefs) = self.client.prefs() {
+                view.set_damage_text_size(ac2_ui::damage_text_pref::damage_text_size(prefs.bank()));
+            }
             view.set_scene_options(self.scene_options);
             view.set_stream_pipelines(true);
             state.view = Some(view);

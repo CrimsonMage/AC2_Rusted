@@ -296,7 +296,15 @@ impl Client {
         if visual == 0 {
             return None;
         }
-        let position = self.story_body(object).map(|body| body.position())?;
+        let mut position = self.story_body(object).map(|body| body.position())?;
+        // `CObjectMaint::CreateTemporaryObject` gives the object no place: one fired at once is
+        // out of the world until its missile manager places it (`CMissileManager::Update` ->
+        // `AttemptWorldPlacement` -> `MissileInitEnd`'s `EnterWorldSimple`, which refuses an
+        // object already in the world), so it is not drawn at the attacker first. One that waits
+        // in a holding location is drawn there from now (`CreateAndParentMissiles`).
+        if info.holding_location == 0 {
+            position = ac2_physics::Position::default();
+        }
         // `CObjectMaint::AllocateTemporaryID`; none left, no missile.
         let id = self.remotes.allocate_temporary_id()?;
         let player = self

@@ -1,16 +1,28 @@
 //! `gm3DTextUI`'s floating damage numbers. `RecvNotice_Do3DDamage` makes a `DamageTextTemplate`
-//! text in the blob's colour and scale, and records it with the object it is over and the time
-//! it started (`Timer::cur_time`). Each frame (`UpdateDamage`) a text's progress is the time
-//! since it started over its duration: past the end it is destroyed, otherwise it rises by its
-//! height times `FloatyTextTravel` times the progress (above the selection's reticle and name
-//! when the object is selected), fades to `1 - progress` and is placed over the object's
-//! averaged box like a name plate (`CalcScreenPosition`), clear of the damage texts placed
-//! before it. Hidden while the player is in portal space. `CleanUp` destroys them all.
+//! text in the blob's colour and records it with the object it is over and the time it started
+//! (`Timer::cur_time`). The text is measured (`InqSizewMargins`), the element and its surface
+//! take that size (`UIElement_Text::ResizeTo`, `UISurfaceObject::ResizeSurface`), and the surface
+//! is shown at the size times the blob's scale (`SetScreenPosition(x, y, w * scale, h * scale)`,
+//! filtered: `SetMaterialFiltering(1)`), so the lettering grows with the scale. Each frame
+//! (`UpdateDamage`) a text's progress is the time since it started over its duration: past the
+//! end it is destroyed, otherwise it rises by its shown height times `FloatyTextTravel` times the
+//! progress (above the selection's reticle and name when the object is selected), fades to
+//! `1 - progress` and is placed over the object's averaged box like a name plate
+//! (`CalcScreenPosition`), clear of the damage texts placed before it. The placement uses the
+//! shown size (`GetObjectViewWidth` / `GetObjectViewHeight`). Hidden while the player is in
+//! portal space. `CleanUp` destroys them all.
+//!
+//! The template (`gameplay.uil`) is a centred `impact_24` text with an outline. Retail stretched
+//! its small bitmap; here the root is composed at the scale instead
+//! (`UiTree::set_root_render_scale`, the glyphs grown from the font's coverage as the scaled
+//! pregame screens are), and the client's damage text size preference
+//! (`damage_text_pref`, AGENTS.md) multiplies the blob's scale.
 //!
 //! Legions 7160 has it too: its `gm3DTextUI` keeps `UpdateDamage` and the damage array
 //! (`SmartArray<DamageTextInfo>::Reset`, `DamageTextInfo::operator=`), and the DVD's script
 //! library calls `CM_Physics::SendNotice_Do3DDamage` (efun 0x008D0001) in two places. The notice
-//! handler itself has no Legions match in the index, so its body follows admin 7148.
+//! handler (Legions 0x0042AF10, unmatched in the index) is admin 7148's 0x0042B150 instruction
+//! for instruction.
 
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -45,6 +57,9 @@ struct Damage {
     duration: f32,
     /// `deque<BBox>`: the object's boxes, averaged over the last frames.
     boxes: VecDeque<[f32; 6]>,
+    /// The surface's shown size (`m_view_width`, `m_view_height`): the measured size times the
+    /// scale, truncated.
+    view: (i32, i32),
 }
 
 /// `gm3DTextUI`'s damage texts, in `m_damageTextArray` order.
@@ -56,6 +71,8 @@ pub struct DamageTexts {
     average_frames: usize,
     max_attempts: i32,
     travel: i32,
+    /// The damage text size preference, times the blob's scale (1 is retail).
+    size: f64,
 }
 
 impl DamageTexts {
@@ -72,7 +89,31 @@ impl DamageTexts {
             average_frames: average_frames.max(1),
             max_attempts,
             travel,
+            size: 1.0,
         }
+    }
+
+    /// The damage text size preference (`damage_text_pref`): new texts are drawn at the blob's
+    /// scale times `size`. 1 is retail's size.
+    pub fn set_size(&mut self, size: f64) {
+        self.size = if size.is_finite() && size > 0.0 {
+            size
+        } else {
+            1.0
+        };
+    }
+
+    /// The damage text size preference in use.
+    pub fn size(&self) -> f64 {
+        self.size
+    }
+
+    /// A damage text's shown size (`GetObjectViewWidth`, `GetObjectViewHeight`).
+    pub fn view_size(&self, object: u64) -> Option<(i32, i32)> {
+        self.entries
+            .iter()
+            .find(|e| e.object == object)
+            .map(|e| e.view)
     }
 
     /// The objects with a damage text in the air, in array order.
@@ -102,16 +143,23 @@ impl DamageTexts {
         for (channel, value) in CHANNELS.iter().zip(text.color) {
             tree.set_float(root, tokenize(&format!("font_color_{channel}")), value);
         }
-        // `InqSizewMargins`, then the surface scaled by the blob's scale (truncated).
-        if let Some((width, height)) = tree.text_size_with_margins(root, &text.text) {
-            let scale = f64::from(text.scale);
-            let (w, h) = (
-                (f64::from(width) * scale) as i32,
-                (f64::from(height) * scale) as i32,
-            );
-            tree.resize_to(root, w, h);
-        }
+        // `InqSizewMargins`; the element and its surface take that size (`ResizeTo`,
+        // `ResizeSurface`), and the surface is shown at it times the scale (`_ftol2`).
+        let (width, height) = tree
+            .text_size_with_margins(root, &text.text)
+            .unwrap_or_else(|| {
+                let rect = tree.get(root).map(|e| e.rect()).unwrap_or_default();
+                (rect.width(), rect.height())
+            });
+        tree.resize_to(root, width, height);
         tree.set_text(root, &text.text);
+        let scale = f64::from(text.scale) * self.size;
+        let view = (
+            (f64::from(width) * scale) as i32,
+            (f64::from(height) * scale) as i32,
+        );
+        // Composed at the scale rather than stretched (see the module docs).
+        tree.set_root_render_scale(root, Some(scale));
         tree.show_object(root, false);
         self.entries.push(Damage {
             root,
@@ -119,6 +167,7 @@ impl DamageTexts {
             start: now,
             duration: text.duration,
             boxes: VecDeque::new(),
+            view,
         });
         true
     }
@@ -177,9 +226,13 @@ impl DamageTexts {
                 index += 1;
                 continue;
             };
-            let (width, height) = tree
-                .get(root)
-                .map_or((0, 0), |e| (e.rect.width(), e.rect.height()));
+            // `GetObjectViewWidth`, `GetObjectViewHeight`: the shown size. A blob without a
+            // scale is shown at no size: nothing is drawn.
+            let (width, height) = entry.view;
+            if width <= 0 || height <= 0 {
+                index += 1;
+                continue;
+            }
             // The rise: height * FloatyTextTravel * progress, truncated (`_ftol2`), plus the
             // selection's reticle when this is the selected object.
             let mut offset = (f64::from(height) * f64::from(self.travel) * f64::from(per)) as i32;

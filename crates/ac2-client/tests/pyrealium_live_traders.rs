@@ -1,7 +1,7 @@
-//! The raw-material traders against a running AC2e server (see `tests/live/mod.rs`): the store
+//! The raw-material traders against a running Pyrealium server (see `tests/live/mod.rs`): the store
 //! records of the DAT (`store_cragstone.wc`, `store_cavendo.wc`) sell coal and flawless pyreal,
-//! which no other record gives a source for. Needs AC2e's tradeskills profile with a starting purse
-//! (`scripts/ac2e-live-test.sh` with `AC2E_LIVE_TEST=ac2e_live_traders` sets that up).
+//! which no other record gives a source for. Needs Pyrealium's tradeskills profile with a starting purse
+//! (`scripts/pyrealium-live-test.sh` with `PYREALIUM_LIVE_TEST=pyrealium_live_traders` sets that up).
 
 #![cfg(feature = "window")]
 

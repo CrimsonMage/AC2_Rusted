@@ -1,5 +1,5 @@
 //! A skill that wants a weapon stays usable across a relog with the weapon still wielded, against a
-//! running AC2e (`AC2E_LIVE_TEST=ac2e_live_skills_relog scripts/ac2e-live-test.sh`, the skills
+//! running Pyrealium (`PYREALIUM_LIVE_TEST=pyrealium_live_skills_relog scripts/pyrealium-live-test.sh`, the skills
 //! profile): the login's equipment records carry what `EquipItem_Done` recorded during play.
 
 #![cfg(feature = "window")]
@@ -26,9 +26,9 @@ fn wait(rig: &mut LiveRig, what: &str, mut ready: impl FnMut(&mut LiveRig) -> bo
 
 #[test]
 fn a_wielded_weapon_keeps_the_skill_usable_after_a_relog() {
-    if std::env::var_os("AC2E_DEV_START_XP").is_none() {
+    if std::env::var_os("PYREALIUM_DEV_START_XP").is_none() {
         eprintln!(
-            "run through scripts/ac2e-live-test.sh with AC2E_LIVE_TEST=ac2e_live_skills_relog"
+            "run through scripts/pyrealium-live-test.sh with PYREALIUM_LIVE_TEST=pyrealium_live_skills_relog"
         );
         return;
     }

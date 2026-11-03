@@ -3,7 +3,7 @@
 //!
 //! ```text
 //! ac2-launcher                                    the window
-//! ac2-launcher add NAME HOST:PORT AC2E|Relaunch [--login-server URL]
+//! ac2-launcher add NAME HOST:PORT Pyrealium|Pyrealium|Relaunch [--login-server URL]
 //! ac2-launcher set dat-dir DIR | client PATH | list ADDRESS
 //! ac2-launcher list
 //! ac2-launcher play NAME|HOST:PORT [--account NAME]
@@ -19,7 +19,7 @@ use ac2_launcher::servers::{Emu, Server, Settings};
 
 const USAGE: &str = "usage:
   ac2-launcher                                     open the launcher window
-  ac2-launcher add NAME HOST:PORT AC2E|Relaunch [--login-server URL]
+  ac2-launcher add NAME HOST:PORT Pyrealium|Pyrealium|Relaunch [--login-server URL]
   ac2-launcher set dat-dir DIR | client PATH | list ADDRESS
   ac2-launcher list
   ac2-launcher play NAME|HOST:PORT [--account NAME]   (a password on standard input)";
@@ -57,7 +57,7 @@ fn add(args: &[String]) -> Result<String, String> {
     let [name, connect, kind] = rest.as_slice() else {
         return Err(USAGE.into());
     };
-    let emu = Emu::parse(kind).ok_or(format!("the type must be AC2E or Relaunch, not {kind:?}"))?;
+    let emu = Emu::parse(kind).ok_or(format!("the type must be Pyrealium, AC2E or Relaunch, not {kind:?}"))?;
     let mut server = Server::new(name, connect, emu);
     server.login_server_url = login.unwrap_or_default();
     if let Some(problem) = server.problem() {

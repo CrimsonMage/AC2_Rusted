@@ -269,6 +269,7 @@ mod text_data;
 mod text_edit;
 pub use text_edit::TextPress;
 pub mod ac1_buttons;
+pub mod damage_text_pref;
 mod default_cursor;
 pub mod hud_style;
 mod inventory_resize;

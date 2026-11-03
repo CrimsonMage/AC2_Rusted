@@ -12,7 +12,7 @@
 //! window to a PNG and exits; `--size` sets the window, `--bare 1` shows the map alone (the
 //! panel-sized preview) and `--player` puts the player's arrow on it. `--export` writes the
 //! terrain overview, every land block's tile and the map notes to `DIR` for other tools (the
-//! AC2e content editor) and exits.
+//! Pyrealium content editor) and exits.
 
 use ac2_guide::atlas::{self, Marker};
 use ac2_guide::html;

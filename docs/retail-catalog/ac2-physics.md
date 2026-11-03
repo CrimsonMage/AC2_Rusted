@@ -3088,7 +3088,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/physobj/story/storymanager.cpp.c` (10/15)
 
 ### StoryManager
-- [x] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — ac2-client client_story_missiles.rs create_missile: a temporary object of m_entityDID, or for a clone of the weapon's data id with its local VisualDesc (SetVisualDesc(GetLocalVisualDesc()), drawn with the weapon's appearance), at the story's object, MISSILE_TIMEOUT_TIME 8 s; SetCollisionState and MissileInitialize when its body is in; combat_view_7160 a_thrown_weapons_story_throws_a_clone_of_the_wielded_item
+- [x] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — ac2-client client_story_missiles.rs create_missile: a temporary object of m_entityDID, or for a clone of the weapon's data id with its local VisualDesc (SetVisualDesc(GetLocalVisualDesc()), drawn with the weapon's appearance), MISSILE_TIMEOUT_TIME 8 s; one fired at once has no place (CreateTemporaryObject) until its manager places it, one held is made at the story's object; SetCollisionState and MissileInitialize when its body is in; combat_view_7160 a_thrown_weapons_story_throws_a_clone_of_the_wielded_item, a_flame_bolt_story_fires_its_bolt_at_the_drudge
 
 ### SmartArray<InstanceID>
 - [-] `SmartArray<InstanceID>::RemoveOrderedByIndex` · 005149b0 · legions 005029c0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it

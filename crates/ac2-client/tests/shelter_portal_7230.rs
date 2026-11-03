@@ -1,5 +1,5 @@
 //! The Shelter's pink portal in the human start dungeon (block 0x0299), drawn headless on the
-//! real DATs (`AC2_DAT_DIR`) against the server double: AC2e places retail's captured
+//! real DATs (`AC2_DAT_DIR`) against the server double: Pyrealium places retail's captured
 //! `wsl_genericportal_pink` (entity 0x47001451, visual `it_portal_shard.vd` 0x1F00031E) at
 //! (101.0, 240.1, -43.52) in cell 0x02990120, on its dais. The player stands west of it facing
 //! east. Writes `target/ac2-snapshots/shelter_portal_*.png`; skipped without a GPU adapter.

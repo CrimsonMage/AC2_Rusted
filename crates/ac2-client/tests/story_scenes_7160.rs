@@ -93,7 +93,7 @@ fn elements(rig: &Rig, name: &str) -> Vec<usize> {
     found
 }
 
-/// The grant's arguments are the three ints `(errorCode, bAdd, sceneId)` AC2e writes with
+/// The grant's arguments are the three ints `(errorCode, bAdd, sceneId)` Pyrealium writes with
 /// `script::integer` (a count of 1, then the value).
 #[test]
 fn the_grant_arguments_are_three_ints() {

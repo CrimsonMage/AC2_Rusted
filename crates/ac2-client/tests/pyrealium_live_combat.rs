@@ -1,11 +1,11 @@
-//! Combat against a running AC2e server (`AC2E_LIVE`, see `tests/live/mod.rs`): the new
-//! character starts in an interior cell next to the hostile creatures AC2e's encounter rules
+//! Combat against a running Pyrealium server (`PYREALIUM_LIVE`, see `tests/live/mod.rs`): the new
+//! character starts in an interior cell next to the hostile creatures Pyrealium's encounter rules
 //! spawn, which attack at once. Each test plays one part of that fight as the window would: a
 //! creature selected by a click and by the selection keys, attacked with the bar's attack
 //! (default attack), hit and killed; the player's vitals falling under the creatures' blows; and
 //! the player's death, the resurrect dialog and the respawn.
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_combat scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_combat scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 
@@ -193,7 +193,7 @@ fn attacking_a_creature_kills_it() {
             .is_some_and(|health| health < 60)
     });
     assert!(hurt, "the creature's health never fell");
-    // Dead: its health is gone and it lies down; AC2e keeps the body in the world (a training
+    // Dead: its health is gone and it lies down; Pyrealium keeps the body in the world (a training
     // kill leaves it standing for good), or removes it once it despawns.
     let gone = rig.until(60.0, |r| {
         r.seen.contains(&SessionEvent::ObjectRemoved(target))
@@ -205,7 +205,7 @@ fn attacking_a_creature_kills_it() {
     });
     assert!(gone, "the creature never died");
     // It lay down first: the `death` behaviour into the `dead` mode (`gmbehaviors.emp`,
-    // `gmmodes.emp`), at zero health. AC2e keeps the body there as the corpse until it despawns.
+    // `gmmodes.emp`), at zero health. Pyrealium keeps the body there as the corpse until it despawns.
     let died = rig.seen.iter().any(|e| {
         matches!(e, SessionEvent::ObjectAction { object, action: ObjectAction::DoBehavior(b) }
             if *object == target && b.behavior == DEATH_BEHAVIOR && b.mode == DEAD_MODE)
@@ -342,7 +342,7 @@ fn examining_a_creature_shows_its_profile() {
     };
     let texts = rig.view.examination_texts();
     eprintln!("creature {id:#x} examination {texts:?}");
-    // The rows the creature's qualities give (AC2e's profile: the name, then its health), and
+    // The rows the creature's qualities give (Pyrealium's profile: the name, then its health), and
     // the name is a name, not the server's fallback for an unnamed object.
     let object = rig.client.session().objects().get(id).unwrap();
     let (current, max) = (

@@ -1,10 +1,10 @@
-//! Inventory, equipment, the world drop and corpse looting against a running AC2e (`AC2E_LIVE`,
-//! see `tests/live/mod.rs`; `AC2E_LIVE_TEST=ac2e_live_inventory scripts/ac2e-live-test.sh`),
+//! Inventory, equipment, the world drop and corpse looting against a running Pyrealium (`PYREALIUM_LIVE`,
+//! see `tests/live/mod.rs`; `PYREALIUM_LIVE_TEST=pyrealium_live_inventory scripts/pyrealium-live-test.sh`),
 //! driven through the HUD with the pointer the way the window feeds it.
 //!
-//! Runs on AC2e's 7230 profile with its development training kit (the script's defaults): the
+//! Runs on Pyrealium's 7230 profile with its development training kit (the script's defaults): the
 //! character starts with its racial starter gear worn and the training supplies in the pack, and
-//! the training creatures beside the start (`AC2E_TEST_CORPSE_LOOT=1`) leave bodies with loot.
+//! the training creatures beside the start (`PYREALIUM_TEST_CORPSE_LOOT=1`) leave bodies with loot.
 
 #![cfg(feature = "window")]
 
@@ -150,7 +150,7 @@ fn kill_a_creature(rig: &mut LiveRig, fought: &mut Vec<u64>) -> u64 {
 /// Kills creatures until a body holds loot, opens it (a use of the body) and returns it with the
 /// items its window lists.
 fn open_a_body(rig: &mut LiveRig, fought: &mut Vec<u64>) -> (u64, Vec<u64>) {
-    // The hostile creatures beside the start are the three of AC2e's training encounter.
+    // The hostile creatures beside the start are the three of Pyrealium's training encounter.
     for _ in 0..3 {
         let corpse = kill_a_creature(rig, fought);
         rig.command(ac2_client::Command::Use(corpse));
@@ -210,7 +210,7 @@ fn the_inventory_shows_the_starting_items() {
 }
 
 /// Dragging an item to another slot of the pack reorganizes it (`ReorganizeContents`, packed the
-/// way AC2e checks it against the retail client's packets) and the server's answer puts it there.
+/// way Pyrealium checks it against the retail client's packets) and the server's answer puts it there.
 #[test]
 fn an_item_dragged_to_another_slot_moves_there() {
     let Some(mut rig) = rig("Invmove") else {
@@ -317,7 +317,7 @@ fn an_item_drops_on_the_ground_and_is_picked_up() {
         "dropped: {:?}",
         said_lines(&rig, before)
     );
-    // The ground object is a new object (AC2e names it in its own range).
+    // The ground object is a new object (Pyrealium names it in its own range).
     let ground = rig.seen[before..]
         .iter()
         .find_map(|e| match e {
@@ -342,7 +342,7 @@ fn an_item_drops_on_the_ground_and_is_picked_up() {
 /// A creature killed through the HUD leaves gold, which the money shows, and a body: a use of it
 /// opens its window on its loot; an item dragged out of it lands in the pack, and the Loot All
 /// button of the next body takes everything it holds. (Needs the server's
-/// `AC2E_TEST_CORPSE_LOOT=1`: its training creatures pay into the pack and leave no body.)
+/// `PYREALIUM_TEST_CORPSE_LOOT=1`: its training creatures pay into the pack and leave no body.)
 #[test]
 fn a_corpse_is_looted_by_drag_and_by_loot_all() {
     let Some(mut rig) = rig("Invloot") else {

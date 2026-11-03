@@ -5,7 +5,7 @@ speaks the AC2 network protocol. It contains no game data, executables or decomp
 point it at your own installation.
 
 **DAT target: the 7230 release** (client 02.00.20.7230, portal iteration 5064 and later), the
-data the AC2e server serves. Every behaviour is ported from the retail client (Legions build 7160,
+data the Pyrealium server serves. Every behaviour is ported from the retail client (Legions build 7160,
 checked against the admin 7148 decompile; the 7230 executable where 7230 changed a packed layout
 or added script calls) and cites the class and function it reproduces. See
 [ARCHITECTURE.md](ARCHITECTURE.md) for the design and milestones, and
@@ -69,11 +69,11 @@ AC2 class has one home. A crate may depend only on crates above it.
 |---|---|
 | `world-viewer` | the offline world viewer (below); never connects, changes no client crate |
 | `race-table` | runs the `CharacterGenSystem` script once and writes the playable race and sex models the viewer reads |
-| `legions-server-double` | an in-process Legions 7160 server for the client's tests (the 7160 logon path; live 7230 testing uses AC2e) |
+| `legions-server-double` | an in-process Legions 7160 server for the client's tests (the 7160 logon path; live 7230 testing uses Pyrealium) |
 | `ac2-login-probe` | the network logon alone against a real or local server, stage by stage |
 | `dat-diff` | compares two DAT sets record by record |
 | `ac2hero-guide` | the quest guide as a standalone egui window |
-| `ac2hero-map` | the quest guide's places on a zoomable world map; exports the map for AC2e |
+| `ac2hero-map` | the quest guide's places on a zoomable world map; exports the map for Pyrealium |
 
 ## Commands
 
@@ -130,9 +130,9 @@ each, as ThwargLauncher does (`docs/server-list.md`). With no arguments it opens
 ```bash
 cargo run --release -p ac2-launcher                       # the window
 target/release/ac2-launcher set dat-dir "$AC2_DAT_DIR"    # also: set client PATH, set list ADDRESS
-target/release/ac2-launcher add "AC2e Test Server" 127.0.0.1:9000 AC2E [--login-server URL]
+target/release/ac2-launcher add "Pyrealium Test Server" 127.0.0.1:9000 Pyrealium [--login-server URL]
 target/release/ac2-launcher list
-target/release/ac2-launcher play "AC2e Test Server" [--account NAME]   # a password on stdin
+target/release/ac2-launcher play "Pyrealium Test Server" [--account NAME]   # a password on stdin
 ```
 
 The launcher finds `ac2` beside itself unless `set client` names it.
@@ -155,21 +155,21 @@ cargo run -p ac2-weenie --example online_probe -- --server 127.0.0.1:9000 --acco
     [--client-exe PATH] [--dat-dir PATH] [--language NAME] \
     [--loss DROP,DUPLICATE,HOLD,MAX_HOLD] [--seed N]
 
-# Sign in at an AC2e account service with the launcher's code (password on stdin)
+# Sign in at a Pyrealium account service with the launcher's code (password on stdin)
 cargo run -p ac2-launcher --example sign_in -- URL ACCOUNT
 ```
 
 `--client-exe` reads the RSA key a retail `ac2client.exe` carries, as retail does.
 
-Live testing is against a local AC2e server on the 7230 DATs. `AC2E_DIR` names the AC2e checkout
-(default `../third_party/ac2e-src/repo`); `AC2E_BIND` and `AC2E_GUN_BIND` move its ports:
+Live testing is against a local Pyrealium server on the 7230 DATs. `PYREALIUM_DIR` names the Pyrealium checkout
+(default `../pyrealium-server`); `PYREALIUM_BIND` and `PYREALIUM_GUN_BIND` move its ports:
 
 ```bash
-scripts/ac2e-server.sh                 # keep a server running on 127.0.0.1:9000
-scripts/ac2e-login-test.sh             # start one, log on to the character set, stop it
-scripts/ac2e-launcher-test.sh          # the launcher's sign-in and start against AC2e accounts
-scripts/ac2e-live-test.sh [FILTER]     # the gameplay suite (quests, crafting, combat, effects)
-                                       # on a fresh server of its own; AC2E_LIVE_TEST picks the target
+scripts/pyrealium-server.sh                 # keep a server running on 127.0.0.1:9000
+scripts/pyrealium-login-test.sh             # start one, log on to the character set, stop it
+scripts/pyrealium-launcher-test.sh          # the launcher's sign-in and start against Pyrealium accounts
+scripts/pyrealium-live-test.sh [FILTER]     # the gameplay suite (quests, crafting, combat, effects)
+                                       # on a fresh server of its own; PYREALIUM_LIVE_TEST picks the target
 ```
 
 The HUD is the client's modern style by default: the retail frameworks over the DAT layouts,

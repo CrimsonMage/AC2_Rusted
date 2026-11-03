@@ -1,7 +1,7 @@
-//! Skills and crafting against a running AC2e server (see `tests/live/mod.rs`): the skill panel
+//! Skills and crafting against a running Pyrealium server (see `tests/live/mod.rs`): the skill panel
 //! lists the player's skills top down, and training, raising and untraining a skill from the
 //! panel reach the server and come back as the server's rules set them.
-//! `scripts/ac2e-live-test.sh` starts the server with `AC2E_DEV_START_XP` (a new character starts
+//! `scripts/pyrealium-live-test.sh` starts the server with `PYREALIUM_DEV_START_XP` (a new character starts
 //! with that experience, which levels it and gives it credits and experience to spend).
 
 #![cfg(feature = "window")]
@@ -18,12 +18,12 @@ use live::LiveRig;
 const SKILL: u32 = 0xB2;
 const ROOT: u32 = 0xB0;
 
-/// The rig, when the server was started with the skill tests' settings (`scripts/ac2e-live-test.sh`
-/// with `AC2E_LIVE_TEST=ac2e_live_skills`: experience and lost health to start with, the
+/// The rig, when the server was started with the skill tests' settings (`scripts/pyrealium-live-test.sh`
+/// with `PYREALIUM_LIVE_TEST=pyrealium_live_skills`: experience and lost health to start with, the
 /// development kit's skill rules).
 fn rig_for(name: &str) -> Option<LiveRig> {
-    if std::env::var_os("AC2E_DEV_START_XP").is_none() {
-        eprintln!("AC2E_DEV_START_XP is not set: run through scripts/ac2e-live-test.sh with AC2E_LIVE_TEST=ac2e_live_skills");
+    if std::env::var_os("PYREALIUM_DEV_START_XP").is_none() {
+        eprintln!("PYREALIUM_DEV_START_XP is not set: run through scripts/pyrealium-live-test.sh with PYREALIUM_LIVE_TEST=pyrealium_live_skills");
         return None;
     }
     LiveRig::new(name)
@@ -208,7 +208,7 @@ fn a_skill_is_used_and_its_vigor_is_spent_and_comes_back() {
     let Some(mut rig) = rig_for("Skilluse") else {
         return;
     };
-    if std::env::var_os("AC2E_LIVE_TRAINING_KIT").is_none() {
+    if std::env::var_os("PYREALIUM_LIVE_TRAINING_KIT").is_none() {
         eprintln!("the server has no skill rules (--training-kit true); skipped");
         return;
     }
@@ -295,7 +295,7 @@ fn a_skill_is_used_and_its_vigor_is_spent_and_comes_back() {
             .is_some_and(|h| h.current > health.current)
     });
 
-    // The server gives vigor back only to a player nothing fights (AC2e's regeneration skips a
+    // The server gives vigor back only to a player nothing fights (Pyrealium's regeneration skips a
     // player a creature targets). The start in the Menhir Vault has creatures that come and hit
     // the player, so the test kills each one that attacks (as the player would) until the vigor
     // rises above where the skill left it; it fails when the vigor never comes back.
@@ -391,7 +391,7 @@ fn the_players_craft_skill_and_recipes_reach_the_client() {
     let Some(mut rig) = rig_for("Skillcraft") else {
         return;
     };
-    if std::env::var_os("AC2E_LIVE_TRAINING_KIT").is_none() {
+    if std::env::var_os("PYREALIUM_LIVE_TRAINING_KIT").is_none() {
         eprintln!("the server has no craft recipes (--training-kit true); skipped");
         return;
     }

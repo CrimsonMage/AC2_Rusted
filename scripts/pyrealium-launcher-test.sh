@@ -1,42 +1,42 @@
 #!/bin/sh
-# Live test of the launcher's AC2e account-service start against a local AC2e: start its account
+# Live test of the launcher's Pyrealium account-service start against a local Pyrealium: start its account
 # service and a game server sharing the account store, sign in with the launcher's code
 # (crates/ac2-launcher, `examples/sign_in.rs`), then log on with ac2-login-probe as `ac2` would
 # with that ticket, and stop both. Exits with the probe's code.
 #
-#   scripts/ac2e-launcher-test.sh        (AC2_DAT_DIR defaults to ../dataset-7230)
+#   scripts/pyrealium-launcher-test.sh        (AC2_DAT_DIR defaults to ../dataset-7230)
 #
 # Ports: the game 127.0.0.1:19383, the account service 19401 (no GUN service).
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 AC2_DAT_DIR=${AC2_DAT_DIR:-$root/../dataset-7230}
-AC2E_DIR=${AC2E_DIR:-$root/../third_party/ac2e-src/repo}
-AC2E_STATE=${AC2E_STATE:-${XDG_STATE_HOME:-$HOME/.local/state}/ac2e-launcher-test}
-AC2E_BIND=127.0.0.1:19383
-AC2E_GUN_BIND=off
-export AC2_DAT_DIR AC2E_DIR AC2E_STATE AC2E_BIND AC2E_GUN_BIND
+PYREALIUM_DIR=${PYREALIUM_DIR:-$root/../pyrealium-server}
+PYREALIUM_STATE=${PYREALIUM_STATE:-${XDG_STATE_HOME:-$HOME/.local/state}/pyrealium-launcher-test}
+PYREALIUM_BIND=127.0.0.1:19383
+PYREALIUM_GUN_BIND=off
+export AC2_DAT_DIR PYREALIUM_DIR PYREALIUM_STATE PYREALIUM_BIND PYREALIUM_GUN_BIND
 web=127.0.0.1:19401
-auth=$AC2E_STATE/accounts
-log=$AC2E_STATE/launcher-test.log
+auth=$PYREALIUM_STATE/accounts
+log=$PYREALIUM_STATE/launcher-test.log
 rm -rf "$auth"
-mkdir -p "$auth" "$AC2E_STATE"
+mkdir -p "$auth" "$PYREALIUM_STATE"
 
 cargo build -q -p ac2-login-probe -p ac2-launcher --examples --manifest-path "$root/Cargo.toml"
-bin=$AC2E_DIR/AC2E/target/game/release/ac2e
+bin=$PYREALIUM_DIR/target/game/release/pyrealium
 # The account service first: it initializes the account store the game server checks tickets in.
-mkdir -p "$AC2E_STATE/data"
-"$bin" account-web --auth-data "$auth" --data "$AC2E_STATE/data" --web-bind "$web" \
-  --public-origin "http://$web" --public-host "${AC2E_BIND%:*}" --public-port "${AC2E_BIND##*:}" \
-  > "$AC2E_STATE/accounts.log" 2>&1 &
+mkdir -p "$PYREALIUM_STATE/data"
+"$bin" account-web --auth-data "$auth" --data "$PYREALIUM_STATE/data" --web-bind "$web" \
+  --public-origin "http://$web" --public-host "${PYREALIUM_BIND%:*}" --public-port "${PYREALIUM_BIND##*:}" \
+  > "$PYREALIUM_STATE/accounts.log" 2>&1 &
 accounts=$!
 sleep 2
-"$root/scripts/ac2e-server.sh" --auth-data "$auth" > "$log" 2>&1 &
+"$root/scripts/pyrealium-server.sh" --auth-data "$auth" > "$log" 2>&1 &
 server=$!
 stop() {
   kill "$accounts" 2>/dev/null || true
   kill -0 "$server" 2>/dev/null || return 0
-  touch "$AC2E_STATE/data/stop.request"
+  touch "$PYREALIUM_STATE/data/stop.request"
   i=0; while kill -0 "$server" 2>/dev/null && [ "$i" -lt 40 ]; do sleep 0.25; i=$((i + 1)); done
   kill "$server" 2>/dev/null || true
 }
@@ -45,9 +45,9 @@ trap stop EXIT INT TERM
 waited=0
 until grep -q '^Listening on' "$log"; do
   if ! kill -0 "$server" 2>/dev/null; then
-    echo "AC2e server exited before listening:" >&2; tail -n 20 "$log" >&2; exit 1
+    echo "Pyrealium server exited before listening:" >&2; tail -n 20 "$log" >&2; exit 1
   fi
-  [ "$waited" -ge 900 ] && { echo "AC2e server did not listen within 15 minutes" >&2; exit 1; }
+  [ "$waited" -ge 900 ] && { echo "Pyrealium server did not listen within 15 minutes" >&2; exit 1; }
   sleep 1; waited=$((waited + 1))
 done
 sign_in() {

@@ -19,7 +19,7 @@ OPTIONS
   --glsticketdirect PASS  password logon (auth type 0x40000002); omit for a plain account logon
   --version V             data version in the logon (default: the DATs' release, 7230 for the
                           7230 data, 7160 for the Legions DVD's; 1802 for the 2012-2017
-                          relaunch client). AC2e serves 7230 data to 7230 and its converted
+                          relaunch client). Pyrealium serves 7230 data to 7230 and its converted
                           7148 data to 7148. The RSA session key is never sent.
   --dat-dir DIR           DAT directory for the interrogation response (default AC2_DAT_DIR)
   --timeout SECS          wait for the character set this long (default 45)

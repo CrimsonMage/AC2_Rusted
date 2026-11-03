@@ -49,6 +49,8 @@ pub(crate) struct HudView {
     pub(crate) scale: UiScale,
     /// The UI scale setting the HUD is laid out at (`ac2_ui::ui_scale_pref`).
     pub(crate) setting: ac2_ui::UiScaleSetting,
+    /// The damage text size preference (`ac2_ui::damage_text_pref`), kept over HUD rebuilds.
+    pub(crate) damage_text_size: f64,
     pub(crate) dirty: bool,
     /// The sounds the UI's media played (`MD_Data_Sound`) until the audio sink takes them.
     pub(crate) sounds: Vec<u32>,
@@ -100,6 +102,15 @@ impl HudView {
         self.setting = setting;
         self.resize(self.size.0, self.size.1);
         true
+    }
+
+    /// The damage text size preference: new damage texts are drawn at their blob's scale times
+    /// `size`.
+    pub(crate) fn set_damage_text_size(&mut self, size: f64) {
+        self.damage_text_size = size;
+        if let Some(damage) = self.panels.damage_mut() {
+            damage.set_size(size);
+        }
     }
 
     /// The frame's UI actions (`IUIManager` start / stop: `UIElementManager::StartInput` /

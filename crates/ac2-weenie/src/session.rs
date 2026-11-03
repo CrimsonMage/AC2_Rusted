@@ -225,7 +225,7 @@ pub struct OnlineSession {
     choice: CharacterChoice,
     world: World,
     reporter: Option<PositionReporter>,
-    /// The logon names AC2e's profile (7148 or 7230), whose server answers a request the way
+    /// The logon names Pyrealium's profile (7148 or 7230), whose server answers a request the way
     /// the session's mirror of its messages follows, not the player's script.
     entered: bool,
     closed: bool,

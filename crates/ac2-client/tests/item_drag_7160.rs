@@ -8,18 +8,36 @@
 mod hud;
 
 use ac2_client::Command;
-use ac2_net::protocol::{ClientEvent, InvMoveDesc, ScriptRequest};
+use ac2_net::protocol::{ClientEvent, ExaminationRequest, InvMoveDesc, ScriptRequest};
 use ac2_ui::ToolbarChild;
 use hud::Rig;
 use legions_server_double::{PACK, PLAYER, POTIONS, PRIMARY_HAND, RATIONS, SECONDARY_HAND, SWORD};
 
-/// The inventory requests the double heard from the `since`th on (a press also selects:
-/// `SetTarget`, which is left out).
+/// The inventory requests the double heard from the `since`th on. A press also selects the item
+/// (`SetTarget`) and, the examination being started, asks for its profile (`Examine`, see
+/// [`examinations`]); both are left out.
 fn requests(rig: &Rig, since: usize) -> Vec<ScriptRequest> {
     rig.server.borrow().script_requests[since..]
         .iter()
-        .filter(|r| !matches!(r, ScriptRequest::SetTarget(_)))
+        .filter(|r| !matches!(r, ScriptRequest::SetTarget(_) | ScriptRequest::Examine(_)))
         .cloned()
+        .collect()
+}
+
+/// The examination requests the double heard from the `since`th on. The login's options reload
+/// starts the examination whatever the panel shows: 7230's `gmExaminationUI` reload
+/// (0x00432160) finds `GetClassicExamination` (0x004535F0) off where its constructor set the
+/// panel classic (`+0xD0` = 1, 0x004323A8), so it takes the General tab's filter 0x203 and calls
+/// `gmCWInterface::StartExamination(0x203)` (0x00452FF0) without looking at the panel. From then
+/// on selecting an object (`CPlayer::SetSelection` -> `SetExaminationRequest`) asks the server
+/// for its profile with that word.
+fn examinations(rig: &Rig, since: usize) -> Vec<ExaminationRequest> {
+    rig.server.borrow().script_requests[since..]
+        .iter()
+        .filter_map(|r| match r {
+            ScriptRequest::Examine(request) => Some(*request),
+            _ => None,
+        })
         .collect()
 }
 
@@ -68,6 +86,11 @@ fn an_item_dragged_to_another_slot_of_the_pack_reorganizes_it() {
     );
     assert_eq!(sent, std::slice::from_ref(&expected));
     assert_eq!(wire(&sent[0]), wire(&expected));
+    // The press selected the sword: its profile is asked for with the started examination's
+    // word.
+    let mut profile = ExaminationRequest::object(SWORD);
+    profile.extra[2] = 0x203;
+    assert_eq!(examinations(&rig, before), [profile]);
 }
 
 #[test]

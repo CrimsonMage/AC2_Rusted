@@ -153,7 +153,7 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
     if program == 1u && input.alpha_cut > 0.0 {
         // Grass frills keep retail's lit vertex program: the sun's N.L and the point lights plus
         // the ambient, summed and clamped in display space, modulate the stage's MODULATE2X
-        // albedo there, and the product is decoded once (as the AC2e remake lights its grass).
+        // albedo there, and the product is decoded once (as the Pyrealium remake lights its grass).
         // Summing the decoded lights in linear light instead left the meadows a quarter darker.
         let lit = select(1.0, sun_lit(input.rel, input.normal), sun_on());
         let lit_colour = frill_retail_colour(shaded.rgb, input, lit);

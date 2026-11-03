@@ -36,7 +36,7 @@ game rules and server-visible behaviour exactly retail.
   channel fed by the workers. Verified (Legions 0x0065AE60): `AsyncCache::UseTime` is only that
   pump, a 25 ms `GetTickCount` budget over `LFQueue::Consume` of the pending callbacks, each run
   then released by refcount. Not yet verified: whether `AddToDataGraph` matters outside tools,
-  and whether the AC2e server ever pushes updated portal objects (the retail on-disk
+  and whether the Pyrealium server ever pushes updated portal objects (the retail on-disk
   `AsyncCache` / `CMissingIteration` path exists for that). Read those before deleting the
   related code, and record the findings here.
 - Exception: the window resizes freely (a modern client), and the UI has a scale setting.
@@ -73,6 +73,26 @@ game rules and server-visible behaviour exactly retail.
   every image is filtered once from its source to its scaled box (Catmull-Rom where it grows),
   each glyph is grown from the DAT font's coverage with its edge narrowed to a window pixel, and
   the surfaces are drawn texel for texel. Layout and anchoring code stays retail.
+- Exception: floating damage numbers are composed at their size, and the player may draw them
+  larger. Retail's `gm3DTextUI::RecvNotice_Do3DDamage` (admin 0x0042B150, Legions 0x0042AF10)
+  measured the blob's text in `gameplay.uil`'s `DamageTextTemplate` (`impact_24`, outlined,
+  centred; the only use of that font), sized the element and its surface to it
+  (`UIElement_Text::ResizeTo`, `UISurfaceObject::ResizeSurface`), turned filtering on
+  (`SetMaterialFiltering(1)`) and showed the surface at that size times the `DamageTextBlob`'s
+  scale (`SetScreenPosition(x, y, w * scale, h * scale)`), so the small bitmap was stretched;
+  `UpdateDamage` places and raises it by that shown size (`GetObjectViewWidth` / `Height`). The
+  player's script (`UIDamageControl`) picks the scale: 1, times 1.1 for some damage types, times
+  2 by one of the info's flags (the player's own hits in the fight double), times 0.75 with half
+  alpha for third-party damage. Here the element keeps the measured size and the root is composed
+  at the scale (`UiTree::set_root_render_scale`, the glyphs grown from the font's coverage as the
+  scaled pregame screens are), so the numbers stay sharp; the shown size and the placement are
+  retail's. The improvement is the client-only `DamageTextSize` preference
+  (`ac2_ui::damage_text_pref`, key `0x7E000003` in the `Misc` section beside `UiScale`, a
+  drop-down on the options page, stored as hundredths): 1x (retail size), 1.25x, 1.5x, 2x, 2.5x,
+  3x, default 1.5x (the user asked for bigger numbers). It multiplies the blob's scale for the
+  texts made after it is applied (`OptionsEffect::DamageTextSize`,
+  `ClientView::set_damage_text_size`, `DamageTexts::set_size`). The DATs have no larger Impact
+  font to switch to, so the glyphs are grown from `impact_24`.
 - Exception: a window nobody placed takes its authored place proportionally. Retail applied a
   window location only where the profile held one (`UIMainFramework::ApplyLocations` for the
   entries of the player's `UISaveLocations`, run on `gmGamePlayUI::ListenToMessage` `0xffff0007`
@@ -547,7 +567,7 @@ game rules and server-visible behaviour exactly retail.
   ring of one landblock around the camera's (3 x 3 blocks) and culled each static scenery
   object past its Setup's `DegradeInfo` visible distance times the `SceneryDrawDistance` scale
   (0.4, 0.7 or 1; `CPartArray::Draw`), so ridges a few hundred metres out stood bare. At levels 4
-  and 5 the client keeps a ring of two (5 x 5 blocks, as the AC2e Unreal remake streams;
+  and 5 the client keeps a ring of two (5 x 5 blocks, as the Pyrealium Unreal remake streams;
   `ac2_render::prefs::near_radius_for_level`, unless `--radius` is given) and multiplies the static
   scenery's distance scale by 2 (`DegradeOptions::scenery_reach`, `scenery_reach_for_level`), so
   those objects draw out to twice retail's distances at their cheapest degrade with retail's fade
@@ -581,7 +601,7 @@ game rules and server-visible behaviour exactly retail.
   Frills keep retail's lit vertex program for their light (`object_modern.wgsl`
   `frill_retail_colour`): the sun's N.L, the point lights and the ambient summed and clamped in
   display space, times the stage's MODULATE2X albedo, decoded once, where other lit objects sum
-  decoded lights in linear light, which left the meadows a quarter darker than retail and the AC2e
+  decoded lights in linear light, which left the meadows a quarter darker than retail and the Pyrealium
   remake drew them.
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
@@ -606,14 +626,14 @@ game rules and server-visible behaviour exactly retail.
   frame image only at its own size, stretched or tiled.
 - Exception: the launcher (`crates/ac2-launcher`, a modern addition; retail's was the separate
   `ac2launcher.exe`). It works as ThwargLauncher does: a server is a name, a connect string
-  (`host:port`) and a type (`emu`: `AC2E` or `Relaunch`), and the launcher builds the client's
+  (`host:port`) and a type (`emu`: `Pyrealium`, `AC2E` or `Relaunch`; `AC2E` is Thwargle's server, which Pyrealium continues, and takes the same command line), and the launcher builds the client's
   command line for that type and starts it (`docs/server-list.md`); the player never writes one.
-  The player's servers (a local AC2e to start with; no community server is built in) and a
-  published list share ThwargLauncher's `ServerItem` XML. An AC2E server with a login server
-  (`LoginServerUrlKey`) signs in at its AC2e account service (`POST /api/login`: the game's
+  The player's servers (a local Pyrealium to start with; no community server is built in) and a
+  published list share ThwargLauncher's `ServerItem` XML. A Pyrealium server with a login server
+  (`LoginServerUrlKey`) signs in at its Pyrealium account service (`POST /api/login`: the game's
   ticket); the client takes the ticket from a file (`glsticket FILE`),
   and the launcher waits for that. Passwords are never kept.
-  `scripts/ac2e-launcher-test.sh` runs that start against a local AC2e.
+  `scripts/pyrealium-launcher-test.sh` runs that start against a local Pyrealium.
 - Exception: the intro is skipped. Retail's `gmUIFlow::gmUIFlow` queued `gmIntroUI` first (two
   pictures four seconds each, with its music, before the data patch screen); the client opens the
   data patch (connecting) screen first (`PregameUi::skip_intro`) unless started with `--intro`.
@@ -689,7 +709,7 @@ game rules and server-visible behaviour exactly retail.
   ignore_instance`, set by `CameraCollision::trace` on the head-to-camera ray and the wall
   stand-off). Retail's traces test every object in the cells with the camera-ethereal set
   (`CPhysicsObj::IsLOSBlocking`), and the player blocks unless its blocking mask has the
-  camera-ethereal bit; the player's EntityDesc AC2e names (`0x4700110F`) sets no ethereal
+  camera-ethereal bit; the player's EntityDesc Pyrealium names (`0x4700110F`) sets no ethereal
   property, and the ray starts at the shoulder offset (radius 0.785 times 0.7, 0.549 m) at
   0.75 of the height, 0.551 m from the centre of the human Setup's upper sphere (radius 0.555),
   so it began inside the player and the camera was held in the model. Where retail's player
@@ -730,7 +750,7 @@ game rules and server-visible behaviour exactly retail.
   resurrect dialog (`MakeResurrectDialog`) nor hid the gameplay panels (`gmGamePlayUI::Show(0)`).
   `DeathPanel::hold` keeps the latest flag and `death_notices` raises it when the dialogs exist
   (a newer flag in the same frame wins). Movement while dead is not a client rule: the keys stop
-  through `PlayerMovementModule::LockActions`, set by a behaviour whose params lock actions; AC2e
+  through `PlayerMovementModule::LockActions`, set by a behaviour whose params lock actions; Pyrealium
   policy (no capture of the retail server is known) sends the player `DoBehavior` death into the
   dead mode with the lock at death and at entering dead, and `SetMode` peace plus `StopBehavior`
   death at the respawn.
@@ -776,11 +796,11 @@ game rules and server-visible behaviour exactly retail.
   1000) is readable as `Release0930`, which reads 7230's layouts (`SkillUINode::StreamPack`
   0930 0x005D5780); its script library numbers some native types and efuns differently
   (`ac2_core::native_type_from_release`, `ac2-script` `vm/efun_ids.rs`).
-- Live server testing is against the AC2e server (github.com/Thwargle/AC2e, run on the 7230
+- Live server testing is against the Pyrealium server (the `pyrealium-server` repository, which continues Thwargle's AC2E; run on the 7230
   DATs, which it serves as its 7230 profile). The client logs on as the 7230 client does (data
   version `7230`, `ac2_net::RELEASE_7230_VERSION`; `ac2_net::default_version` follows the mounted
-  DATs, so the DVD's give `7160`). `scripts/ac2e-login-test.sh` starts a server, logs on through
-  `ac2-login-probe` to the character set and stops it; `scripts/ac2e-server.sh` keeps one running
+  DATs, so the DVD's give `7160`). `scripts/pyrealium-login-test.sh` starts a server, logs on through
+  `ac2-login-probe` to the character set and stops it; `scripts/pyrealium-server.sh` keeps one running
   for the client (`ac2 --server 127.0.0.1:9000 --account local`). The in-process
   `legions-server-double` stays the 7160 path's test peer.
 - Effects (buffs and debuffs): the client is retail's. The server adds a timed effect to the player
@@ -791,7 +811,7 @@ game rules and server-visible behaviour exactly retail.
   builds the profile (`CExaminationSystem`; name, description and the end time as a countdown,
   `gmExaminationUI::ProcessNode` type `0x40000008`, whose value is `TimeDisplay::Init`'s
   `m_endTime`), so `Client::examine_request` hands such a request, and `StartExamination` /
-  `StopExamination` with it, to the VM beside the session's stand-in. What AC2e does with effects
+  `StopExamination` with it, to the VM beside the session's stand-in. What Pyrealium does with effects
   (a recast replaces the record, different skills stack, death takes them off, a creature's burn is
   text in its examination, a creature uses its harmful entity-record skill in place of a swing and
   then every 45 s, a logged-off player keeps its effects, and the server tells the client of them with `WM_Effect` 0x17 after the login, whose `EffectRegistry` (7230: 14 slots, record hash in slot 4, order hash in slot 11) is empty, since the registry's own add builds the indexes in slots 0 and 12 that its remove and `UpdateEffect` notice go by)
@@ -800,13 +820,13 @@ game rules and server-visible behaviour exactly retail.
   the skill (the examination's "Spellcraft", and the level the effect's stat tables are read at,
   so the skill panel's enchanted level moves by it: `InqSkillLevel`), 14 the `Effect` state, 20
   the flags (0x2 timed, 0x400 pulsed; a pulsed effect has the strip's `pulsed` state and no
-  draining meter). AC2e flags health and vigor changes over time as pulsed, because the DAT
+  draining meter). Pyrealium flags health and vigor changes over time as pulsed, because the DAT
   `Effect` states of exactly those types carry flag bit 0x20000000 (an inference: no retail text
-  says what the server set). `scripts/ac2e-live-test.sh` runs
-  `ac2e_live_effects` (the creature test needs `AC2E_LIVE_THRASHER=1`, a Banderling Thrasher placed beside the start through `AC2E_EXTRA_WORLD`) against a server whose timed effects last `AC2E_DEV_EFFECT_SCALE` (0.1) of
+  says what the server set). `scripts/pyrealium-live-test.sh` runs
+  `pyrealium_live_effects` (the creature test needs `PYREALIUM_LIVE_THRASHER=1`, a Banderling Thrasher placed beside the start through `PYREALIUM_EXTRA_WORLD`) against a server whose timed effects last `PYREALIUM_DEV_EFFECT_SCALE` (0.1) of
   their record's time and whose new characters start with 2,000,000 experience.
-- Portals against AC2e: the client is retail's, travel by walking in is the server's. A portal's
-  visual (AC2e's `it_portal_shard.vd`, 0x1F00031E) draws one mesh that is an invisible click
+- Portals against Pyrealium: the client is retail's, travel by walking in is the server's. A portal's
+  visual (Pyrealium's `it_portal_shard.vd`, 0x1F00031E) draws one mesh that is an invisible click
   volume (`invisible_click.mi`); the portal seen is the looping particle systems of the visual's
   startup FX, which every object's part array starts when it is made (`PHYSICSOBJREP::InitInternal`
   -> `ApplyStartupFX(rep, NULL)` -> `FXManager::DoStartupFX` -> `DoParticleFX`; the client's
@@ -815,28 +835,55 @@ game rules and server-visible behaviour exactly retail.
   handles the player's collision with a portal (`CWInterface::HandleCollision`, IFun 0x7F0043, is
   owned only by effect packages in the wlib), so retail's server, which ran every body's physics,
   moved the player. AC2Hero (`quest/omishan_virinditraining.html`) records walking into a portal
-  taking the player through. AC2e has no server physics; its policy (`portals::Contacts`) takes a
+  taking the player through. Pyrealium has no server physics; its policy (`portals::Contacts`) takes a
   reported position whose root Setup spheres touch a routed portal's (within 5 cm) as that
   collision and travels as a use does, silently when the use is refused. Live:
-  `ac2e_live_portals`; double: `portal_object_7160`. The swirl's particles draw without depth
+  `pyrealium_live_portals`; double: `portal_object_7160`. The swirl's particles draw without depth
   writes: their template material (`0x2B000023`) streams its layer with depth writes on, and its
   own `DepthWrite` property, applied at load (`RenderMaterial::GetSubObjects`), turns them off;
   with them on, each square card hid the cards behind it (`shelter_portal_7230`).
-- Spell missiles against AC2e: the client is retail's, the story is AC2e's. A skill's missile is
+- Spell missiles against Pyrealium: the client is retail's, the story is Pyrealium's. A skill's missile is
   the client's own temporary object: the server's `DoStory` on the caster names the skill
   (`PhysicsStory` bit 0x10) and a fire-missile hook (`StoryHookData` type 3, target bit 0x100,
   attack hook bit 0x400); the player's script names the missile for the skill and attack hook
   (`GetMissileInformationFromWSL`: Flame Bolt 0x59 hook 1 is `fx_proj_energybolt_base_fire`,
-  0x47000D04, no holding location), `StoryManager::FireMissile` makes it, its missile manager places
+  0x47000D04, no holding location), `StoryManager::FireMissile` makes it with no place
+  (`CObjectMaint::CreateTemporaryObject`), its missile manager places
   it (`AttemptWorldPlacement`; `CPhysicsObj::UpdateMovement` updates an object with a missile
   manager in or out of the world) and flies it, and on detonation `DeleteSelf` ->
   `CObjectMaint::FadeAndDestroyObject` removes it. The bolt starts toward its target only within 45
-  degrees of the caster's heading (`InitHeadingTowardTarget`). AC2e policy (`skill_missiles.rs`,
+  degrees of the caster's heading (`InitHeadingTowardTarget`). Its look is its visual's appearance:
+  `fx_proj_energybolt_base_fire.vd` is the cold bolt's crescent mesh with `fx_proj_energybolts.apr`
+  key 2 (the additive two-layer material with `fx_firebolt.mm`); no FX table, so no FX manager
+  (`PHYSICSOBJREP::InitFXManager` gates on `HasFX`) and no particles; aligned to its path it is seen
+  edge-on from behind the caster. Turning the caster to its target is the server's (no client
+  path issues a move-to or turn-to: `CPhysicsObj::MoveTo` is reached only from
+  `RecvEvt_MoveTo`, and `PlayerMovementModule::InterruptMoveTo` lets the keys cancel one); Pyrealium
+  sends none. Pyrealium policy (`skill_missiles.rs`,
   `combat_visual::skill_missile_story`): the skill records' missile hooks (root field 65, a hook
   naming an EntityDesc) choose the hook; it is sent at animation hook = attack hook, and the damage
-  lands after AC2e's projectile flight time; what the retail server sent is not known. Live:
-  `ac2e_live_skills_missile`; double: `a_flame_bolt_story_fires_its_bolt_at_the_drudge`.
-- Story scenes (the Quest panel's Story page) are retail's client path, and AC2e's trigger is its own
+  lands after Pyrealium's projectile flight time; what the retail server sent is not known. Live:
+  `pyrealium_live_skills_missile`; double: `a_flame_bolt_story_fires_its_bolt_at_the_drudge`.
+- Rescue the Shelter Hold against Pyrealium (live: `pyrealium_live_shelter`, run with
+  `PYREALIUM_TRAINING_WORLD=0`, the user's server setup): the client is retail's; the quest is the
+  server's, as data (Pyrealium `quest_emotes`: `quest-registry.tsv`, `quest-stages.tsv`, `emote-sets.tsv`,
+  `emote-actions.tsv`, in the shape of ACEmulator's emote tables, each row citing its evidence;
+  Pyrealium's `prepare_content.py` copies them beside the world table each start), checked against the evidence in this order: the DATs (the NPCs'
+  `*shelter.stt` lines, the item and creature entities, the dungeon cells of block 0x0299 and
+  their statics), the captures (the human Shelter copies 0x028D and 0x0298: Guard, Lieutenant,
+  stones 1 to 6, the Advance Shelter Scout and the Menhir Shard in the isolated cell 0x014D, the
+  quick exit at the first `bd_emp_portal` arch), the AC2 Vault's and AC2Hero's walkthroughs (105
+  XP: 40 and the Thorns, Lesser Regeneration and Haste potions from the Shelter Scout for the
+  Imbued Digging Tool, 65 from the Advance Shelter Scout; the glyph on the Menhir Portal leads to
+  the shard; the shard leads to Dereth), then Pyrealium policy. Inferred (Pyrealium
+  `human-shelter-world.tsv` says why for each): the Menhir Portal at the second arch (cell
+  0x0116, on the rotunda), stones 7 to 9, the Sentry, the Scout, the Diggers and Sentinels, the
+  shard room's arrival point and the Dereth arrival (Pyrealium's established exit, 74BA0008).
+  Pyrealium's `prepare_content.py --strip-training-placements` (what `scripts/pyrealium-server.sh` runs
+  without `PYREALIUM_TRAINING_WORLD=1`) mirrors the captured 0x0298 Shelter into 0x0299, names its
+  pink portal "Quick Exit to the Arwic Outlands" (the DAT string; the other races' Shelters were
+  captured with that name pattern) and appends the inferred rows.
+- Story scenes (the Quest panel's Story page) are retail's client path, and Pyrealium's trigger is its own
   policy. Retail: the server calls `WM_Quest` 0x23 -> `CPlayer` 0x2A -> `CQuestSystem::UpdateStoryQuest_Done`
   with `(errorCode, bAdd, sceneId)` (stack order: the script branches on the second on add or
   remove and hands the third to `ActRegistry::AddSceneID`; errors 0xFA7, 0xFA8, 0xFA0 print the
@@ -850,16 +897,16 @@ game rules and server-visible behaviour exactly retail.
   the played list (`WM_Quest` 0x22, 0x82130013). Not in the client or the data: what made the
   retail server grant a scene (`Eff_BestowScene*` carry a scene id and stat 4200
   `Quest_BestowedSceneID` exists; no script or AC2Hero page says when) and what it did with a
-  played list. AC2e policy (`emulator/src/story.rs`): a character with no scene earned is
+  played list. Pyrealium policy (`emulator/src/story.rs`): a character with no scene earned is
   granted the three scenes of the Prologue act (0x40000008) when it first enters the world; the
   login sends the registry empty, as for effects, and each earned scene is granted again after
-  it; the played list is accepted and not acted on (AC2e decodes only that it is non-empty).
-  Live: `ac2e_live_story`; double: `story_scenes_7160`. Both click the Story tab first, as a player
+  it; the played list is accepted and not acted on (Pyrealium decodes only that it is non-empty).
+  Live: `pyrealium_live_story`; double: `story_scenes_7160`. Both click the Story tab first, as a player
   does: the Story page is a hidden page of the Quest panel until then, and `UIRegion::NotifyMouseMove`
   (0x005e25c0) counts an element under the pointer only while it and its parents are shown, so
   before the tab only a leaf of the visible page (element 0x6a170865) sat under the list's box (the
   port matches retail here, `ac2-ui` `mouse_tests`). The double click then plays the scene
-  (`0x40000007`) and the skip key (`0x4000001E`) ends it. `ac2e_live_story` proves the play step live.
+  (`0x40000007`) and the skip key (`0x4000001E`) ends it. `pyrealium_live_story` proves the play step live.
   Exception: the Story page lists the scenes when the first frame in the world runs
   (`Hud::init_pass`). Retail's `gmStoryQuestsUI` is made before the login's `WM_Player` 0x27 raises
   `CM_Quest::SendNotice_UpdateStoryQuests`, so it receives that notice; the HUD here is built on
@@ -889,7 +936,7 @@ game rules and server-visible behaviour exactly retail.
     under the pointer (`gm3DItemsUI::FinishFind3DTarget`), and the wlib turns a static object
     into its landblock (`LandDefs::InqLandblockIIDFromStaticObjectIID`); this port has no terrain
     or static-object pick yet.
-  AC2e checks these requests against packets captured from clients whose scripts differ from the
+  Pyrealium checks these requests against packets captured from clients whose scripts differ from the
   7230 wlib the DATs carry (ids 1; 0x82 on ids that `CallIFun_*` pushes tagged 0x84; icon,
   definition and physical typed 4; a ground drop typed 0 with the slots -1): it compares tags up to
   the integer kind and accepts a drop's move type 33 and slot 0
@@ -900,14 +947,14 @@ game rules and server-visible behaviour exactly retail.
   name or locations. Here the loader thread reads them (`Request::ScriptState`), a pack or worn
   item drawn before they land had icon 0 (the "?" slot) and nothing redrew it. `Client::take_loaded`
   raises `GameplayNotice::ItemUpdate` for the object when its defaults are set, which the slots take
-  as `RecvNotice_ItemUpdate`. `ac2e_live_item_icons` proves it with frames that do not wait for the
+  as `RecvNotice_ItemUpdate`. `pyrealium_live_item_icons` proves it with frames that do not wait for the
   loader (`LiveRig::new_unsettled`); the other live files settle the loads each frame and cannot see
   the race.
 - Exception: a server call that names an object whose process is still loading waits for it.
   Retail made an object's weenie object (`gmCWAllocator::AllocateWeenieObject_Internal`,
   `CWDistributor::Construct`) as its `CreateObject` was handled, so a later call in the same
   batch found it. Here the loader reads the object's WState first, so `EquipItem_Done`
-  (0x820E0051), which AC2e sends right after it makes the equipped item anew, ran its
+  (0x820E0051), which Pyrealium sends right after it makes the equipped item anew, ran its
   `GetInternalWeenieObject(item)` while the item had no process: the 0x1F9 equipment record
   kept no implement and every skill wanting a weapon stayed unusable on the bar. A call to a
   running process whose arguments name a loading object (a `LongInt`, or an id's two slots,
@@ -918,7 +965,7 @@ game rules and server-visible behaviour exactly retail.
   (`UpdateContainer` / `UpdateInventory`, pushed just before the raw call) are raised again
   after it runs (`HeldCall::refreshes`): the panels read the contents from the script
   (`GetContentsInfo`), so a refresh taken before the held `MoveItem_Done` (0x820E005E) ran left a
-  crafted item, made anew by its `CreateObject`, out of the pack (`ac2e_live_crafting`).
+  crafted item, made anew by its `CreateObject`, out of the pack (`pyrealium_live_crafting`).
 - Exception: an item's icon is its visual's total icon description, read on a loader thread. Retail's
   `ItemDisplay::Update` draws `VisualDesc::GetTotalIconDesc` of the object's local visual desc (the
   parent DAT chain's icon layers with the local ones on top) and only falls back to the `ICON`
@@ -935,9 +982,9 @@ game rules and server-visible behaviour exactly retail.
   land and the waiting contexts have run, raises `CM_Craft::SendNotice_UpdateCraftPanel`
   (`gmCraftUI::RecvNotice_UpdateCraftPanel` -> `RefreshCraftPanel`), so the craft panel lists its
   rows as soon as the data is there (`script_data_loaded`).
-- Tradeskills against AC2e (live: `ac2e_live_tradeskills*`, `ac2e_live_traders`): what the data
-  settles, what AC2Hero settles and what is AC2e policy. Ranking: client and DATs, then the
-  AC2Hero mirror (a 2013 player guide, untrusted; pages cited below), then AC2e policy.
+- Tradeskills against Pyrealium (live: `pyrealium_live_tradeskills*`, `pyrealium_live_traders`): what the data
+  settles, what AC2Hero settles and what is Pyrealium policy. Ranking: client and DATs, then the
+  AC2Hero mirror (a 2013 player guide, untrusted; pages cited below), then Pyrealium policy.
   Data: a mote stack holds 1,000,000 (entity property `0x41000089`, description word `0x105`), a
   recipe slot takes one item that holds the slot's whole quantity (the client's `CheckIngredient`),
   so a 500 or 2500 refining is filled by one merged stack; coal and flawless pyreal are sold by
@@ -945,7 +992,7 @@ game rules and server-visible behaviour exactly retail.
   `store_cavendo`: pyreal at 50; `store_hakata` deruwood; `store_ondekodo` obsidian), and the
   WState `700005ec` is a craft trait of the pyreal mote, not a loot table. The 67
   `*butcheryprofile.wc` records are identical and empty, so what a creature gives is AC2Hero's.
-  AC2Hero rules AC2e applies (each with an AC2e unit test, and the chain/butchery/spellbinding
+  AC2Hero rules Pyrealium applies (each with a Pyrealium unit test, and the chain/butchery/spellbinding
   live files): `butcher.html` (a corpse eight or more levels below the butcher is refused),
   `traits.html` (the table of the two traits each creature family gives, keyed by the
   creature's `*butcheryprofile.wc` record: `butchery::LISTED`, ten units each; the training Idol
@@ -961,27 +1008,27 @@ game rules and server-visible behaviour exactly retail.
   vanish; the starter tools carry `Durability_MaxLevel` 618 = 50 in the DAT, but
   `Usage_DurabilityLostOnUse` 325 is absent on them and no page gives the wear per use, so the
   rate would be invented), the better knives' bonus items (no count anywhere),
-  `cartomancer.html` and `workshops.html` (AC2e's profile carries neither the cartomancers nor
+  `cartomancer.html` and `workshops.html` (Pyrealium's profile carries neither the cartomancers nor
   the workshops; the map travel stays the `@maptravel` test knob).
-  Known AC2e gap, not diagnosed: a stack merge made after a log-in, of stacks created before it,
+  Known Pyrealium gap, not diagnosed: a stack merge made after a log-in, of stacks created before it,
   is refused with `InvalidValue` (the chain file merges before it visits the traders).
   Policy still without a record: automatic rank-up, ten units a deposit strike before the bonus,
   certain success, one-time butchery of a body.
-  Names: an item AC2e creates after the login carries its name in the `CreateObject`
-  description (`gmWeenieDesc` data-mask bit 4, `Name_StringInfoStat`; AC2e `item_names.rs`, the
+  Names: an item Pyrealium creates after the login carries its name in the `CreateObject`
+  description (`gmWeenieDesc` data-mask bit 4, `Name_StringInfoStat`; Pyrealium `item_names.rs`, the
   entity's `Name` property `0x41000143`, else the name its qualities record embeds). Without it
   the client reads the name from the class defaults (`0x81000000 | definition`) only after its
   data load, and a pack slot created before that keeps "Error! Name_StringInfoStat missing";
   items in the pack at login do not show it. The live tests assert the crafted sword's, bracket's
   and charm's names. The knife is used as a player does: a double-click arms the targeting
   pointer (the client reads `Usage_NumberOfEntitiesUsedWith` 720, `Usage_InventoryRequired` 305 and
-  `Usage_ValidTargetTypes` 722 = 8 from the DAT's defaults, nothing from AC2e), and the click on
+  `Usage_ValidTargetTypes` 722 = 8 from the DAT's defaults, nothing from Pyrealium), and the click on
   the body completes the use only if the body's `Usage_TargetType` (721) shares a bit with 722: a
-  creature's DAT default is 4, so AC2e sends 8 on a creature at zero health
+  creature's DAT default is 4, so Pyrealium sends 8 on a creature at zero health
   (`butchery::BUTCHERABLE_TARGET`). Spellbinding: `rcp_spellbinding_practice` (wood 1, runewood 35,
   bone 10) makes one of the six `wsl_tradegoods_spellbinding_N` charms; `rcp_spellbinding_study`
   names no output and the DAT calls it "OBSOLETE - DNT: ... crafting and discarding sample totems.
-  You will earn no profits", so AC2e uses its ingredients up for the experience and makes no item
+  You will earn no profits", so Pyrealium uses its ingredients up for the experience and makes no item
   (`tradeskills::is_study`). Buying coal after mining works at any pack size; the earlier failure
   was the test server's `@maptravel` (a loopback test knob), which a second travel on one login does
   not carry out, so the tests log in again before each trader.

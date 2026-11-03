@@ -1,4 +1,4 @@
-//! The map as files another tool can draw (the AC2e content editor): the world overview, every
+//! The map as files another tool can draw (the Pyrealium content editor): the world overview, every
 //! land block's close-up tile, and the game's map notes with their icons.
 //!
 //! `DIR/manifest.json` describes the layout; `world.png` is the overview, one pixel per land cell

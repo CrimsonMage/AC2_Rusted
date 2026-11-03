@@ -28,7 +28,7 @@ command runs under the shared lock and memory cap:
 ```
 cd AC2_Rusted-perf-measure
 flock /tmp/ac2-cargo.lock systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=2G --quiet cargo build --profile profiling -p world-viewer -j 8
-export AC2_DAT_DIR=/home/jokerfactor/Downloads/AC2_Legions-DVD-analysis/dataset-ac2
+export AC2_DAT_DIR=$PWD/../dataset-ac2
 target/profiling/world-viewer --walk 4 --bench 300
 target/profiling/world-viewer --fly --bench 300
 target/profiling/world-viewer --walk 60 --bench 300

@@ -1,6 +1,6 @@
-//! The gameplay suite against a running AC2e server (`AC2E_LIVE=127.0.0.1:9000`, see
+//! The gameplay suite against a running Pyrealium server (`PYREALIUM_LIVE=127.0.0.1:9000`, see
 //! `tests/live/mod.rs`): each test makes its own account and character and checks what the
-//! player can do with it. Skipped unless `AC2E_LIVE` is set.
+//! player can do with it. Skipped unless `PYREALIUM_LIVE` is set.
 
 #![cfg(feature = "window")]
 
@@ -11,8 +11,8 @@ use live::LiveRig;
 
 /// The skill panel opens on the player's skills: its tree lists nodes.
 ///
-/// This failed because AC2e's player `CreateObject` named no script package, so the player had no
-/// script process to answer the panel's queries (fixed in AC2e: `PLAYER_PACKAGE`).
+/// This failed because Pyrealium's player `CreateObject` named no script package, so the player had no
+/// script process to answer the panel's queries (fixed in Pyrealium: `PLAYER_PACKAGE`).
 #[test]
 fn the_skill_panel_lists_the_players_skills() {
     let Some(mut rig) = LiveRig::new("Skilltest") else {

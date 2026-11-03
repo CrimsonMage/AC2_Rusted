@@ -1,11 +1,11 @@
 //! Helpers of the live tradeskills chain tests: the pack's stacks, mining and refining as the
-//! player works them (`ac2e_live_tradeskills_chain.rs`, `ac2e_live_tradeskills_spellbinding.rs`).
+//! player works them (`pyrealium_live_tradeskills_chain.rs`, `pyrealium_live_tradeskills_spellbinding.rs`).
 
 use super::trade::*;
 use super::LiveRig;
 use ac2_ui::ToolbarChild;
 
-/// The strikes a deposit holds (`AC2E_DEV_DEPOSIT_CHARGES`).
+/// The strikes a deposit holds (`PYREALIUM_DEV_DEPOSIT_CHARGES`).
 pub const STRIKES: usize = 12;
 
 pub fn quantity(rig: &LiveRig, id: u64) -> i32 {
@@ -32,7 +32,7 @@ pub fn units(rig: &LiveRig, definition: u32) -> i32 {
 }
 
 /// The units a mining strike gives: the deposit's ten (its weenie description) and AC2Hero's
-/// Surveying bonus, up to 40 at rank 150 (`survey.html`; AC2e `tradeskills::survey_bonus`), read
+/// Surveying bonus, up to 40 at rank 150 (`survey.html`; Pyrealium `tradeskills::survey_bonus`), read
 /// from the rank on the panel.
 pub fn per_strike(rig: &mut LiveRig) -> i32 {
     let rank = rig.client.craft_skill_level(SURVEYING).map_or(1, |l| l.0);
@@ -40,7 +40,7 @@ pub fn per_strike(rig: &mut LiveRig) -> i32 {
 }
 
 /// The percent of its ingredients a refining recipe returns at `rank` (AC2Hero `refining.html`:
-/// 34 to 100 percent, better with the skill; AC2e `tradeskills::refine_percent`).
+/// 34 to 100 percent, better with the skill; Pyrealium `tradeskills::refine_percent`).
 pub fn refine_percent(rank: u32) -> i32 {
     (34 + 66 * (rank.clamp(1, 150) - 1) / 149) as i32
 }
@@ -103,7 +103,7 @@ pub fn gather_n(
         r.view.item_icon_center(PACK, map).is_some()
     });
     // The scene is the server's: deposits other characters prospected and left unworked may come
-    // into view as the map travel arrives, and only the surveyor works a deposit. AC2e numbers
+    // into view as the map travel arrives, and only the surveyor works a deposit. Pyrealium numbers
     // the deposits it places in order, so the one this map revealed is the highest.
     let discovered = |r: &LiveRig| {
         lines(r)
@@ -124,8 +124,8 @@ pub fn gather_n(
     // The server uses the map up in the same turn that reveals the deposit, but the destroy of
     // the map reaches the pack after the deposit's creation. The equip request carries the
     // item's pack slot (`CInventorySystem` builds `InvEquipDesc` from the script's list), and
-    // AC2e checks it against its own bag: while the used map is still listed (it sits at the
-    // pack's front) the slot is one too many and AC2e answers "Equip rejected" (chat only).
+    // Pyrealium checks it against its own bag: while the used map is still listed (it sits at the
+    // pack's front) the slot is one too many and Pyrealium answers "Equip rejected" (chat only).
     // The player wields once the map is gone from the pack.
     wait(rig, "the used map leaves the pack", |r| {
         !r.client.frame().inventory.items.iter().any(|i| i.id == map)

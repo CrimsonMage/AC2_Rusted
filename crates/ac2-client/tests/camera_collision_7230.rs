@@ -96,7 +96,7 @@ fn the_turning_camera_stays_inside_the_dungeon() {
         assert!(frames < 600);
     }
     server.borrow_mut().send_init_player();
-    // The AC2e training-world placements (content/training-world.tsv): a lifestone and a
+    // The Pyrealium training-world placements (content/training-world.tsv): a lifestone and a
     // Shelter Guard in this block.
     server.borrow_mut().spawn_creature(
         0x8140_0000_0003_0001,

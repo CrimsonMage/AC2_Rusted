@@ -1,5 +1,5 @@
-//! Test tooling: signs in at an AC2e account service with the launcher's own code and prints
-//! `ACCOUNT TICKET HOST PORT` (used by `scripts/ac2e-launcher-test.sh`; the ticket is single-use).
+//! Test tooling: signs in at a Pyrealium account service with the launcher's own code and prints
+//! `ACCOUNT TICKET HOST PORT` (used by `scripts/pyrealium-launcher-test.sh`; the ticket is single-use).
 //!
 //! `cargo run -p ac2-launcher --example sign_in -- URL ACCOUNT` with the password on stdin.
 

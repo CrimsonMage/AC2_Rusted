@@ -36,11 +36,11 @@ const HIT_INTERVAL: f64 = 2.0;
 
 type Shared = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 
-fn write_png(name: &str, rgba: &[u8]) {
+fn write_png(name: &str, size: (u32, u32), rgba: &[u8]) {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/ac2-snapshots");
     std::fs::create_dir_all(&dir).expect("snapshot directory");
     let file = std::fs::File::create(dir.join(name)).expect("png file");
-    let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), SIZE.0, SIZE.1);
+    let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), size.0, size.1);
     encoder.set_color(png::ColorType::Rgba);
     encoder.set_depth(png::BitDepth::Eight);
     encoder
@@ -72,11 +72,12 @@ struct Scene {
     gpu: Gpu,
     view: ClientView,
     target: FrameTarget,
+    size: (u32, u32),
 }
 
 impl Scene {
     fn draw(&mut self, frame: &ClientFrame, name: &str) -> Vec<u8> {
-        let aspect = SIZE.0 as f32 / SIZE.1 as f32;
+        let aspect = self.size.0 as f32 / self.size.1 as f32;
         self.view.update(&self.gpu, frame, Duration::ZERO);
         self.view.settle(&self.gpu, frame, aspect);
         assert!(self
@@ -89,7 +90,7 @@ impl Scene {
             true,
         );
         let rgba = self.target.read_rgba(&self.gpu.device, &self.gpu.queue);
-        write_png(name, &rgba);
+        write_png(name, self.size, &rgba);
         rgba
     }
 }
@@ -98,6 +99,11 @@ impl Scene {
 /// double's drudges spawned with their fight started, and a scene to draw it; `None` without
 /// `AC2_DAT_DIR` or a GPU adapter.
 fn setup() -> Option<(Client, Shared, Scene)> {
+    setup_sized(SIZE)
+}
+
+/// [`setup`] with a `size` window.
+fn setup_sized(size: (u32, u32)) -> Option<(Client, Shared, Scene)> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let Ok(gpu) = Gpu::headless() else {
         eprintln!("no GPU adapter; skipping");
@@ -180,9 +186,10 @@ fn setup() -> Option<(Client, Shared, Scene)> {
     advance(&mut client, &server, 2.0);
 
     let scene = Scene {
-        view: ClientView::new(world, &gpu, COLOR_FORMAT, 1, SIZE),
-        target: FrameTarget::new(&gpu.device, SIZE.0, SIZE.1),
+        view: ClientView::new(world, &gpu, COLOR_FORMAT, 1, size),
+        target: FrameTarget::new(&gpu.device, size.0, size.1),
         gpu,
+        size,
     };
     Some((client, server, scene))
 }
@@ -752,6 +759,24 @@ fn a_flame_bolt_story_fires_its_bolt_at_the_drudge() {
                     player.origin[2] + 1.5,
                 ];
                 let with = scene.draw(&open, "flame_bolt_open.png");
+                // Turned a quarter about z, across the view.
+                let shown = open.objects.iter_mut().find(|o| o.id == bolt).unwrap();
+                shown.rotation = [
+                    std::f32::consts::FRAC_1_SQRT_2,
+                    0.0,
+                    0.0,
+                    std::f32::consts::FRAC_1_SQRT_2,
+                ];
+                scene.draw(&open, "flame_bolt_open_side.png");
+                // Pitched up a quarter, its face to the camera.
+                let shown = open.objects.iter_mut().find(|o| o.id == bolt).unwrap();
+                shown.rotation = [
+                    std::f32::consts::FRAC_1_SQRT_2,
+                    0.0,
+                    std::f32::consts::FRAC_1_SQRT_2,
+                    0.0,
+                ];
+                scene.draw(&open, "flame_bolt_open_face.png");
                 open.objects.retain(|o| o.id != bolt);
                 let without = scene.draw(&open, "flame_bolt_open_without.png");
                 drawn_pixels = Some(
@@ -778,4 +803,68 @@ fn a_flame_bolt_story_fires_its_bolt_at_the_drudge() {
         distances.windows(2).any(|w| w[1] < w[0] - 0.1),
         "the bolt flies at the drudge: {distances:?}"
     );
+}
+
+/// The user's display, where the damage texts are looked at.
+const WIDE: (u32, u32) = (2560, 1440);
+
+/// One frame with the HUD's frameworks run on its events (the window loop's order), so the
+/// script's notices (`Do3DDamage`) reach `gm3DTextUI`.
+fn hud_step(client: &mut Client, server: &Shared, scene: &mut Scene, input: &FrameInput) -> bool {
+    let events = step(client, server, input);
+    let frame = client.frame();
+    let notices = client.take_script_notices();
+    let _ = scene.view.frameworks(client, &frame, &events, &notices);
+    scene.view.update(&scene.gpu, &frame, Duration::ZERO);
+    scene.gpu.flush_writes();
+    events.iter().any(|e| {
+        matches!(
+            e,
+            SessionEvent::Notice(ac2_weenie::GameplayNotice::Do3DDamage { .. })
+        )
+    })
+}
+
+/// The fight at 2560 x 1440 with the damage size `size` (`None`: the view's default), drawn a
+/// short while after the first exchange's damage texts rise. Writes `name`.
+fn damage_snapshot(name: &str, size: Option<f64>) -> Option<Vec<u8>> {
+    let (mut client, server, mut scene) = setup_sized(WIDE)?;
+    if let Some(size) = size {
+        scene.view.set_damage_text_size(size);
+    }
+    let idle = FrameInput::default();
+    // The HUD is built on workers: wait for it.
+    let aspect = WIDE.0 as f32 / WIDE.1 as f32;
+    scene.view.settle(&scene.gpu, &client.frame(), aspect);
+    hud_step(&mut client, &server, &mut scene, &idle);
+    assert!(scene.view.ui_tree().is_some(), "no HUD");
+    let attack = FrameInput {
+        commands: vec![
+            Command::Select(Some(CREATURE_ONE)),
+            Command::SetAttacking(true),
+        ],
+        ..FrameInput::default()
+    };
+    hud_step(&mut client, &server, &mut scene, &attack);
+    let mut waited = 0.0;
+    while !hud_step(&mut client, &server, &mut scene, &idle) {
+        waited += STEP;
+        assert!(waited < 2.0 * HIT_INTERVAL, "no damage text");
+    }
+    // The texts rise for a quarter of a second.
+    for _ in 0..16 {
+        hud_step(&mut client, &server, &mut scene, &idle);
+    }
+    Some(scene.draw(&client.frame(), name))
+}
+
+/// The floating damage numbers drawn at 2560 x 1440: at retail's size (the blob's scale alone)
+/// and at the default damage text size preference (1.5x).
+#[test]
+fn damage_texts_are_drawn_at_their_scale_on_a_wide_display() {
+    if damage_snapshot("damage_text_retail.png", Some(1.0)).is_none() {
+        return;
+    }
+    damage_snapshot("damage_text_default.png", None);
+    damage_snapshot("damage_text_3x.png", Some(3.0));
 }

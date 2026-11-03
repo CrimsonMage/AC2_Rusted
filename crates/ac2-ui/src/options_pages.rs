@@ -49,6 +49,9 @@ pub enum OptionsEffect {
     /// The UI scale was applied: the client lays the HUD out again at the bank's setting
     /// ([`crate::ui_scale_pref::ui_scale`]), keeping the panels.
     UiScale,
+    /// The damage text size was applied: new damage texts take the bank's size
+    /// ([`crate::damage_text_pref::damage_text_size`]).
+    DamageTextSize,
 }
 
 /// The client's side of the options page: the preferences the page reads and writes, and the live
@@ -263,6 +266,9 @@ pub fn live_effects(
     }
     if keys.contains(&crate::ui_scale_pref::UI_SCALE) {
         effects.push(OptionsEffect::UiScale);
+    }
+    if keys.contains(&crate::damage_text_pref::DAMAGE_TEXT_SIZE) {
+        effects.push(OptionsEffect::DamageTextSize);
     }
     effects
 }

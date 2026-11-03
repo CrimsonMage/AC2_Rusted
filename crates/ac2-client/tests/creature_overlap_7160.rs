@@ -1,4 +1,4 @@
-//! A creature the server creates on top of the player does not trap the player. AC2e's training
+//! A creature the server creates on top of the player does not trap the player. Pyrealium's training
 //! world puts an Idol Spawn (visual `0x1F0003D1`, two collision spheres of 1.5 m) in the Menhir
 //! Vault 0.8 m from the human start. The player is a physics object in the cell's shadow lists
 //! like any other (`CPhysicsObj::add_to_cell`), so the creature's own world entry
@@ -20,7 +20,7 @@ use legions_server_double::Spawn;
 
 const INTERIOR_CELL: u32 = 0x0299_0109;
 const INTERIOR_ORIGIN: [f32; 3] = [59.060_577, 240.199, -44.606_205];
-/// The Idol Spawn AC2e authors at the start, 0.8 m from the player.
+/// The Idol Spawn Pyrealium authors at the start, 0.8 m from the player.
 const IDOL_ORIGIN: [f32; 3] = [59.0, 241.0, -45.005_77];
 const IDOL: u64 = 0x8140_0000_0003_0000;
 const IDOL_VISUAL: u32 = 0x1F00_03D1;
@@ -62,7 +62,7 @@ fn a_creature_created_on_the_player_slides_off_and_the_player_walks() {
             break;
         }
     }
-    // The teleport to the vault; the player is placed there before the creature comes (AC2e
+    // The teleport to the vault; the player is placed there before the creature comes (Pyrealium
     // creates the world's creatures after the player's entry).
     server
         .borrow_mut()

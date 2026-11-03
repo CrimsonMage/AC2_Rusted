@@ -12,7 +12,7 @@
 //!     --account ACCOUNT --glsticketdirect PASSWORD --version 1802
 //! ```
 //!
-//! A local AC2e server (`scripts/ac2e-server.sh`) takes `--server 127.0.0.1:9000 --account local
+//! A local Pyrealium server (`scripts/pyrealium-server.sh`) takes `--server 127.0.0.1:9000 --account local
 //! --version 7148`. A launcher can also run this program as its client executable, as it runs
 //! retail's:
 //!
@@ -378,6 +378,13 @@ impl App {
                 ac2_client::OptionsEffect::UiScale => {
                     if let Some(prefs) = self.client.prefs() {
                         view.set_ui_scale(ac2_ui::ui_scale_pref::ui_scale(prefs.bank()));
+                    }
+                }
+                ac2_client::OptionsEffect::DamageTextSize => {
+                    if let Some(prefs) = self.client.prefs() {
+                        view.set_damage_text_size(ac2_ui::damage_text_pref::damage_text_size(
+                            prefs.bank(),
+                        ));
                     }
                 }
                 ac2_client::OptionsEffect::HudStyle => {

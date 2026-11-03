@@ -1,9 +1,9 @@
-//! Tradeskills against a running AC2e server (see `tests/live/mod.rs`): the craft panel lists
+//! Tradeskills against a running Pyrealium server (see `tests/live/mod.rs`): the craft panel lists
 //! Surveying, Mining and Toolmaking beside the quest recipes, a Surveying recipe makes a
 //! surveyor's map, the map reveals a deposit, a mining tool works it for motes, and crafting
 //! experience raises the skill's rank on the panel.
-//! Needs AC2e's tradeskills profile (`AC2E_DEV_TRADESKILLS`, with `--training-kit true`);
-//! `scripts/ac2e-live-test.sh` with `AC2E_LIVE_TEST=ac2e_live_tradeskills` sets that up.
+//! Needs Pyrealium's tradeskills profile (`PYREALIUM_DEV_TRADESKILLS`, with `--training-kit true`);
+//! `scripts/pyrealium-live-test.sh` with `PYREALIUM_LIVE_TEST=pyrealium_live_tradeskills` sets that up.
 
 #![cfg(feature = "window")]
 
@@ -243,7 +243,7 @@ fn the_newer_gypsum_family_is_surveyed_and_mined() {
 
 /// Crafting experience raises the rank: Surveying's rank 1 gives 6 a craft and rank 2 starts at
 /// 42 (`crafting-levels.tsv`, the Pyreal dump), so the seventh craft shows rank 2 on the panel;
-/// the rank and its experience survive a relog (AC2e's `tradeskills.tsv` beside the journal).
+/// the rank and its experience survive a relog (Pyrealium's `tradeskills.tsv` beside the journal).
 #[test]
 fn crafting_raises_the_surveying_rank_and_it_survives_a_relog() {
     let Some(mut rig) = rig_for("Tradelevel") else {
@@ -407,7 +407,7 @@ fn a_new_character_crafts_the_human_martial_starter_sword() {
         .into_iter()
         .find(|(id, _)| *id == sword)
         .map(|(_, n)| n);
-    // The server names the item in its description (AC2e `item_names`): the DAT's name for the
+    // The server names the item in its description (Pyrealium `item_names`): the DAT's name for the
     // entity, not the "Error! Name_StringInfoStat missing" a nameless pack item shows.
     assert_eq!(
         name.as_deref(),

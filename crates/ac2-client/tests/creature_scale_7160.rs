@@ -1,4 +1,4 @@
-//! A creature created with a `Scale` quality (`gmWeenieDesc` bit 0x80, 0.75 for AC2e's Idol Spawn)
+//! A creature created with a `Scale` quality (`gmWeenieDesc` bit 0x80, 0.75 for Pyrealium's Idol Spawn)
 //! has that scale on its body: `CWPhysicsObject::InitPhysics` hands the weenie's scale
 //! (`CWRepository::BuildPhysObjProfile`) to `CPhysicsObj::ApplyPhysObjProfile`, which calls
 //! `CPhysicsObj::SetScale(float)`. The body is drawn at it and its collision spheres are scaled

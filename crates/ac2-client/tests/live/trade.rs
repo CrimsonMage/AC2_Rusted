@@ -1,5 +1,5 @@
 //! Helpers of the live tradeskills tests: the craft panel's views, the maps and the pack, as the
-//! player works them (`ac2e_live_tradeskills.rs`, `ac2e_live_tradeskills_chain.rs`).
+//! player works them (`pyrealium_live_tradeskills.rs`, `pyrealium_live_tradeskills_chain.rs`).
 
 use super::LiveRig;
 use ac2_net::protocol::ScriptMessage;
@@ -24,10 +24,10 @@ pub const PRIMARY_HAND: u32 = 0x40;
 pub const DOUBLE_CLICK: u32 = 0x4000_0007;
 
 pub fn rig_for(name: &str) -> Option<LiveRig> {
-    if std::env::var_os("AC2E_LIVE_TRAINING_KIT").is_none()
-        || std::env::var_os("AC2E_DEV_TRADESKILLS").is_none()
+    if std::env::var_os("PYREALIUM_LIVE_TRAINING_KIT").is_none()
+        || std::env::var_os("PYREALIUM_DEV_TRADESKILLS").is_none()
     {
-        eprintln!("the server has no tradeskills profile (AC2E_DEV_TRADESKILLS); skipped");
+        eprintln!("the server has no tradeskills profile (PYREALIUM_DEV_TRADESKILLS); skipped");
         return None;
     }
     LiveRig::new(name)
@@ -234,7 +234,7 @@ pub fn craft_once(rig: &mut LiveRig, recipe: u32) {
 
 /// Uses a surveyor's map from the pack (a double click on its icon). The map works near the place
 /// its text names ("begin your search near 14.9S, 40.0W"): where it is used elsewhere the server
-/// repeats the text, and the player goes there (here by AC2e's `@maptravel`, the test server's
+/// repeats the text, and the player goes there (here by Pyrealium's `@maptravel`, the test server's
 /// travel in land cells: `half the world * (1 + degrees / 100)`) and uses it again.
 pub fn use_map(rig: &mut LiveRig, map: u64) {
     let double_click = |rig: &mut LiveRig| {

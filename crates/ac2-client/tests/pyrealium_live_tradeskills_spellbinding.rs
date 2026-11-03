@@ -1,11 +1,11 @@
-//! Spellbinding against a running AC2e server (see `tests/live/mod.rs`;
-//! `AC2E_LIVE_TEST=ac2e_live_tradeskills_spellbinding scripts/ac2e-live-test.sh`), as the player
+//! Spellbinding against a running Pyrealium server (see `tests/live/mod.rs`;
+//! `PYREALIUM_LIVE_TEST=pyrealium_live_tradeskills_spellbinding scripts/pyrealium-live-test.sh`), as the player
 //! works it: butcher a Vermin Pilferer for bone (AC2Hero `traits.html`: Vermin give bone and
 //! hide) and an Idol Spawn for sinew, mine stone and wood and refine the runewood, then craft
 //! `rcp_spellbinding_practice` (wood 1, runewood 35, bone 10) at the craft panel and
 //! `rcp_spellbinding_study` (coal, crystal, sinew; the DAT describes it as crafting and discarding
 //! samples for experience only, "OBSOLETE - DNT"). The server has the chain file's knobs and a
-//! Vermin Pilferer (entity `0x47000803`, level 1) beside the start (`AC2E_EXTRA_WORLD`).
+//! Vermin Pilferer (entity `0x47000803`, level 1) beside the start (`PYREALIUM_EXTRA_WORLD`).
 
 #![cfg(feature = "window")]
 
@@ -270,7 +270,7 @@ fn spellbinding_practice_and_study_use_butchered_bone_and_sinew() {
     );
     rig.relog();
     // After the log-in the client names the charm from the DAT's class defaults itself: the name
-    // AC2e sent at its creation is that name.
+    // Pyrealium sent at its creation is that name.
     rig.panel(ToolbarChild::Inventory, true);
     wait(&mut rig, "the charm's icon after the log-in", |r| {
         r.view.item_icon_center(PACK, charm).is_some()

@@ -1,7 +1,7 @@
-//! Butchery against a running AC2e (see `tests/live/mod.rs`; `AC2E_LIVE_TEST=ac2e_live_tradeskills_butchery
-//! scripts/ac2e-live-test.sh`): a new character crafts the starter Hunting Knife at the craft panel,
+//! Butchery against a running Pyrealium (see `tests/live/mod.rs`; `PYREALIUM_LIVE_TEST=pyrealium_live_tradeskills_butchery
+//! scripts/pyrealium-live-test.sh`): a new character crafts the starter Hunting Knife at the craft panel,
 //! kills a training creature, uses the knife on its corpse and the trait the creature's family gives. The data gives the tool, the five traits and the
-//! messages; the yield is AC2e policy (`butchery.rs`).
+//! messages; the yield is Pyrealium policy (`butchery.rs`).
 
 #![cfg(feature = "window")]
 
@@ -107,7 +107,7 @@ fn a_hunting_knife_butchers_a_corpse_once() {
     let corpse = kill_a_creature(&mut rig, &mut Vec::new());
     // As the player does: double-click the knife in the pack. The client reads the knife's
     // `Usage_*` qualities from the DAT's class defaults (`Usage_NumberOfEntitiesUsedWith` 720 = 1,
-    // `Usage_InventoryRequired` 305, `Usage_ValidTargetTypes` 722 = 8), so AC2e sends none of
+    // `Usage_InventoryRequired` 305, `Usage_ValidTargetTypes` 722 = 8), so Pyrealium sends none of
     // them, and the player's script waits for a target (`SetTargetingPointer`) instead of
     // sending the use.
     rig.panel(ToolbarChild::Inventory, true);
@@ -126,7 +126,7 @@ fn a_hunting_knife_butchers_a_corpse_once() {
     assert_eq!(units(&rig, TALLOW), kit, "the knife alone butchers nothing");
     // The targeting click on the body, as the player does it: the player's script checks the
     // body's `Usage_TargetType` (721) against the knife's `Usage_ValidTargetTypes` (722 = 8) and
-    // sends `WM_Usage` with both. AC2e's body carries 8 (the DAT default of a creature is 4).
+    // sends `WM_Usage` with both. Pyrealium's body carries 8 (the DAT default of a creature is 4).
     let before = rig.seen.len();
     rig.command(ac2_client::Command::Select(Some(corpse)));
     rig.run(0.3);

@@ -1,13 +1,13 @@
-//! Story scenes against a running AC2e server (`AC2E_LIVE`, see `tests/live/mod.rs`): a new
-//! character is granted the Prologue's scenes (AC2e policy, `emulator/src/story.rs`: the retail
+//! Story scenes against a running Pyrealium server (`PYREALIUM_LIVE`, see `tests/live/mod.rs`): a new
+//! character is granted the Prologue's scenes (Pyrealium policy, `emulator/src/story.rs`: the retail
 //! server's trigger is not in the client or the data), the Quest panel's Story page lists them
 //! playable (`WM_Quest` 0x23 -> `CQuestSystem::UpdateStoryQuest_Done`), and a relog keeps them
 //! playable (the login's registry is empty; the scenes are granted again). A double click on a
 //! scene row of the Story page (its tab clicked first, as a player does) plays the story, the skip
-//! key ends it, and AC2e logs the played list it received (`gmStoryQuestsUI` -> `gmStoryUI::Play`
+//! key ends it, and Pyrealium logs the played list it received (`gmStoryQuestsUI` -> `gmStoryUI::Play`
 //! -> `HandlePlayScenesDone` -> the server's function 0x82130013).
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_story scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_story scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 
@@ -89,9 +89,9 @@ fn scene_row(rig: &LiveRig) -> Option<usize> {
     })
 }
 
-/// The lines of the server's log (`AC2E_STATE` is the live script's state folder).
+/// The lines of the server's log (`PYREALIUM_STATE` is the live script's state folder).
 fn server_log() -> String {
-    let state = std::env::var("AC2E_STATE").expect("AC2E_STATE (scripts/ac2e-live-test.sh)");
+    let state = std::env::var("PYREALIUM_STATE").expect("PYREALIUM_STATE (scripts/pyrealium-live-test.sh)");
     std::fs::read_to_string(format!("{state}/server.log")).unwrap_or_default()
 }
 
@@ -214,13 +214,13 @@ fn a_double_click_on_a_prologue_scene_plays_the_story_and_the_server_takes_the_p
         "{text}"
     );
 
-    // The player skips it: the story hides and the played list goes to AC2e.
+    // The player skips it: the story hides and the played list goes to Pyrealium.
     rig.frame(&[(SKIP_KEY, 1.0, true)]);
     rig.frame(&[(SKIP_KEY, 1.0, false)]);
     rig.wait("the story hidden", |r| !shown(r, "BackgroundField"));
     let line = "played-scene list accepted for character";
     let tail = format!("({PLAYED_LIST_BYTES} bytes)");
-    rig.wait("AC2e took the played list", |_| {
+    rig.wait("Pyrealium took the played list", |_| {
         server_log()
             .lines()
             .any(|l| l.contains(line) && l.ends_with(&tail))

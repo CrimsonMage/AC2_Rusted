@@ -1,9 +1,9 @@
-//! A killed creature's body through the pointer, against a running AC2e server (`AC2E_LIVE`, see
+//! A killed creature's body through the pointer, against a running Pyrealium server (`PYREALIUM_LIVE`, see
 //! `tests/live/mod.rs`): a click on the body in the world selects it (`gmSelectionUI` ->
 //! `Finish3DSelection` over the selection render's pick list) and a double click uses it, which
 //! opens the corpse's loot (the container opens).
 //!
-//! Run with `AC2E_LIVE_TEST=ac2e_live_corpse_click scripts/ac2e-live-test.sh`.
+//! Run with `PYREALIUM_LIVE_TEST=pyrealium_live_corpse_click scripts/pyrealium-live-test.sh`.
 
 #![cfg(feature = "window")]
 

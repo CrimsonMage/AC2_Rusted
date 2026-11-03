@@ -1,4 +1,4 @@
-//! A portal the server creates is drawn by its startup FX. AC2e's portals use the visual
+//! A portal the server creates is drawn by its startup FX. Pyrealium's portals use the visual
 //! `it_portal_shard.vd` (`0x1F00031E`): its one mesh is an invisible click volume
 //! (`it_portal_shard_portal.mesh`, material `invisible_click.mi`), and what the player sees are
 //! the looping particle systems of its startup FX (`pt_objfx_portal_a` and `_b`). Retail starts

@@ -58,9 +58,12 @@ impl Default for TooltipState {
     }
 }
 
-/// Reads every `tooltip_entry` and text `entry` string of `layout` through `data` while it may
-/// still read files (the tree's text is frozen once the HUD is built; the frame thread reads
-/// none), so elements made later find their strings.
+/// Reads every `tooltip_entry` and text `entry` string and every font of `layout` through `data`
+/// while it may still read files (the tree's text is frozen once the HUD is built; the frame
+/// thread reads none), so elements made later find their strings and fonts.
+/// The DB type byte of a font's DID (`0x42xxxxxx`).
+const FONT_DB: u32 = 0x42;
+
 pub(crate) fn prefetch_tooltip_strings(
     data: &dyn crate::text::UiTextData,
     layout: &crate::layout::LayoutDesc,
@@ -75,6 +78,15 @@ pub(crate) fn prefetch_tooltip_strings(
                     (attribute.id, &attribute.value)
                 {
                     let _ = data.string(table, *id);
+                }
+                // A text's fonts (`font`, `font1` ...: `SetAttribute_DataID` -> `SetFontNum`),
+                // which an element made after the freeze reads: the floating damage text's
+                // `impact_24` (`gm3DTextUI::RecvNotice_Do3DDamage`), which no element made at
+                // build time uses.
+                if let AttributeValue::DataId(did) = attribute.value {
+                    if did >> 24 == FONT_DB {
+                        let _ = data.font(did);
+                    }
                 }
             }
             for child in &state.children {

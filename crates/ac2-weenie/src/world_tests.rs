@@ -254,7 +254,7 @@ fn a_destroyed_object_goes_at_the_next_object_maintenance() {
 
 /// `CObjectMaint::FinishEntityCreation` takes the old instance through `DestroyObjectInternal`,
 /// which drops its pending deletion: a server that destroys an item and creates its next
-/// instance in one batch (AC2e's equip) keeps the new one.
+/// instance in one batch (Pyrealium's equip) keeps the new one.
 #[test]
 fn a_new_instance_keeps_the_pending_deletion_of_the_old_one_from_destroying_it() {
     let npc = 0x7000_0000_0000_0042;

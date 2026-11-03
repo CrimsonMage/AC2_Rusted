@@ -6,7 +6,7 @@ launcher builds the client's command line for that type from the connect string 
 player's account and password, and starts the client with it, behind the scenes. Players never
 write a command line.
 
-The launcher starts with one server, an AC2e on this computer (`127.0.0.1:9000`). No
+The launcher starts with one server, a Pyrealium server on this computer (`127.0.0.1:9000`). No
 community server is built in. Add a server with **Add server** (name, connect string, type), or
 take it from a published list.
 
@@ -14,16 +14,17 @@ take it from a published list.
 
 | Type (`emu`) | For | The command line the launcher sends |
 |---|---|---|
-| `AC2E` | AC2e servers (on the 7230 data) | `--host HOST --port PORT --version 7230 --account ACCOUNT`, plus `--glsticket TICKETFILE` when the server has a login server |
+| `Pyrealium` | Pyrealium servers (on the 7230 data) | `--host HOST --port PORT --version 7230 --account ACCOUNT`, plus `--glsticket TICKETFILE` when the server has a login server |
+| `AC2E` | Thwargle's AC2E servers, which Pyrealium continues | the same as `Pyrealium` |
 | `Relaunch` | relaunch servers (the 2012-2017 client) | `--host HOST --port PORT --version 1802 --account ACCOUNT --glsticket TICKETFILE` |
 
 The command line also always carries `--dat-dir` with the DAT folder chosen in Settings.
 
 **Sign-in:**
 
-- **AC2E without a login server:** the developer account (`local` when the account box is
+- **Pyrealium or AC2E without a login server:** the developer account (`local` when the account box is
   empty), with no password.
-- **AC2E with a login server** (`LoginServerUrlKey`):
+- **Pyrealium or AC2E with a login server** (`LoginServerUrlKey`):
   - The launcher signs in at `POST {login server}/api/login` with the account and password.
   - The single-use ticket it gets is the game's.
   - It sends a password only over HTTPS, or over HTTP to this computer.
@@ -56,9 +57,9 @@ address (a web address or a file) in the launcher's Settings.
   </ServerItem>
   <ServerItem>
     <id>3c1d0e55-6a2b-4f8e-9d7c-2b5a1e4f0c99</id>
-    <name>Example AC2e</name>
-    <description>An AC2e server with accounts.</description>
-    <emu>AC2E</emu>
+    <name>Example Pyrealium</name>
+    <description>A Pyrealium server with accounts.</description>
+    <emu>Pyrealium</emu>
     <server_host>ac2.example.net</server_host>
     <server_port>9000</server_port>
     <LoginServerUrlKey>https://ac2.example.net</LoginServerUrlKey>
@@ -71,9 +72,9 @@ address (a web address or a file) in the launcher's Settings.
 |---|---|
 | `id` | A GUID for the server. |
 | `name`, `description` | Shown in the launcher. |
-| `emu` | `AC2E` or `Relaunch`. Entries for other games (ThwargLauncher's `ACE`, `GDLE`) are skipped. |
+| `emu` | `Pyrealium`, `AC2E` or `Relaunch`. Entries for other games (ThwargLauncher's `ACE`, `GDLE`) are skipped. |
 | `server_host` and `server_port`, or `connect_string` | The address. A published list uses `server_host` and `server_port`; the player's own servers use `connect_string` (`host:port`), as ThwargLauncher does. |
-| `LoginServerUrlKey` | AC2E only: the AC2e account service. Empty means the developer account. |
+| `LoginServerUrlKey` | Pyrealium and AC2E only: the server's account service. Empty means the developer account. |
 | `type`, `status`, `website_url`, `discord_url` | Shown in the launcher. |
 
 The launcher skips an entry with a bad address, or one listed twice (the same address), and
