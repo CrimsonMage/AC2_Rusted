@@ -5,9 +5,10 @@
 //! tunnel is fading in or out, a step back along the normalised interpolated row-1 vector by
 //! `(1 - visibility) * 100`.
 
-use ac2_math::{Quat, Vec3};
+use ac2_math::{Mat4, Quat, Vec3};
 
 use super::tunnel::{make_safe_index, Portal, Tunnel};
+use crate::particles::CameraBasis;
 
 /// `SceneCamera::SceneCamera`'s defaults, which `Render`'s `SceneCamera` keeps: the near and far
 /// distances and the vertical field of view in degrees (`mNearDistance` 0.1, `mFarDistance`
@@ -28,8 +29,11 @@ pub fn camera_fov_y(scale: f32) -> f32 {
 /// The fade-in distance: the camera backs away `(1 - visibility) * 100` units.
 const FADE_DISTANCE: f32 = 100.0;
 
-/// The render position: where the camera is and its rotation (the frame's local axes; the view
-/// looks along the rotated +y, the frame's forward, with +z up).
+/// The render position: where the camera is and its rotation. `SceneTool::SetupCamera` hands the
+/// frame's three rows to `SetupView` as the view's right, forward and up (`fl2gv[0..3]`,
+/// `[3..6]`, `[6..9]`), so the view looks along the rotated +y and its up is the rotated +z: the
+/// camera rolls with the tunnel's twist, and looks straight up or down the tunnel wherever it
+/// turns.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PortalCamera {
     pub eye: Vec3,
@@ -42,15 +46,38 @@ impl PortalCamera {
         self.eye + self.rotation * Vec3::Y
     }
 
-    /// The render camera for this position: the frame's up is the world's +z (AC2's up).
+    /// `SetupView`'s axes: the rotated x (right), y (forward) and z (up).
+    pub fn basis(&self) -> CameraBasis {
+        CameraBasis {
+            eye: self.eye,
+            right: self.rotation * Vec3::X,
+            forward: self.rotation * Vec3::Y,
+            up: self.rotation * Vec3::Z,
+        }
+    }
+
+    /// The render camera the portal pass draws with: at the eye, looking along the world's +y
+    /// with the world's +z up. The renderer's cameras are a look-at with the world's z up, which
+    /// cannot roll, so the pass places the effect's geometry through [`Self::upright`] instead:
+    /// what that camera sees of the moved geometry is what `SetupView`'s rolled view sees of it
+    /// as it stands.
     pub fn to_render_camera(&self, fov_y: f32, near: f32, far: f32) -> crate::Camera {
         crate::Camera {
             eye: self.eye,
-            target: self.target(),
+            target: self.eye + Vec3::Y,
             fov_y,
             near,
             far,
         }
+    }
+
+    /// The world-to-world move that turns the scene about the eye by the inverse of the camera's
+    /// rotation (`T(eye) R^-1 T(-eye)`): a point at view coordinates (x right, y forward, z up)
+    /// lands at `eye + (x, y, z)`, where [`Self::to_render_camera`] sees it as `SetupView` does.
+    pub fn upright(&self) -> Mat4 {
+        Mat4::from_translation(self.eye)
+            * Mat4::from_quat(self.rotation.conjugate())
+            * Mat4::from_translation(-self.eye)
     }
 }
 
@@ -206,6 +233,44 @@ mod tests {
             camera.eye
         );
         assert_eq!(camera.target(), camera.eye + Vec3::Y);
+    }
+
+    #[test]
+    fn the_camera_rolls_with_its_frame() {
+        // A ring turned a quarter about its forward (y): `SetupView`'s up is the frame's z row,
+        // which now lies along the world's -x (D3DX `RotationY` row 2 is (sin, 0, cos)).
+        let roll = Matrix4::rotate_y(std::f32::consts::FRAC_PI_2);
+        let mut tunnel = Tunnel::new();
+        tunnel.portals[0] = portal(0.0, [0.0; 3], roll);
+        tunnel.portals[1] = portal(3.0, [0.0, 3.0, 0.0], roll);
+        let camera = portal_camera(&tunnel, 0, 0.0, 1.0);
+        let basis = camera.basis();
+        let row = |r: usize| Vec3::new(roll.m[r * 4], roll.m[r * 4 + 1], roll.m[r * 4 + 2]);
+        assert!((basis.right - row(0)).length() < 1e-5, "{basis:?}");
+        assert!((basis.forward - row(1)).length() < 1e-5, "{basis:?}");
+        assert!((basis.up - row(2)).length() < 1e-5, "{basis:?}");
+    }
+
+    #[test]
+    fn the_upright_move_puts_view_axes_on_the_world_axes() {
+        // A camera pitched and rolled away from the world's axes, far from the origin.
+        let rotation = Quat::from_rotation_y(0.7) * Quat::from_rotation_x(1.2);
+        let camera = super::PortalCamera {
+            eye: Vec3::new(250.0, -130.0, 40.0),
+            rotation,
+        };
+        let upright = camera.upright();
+        let basis = camera.basis();
+        // A point ahead, right and above the eye in the camera's own frame ...
+        let point = camera.eye + basis.forward * 5.0 + basis.right * 2.0 + basis.up * 1.0;
+        // ... is, after the move, that far along the render camera's +y, +x and +z.
+        let moved = upright.transform_point3(point);
+        assert!(
+            (moved - (camera.eye + Vec3::new(2.0, 5.0, 1.0))).length() < 1e-3,
+            "{moved:?}"
+        );
+        let render = camera.to_render_camera(1.0, 0.1, 2000.0);
+        assert_eq!(render.target - render.eye, Vec3::Y);
     }
 
     #[test]

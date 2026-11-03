@@ -203,7 +203,10 @@ game rules and server-visible behaviour exactly retail.
   cleared depth (after the world while it fades), and take the world's post chain and the one tone
   map; the fader's colour is decoded to linear light. The world's ambient occlusion is recorded
   before the portal pass clears the depth, so the world keeps it while it fades; the portal space
-  itself takes none.
+  itself takes none. Retail's portal camera rolls with the tunnel (`SceneTool::SetupView` takes
+  the frame's three axes); the renderer's cameras are a look-at with the world's z up, so the pass
+  turns the effect's geometry about the eye by the camera's inverse rotation
+  (`PortalCamera::upright`) and draws it from an upright camera there, which is the same view.
 - Exception: every HUD window can be moved and keeps its place. Retail moved only windows with a
   drag bar and saved only `save_loc` windows to the server (`gmCWInterface::SetUISaveLocations`).
   Here a window with a drag bar still moves by it, any other top-level HUD window moves by a

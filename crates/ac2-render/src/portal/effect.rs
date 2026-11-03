@@ -4,9 +4,11 @@
 //! timing and the draw flags (`Start`, `StartNow`, `Stop`, `StopNow`, `Think`); the tunnel
 //! geometry is in `tunnel`.
 //!
-//! The timing is in client seconds (`Timer::local_time`, f64). The admin 7148 decompile carries
-//! the fader's channels through a double's halves (`dTimeNow._0_4_`, `._4_4_`): the Shutdown
-//! phases' fader is (0, 1, 1, alpha), the Startup phase 0's (0, 0, 0, alpha).
+//! The timing is in client seconds (`Timer::local_time`, f64). The fader's colour is black
+//! (0, 0, 0, alpha) in Startup phase 0 and white (1, 1, 1, alpha) in both Shutdown phases: the
+//! Legions export carries the shutdown r and g through one double's halves (`dTimeNow =
+//! 0.007812501848093234`, the bits 0x3F800000_3F800000, each half 1.0f) and b as `fStack_8 = 1.0`;
+//! the recovered 7148 export writes the three as 1.0 outright.
 
 use std::sync::Arc;
 
@@ -16,7 +18,7 @@ use ac2_core::Random;
 use super::camera::{portal_camera, PortalCamera};
 use super::clouds::PortalClouds;
 use super::tunnel::{make_safe_index, start_for_visibility, Tunnel, TunnelVertex, PORTALS};
-use crate::particles::{CameraBasis, ParticleGeometry};
+use crate::particles::ParticleGeometry;
 
 /// The tunnel for one frame: the vertices of the inner and outer rings.
 #[derive(Debug, Clone, PartialEq)]
@@ -93,9 +95,10 @@ pub enum PortalSound {
 
 /// The phase durations in seconds: `Think` moves on once the phase has run longer than this.
 const PHASE_SECONDS: f64 = 1.0;
-/// The `dTimeNow` constant `Think` writes for the shutdown faders (the double 2^-7, whose high
-/// word is 1.0f: the fader's g channel is 1, its r channel 0).
-const SHUTDOWN_FADER: [f32; 3] = [0.0, 1.0, 1.0];
+/// The shutdown faders' colour `Think` writes (`local_10 = fStack_c = local_8 = 1.0`): white. The
+/// Legions export's `dTimeNow = 0.007812501848093234` is the double whose two 32-bit halves are
+/// both 1.0f (0x3F800000_3F800000), the r and g channels.
+const SHUTDOWN_FADER: [f32; 3] = [1.0, 1.0, 1.0];
 
 /// `PortalSpace::Effect`: the teleport's portal-space effect, without the tunnel geometry.
 #[derive(Debug)]
@@ -179,9 +182,9 @@ impl PortalSpace {
         let visibility = self.draw.tunnel_visibility;
         self.clouds
             .discharge(&mut self.tunnel, self.last_portal, visibility, now, random);
-        let camera = self.camera();
-        if let Some(basis) = camera.and_then(|c| CameraBasis::look_at(c.eye, c.target())) {
-            self.cloud_geometry = self.clouds.geometry(now, &basis);
+        // The particles face `SetupView`'s camera, rolled with the tunnel (its frame's axes).
+        if let Some(camera) = self.camera() {
+            self.cloud_geometry = self.clouds.geometry(now, &camera.basis());
         }
     }
 

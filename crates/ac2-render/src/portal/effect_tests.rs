@@ -51,7 +51,7 @@ fn an_instant_start_is_active_at_once() {
 }
 
 #[test]
-fn exiting_shuts_down_with_a_grey_fade_then_the_world_returns() {
+fn exiting_shuts_down_with_a_white_fade_then_the_world_returns() {
     let mut random = Random::default();
     let mut effect = PortalSpace::new();
     effect.enter(true, 0.0, &mut random);
@@ -60,15 +60,13 @@ fn exiting_shuts_down_with_a_grey_fade_then_the_world_returns() {
     assert!(!effect.wanted());
     effect.think(0.5, &mut random);
     assert_eq!(effect.phase(), Phase::ShutdownPhase0);
-    // Shutdown phase 0: the camera widens by 1.4 t^2 + 1; the fader is (0, 1, 1, t).
+    // Shutdown phase 0: the camera widens by 1.4 t^2 + 1; the fader is white, (1, 1, 1, t),
+    // drawn over the tunnels (not `m_bFadeOnlyWorld`).
     effect.think(1.0, &mut random);
     let draw = *effect.draw();
     assert!(close(draw.camera_fov_scale, 0.25 * 1.4 + 1.0));
-    assert!(draw.fader);
-    assert!(close(draw.fader_color[0], 0.0));
-    assert!(close(draw.fader_color[1], 1.0));
-    assert!(close(draw.fader_color[2], 1.0));
-    assert!(close(draw.fader_color[3], 0.5));
+    assert!(draw.fader && !draw.fade_only_world);
+    assert_eq!(draw.fader_color, [1.0, 1.0, 1.0, 0.5]);
     // Phase 1 of the shutdown starts at the transition: the world returns with a field of view
     // of 1.4 (1 - t)^2 + 1, t the time into the phase.
     effect.think(1.6, &mut random);
@@ -77,6 +75,8 @@ fn exiting_shuts_down_with_a_grey_fade_then_the_world_returns() {
     let draw = *effect.draw();
     assert!(draw.world);
     assert!(close(draw.world_fov_scale, 1.4 * 0.7 * 0.7 + 1.0));
+    // The white fader clears off the returning world: alpha 1 - t.
+    assert_eq!(&draw.fader_color[..3], &[1.0, 1.0, 1.0]);
     assert!(close(draw.fader_color[3], 0.7));
     // Past both phases: inactive, nothing drawn but the world.
     effect.think(2.7, &mut random);

@@ -4,8 +4,11 @@
 //! (`m_bFadeOnlyWorld`), the background mesh at the eye (`CBaseMesh::DrawMesh` with the
 //! background opacity as its alpha), the tunnel rings (the outer, then the inner, each through its
 //! DAT material instance as `RenderIndexedUsingMaterial` draws it), the clouds' particles
-//! (`ParticleSystem::Render`), and the fader last otherwise. The mesh, the tunnels and the
-//! particles draw through the object renderer with no lights,
+//! (`ParticleSystem::Render`), and the fader last otherwise. The portal camera rolls with the
+//! tunnel (`SceneTool::SetupView` takes its frame's three axes), which the renderer's look-at
+//! cameras cannot do, so the geometry is turned about the eye by the camera's inverse rotation
+//! ([`PortalCamera::upright`]) and drawn from an upright camera there: the same view. The mesh,
+//! the tunnels and the particles draw through the object renderer with no lights,
 //! sun or fog: `Render` calls `UnlinkAllLights` (no scene lights), `DisableSunlight` (the sun's
 //! direction zeroed and the device ambient set to black, `RenderDevice` vtable `+0x4c`, the same
 //! slot `SetAmbientLight` calls) and `SetFogProperties(FOGMODE_NONE)`.
@@ -43,8 +46,12 @@ pub struct PortalDraw {
     outer_tunnel: Option<GpuObjectModel>,
     inner_tunnel: Option<GpuObjectModel>,
     clouds: Option<GpuObjectModel>,
-    /// The mesh's place (translated to the eye) and colour (white at the background opacity).
+    /// The mesh's place (translated to the eye, then turned upright) and colour (white at the
+    /// background opacity).
     background_world: Mat4,
+    /// The tunnels' and the clouds' place: their world coordinates turned upright about the eye
+    /// ([`PortalCamera::upright`]; retail drew them at the identity).
+    portal_world: Mat4,
     background_tint: [f32; 4],
     background_drawn: bool,
     clouds_drawn: bool,
@@ -101,6 +108,7 @@ impl PortalDraw {
             inner_tunnel: None,
             clouds: None,
             background_world: Mat4::IDENTITY,
+            portal_world: Mat4::IDENTITY,
             background_tint: [1.0; 4],
             background_drawn: false,
             clouds_drawn: false,
@@ -173,17 +181,17 @@ impl PortalDraw {
         // `RenderIndexedUsingMaterial` with an identity world transform and `RGBAColor_White`.
         let outer = placed(
             &self.outer_tunnel,
-            Mat4::IDENTITY,
+            self.portal_world,
             [1.0; 4],
             self.tunnel_drawn,
         );
         let inner = placed(
             &self.inner_tunnel,
-            Mat4::IDENTITY,
+            self.portal_world,
             [1.0; 4],
             self.tunnel_drawn,
         );
-        let clouds = placed(&self.clouds, Mat4::IDENTITY, [1.0; 4], self.clouds_drawn);
+        let clouds = placed(&self.clouds, self.portal_world, [1.0; 4], self.clouds_drawn);
         let group = |instances| DrawGroup {
             instances,
             ordered: true,
@@ -232,9 +240,12 @@ impl PortalDraw {
         let Some(camera) = camera else {
             return;
         };
-        // `SetFOV(mFOV * m_fCameraFOVScale)` on `SceneCamera`'s defaults.
+        // `SetFOV(mFOV * m_fCameraFOVScale)` on `SceneCamera`'s defaults; the rolled view as an
+        // upright camera over geometry turned about the eye.
+        let upright = camera.upright();
         let camera =
             camera.to_render_camera(camera_fov_y(draw.camera_fov_scale), CAMERA_NEAR, CAMERA_FAR);
+        self.portal_world = upright;
         // `UpdateGeometry` rewrote both tunnels' vertex buffers; they draw through their
         // materials over the shared index list.
         if let (Some(tunnel), Some(outer), Some(inner)) = (
@@ -252,7 +263,7 @@ impl PortalDraw {
         }
         // `DrawMesh` at the camera's position, its colour white with the background opacity.
         self.background_drawn = draw.background && self.background.is_some();
-        self.background_world = Mat4::from_translation(camera.eye);
+        self.background_world = upright * Mat4::from_translation(camera.eye);
         self.background_tint = [1.0, 1.0, 1.0, draw.background_opacity];
         // `ParticleSystem::Render`: the frame's particles go into the clouds' material model.
         if let (Some(model), false) = (self.clouds.as_mut(), clouds.is_empty()) {
@@ -277,19 +288,19 @@ impl PortalDraw {
         self.objects.draw(pass, 0, &background);
         let outer = placed(
             &self.outer_tunnel,
-            Mat4::IDENTITY,
+            self.portal_world,
             [1.0; 4],
             self.tunnel_drawn,
         );
         self.objects.draw(pass, 1, &outer);
         let inner = placed(
             &self.inner_tunnel,
-            Mat4::IDENTITY,
+            self.portal_world,
             [1.0; 4],
             self.tunnel_drawn,
         );
         self.objects.draw(pass, 2, &inner);
-        let clouds = placed(&self.clouds, Mat4::IDENTITY, [1.0; 4], self.clouds_drawn);
+        let clouds = placed(&self.clouds, self.portal_world, [1.0; 4], self.clouds_drawn);
         self.objects.draw(pass, 3, &clouds);
         if self.fader_drawn && !self.fader_first {
             self.fader.draw(pass);
