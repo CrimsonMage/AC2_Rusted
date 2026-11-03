@@ -96,9 +96,9 @@ if [ "${AC2E_TRAINING_WORLD:-0}" != 1 ]; then
   # The human start instance (block 0x0299) then holds nothing: retail's captured population of
   # this dungeon, the Shelter (training stones, straw drudges, the guard, lieutenant and scout, the
   # pink portal), is recorded in the byte-identical copy 0x0298. It is copied into 0x0299 at the
-  # same cell-local places, each under a new IID in AC2e's 0x8140 namespace (the original's with
-  # its fifth hex digit 0xF, checked against every IID in the world), as the kit's own mirror of
-  # the guard did. The user's choice for the local
+  # same cell-local places, each under a new IID in AC2e's 0x8140 namespace (0x81400299 and the
+  # original's low 32 bits, the next free one if that is taken), as the kit's own mirror of the
+  # guard did. The user's choice for the local
   # server, not an AC2e change.
   python3 -I - "$played" <<'PY'
 import sys
@@ -109,11 +109,11 @@ mirrored = []
 for line in lines:
     f = line.split('\t')
     if len(f) > 4 and not line.startswith('#') and f[3].lower().startswith('0298'):
-        new = '8140f' + f[0][5:]
-        if new.lower() in taken:
-            raise SystemExit(f'mirrored IID {new} already in the world')
-        taken.add(new.lower())
-        f[0] = new
+        value = 0x8140029900000000 | (int(f[0], 16) & 0xFFFFFFFF)
+        while f'{value:016x}' in taken:
+            value += 1
+        taken.add(f'{value:016x}')
+        f[0] = f'{value:016x}'
         f[3] = '0299' + f[3][4:]
         mirrored.append('\t'.join(f))
 open(path, 'w', encoding='utf-8').write('\n'.join(lines + mirrored) + '\n')
