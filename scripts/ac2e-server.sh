@@ -11,6 +11,10 @@
 # AC2E_BIND   listen address; default 127.0.0.1:9000 (the client's default --server)
 # AC2E_EXTRA_WORLD  a file of placements (the prepared world table's columns) added to the prepared
 #             world, for tests that need a creature at a known place
+# AC2E_TRAINING_KIT  1 runs AC2e's development training kit (`--training-kit true`: starter gear,
+#             crafting supplies, the authored start-room creatures, mentors and corridor services of
+#             `training-world.tsv`); default off: the server places only the recovered world
+#             population (the user's choice: the kit's authored clusters are not retail spawns)
 # AC2E_GUN_BIND  AC2e's own GUN service address (`--gun-bind`; `off` turns it off); default AC2e's
 #             (the game address's IP at port 2310). The client does not use it.
 #
@@ -68,7 +72,8 @@ case ${AC2E_DATA:-7230} in
   # AC2e serves the 7230 data as its 7230 profile (to version 7230 logons), with its tradeskills
   # (Surveying, Mining and the DAT's craft skills and recipes; AC2E_DEV_TRADESKILLS=0 turns them off).
   7230)
-    training_kit=true
+    training_kit=false
+    [ "${AC2E_TRAINING_KIT:-0}" = 1 ] && training_kit=true
     # AC2e reads the variable's presence, so "0" is turned off by removing it.
     if [ "${AC2E_DEV_TRADESKILLS:-1}" = 0 ]; then unset AC2E_DEV_TRADESKILLS; else export AC2E_DEV_TRADESKILLS=${AC2E_DEV_TRADESKILLS:-1}; fi ;;
   legions) export PYREALIUM_UNREAL_LEGIONS_DATA=1; training_kit=false ;;
@@ -80,6 +85,15 @@ lock=$state/data/server.lock
 if [ -f "$lock" ] && ! kill -0 "$(head -n 1 "$lock")" 2>/dev/null; then rm -f "$lock"; fi
 # A stop request left after a server exited would stop this one on its first pass.
 [ -f "$lock" ] || rm -f "$state/data/stop.request"
+
+# Without the training kit the kit's authored placements leave the world too:
+# `prepare_content.py` always merges `training-world.tsv`, so they are filtered out by IID.
+if [ "$training_kit" = false ]; then
+  training=$ac2e/AC2E/emulator/content/training-world.tsv
+  played=${content%.tsv}-play.tsv
+  awk -F'\t' 'NR == FNR { if ($0 !~ /^#/) kit[$1] = 1; next } !($1 in kit)' "$training" "$content" > "$played"
+  content=$played
+fi
 
 if [ -n "${AC2E_GUN_BIND:-}" ]; then set -- --gun-bind "$AC2E_GUN_BIND" "$@"; fi
 exec "$bin" serve --bind "$bind" --data "$state/data" \
