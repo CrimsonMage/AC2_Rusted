@@ -107,6 +107,17 @@ impl Stories {
         true
     }
 
+    /// `CObjectMaint::FadeAndDestroyObject` for a story missile (`m_pendingDeletions`): it is
+    /// destroyed at `when` (or at its timeout, if that comes first). `false` when `id` is not a
+    /// story missile.
+    pub(crate) fn destroy_at(&mut self, id: u64, when: f64) -> bool {
+        let Some(launch) = self.launches.get_mut(&id) else {
+            return false;
+        };
+        launch.expires = launch.expires.min(when);
+        true
+    }
+
     /// The story missiles alive.
     #[cfg(feature = "test-support")]
     pub(crate) fn missiles(&self) -> Vec<u64> {

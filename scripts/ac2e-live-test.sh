@@ -30,6 +30,16 @@ export AC2E_BIND=127.0.0.1:$port AC2E_GUN_BIND=off
 # (levels, credits and experience to spend) and this much health already lost (something for a
 # healing skill to heal). Only this file's run sets them; the others see ordinary new characters.
 case ${AC2E_LIVE_TEST:-} in
+  # The missile file casts Flame Bolt at a Banderling Thrasher (entity 0x470007a4) placed at the
+  # west end of the start room (cell 0x02990109), which the test backs the character away from;
+  # the vault's own creatures stand behind walls or are protected.
+  ac2e_live_skills_missile*)
+    AC2E_LIVE_SERVER_ARGS="--training-kit true ${AC2E_LIVE_SERVER_ARGS:-}"
+    export AC2E_LIVE_TRAINING_KIT=1
+    export AC2E_DEV_START_XP=${AC2E_DEV_START_XP:-3000}
+    printf '8140000000030061\t470007a4\t1f000075\t02990109\t52.5\t240.1\t-44.85\t1\t0\t0\t0\t-\t-\n' > "$scratch/extra-world.tsv"
+    export AC2E_EXTRA_WORLD="$scratch/extra-world.tsv"
+    ;;
   ac2e_live_skills*)
     AC2E_LIVE_SERVER_ARGS="--training-kit true ${AC2E_LIVE_SERVER_ARGS:-}"
     export AC2E_LIVE_TRAINING_KIT=1

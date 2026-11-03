@@ -6,6 +6,30 @@
 use super::*;
 
 impl<B> Remotes<B> {
+    /// `CPhysicsObj::MissileInitEnd`'s `EnterWorldSimple`: a missile its manager placed this
+    /// quantum (`MissileEvent::EnteredWorld`) is in the world (`HandleEnterWorld`: out of its
+    /// lost cell).
+    pub(crate) fn enter_placed_missiles(
+        &mut self,
+        events: &[(u64, ac2_physics::MissileEvent)],
+        terrain: &mut Terrain,
+    ) {
+        for &(id, event) in events {
+            if event != ac2_physics::MissileEvent::EnteredWorld {
+                continue;
+            }
+            let Some(remote) = self.objects.get_mut(&id).filter(|r| !r.in_world) else {
+                continue;
+            };
+            remote.in_world = true;
+            if let Some(body) = remote.body.as_mut() {
+                body.handle_enter_world(terrain);
+            }
+            sync_shadow(id, remote, terrain, &mut self.membership);
+            self.remove_from_lost_cell(id);
+        }
+    }
+
     /// `CPhysicsObj::RecvEvt_Action`'s table part: an object the session no longer places leaves
     /// the world and its lost cell.
     pub fn object_action(&mut self, id: u64, records: Records<'_>) {

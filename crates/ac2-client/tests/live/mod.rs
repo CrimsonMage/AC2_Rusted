@@ -288,6 +288,17 @@ impl LiveRig {
         let starts = self.client.take_object_particle_starts();
         let stops = self.client.take_object_particle_stops();
         self.view.set_object_particles(&starts, &stops);
+        // The lights, streaks, repulsors and decals too (`bin/ac2/main.rs`).
+        let lights = self.client.take_object_light_starts();
+        let gone = self.client.take_object_lights_gone();
+        self.view.set_object_lights(&lights, &gone);
+        let streaks = self.client.take_object_streak_calls();
+        self.view
+            .set_object_streaks(&streaks, self.client.streaks_enabled());
+        let repulsors = self.client.take_object_repulsor_calls();
+        self.view.set_object_repulsors(&repulsors);
+        let decals = self.client.take_object_decal_calls();
+        self.view.set_object_decals(&decals);
         let frame = self.client.frame();
         let notices = self.client.take_script_notices();
         let asked = self

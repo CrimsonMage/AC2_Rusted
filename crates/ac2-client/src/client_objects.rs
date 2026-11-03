@@ -687,8 +687,14 @@ impl Client {
             self.stick_missile(missile, object);
         }
         self.pending_streaks.extend(follow.streaks);
+        let now = self.session.cur_time();
         for (id, seconds) in follow.destroy {
-            self.session.fade_and_destroy_object(id, seconds);
+            // A story missile is a temporary object in the object table too
+            // (`CObjectMaint::InitializeTemporaryObject`), so it is deleted the same way; the
+            // client keeps its queue entry beside the missile.
+            if !self.session.fade_and_destroy_object(id, seconds) {
+                self.stories.destroy_at(id, now + seconds);
+            }
         }
     }
 

@@ -264,6 +264,23 @@ impl State {
         self.send_event(&bytes);
     }
 
+    /// A skill's story from `attacker` on `target` firing the missile of the skill's attack hook
+    /// `hook` (`StoryHookData` type 3 with the attack hook, bit 0x400), as a spell's is: the
+    /// script names the missile by skill and hook (`GetMissileInformationFromWSL`), and a missile
+    /// with no holding location is made as it fires (`StoryManager::FireMissile`). No behaviour,
+    /// so the hook runs at once.
+    pub fn send_skill_missile_story(&mut self, attacker: u64, target: u64, skill: u32, hook: u32) {
+        let mut args = vec![STORY_BITS];
+        args.extend([attacker as u32, (attacker >> 32) as u32]);
+        args.push(skill);
+        args.push(1);
+        args.push(FIRE_MISSILE_HOOK | 0x100 | 0x400);
+        args.extend([target as u32, (target >> 32) as u32]);
+        args.push(hook);
+        let bytes = object_event_bytes(Opcode::DO_STORY, attacker, instance_of(attacker), &args);
+        self.send_event(&bytes);
+    }
+
     /// A missile attack's story with the player's attack behaviour `behavior` (a swing such as
     /// `Melee_Auto1`, a shot such as `Missile_Auto1`): the missiles are made and hung at its first
     /// story hook (animation hook 0, at once) and one is fired at its next (animation hook 1), or

@@ -49,6 +49,8 @@ impl<B> Remotes<B> {
                     out.destroy.push((id, destruction));
                 }
                 MissileEvent::StickTo(object) => out.stick.push((id, object)),
+                // `Remotes::step_quantum` has put the object in the world already.
+                MissileEvent::EnteredWorld => {}
                 MissileEvent::OutOfFuel | MissileEvent::Expired | MissileEvent::Error(_) => {
                     out.weenie.push((id, event));
                 }

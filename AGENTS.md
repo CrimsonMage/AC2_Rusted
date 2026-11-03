@@ -822,6 +822,20 @@ game rules and server-visible behaviour exactly retail.
   writes: their template material (`0x2B000023`) streams its layer with depth writes on, and its
   own `DepthWrite` property, applied at load (`RenderMaterial::GetSubObjects`), turns them off;
   with them on, each square card hid the cards behind it (`shelter_portal_7230`).
+- Spell missiles against AC2e: the client is retail's, the story is AC2e's. A skill's missile is
+  the client's own temporary object: the server's `DoStory` on the caster names the skill
+  (`PhysicsStory` bit 0x10) and a fire-missile hook (`StoryHookData` type 3, target bit 0x100,
+  attack hook bit 0x400); the player's script names the missile for the skill and attack hook
+  (`GetMissileInformationFromWSL`: Flame Bolt 0x59 hook 1 is `fx_proj_energybolt_base_fire`,
+  0x47000D04, no holding location), `StoryManager::FireMissile` makes it, its missile manager places
+  it (`AttemptWorldPlacement`; `CPhysicsObj::UpdateMovement` updates an object with a missile
+  manager in or out of the world) and flies it, and on detonation `DeleteSelf` ->
+  `CObjectMaint::FadeAndDestroyObject` removes it. The bolt starts toward its target only within 45
+  degrees of the caster's heading (`InitHeadingTowardTarget`). AC2e policy (`skill_missiles.rs`,
+  `combat_visual::skill_missile_story`): the skill records' missile hooks (root field 65, a hook
+  naming an EntityDesc) choose the hook; it is sent at animation hook = attack hook, and the damage
+  lands after AC2e's projectile flight time; what the retail server sent is not known. Live:
+  `ac2e_live_skills_missile`; double: `a_flame_bolt_story_fires_its_bolt_at_the_drudge`.
 - Story scenes (the Quest panel's Story page) are retail's client path, and AC2e's trigger is its own
   policy. Retail: the server calls `WM_Quest` 0x23 -> `CPlayer` 0x2A -> `CQuestSystem::UpdateStoryQuest_Done`
   with `(errorCode, bAdd, sceneId)` (stack order: the script branches on the second on add or

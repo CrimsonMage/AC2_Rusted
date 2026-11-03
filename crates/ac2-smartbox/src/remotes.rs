@@ -540,8 +540,7 @@ impl<B> Remotes<B> {
             }
         }
         let flying = self.objects.values().any(|r| {
-            r.in_world
-                && r.active
+            r.active
                 && r.body
                     .as_ref()
                     .is_some_and(PhysicsBody::has_missile_manager)
@@ -601,7 +600,9 @@ impl<B> Remotes<B> {
                     }
                 }
             }
-            if remote.in_world && remote.active {
+            // `CPhysicsObj::UpdateMovement` updates a missile out of the world too (its placing).
+            let missile = remote.body.as_ref().map(PhysicsBody::has_missile_manager);
+            if (remote.in_world || missile == Some(true)) && remote.active {
                 if let Some(body) = &mut remote.body {
                     body.set_time(cur_time);
                     body.step_quantum_in(terrain, &mut env);
@@ -653,6 +654,7 @@ impl<B> Remotes<B> {
         for id in out_of_range_temporaries {
             self.removed(id, terrain);
         }
+        self.enter_placed_missiles(&events, terrain);
         // The other remotes hear of the movers; the player's body is the client's.
         for touch in touches {
             match self.body_mut(touch.target) {

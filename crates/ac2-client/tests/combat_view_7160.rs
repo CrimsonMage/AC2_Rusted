@@ -689,3 +689,93 @@ fn a_bow_shot_holds_the_arrow_until_it_looses() {
     assert!(held > 2, "the arrow waits in the hand: {held} frames");
     assert!(loosed, "and is loosed");
 }
+
+/// Flame Bolt's story (skill 0x59, attack hook 1): the script names its bolt
+/// (`GetMissileInformationFromWSL`: `fx_proj_energybolt_base_fire`, entity `0x47000D04`, no
+/// holding location), so `StoryManager::FireMissile` makes it as it fires; its missile manager
+/// flies it from the player to the drudge, where it detonates.
+#[test]
+fn a_flame_bolt_story_fires_its_bolt_at_the_drudge() {
+    let Some((mut client, server, mut scene)) = setup() else {
+        return;
+    };
+    server
+        .borrow_mut()
+        .send_skill_missile_story(PLAYER, CREATURE_ONE, 0x59, 1);
+    let drudge = client
+        .frame()
+        .objects
+        .iter()
+        .find(|o| o.id == CREATURE_ONE)
+        .map(|o| o.origin)
+        .expect("the drudge is drawn");
+    let flat = |a: [f32; 3], b: [f32; 3]| ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2)).sqrt();
+    let mut distances = Vec::new();
+    let mut seen = None;
+    let mut gone = false;
+    let mut drawn_pixels = None;
+    for i in 0..256 {
+        step(&mut client, &server, &FrameInput::default());
+        let missiles = client.story_missiles();
+        let Some(&(bolt, _, Some(at), flying)) = missiles.first() else {
+            if seen.is_some() {
+                gone = true;
+                break;
+            }
+            continue;
+        };
+        seen = Some(bolt);
+        let frame = client.frame();
+        let object = frame.objects.iter().find(|o| o.id == bolt);
+        let o = at.frame.origin;
+        eprintln!(
+            "{i}: flying {flying} at {:?} velocity {:?} visual {:x?}",
+            [o.x, o.y, o.z],
+            object.map(|o| o.velocity),
+            object.and_then(|o| o.visual)
+        );
+        if flying {
+            distances.push(flat([o.x, o.y, o.z], drudge));
+            if i % 4 == 0 {
+                scene.draw(&frame, &format!("flame_bolt_{i}.png"));
+            }
+            // In flight, put beside the player in the open: the bolt draws (its entity's
+            // visual, `fx_proj_energybolt_base_fire.vd` over the cold bolt's part group).
+            if drawn_pixels.is_none() && distances.len() == 2 {
+                let mut open = frame.clone();
+                let player = open.player.as_ref().expect("the player").clone();
+                let shown = open.objects.iter_mut().find(|o| o.id == bolt).unwrap();
+                shown.cell = player.cell;
+                shown.origin = [
+                    player.origin[0] + 2.0,
+                    player.origin[1] + 1.0,
+                    player.origin[2] + 1.5,
+                ];
+                let with = scene.draw(&open, "flame_bolt_open.png");
+                open.objects.retain(|o| o.id != bolt);
+                let without = scene.draw(&open, "flame_bolt_open_without.png");
+                drawn_pixels = Some(
+                    with.chunks(4)
+                        .zip(without.chunks(4))
+                        .filter(|(a, b)| a != b)
+                        .count(),
+                );
+            }
+        }
+    }
+    assert!(seen.is_some(), "the story made the bolt");
+    eprintln!("drudge at {drudge:?}");
+    // It detonates at the drudge (`CMissileManager::HandleCollision` -> `DeleteSelf`) and the
+    // object maintenance destroys it after its fade (`CObjectMaint::FadeAndDestroyObject`), well
+    // before its `MISSILE_TIMEOUT_TIME` of 8 s.
+    assert!(gone, "the bolt is destroyed after it detonates");
+    eprintln!("the bolt draws {drawn_pixels:?} pixels");
+    assert!(
+        drawn_pixels.is_some_and(|n| n > 20),
+        "the bolt draws: {drawn_pixels:?} pixels"
+    );
+    assert!(
+        distances.windows(2).any(|w| w[1] < w[0] - 0.1),
+        "the bolt flies at the drudge: {distances:?}"
+    );
+}

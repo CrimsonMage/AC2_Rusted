@@ -78,6 +78,10 @@ pub enum MissileEvent {
     DeleteSelf { fade: f64, delay: f64 },
     /// `CPhysicsObj::StickySetParent(object)`: the detonated missile sticks to what it hit.
     StickTo(u64),
+    /// `CPhysicsObj::MissileInitEnd`'s `EnterWorldSimple(pos, 0)` succeeded: the missile manager
+    /// placed the object (`CMissileManager::AttemptWorldPlacement`), which is now in the world
+    /// (the object maintenance's side, `HandleEnterWorld`, is the caller's).
+    EnteredWorld,
 }
 
 /// `CPhysicsObj::GetObjectOffsetPos`: the point `height` (a fraction of the object's height)
@@ -239,7 +243,11 @@ impl MissileFlightHost for Ctx<'_> {
         // `CPhysicsObj::MissileInitEnd`: leave the parent, then `EnterWorldSimple(pos, 0)`
         // (`SetPosition` with the placement flag only).
         self.obj.parent_drawing_position = None;
-        self.obj.set_position_checked(*pos, 1, self.terrain) == SetPositionError::Ok
+        let placed = self.obj.set_position_checked(*pos, 1, self.terrain) == SetPositionError::Ok;
+        if placed {
+            self.obj.missile_events.push(MissileEvent::EnteredWorld);
+        }
+        placed
     }
     fn slot_1c4(&mut self, on: bool) {
         // `CPhysicsObj::align_to_path`.
