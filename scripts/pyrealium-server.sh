@@ -1,105 +1,113 @@
 #!/bin/sh
-# Start a local Pyrealium server (the pyrealium-server repository), the server this client is tested
-# against, on the 7230 DATs (or the Legions DVD set). Test tooling only; nothing here ships.
+# Start a local Pyrealium server for this client to test against, through the server's own interface
+# (`pyrealium run` with a settings file). Test tooling only; nothing here ships. The server is a
+# separate project: build and install it yourself (its README), this script only runs it.
 #
-#   scripts/pyrealium-server.sh [--rebuild] [extra `pyrealium serve` options]
+#   scripts/pyrealium-server.sh [--account NAME] [--training-kit B] [--test-map-travel B]
+#                               [--lifestones B] [--portals B] [--initialize-ui B] [--auth-data X]
 #
-# AC2_DAT_DIR DAT folder; default ../dataset-7230 (the 7230 release this client uses)
-# PYREALIUM_DATA   which release AC2_DAT_DIR holds: 7230 (default) or legions (the DVD set)
-# PYREALIUM_DIR    Pyrealium checkout (the repository holding emulator/); default ../pyrealium-server
-# PYREALIUM_STATE  server data, prepared content and logs; default ~/.local/state/pyrealium-test
-# PYREALIUM_BIND   listen address; default 127.0.0.1:9000 (the client's default --server)
-# PYREALIUM_EXTRA_WORLD  a file of placements (the prepared world table's columns) added to the prepared
-#             world, for tests that need a creature at a known place
-# PYREALIUM_TRAINING_WORLD  1 keeps the training kit's authored placements (`training-world.tsv`: the
-#             start-room Idols, mentor and quartermaster, the corridor's practice creatures and
-#             services); default off, Pyrealium's `prepare_content.py --strip-training-placements` leaves
-#             them out of the prepared world (the user's choice: the clusters are not retail spawns). The kit itself stays on for the 7230 data: Pyrealium
-#             gates the starter gear's equipment metadata, crafting and the active-skill rules on it
-#             (`server.rs` `starter_equipment`), so without it a starter weapon cannot be equipped.
-# PYREALIUM_SHELTER_QUEST  0 leaves out Pyrealium's `human-shelter-world.tsv` (Rescue the Shelter Hold's
-#             placements in the human start instance that no capture holds; `--no-shelter-quest`);
-#             default on, with the training kit's placements left out
-# PYREALIUM_GUN_BIND  Pyrealium's own GUN service address (`--gun-bind`; `off` turns it off); default Pyrealium's
-#             (the game address's IP at port 2310). The client does not use it.
+# PYREALIUM_BIN    the server executable; default `pyrealium` on PATH
+# PYREALIUM_POSTGRES  the PostgreSQL server and role the server keeps its data on (a libpq URL or
+#             key/value string; the role may create databases). The database name is replaced by
+#             PYREALIUM_DB_NAME, default pyrealium_<checksum of the state directory>, so every
+#             state directory has its own; the server creates it on start
+# AC2_DAT_DIR DAT folder (the 7230 DATs); default ../dataset-7230
+# PYREALIUM_STATE  the settings file, run directory and logs; default ~/.local/state/pyrealium-test
+# PYREALIUM_BIND   game address; default 127.0.0.1:9000 (the client's default --server)
+# PYREALIUM_ACCOUNTS_BIND  with ticket logins (--auth-data), the account service's address;
+#             default 127.0.0.1:19400
+# PYREALIUM_EXTRA_WORLD  a file of placements (world table rows, v4 columns) the server adds to its
+#             world (`[world] content_overlay`), for tests that need a creature at a known place
+# PYREALIUM_TRAINING_WORLD  1 keeps the training kit's authored placements (`[world] training_world`;
+#             default off: the captured Shelter, as the user's server runs)
+# PYREALIUM_SHELTER_QUEST  0 leaves out Rescue the Shelter Hold's placements (`[world] shelter_quest`)
+# PYREALIUM_GUN_BIND  the server's GUN service address; default off. The client does not use it.
+# PYREALIUM_DEV_TRADESKILLS  the server's tradeskills development profile; default on (0 turns it off)
 #
-# Connect with: ac2 --dat-dir DIR --server 127.0.0.1:9000 --account local (the logon's data
-# version follows the DATs: 7230 for the 7230 set, which Pyrealium serves as its 7230 profile).
-# Pyrealium speaks the admin 7148 layouts (experimental 7230); its developer account is `local`.
+# Options: --account (the developer account, default local), --training-kit (default true),
+# --test-map-travel (default true), --lifestones, --portals, --initialize-ui (default true), and
+# --auth-data X (any X) for ticket logins from the server's account service instead of developer
+# logins. Later options win.
+#
+# Connect with: ac2 --dat-dir DIR --server 127.0.0.1:9000 --account local. Stop with
+# `"$PYREALIUM_BIN" stop --config "$PYREALIUM_STATE/pyrealium.toml"` (or touch data/stop.request there).
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-pyrealium=${PYREALIUM_DIR:-$root/../pyrealium-server}
+bin=${PYREALIUM_BIN:-pyrealium}
+command -v "$bin" > /dev/null 2>&1 || {
+  echo "no Pyrealium server executable '$bin': build and install the server, or set PYREALIUM_BIN" >&2; exit 1; }
+[ -n "${PYREALIUM_POSTGRES:-}" ] || {
+  echo "set PYREALIUM_POSTGRES to a PostgreSQL server for Pyrealium (e.g. 'host=/run/postgresql user=$USER')" >&2; exit 1; }
 state=${PYREALIUM_STATE:-${XDG_STATE_HOME:-$HOME/.local/state}/pyrealium-test}
 bind=${PYREALIUM_BIND:-127.0.0.1:9000}
 dats=${AC2_DAT_DIR:-$root/../dataset-7230}
 [ -f "$dats/portal.dat" ] || { echo "no portal.dat in $dats: set AC2_DAT_DIR" >&2; exit 1; }
-
-if [ ! -f "$pyrealium/emulator/Cargo.toml" ]; then
-  echo "no Pyrealium checkout at $pyrealium: clone it there or set PYREALIUM_DIR" >&2
-  exit 1
-fi
-if [ ! -d "$pyrealium/References/AC2_Rusted/crates" ]; then
-  echo "Pyrealium's References/AC2_Rusted submodule is empty: run 'git submodule update --init' in $pyrealium" >&2
-  exit 1
-fi
-
-bin=$pyrealium/target/game/release/pyrealium
-# Rebuild on request, when missing, or when the Pyrealium sources changed (another branch checked out).
-stale=$( [ -x "$bin" ] && find "$pyrealium/emulator/src" "$pyrealium/emulator/content" -newer "$bin" -print -quit || true )
-if [ "${1:-}" = "--rebuild" ] || [ ! -x "$bin" ] || [ -n "$stale" ]; then
-  [ "${1:-}" = "--rebuild" ] && shift
-  # Pyrealium's own build (Build-Pyrealium.ps1): the AGPL source archive it serves, then the server.
-  (cd "$pyrealium" && python3 export_source.py \
-    && cargo build --release --locked --manifest-path emulator/Cargo.toml --target-dir target/game)
-fi
-
-# Pyrealium's content step (`Network/prepare_content.py`): keep only placements whose records these DATs
-# hold, and copy the quest and emote tables beside the world. It runs each start, so an edit of
-# Pyrealium's content/ takes effect at the next start. Unless PYREALIUM_TRAINING_WORLD=1 it also prepares
-# the human start instance without the training kit's placements (`--strip-training-placements`:
-# the captured Shelter, plus Rescue the Shelter Hold's rows unless PYREALIUM_SHELTER_QUEST=0); that is
-# Pyrealium's content, documented in its `emulator/content/README.md`.
 mkdir -p "$state/data"
-content=$state/world-$(printf %s "$(cd "$dats" && pwd)" | cksum | cut -d' ' -f1).tsv
-prepare_options=
-if [ "${PYREALIUM_TRAINING_WORLD:-0}" != 1 ]; then
-  prepare_options=--strip-training-placements
-  [ "${PYREALIUM_SHELTER_QUEST:-1}" = 0 ] && prepare_options="$prepare_options --no-shelter-quest"
-fi
-# shellcheck disable=SC2086 # the options are words
-python3 "$pyrealium/Network/prepare_content.py" "$dats" "$content" $prepare_options
+state=$(cd "$state" && pwd)
+dats=$(cd "$dats" && pwd)
 
-# Placements a test adds (each only once).
-if [ -n "${PYREALIUM_EXTRA_WORLD:-}" ]; then
-  while IFS= read -r row; do
-    grep -qxF -- "$row" "$content" || printf '%s\n' "$row" >> "$content"
-  done < "$PYREALIUM_EXTRA_WORLD"
-fi
+account=local training_kit=true map_travel=true lifestones=true portals=true ui=true auth=developer
+while [ $# -gt 0 ]; do
+  [ $# -ge 2 ] || { echo "missing value for $1" >&2; exit 1; }
+  case $1 in
+    --account) account=$2 ;;
+    --training-kit) training_kit=$2 ;;
+    --test-map-travel) map_travel=$2 ;;
+    --lifestones) lifestones=$2 ;;
+    --portals) portals=$2 ;;
+    --initialize-ui) ui=$2 ;;
+    --auth-data) auth=tickets ;;
+    *) echo "unknown option $1" >&2; exit 1 ;;
+  esac
+  shift 2
+done
 
-# Pyrealium's opt-in for the release (bootstrap.rs). The Legions one also turns on gameplay checks
-# pinned to the DVD records, so it must not be set for 7230.
-# The development training kit (starter gear, crafting, training supplies, the active-skill
-# rules) runs on the 7230 data; the Legions profile's gameplay checks are pinned to the DVD
-# records and run without it. Later `--training-kit` options win.
-case ${PYREALIUM_DATA:-7230} in
-  # Pyrealium serves the 7230 data as its 7230 profile (to version 7230 logons), with its tradeskills
-  # (Surveying, Mining and the DAT's craft skills and recipes; PYREALIUM_DEV_TRADESKILLS=0 turns them off).
-  7230)
-    training_kit=true
-    # Pyrealium reads the variable's presence, so "0" is turned off by removing it.
-    if [ "${PYREALIUM_DEV_TRADESKILLS:-1}" = 0 ]; then unset PYREALIUM_DEV_TRADESKILLS; else export PYREALIUM_DEV_TRADESKILLS=${PYREALIUM_DEV_TRADESKILLS:-1}; fi ;;
-  legions) export PYREALIUM_UNREAL_LEGIONS_DATA=1; training_kit=false ;;
-  *) echo "PYREALIUM_DATA must be 7230 or legions" >&2; exit 1 ;;
+# The database for this state directory: the URL's own name replaced.
+db_name=${PYREALIUM_DB_NAME:-pyrealium_$(printf %s "$state" | cksum | cut -d' ' -f1)}
+case $PYREALIUM_POSTGRES in
+  *://*) database=$(printf %s "$PYREALIUM_POSTGRES" | sed -E "s#^([a-z]+://[^/?]*)(/[^?]*)?#\1/$db_name#") ;;
+  *) database="$PYREALIUM_POSTGRES dbname=$db_name" ;;
 esac
 
-# A server that failed to start leaves its lock; clear it only when its process is gone.
-lock=$state/data/server.lock
-if [ -f "$lock" ] && ! kill -0 "$(head -n 1 "$lock")" 2>/dev/null; then rm -f "$lock"; fi
-# A stop request left after a server exited would stop this one on its first pass.
-[ -f "$lock" ] || rm -f "$state/data/stop.request"
+overlay=
+if [ -n "${PYREALIUM_EXTRA_WORLD:-}" ]; then
+  overlay=$state/extra-world.tsv
+  { echo pyrealium-world-v4; grep -v '^pyrealium-world-v' "$PYREALIUM_EXTRA_WORLD"; } > "$overlay"
+fi
+toml() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+training_world=false; [ "${PYREALIUM_TRAINING_WORLD:-0}" = 1 ] && training_world=true
+shelter_quest=true; [ "${PYREALIUM_SHELTER_QUEST:-1}" = 0 ] && shelter_quest=false
+{
+  echo '[server]'
+  echo "bind = \"$bind\""
+  echo "auth = \"$auth\""
+  echo "account = \"$(toml "$account")\""
+  echo "game_host = \"${bind%:*}\""
+  echo "dat_dir = \"$(toml "$dats")\""
+  echo "run_dir = \"$(toml "$state/data")\""
+  echo '[database]'
+  echo "url = \"$(toml "$database")\""
+  echo '[accounts]'
+  echo "enabled = $( [ "$auth" = tickets ] && echo true || echo false )"
+  echo "web_bind = \"${PYREALIUM_ACCOUNTS_BIND:-127.0.0.1:19400}\""
+  echo '[world]'
+  echo "training_world = $training_world"
+  echo "shelter_quest = $shelter_quest"
+  [ -n "$overlay" ] && echo "content_overlay = \"$(toml "$overlay")\""
+  echo "initialize_ui = $ui"
+  echo "training_kit = $training_kit"
+  echo "lifestones = $lifestones"
+  echo "portals = $portals"
+  echo "test_map_travel = $map_travel"
+  if [ -n "${PYREALIUM_GUN_BIND:-}" ] && [ "$PYREALIUM_GUN_BIND" != off ]; then
+    echo '[gun]'
+    echo "bind = \"$PYREALIUM_GUN_BIND\""
+  fi
+} > "$state/pyrealium.toml"
 
-if [ -n "${PYREALIUM_GUN_BIND:-}" ]; then set -- --gun-bind "$PYREALIUM_GUN_BIND" "$@"; fi
-exec "$bin" serve --bind "$bind" --data "$state/data" \
-  --game-data "$dats" --content "$content" --initialize-ui true --training-kit "$training_kit" \
-  --lifestones true --portals true --test-map-travel true "$@"
+# The server reads its tradeskills development profile from the variable's presence.
+if [ "${PYREALIUM_DEV_TRADESKILLS:-1}" = 0 ]; then unset PYREALIUM_DEV_TRADESKILLS; else export PYREALIUM_DEV_TRADESKILLS=${PYREALIUM_DEV_TRADESKILLS:-1}; fi
+# A stop request left after a server exited would stop this one on its first pass.
+rm -f "$state/data/stop.request"
+exec "$bin" run --config "$state/pyrealium.toml"

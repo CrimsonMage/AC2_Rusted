@@ -1,44 +1,39 @@
 #!/bin/sh
-# Live test of the launcher's Pyrealium account-service start against a local Pyrealium: start its account
-# service and a game server sharing the account store, sign in with the launcher's code
+# Live test of the launcher's Pyrealium account-service start against a local Pyrealium: start a server
+# with ticket logins (its account service runs inside it, scripts/pyrealium-server.sh), sign in with the launcher's code
 # (crates/ac2-launcher, `examples/sign_in.rs`), then log on with ac2-login-probe as `ac2` would
 # with that ticket, and stop both. Exits with the probe's code.
 #
 #   scripts/pyrealium-launcher-test.sh        (AC2_DAT_DIR defaults to ../dataset-7230)
 #
-# Ports: the game 127.0.0.1:19383, the account service 19401 (no GUN service).
+# Ports: the game 127.0.0.1:19383, the account service 19401 (no GUN service). Needs what
+# scripts/pyrealium-server.sh needs (PYREALIUM_BIN, PYREALIUM_POSTGRES); the run's database is
+# dropped before each run.
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 AC2_DAT_DIR=${AC2_DAT_DIR:-$root/../dataset-7230}
-PYREALIUM_DIR=${PYREALIUM_DIR:-$root/../pyrealium-server}
 PYREALIUM_STATE=${PYREALIUM_STATE:-${XDG_STATE_HOME:-$HOME/.local/state}/pyrealium-launcher-test}
 PYREALIUM_BIND=127.0.0.1:19383
+PYREALIUM_ACCOUNTS_BIND=127.0.0.1:19401
 PYREALIUM_GUN_BIND=off
-export AC2_DAT_DIR PYREALIUM_DIR PYREALIUM_STATE PYREALIUM_BIND PYREALIUM_GUN_BIND
-web=127.0.0.1:19401
-auth=$PYREALIUM_STATE/accounts
+PYREALIUM_DB_NAME=pyrealium_launcher_test
+export AC2_DAT_DIR PYREALIUM_STATE PYREALIUM_BIND PYREALIUM_ACCOUNTS_BIND PYREALIUM_GUN_BIND PYREALIUM_DB_NAME
+bin=${PYREALIUM_BIN:-pyrealium}
+web=$PYREALIUM_ACCOUNTS_BIND
 log=$PYREALIUM_STATE/launcher-test.log
-rm -rf "$auth"
-mkdir -p "$auth" "$PYREALIUM_STATE"
+mkdir -p "$PYREALIUM_STATE"
 
 cargo build -q -p ac2-login-probe -p ac2-launcher --examples --manifest-path "$root/Cargo.toml"
-bin=$PYREALIUM_DIR/target/game/release/pyrealium
-# The account service first: it initializes the account store the game server checks tickets in.
-mkdir -p "$PYREALIUM_STATE/data"
-"$bin" account-web --auth-data "$auth" --data "$PYREALIUM_STATE/data" --web-bind "$web" \
-  --public-origin "http://$web" --public-host "${PYREALIUM_BIND%:*}" --public-port "${PYREALIUM_BIND##*:}" \
-  > "$PYREALIUM_STATE/accounts.log" 2>&1 &
-accounts=$!
-sleep 2
-"$root/scripts/pyrealium-server.sh" --auth-data "$auth" > "$log" 2>&1 &
+# A fresh database each run: the server's settings file names it, so let the script write the file,
+# then drop the database through the server and start it (the account service runs inside it).
+config=$PYREALIUM_STATE/pyrealium.toml
+if [ -f "$config" ]; then "$bin" db drop --config "$config" > /dev/null; fi
+"$root/scripts/pyrealium-server.sh" --auth-data tickets > "$log" 2>&1 &
 server=$!
 stop() {
-  kill "$accounts" 2>/dev/null || true
   kill -0 "$server" 2>/dev/null || return 0
-  touch "$PYREALIUM_STATE/data/stop.request"
-  i=0; while kill -0 "$server" 2>/dev/null && [ "$i" -lt 40 ]; do sleep 0.25; i=$((i + 1)); done
-  kill "$server" 2>/dev/null || true
+  "$bin" stop --config "$config" --seconds 10 > /dev/null 2>&1 || kill "$server" 2>/dev/null || true
 }
 trap stop EXIT INT TERM
 

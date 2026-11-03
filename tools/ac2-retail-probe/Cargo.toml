@@ -1,0 +1,17 @@
+[package]
+name = "ac2-retail-probe"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+ac2-core = { path = "../../crates/ac2-core" }
+ac2-dat = { path = "../../crates/ac2-dat" }
+ac2-db = { path = "../../crates/ac2-db" }
+ac2-script = { path = "../../crates/ac2-script" }
+ac2-world = { path = "../../crates/ac2-world" }
+serde_json = "1"

@@ -801,7 +801,11 @@ game rules and server-visible behaviour exactly retail.
   version `7230`, `ac2_net::RELEASE_7230_VERSION`; `ac2_net::default_version` follows the mounted
   DATs, so the DVD's give `7160`). `scripts/pyrealium-login-test.sh` starts a server, logs on through
   `ac2-login-probe` to the character set and stops it; `scripts/pyrealium-server.sh` keeps one running
-  for the client (`ac2 --server 127.0.0.1:9000 --account local`). The in-process
+  for the client (`ac2 --server 127.0.0.1:9000 --account local`). Pyrealium is a separate project
+  the client does not build or reach into: the scripts run its installed executable (`PYREALIUM_BIN`)
+  with a settings file they write (`pyrealium run`), on a PostgreSQL server the user provides
+  (`PYREALIUM_POSTGRES`), each state directory its own database; the live suite drops each run's
+  database afterwards (`pyrealium db drop`). The in-process
   `legions-server-double` stays the 7160 path's test peer.
 - Effects (buffs and debuffs): the client is retail's. The server adds a timed effect to the player
   with `WM_Effect` 0x17 (an `EffectRecord` and its `Effect` state) and removes it with 0x16; the
@@ -868,7 +872,7 @@ game rules and server-visible behaviour exactly retail.
   `PYREALIUM_TRAINING_WORLD=0`, the user's server setup): the client is retail's; the quest is the
   server's, as data (Pyrealium `quest_emotes`: `quest-registry.tsv`, `quest-stages.tsv`, `emote-sets.tsv`,
   `emote-actions.tsv`, in the shape of ACEmulator's emote tables, each row citing its evidence;
-  Pyrealium's `prepare_content.py` copies them beside the world table each start), checked against the evidence in this order: the DATs (the NPCs'
+  Pyrealium's content preparation, `pyrealium prepare-content`, puts them beside the world table each start), checked against the evidence in this order: the DATs (the NPCs'
   `*shelter.stt` lines, the item and creature entities, the dungeon cells of block 0x0299 and
   their statics), the captures (the human Shelter copies 0x028D and 0x0298: Guard, Lieutenant,
   stones 1 to 6, the Advance Shelter Scout and the Menhir Shard in the isolated cell 0x014D, the
@@ -879,7 +883,7 @@ game rules and server-visible behaviour exactly retail.
   `human-shelter-world.tsv` says why for each): the Menhir Portal at the second arch (cell
   0x0116, on the rotunda), stones 7 to 9, the Sentry, the Scout, the Diggers and Sentinels, the
   shard room's arrival point and the Dereth arrival (Pyrealium's established exit, 74BA0008).
-  Pyrealium's `prepare_content.py --strip-training-placements` (what `scripts/pyrealium-server.sh` runs
+  Pyrealium's `pyrealium prepare-content --strip-training-placements` (what `scripts/pyrealium-server.sh` runs
   without `PYREALIUM_TRAINING_WORLD=1`) mirrors the captured 0x0298 Shelter into 0x0299, names its
   pink portal "Quick Exit to the Arwic Outlands" (the DAT string; the other races' Shelters were
   captured with that name pattern) and appends the inferred rows.

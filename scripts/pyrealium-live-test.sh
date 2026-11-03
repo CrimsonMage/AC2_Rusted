@@ -17,7 +17,8 @@
 # pyrealium_live_combat). PYREALIUM_LIVE_EACH=1 runs each test of the target on a server of its own (the
 # quests file's default: its tests use up the start room's one-lifetime creatures).
 #
-# Needs AC2_DAT_DIR (the 7230 DATs) and the Pyrealium checkout scripts/pyrealium-server.sh uses (PYREALIUM_DIR).
+# Needs AC2_DAT_DIR (the 7230 DATs) and what scripts/pyrealium-server.sh needs: an installed Pyrealium
+# server (PYREALIUM_BIN) and a PostgreSQL server for it (PYREALIUM_POSTGRES).
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
 : "${AC2_DAT_DIR:?set AC2_DAT_DIR to the 7230 DATs}"
@@ -123,15 +124,11 @@ case ${PYREALIUM_LIVE_TEST:-} in
     # the DAT's others to the panel's list.
     export PYREALIUM_DEV_TRADESKILLS=${PYREALIUM_DEV_TRADESKILLS:-0}
     ;;
-  # Pyrealium's recovered quests (Gambling Debt, the hunt quests with elixir and kill starters) are
-  # served by its Legions profile (`PYREALIUM_UNREAL_LEGIONS_DATA=1`, no training kit), on the
-  # Legions DVD DATs: AC2_DAT_DIR is that set (`dataset-ac2`). The character starts with
-  # experience for the quests' levels, and map travel (`@maptravel LAND_X LAND_Y`) takes it to
-  # the starters' places. Each test has a server of its own.
+  # The recovered-quest file played Pyrealium's Legions DVD profile, which the server no longer runs
+  # (build 7230 data only).
   pyrealium_live_recovered*)
-    export PYREALIUM_DATA=legions PYREALIUM_LIVE_EACH=${PYREALIUM_LIVE_EACH:-1} PYREALIUM_LIVE_VERSION=${PYREALIUM_LIVE_VERSION:-7148}
-    PYREALIUM_LIVE_SERVER_ARGS="--training-kit false --test-map-travel true ${PYREALIUM_LIVE_SERVER_ARGS:-}"
-    export PYREALIUM_DEV_START_XP=${PYREALIUM_DEV_START_XP:-5000000}
+    echo "pyrealium_live_recovered needs the Legions DVD profile; Pyrealium serves build 7230 data only" >&2
+    exit 1
     ;;
   pyrealium_live_tradeskills*)
     # Map travel (`@maptravel LAND_X LAND_Y`) takes the character to the place a survey map names.
@@ -149,12 +146,16 @@ stop() {
   kill "$server" 2>/dev/null || true
   wait "$server" 2>/dev/null || true
   echo "server log: $state/server.log"
+  # Each server had a database of its own (named for its state directory); the server drops it.
+  "${PYREALIUM_BIN:-pyrealium}" db drop --config "$state/pyrealium.toml" > /dev/null 2>&1 || true
   server=
 }
 trap stop EXIT
 start() {
   state=$(mktemp -d "$scratch/server.XXXXXX")
   export PYREALIUM_STATE=$state
+  PYREALIUM_DB_NAME=pyrealium_live_$(basename "$state" | tr 'A-Z.' 'a-z_')
+  export PYREALIUM_DB_NAME
   # The live tests play the training kit's authored world (the start-room Idols, lifestone, mentor,
   # training portals): `pyrealium-server.sh` strips it by default for the user's server, so keep it
   # unless a test opts out with PYREALIUM_TRAINING_WORLD=0.

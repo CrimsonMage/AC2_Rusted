@@ -6,7 +6,8 @@
 #   scripts/pyrealium-login-test.sh        (AC2_DAT_DIR defaults to ../dataset-7230)
 #
 # Uses its own port (PYREALIUM_BIND, default 127.0.0.1:19380) and no GUN service, so a server you are
-# playing on keeps running; PYREALIUM_DIR and PYREALIUM_STATE are as in scripts/pyrealium-server.sh.
+# playing on keeps running; PYREALIUM_BIN, PYREALIUM_POSTGRES and PYREALIUM_STATE are as in
+# scripts/pyrealium-server.sh.
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
@@ -30,7 +31,7 @@ stop() {
 }
 trap stop EXIT INT TERM
 
-# A first run builds Pyrealium and prepares its content before it listens.
+# A first start on a new database prepares the world content before it listens.
 waited=0
 until grep -q '^Listening on' "$log"; do
   if ! kill -0 "$server" 2>/dev/null; then

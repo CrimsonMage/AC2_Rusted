@@ -161,8 +161,10 @@ cargo run -p ac2-launcher --example sign_in -- URL ACCOUNT
 
 `--client-exe` reads the RSA key a retail `ac2client.exe` carries, as retail does.
 
-Live testing is against a local Pyrealium server on the 7230 DATs. `PYREALIUM_DIR` names the Pyrealium checkout
-(default `../pyrealium-server`); `PYREALIUM_BIND` and `PYREALIUM_GUN_BIND` move its ports:
+Live testing is against a local Pyrealium server on the 7230 DATs. Pyrealium is a separate project: build and
+install it (its README), then point the scripts at its executable (`PYREALIUM_BIN`, default `pyrealium` on PATH)
+and at a PostgreSQL server it may create databases on (`PYREALIUM_POSTGRES`). The scripts only start it
+with a settings file (`pyrealium run`); `PYREALIUM_BIND` and `PYREALIUM_GUN_BIND` move its ports:
 
 ```bash
 scripts/pyrealium-server.sh                 # keep a server running on 127.0.0.1:9000
