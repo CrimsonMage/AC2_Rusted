@@ -53,7 +53,7 @@ pub use crate::vm::DataRequest;
 pub use ifun::{IFunArg, IFunResult, IFunReturn, OutValue};
 pub use latent::LatentPhysics;
 pub use notices::{notice_names, NoticeArg, ScriptNotice};
-pub use outcome::ScriptState;
+pub use outcome::{HeldCall, ScriptState};
 pub use skill_panel::SkillPanelData;
 
 /// A script call for the server (`ECM_Interp::SendEvt_InterpSEvent[Encrypt]`).

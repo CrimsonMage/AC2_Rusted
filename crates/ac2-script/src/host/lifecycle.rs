@@ -5,13 +5,13 @@
 //! the scripts produce goes out through [`outcome`]. Written against [`ScriptPort`]; the client
 //! answers the port's hooks (the session's objects, the loader).
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, VecDeque};
 
 use ac2_net::protocol::{unpack_values, ObjectAction, PackValue};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use super::ifun::IFunArg;
-use super::outcome::outcome;
+use super::outcome::{outcome, HeldCall};
 use super::port::ScriptPort;
 
 /// The weenie interface's lifecycle IFuns (`gCWInterface::CallIFun_Handle*`, Legions 7160): the
@@ -115,12 +115,12 @@ pub trait ScriptLifecycle: ScriptPort {
             };
             let mut blocked = BTreeSet::new();
             let mut ready = None;
-            for (index, (target, _, arguments)) in scripts.held.iter().enumerate() {
-                if blocked.contains(target) {
+            for (index, call) in scripts.held.iter().enumerate() {
+                if blocked.contains(&call.target) {
                     continue;
                 }
-                if scripts.names_waiting(arguments) {
-                    blocked.insert(*target);
+                if scripts.names_waiting(&call.arguments) {
+                    blocked.insert(call.target);
                 } else {
                     ready = Some(index);
                     break;
@@ -129,10 +129,12 @@ pub trait ScriptLifecycle: ScriptPort {
             let Some(index) = ready else {
                 return;
             };
-            let (target, function, arguments) = scripts.held.remove(index).expect("held call");
-            if scripts.running.contains(&target) {
-                self.dispatch_script(target, function, &arguments, out);
+            let call = scripts.held.remove(index).expect("held call");
+            if scripts.running.contains(&call.target) {
+                self.dispatch_script(call.target, call.function, &call.arguments, out);
             }
+            // The stand-in's refreshes of the call, now that the script's contents changed.
+            out.extend(call.refreshes);
         }
     }
 
@@ -184,7 +186,7 @@ pub trait ScriptLifecycle: ScriptPort {
             return;
         }
         let mut produced = std::mem::take(&mut self.script_state().expect("attached").produced);
-        for event in events.iter() {
+        for (index, event) in events.iter().enumerate() {
             match event {
                 SessionEvent::ObjectAdded(id) => self.request_script(*id),
                 SessionEvent::QualityChanged {
@@ -212,7 +214,13 @@ pub trait ScriptLifecycle: ScriptPort {
                         scripts.host.remove_weenie(*id);
                         scripts.running.remove(id);
                         scripts.waiting.remove(id);
-                        scripts.held.retain(|(target, _, _)| target != id);
+                        // A call held for the removed object runs no more; its refreshes still
+                        // go out.
+                        let (gone, kept) = std::mem::take(&mut scripts.held)
+                            .into_iter()
+                            .partition::<VecDeque<_>, _>(|call| call.target == *id);
+                        scripts.held = kept;
+                        produced.extend(gone.into_iter().flat_map(|call| call.refreshes));
                     }
                     self.release_held(&mut produced);
                 }
@@ -226,9 +234,13 @@ pub trait ScriptLifecycle: ScriptPort {
                         queue.push((*function, arguments.clone()));
                     } else if scripts.running.contains(object) {
                         if scripts.holds(*object, arguments) {
-                            scripts
-                                .held
-                                .push_back((*object, *function, arguments.clone()));
+                            let refreshes = stand_in_refreshes(&events[..index]);
+                            scripts.held.push_back(HeldCall {
+                                target: *object,
+                                function: *function,
+                                arguments: arguments.clone(),
+                                refreshes,
+                            });
                         } else {
                             self.dispatch_script(*object, *function, arguments, &mut produced);
                         }
@@ -354,3 +366,58 @@ pub trait ScriptLifecycle: ScriptPort {
 }
 
 impl<P: ScriptPort + ?Sized> ScriptLifecycle for P {}
+
+/// The container and inventory refreshes just before a call's `SessionEvent::Interp` in the
+/// frame's events (`before`), in order: the session's inventory stand-in pushes them right before
+/// the raw call (`OnlineSession`'s `Interp` handling). A refresh of another call that happens to
+/// sit there only refreshes a panel once more.
+fn stand_in_refreshes(before: &[SessionEvent]) -> Vec<SessionEvent> {
+    let run = before
+        .iter()
+        .rev()
+        .take_while(|event| {
+            matches!(
+                event,
+                SessionEvent::Notice(
+                    GameplayNotice::UpdateContainer { .. } | GameplayNotice::UpdateInventory { .. }
+                )
+            )
+        })
+        .count();
+    before[before.len() - run..].to_vec()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn refresh(container: u64) -> SessionEvent {
+        SessionEvent::Notice(GameplayNotice::UpdateContainer {
+            container,
+            code: 0x4000_0001,
+            item: 0,
+            slot: 0,
+        })
+    }
+
+    #[test]
+    fn a_held_call_keeps_the_refreshes_right_before_it() {
+        let events = [
+            refresh(7),
+            SessionEvent::Notice(GameplayNotice::CreateObject(9)),
+            refresh(1),
+            SessionEvent::Notice(GameplayNotice::UpdateInventory {
+                code: 0x4000_0001,
+                item: 0,
+                location: 0,
+            }),
+        ];
+        let kept = stand_in_refreshes(&events);
+        assert_eq!(kept.len(), 2);
+        assert!(matches!(
+            kept[0],
+            SessionEvent::Notice(GameplayNotice::UpdateContainer { container: 1, .. })
+        ));
+        assert!(stand_in_refreshes(&events[..2]).is_empty());
+    }
+}

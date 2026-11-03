@@ -27,7 +27,7 @@ pub struct ScriptState {
     /// start. Retail made an object's weenie object as its `CreateObject` was handled, so a call
     /// after it found it (`EquipItem_Done`'s `GetInternalWeenieObject` of the item the server
     /// just made anew).
-    pub held: VecDeque<(u64, u32, Vec<u8>)>,
+    pub held: VecDeque<HeldCall>,
     /// What the boundary dropped and dispatches that failed, for diagnostics.
     pub problems: Vec<String>,
     /// The server calls and UI IFuns handed to the VM.
@@ -79,7 +79,7 @@ impl ScriptState {
     /// Whether a call to `object` arriving now waits behind [`Self::held`] (an earlier call to
     /// it is held, or it names an object still loading).
     pub fn holds(&self, object: u64, arguments: &[u8]) -> bool {
-        self.held.iter().any(|(target, _, _)| *target == object) || self.names_waiting(arguments)
+        self.held.iter().any(|call| call.target == object) || self.names_waiting(arguments)
     }
 
     /// A fresh state over `host`, with the server calls and UI IFuns in `functions` handed to it.
@@ -101,6 +101,20 @@ impl ScriptState {
             no_draw: BTreeSet::new(),
         }
     }
+}
+
+/// A server call held for a loading object ([`ScriptState::held`]).
+#[derive(Debug, Clone)]
+pub struct HeldCall {
+    pub target: u64,
+    pub function: u32,
+    pub arguments: Vec<u8>,
+    /// The container and inventory refreshes the session's inventory stand-in raised for the
+    /// call as it arrived (`UpdateContainer` / `UpdateInventory`, just before the call's
+    /// `SessionEvent::Interp`): the panels read the contents from the script
+    /// (`gmCWInterface::GetContentsInfo`), which changes only when the call runs, so they are
+    /// raised again after it.
+    pub refreshes: Vec<SessionEvent>,
 }
 
 /// The instance ids a packed package object holds: a slot tagged as an id's low word (0x82, or

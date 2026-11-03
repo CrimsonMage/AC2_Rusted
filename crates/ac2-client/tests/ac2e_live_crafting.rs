@@ -22,6 +22,12 @@ fn rig_for(name: &str) -> Option<LiveRig> {
     LiveRig::new(name)
 }
 
+/// The craft skills AC2e lists: every discipline of its profession catalog
+/// (`crafting::initialization_with_quests` sends `professions::catalog().skills` whole once the
+/// development kit authorizes crafting; the server prints the count at start, "Professions: 26
+/// disciplines").
+const AC2E_CRAFT_SKILLS: usize = 26;
+
 #[test]
 fn the_craft_panel_lists_the_players_craft_skills() {
     let Some(mut rig) = rig_for("Craftlist") else {
@@ -29,7 +35,8 @@ fn the_craft_panel_lists_the_players_craft_skills() {
     };
     open_craft_tab(&mut rig);
     assert!(
-        rig.until(10.0, |r| rows(r, "CraftSkillList").len() == 1),
+        rig.until(10.0, |r| rows(r, "CraftSkillList").len()
+            == AC2E_CRAFT_SKILLS),
         "the craft skill list: {} rows",
         rows(&rig, "CraftSkillList").len()
     );

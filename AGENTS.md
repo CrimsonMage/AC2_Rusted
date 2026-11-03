@@ -891,7 +891,12 @@ game rules and server-visible behaviour exactly retail.
   running process whose arguments name a loading object (a `LongInt`, or an id's two slots,
   low word tagged 0x82 or 0x84 then 0xCD, in a packed object) is held
   (`ScriptState::held`, `ScriptLifecycle::release_held`) and run, in arrival order per target,
-  once those processes start; later calls to the same target wait behind it.
+  once those processes start; later calls to the same target wait behind it. The container and
+  inventory refreshes the session's inventory stand-in raised for a held call as it arrived
+  (`UpdateContainer` / `UpdateInventory`, pushed just before the raw call) are raised again
+  after it runs (`HeldCall::refreshes`): the panels read the contents from the script
+  (`GetContentsInfo`), so a refresh taken before the held `MoveItem_Done` (0x820E005E) ran left a
+  crafted item, made anew by its `CreateObject`, out of the pack (`ac2e_live_crafting`).
 - Exception: an item's icon is its visual's total icon description, read on a loader thread. Retail's
   `ItemDisplay::Update` draws `VisualDesc::GetTotalIconDesc` of the object's local visual desc (the
   parent DAT chain's icon layers with the local ones on top) and only falls back to the `ICON`
