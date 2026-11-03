@@ -100,6 +100,9 @@ pub struct SoundManager {
     music: MusicThread,
     /// The General MIDI set's load, on its worker, until it arrives.
     gm_load: GmLoad,
+    /// Every `Play` request since the last [`SoundManager::take_played`] (tests only).
+    #[cfg(feature = "test-support")]
+    played: Vec<PlaySoundData>,
 }
 
 impl SoundManager {
@@ -131,13 +134,24 @@ impl SoundManager {
             },
             music: MusicThread::new(),
             gm_load: GmLoad::default(),
+            #[cfg(feature = "test-support")]
+            played: Vec::new(),
         }
+    }
+
+    /// The `Play` requests since the last call, in order, whether or not they could play
+    /// (tests only: what the world asked the manager to play).
+    #[cfg(feature = "test-support")]
+    pub fn take_played(&mut self) -> Vec<PlaySoundData> {
+        std::mem::take(&mut self.played)
     }
 
     /// `SoundManager::Play`: the sound's handle, `Some(0)` when a self-exclusive copy of it is
     /// already playing, `None` when it cannot play. A sound not yet resident is loaded first
     /// and plays from a later [`SoundManager::use_time`].
     pub fn play(&mut self, data: &PlaySoundData) -> Option<u32> {
+        #[cfg(feature = "test-support")]
+        self.played.push(*data);
         self.play_internal(data, 0, None)
     }
 

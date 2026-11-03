@@ -16,7 +16,7 @@ workspace = true
 default = ["window"]
 window = ["dep:ac2-gpu", "dep:winit", "dep:wgpu", "ac2-audio/output"]
 # Element lookups for the HUD drag tests (`view::probe`); never in the shipped client.
-test-support = []
+test-support = ["ac2-audio/test-support"]
 # Opt-in CPU scopes (`profile_scope!`) and a puffin server on 127.0.0.1:8585 for the `ac2` program;
 # never in the shipped default build.
 profiling = ["dep:puffin", "dep:puffin_http"]

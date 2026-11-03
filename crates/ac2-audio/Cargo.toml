@@ -15,6 +15,9 @@ workspace = true
 [features]
 default = ["output"]
 output = ["dep:cpal"]
+# A log of every `SoundManager::Play` request (`SoundManager::take_played`), for the client's
+# tests; never in the shipped client.
+test-support = []
 
 [dependencies]
 ac2-core = { path = "../ac2-core" }

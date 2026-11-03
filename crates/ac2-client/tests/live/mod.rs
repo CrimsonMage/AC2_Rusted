@@ -114,24 +114,34 @@ impl LiveRig {
     /// selection (the first avatar) and avatar modification, entered into the world, the HUD
     /// built. `None` without `AC2E_LIVE`, `AC2_DAT_DIR` or a GPU adapter.
     pub fn new(name: &str) -> Option<Self> {
-        Self::with_loads(name, true, false)
+        Self::with_loads(name, true, None)
     }
 
     /// [`Self::new`] with a silent sound manager attached before the login, as the window
     /// attaches its own: the objects' FX then start their particle systems (`FXManager`'s
     /// particle part runs with the sound device), which each frame hands the view.
     pub fn new_with_sound(name: &str) -> Option<Self> {
-        Self::with_loads(name, true, true)
+        Self::with_loads(name, true, Some(Box::new(ac2_audio::NullSink)))
+    }
+
+    /// [`Self::new`] with a sound manager on `sink` attached before the login, as
+    /// `bin/ac2/main.rs` attaches the speakers' (with the portal and rain sounds).
+    pub fn new_with_audio(name: &str, sink: Box<dyn ac2_audio::SoundSink>) -> Option<Self> {
+        Self::with_loads(name, true, Some(sink))
     }
 
     /// [`Self::new`] with the frames not waiting for the loader threads (`settle` false): the
     /// window's frame never does (`Client::settle_loads` is for tests), so a DAT read finishes
     /// some frames after what asked for it.
     pub fn new_unsettled(name: &str) -> Option<Self> {
-        Self::with_loads(name, false, false)
+        Self::with_loads(name, false, None)
     }
 
-    fn with_loads(name: &str, settle: bool, sound: bool) -> Option<Self> {
+    fn with_loads(
+        name: &str,
+        settle: bool,
+        audio: Option<Box<dyn ac2_audio::SoundSink>>,
+    ) -> Option<Self> {
         let server = server()?;
         let name = &unique_name(name);
         let dataset = ac2_dat::test_support::env_dataset()?;
@@ -172,12 +182,12 @@ impl LiveRig {
         script_data.preload_skill_states(&program);
         script_data.set_cache_only(true);
         client.set_load_budget(Duration::from_secs(30));
-        if sound {
-            client.attach_audio(ac2_client::sound_manager(
-                Arc::clone(&store),
-                Box::new(ac2_audio::NullSink),
-            ));
+        if let Some(sink) = audio {
+            client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), sink));
+            client.set_portal_sound_ids(ac2_client::portal_sound_ids(&store));
+            client.set_rain_sound_ids(ac2_client::rain_sound_ids(&store));
         }
+        client.set_fx_scripts(ac2_anim::load_fx_scripts(&store));
         // As `bin/ac2/main.rs` does, before the connection is used: the weenies' scripts must
         // hear the login (`WM_Player` 0x27), or the vitals and the HUD never get their notices.
         client.attach_scripts(
