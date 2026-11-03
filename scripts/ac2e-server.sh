@@ -93,6 +93,32 @@ if [ "${AC2E_TRAINING_WORLD:-0}" != 1 ]; then
   training=$ac2e/AC2E/emulator/content/training-world.tsv
   played=${content%.tsv}-play.tsv
   awk -F'\t' 'NR == FNR { if ($0 !~ /^#/) kit[$1] = 1; next } !($1 in kit)' "$training" "$content" > "$played"
+  # The human start instance (block 0x0299) then holds nothing: retail's captured population of
+  # this dungeon, the Shelter (training stones, straw drudges, the guard, lieutenant and scout, the
+  # pink portal), is recorded in the byte-identical copy 0x0298. It is copied into 0x0299 at the
+  # same cell-local places, each under a new IID in AC2e's 0x8140 namespace (the original's with
+  # its fifth hex digit 0xF, checked against every IID in the world), as the kit's own mirror of
+  # the guard did. The user's choice for the local
+  # server, not an AC2e change.
+  python3 -I - "$played" <<'PY'
+import sys
+path = sys.argv[1]
+lines = open(path, encoding='utf-8').read().splitlines()
+taken = {line.split('\t')[0].lower() for line in lines}
+mirrored = []
+for line in lines:
+    f = line.split('\t')
+    if len(f) > 4 and not line.startswith('#') and f[3].lower().startswith('0298'):
+        new = '8140f' + f[0][5:]
+        if new.lower() in taken:
+            raise SystemExit(f'mirrored IID {new} already in the world')
+        taken.add(new.lower())
+        f[0] = new
+        f[3] = '0299' + f[3][4:]
+        mirrored.append('\t'.join(f))
+open(path, 'w', encoding='utf-8').write('\n'.join(lines + mirrored) + '\n')
+print(f'Shelter mirrored into 0x0299: {len(mirrored)} placements')
+PY
   content=$played
 fi
 
