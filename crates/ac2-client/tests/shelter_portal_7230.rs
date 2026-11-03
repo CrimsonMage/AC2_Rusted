@@ -158,5 +158,13 @@ fn the_shelter_pink_portal_is_drawn() {
         .map(|o| (o.cell, o.origin, o.in_world));
     eprintln!("portal placed {placed:x?} (server {CELL:08x} {PORTAL_AT:?})");
     scene.draw(&mut client, &server, 0.5, "shelter_portal_1.png");
+    for i in 0..8 {
+        scene.draw(
+            &mut client,
+            &server,
+            0.125,
+            &format!("shelter_portal_seq{i}.png"),
+        );
+    }
     assert!(systems > 0 && alive > 0, "the portal's particles draw");
 }
