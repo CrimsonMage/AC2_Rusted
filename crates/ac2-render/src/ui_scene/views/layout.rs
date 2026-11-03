@@ -3,7 +3,7 @@
 //! figure placed in the scene.
 
 use std::collections::hash_map::DefaultHasher;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::time::Duration;
 
@@ -69,6 +69,13 @@ impl UiViews {
         wait: bool,
     ) -> SceneUpdate {
         let view = &mut self.views[index];
+        // The model each figure drew last frame: a figure whose new model (a changed
+        // appearance) is still loading keeps drawing it, so the scene does not blink empty.
+        let previous: HashMap<u64, u64> = view
+            .placed
+            .iter()
+            .filter_map(|p| Some((p.key, p.drawn.as_ref()?.key)))
+            .collect();
         let mut placed: Vec<Placed> = Vec::with_capacity(figures.len());
         let mut models = Vec::with_capacity(figures.len());
         for figure in figures {
@@ -128,7 +135,17 @@ impl UiViews {
                     }
                 }
             };
-            let drawn = model.and_then(|key| {
+            let shown = model.and_then(|key| {
+                if view.scene.object_rig(key).is_some() {
+                    Some(key)
+                } else {
+                    previous
+                        .get(&figure.key)
+                        .copied()
+                        .filter(|old| view.scene.object_rig(*old).is_some())
+                }
+            });
+            let drawn = shown.and_then(|key| {
                 let (rig, rig_scale) = view.scene.object_rig(key)?;
                 let world = Mat4::from_scale_rotation_translation(
                     scale * *rig_scale,

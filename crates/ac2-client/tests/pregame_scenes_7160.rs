@@ -608,3 +608,86 @@ fn the_intro_data_patch_credits_and_controls_screens_draw() {
     save("pregame_keyboard.png", &controls);
     assert!(lit(&controls) > (SIZE.0 * SIZE.1 / 10) as usize);
 }
+
+/// A setting changed on the modification page keeps the avatar drawn while its new model loads:
+/// the figure draws its previous model until the new one is in (no empty frame).
+#[test]
+fn changing_a_setting_keeps_the_avatar_drawn_while_its_model_loads() {
+    let Some(mut rig) = Rig::new(true) else {
+        return;
+    };
+    rig.click("CreateButton");
+    rig.wait_for("no avatar selection", |r| {
+        r.view.mode() == MODE_AVATAR_SELECTION
+    });
+    let _ = rig.draw();
+    let viewport = rig.viewport("AvatarSelectionViewport");
+    let picks = rig.picks(&viewport);
+    rig.point(picks[0].0);
+    rig.frame();
+    rig.view.input(&[(LEFT, 1.0, true), (LEFT, 1.0, false)]);
+    rig.wait_for("no avatar modification", |r| {
+        r.view.mode() == MODE_AVATAR_MODIFICATION
+    });
+    let race = rig
+        .view
+        .ui()
+        .unwrap()
+        .avatar_modification()
+        .unwrap()
+        .viewport();
+    let viewport = rig
+        .view
+        .ui()
+        .unwrap()
+        .viewports()
+        .into_iter()
+        .find(|v| Some(v.root) == race)
+        .expect("the race's viewport");
+    let (_, ui_only) = rig.draw();
+    rig.click("ClothingButton");
+    let (settled, _) = rig.draw();
+    let drawn = scene_pixels(&settled, &ui_only, &viewport);
+    assert!(drawn > 1_000, "the avatar is drawn: {drawn}");
+    let figures = rig.view.scene_objects();
+    assert!(figures > 0, "the avatar's model is in");
+    for button in [
+        "ShirtClothingColorRightButton",
+        "PantsClothingColorRightButton",
+    ] {
+        let before = rig
+            .view
+            .ui()
+            .unwrap()
+            .avatar_modification()
+            .unwrap()
+            .applied()
+            .cloned();
+        rig.click(button);
+        let after = rig
+            .view
+            .ui()
+            .unwrap()
+            .avatar_modification()
+            .unwrap()
+            .applied()
+            .cloned();
+        assert_ne!(before, after, "{button} changes the appearance");
+        // Frames as the window draws them, the new model still loading.
+        for n in 0..6 {
+            rig.frame();
+            assert!(
+                rig.view.scene_objects() >= figures,
+                "{button}: frame {n} after the change dropped a figure's model ({} of {figures})",
+                rig.view.scene_objects()
+            );
+            let (now, _) = rig.draw_now();
+            let shown = scene_pixels(&now, &ui_only, &viewport);
+            assert!(
+                shown * 2 > drawn,
+                "{button}: frame {n} after the change draws {shown} of {drawn} avatar pixels"
+            );
+        }
+        let _ = rig.draw();
+    }
+}
