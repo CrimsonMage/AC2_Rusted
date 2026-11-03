@@ -88,7 +88,7 @@ fn main() -> eframe::Result {
     };
     let markers = atlas::markers(&guide);
     if markers.is_empty() {
-        eprintln!("no places: build with AC2HERO_DIR set, or pass --mirror DIR");
+        eprintln!("no places: build with AC2VAULT_DIR set, or pass --mirror DIR");
     }
     let world = dat_dir
         .as_ref()

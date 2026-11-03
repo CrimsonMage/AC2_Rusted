@@ -25,7 +25,7 @@ impl MarkerKind {
         match self {
             MarkerKind::QuestStart => "Quest starts",
             MarkerKind::QuestStep => "Quest steps",
-            MarkerKind::Npc => "NPCs",
+            MarkerKind::Npc => "Places",
             MarkerKind::GuidePoint => "Guide points",
         }
     }
@@ -74,7 +74,21 @@ pub fn markers(guide: &Guide) -> Vec<Marker> {
             Kind::Monster => continue,
         };
         let mut seen: Vec<MapCoord> = start.iter().map(|(c, _)| *c).collect();
-        for line in &page.lines {
+        // A place page (the AC2 Vault's atlas) marks its own `Coordinates:` line only, not the
+        // landmarks it lists nearby.
+        let own = (kind == MarkerKind::Npc)
+            .then(|| {
+                page.lines.iter().find(|l| {
+                    crate::html::line_text(l)
+                        .trim_start()
+                        .starts_with("Coordinates:")
+                })
+            })
+            .flatten();
+        for line in own
+            .into_iter()
+            .chain(own.is_none().then_some(&page.lines).into_iter().flatten())
+        {
             let text = crate::html::line_text(line);
             for span in &line.spans {
                 if let crate::guide::Span::Coord { at, .. } = span {

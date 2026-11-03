@@ -8,8 +8,8 @@ license.workspace = true
 [lints]
 workspace = true
 
-# The quest guide: the AC2Hero site mirror baked in at build time (`AC2HERO_DIR`, the mirror's
-# `ac2hero.e5i5o.com` folder; empty when unset, and nothing from it is ever committed), its pages,
+# The quest guide: the AC2 Vault site mirror baked in at build time (`AC2VAULT_DIR`, the merged
+# `ac2vault.ign.com` tree; empty when unset, and nothing from it is ever committed), its pages,
 # quest facts, reward items and images, the map coordinates in them, and steering towards them.
 [dependencies]
 ac2-physics = { path = "../ac2-physics" }

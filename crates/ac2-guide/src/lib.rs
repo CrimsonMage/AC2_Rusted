@@ -1,7 +1,7 @@
-//! The quest guide (`ac2-guide`): the AC2Hero site, baked in at build time, with its map
+//! The quest guide (`ac2-guide`): the AC2 Vault site, baked in at build time, with its map
 //! coordinates made targets the player can steer to.
 //!
-//! - `html` reads the mirror (at build time, or at run time for a quick look at an edit);
+//! - `vault` reads the AC2 Vault mirror (what the build bakes); `html` reads an AC2Hero mirror (at build time, or at run time for a quick look at an edit);
 //!   `facts` reads the quests' header fields and the item tables.
 //! - `atlas` turns the guide's coordinates into map markers.
 //! - `guide` is the baked form; `coord` finds coordinates in text; `nav` steers to them.
@@ -16,12 +16,13 @@ pub mod guide;
 pub mod html;
 pub mod nav;
 pub mod picture;
+pub mod vault;
 
 pub use guide::{Guide, Image, Item, Kind, Line, MapCoord, Page, QuestFacts, Reward, Span, Style};
 
-static BAKED: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/ac2hero.bin"));
+static BAKED: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/guide.bin"));
 
-/// The guide baked in at build time (empty when `AC2HERO_DIR` was unset). Each call decodes a
+/// The guide baked in at build time (empty when `AC2VAULT_DIR` was unset). Each call decodes a
 /// new copy of the text (a few MB; the images borrow from the binary), so a caller keeps one while
 /// it is in use and drops it when done.
 pub fn baked() -> Guide {

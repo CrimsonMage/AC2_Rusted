@@ -54,7 +54,7 @@ impl MapView {
         nav: &mut Navigator,
     ) -> Option<u32> {
         ui.horizontal(|ui| {
-            ui.checkbox(&mut self.show_npcs, "NPCs");
+            ui.checkbox(&mut self.show_npcs, "Places");
             ui.checkbox(&mut self.show_monsters, "Monsters");
             if ui.button("Fit world").clicked() {
                 self.scale = 0.0;

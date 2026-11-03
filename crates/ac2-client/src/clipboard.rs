@@ -45,7 +45,7 @@ impl TextClipboard for OsClipboard {
 
 /// The clipboard every text tree shares: the OS one, or an in-memory one where the platform has
 /// none (no display), which is logged once.
-pub(crate) fn shared() -> Arc<dyn TextClipboard> {
+pub fn shared() -> Arc<dyn TextClipboard> {
     static CLIPBOARD: OnceLock<Arc<dyn TextClipboard>> = OnceLock::new();
     CLIPBOARD
         .get_or_init(|| match arboard::Clipboard::new() {

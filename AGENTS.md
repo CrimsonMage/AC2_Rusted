@@ -655,15 +655,37 @@ game rules and server-visible behaviour exactly retail.
 - Exception: the intro is skipped. Retail's `gmUIFlow::gmUIFlow` queued `gmIntroUI` first (two
   pictures four seconds each, with its music, before the data patch screen); the client opens the
   data patch (connecting) screen first (`PregameUi::skip_intro`) unless started with `--intro`.
-- Exception: the quest guide (`ac2_guide`, a modern addition: the AC2Hero site baked in at build
-  time from `AC2HERO_DIR`, nothing of it committed). The option panel's Assistance button
+- Exception: the quest guide (`ac2_guide`, a modern addition: the AC2 Vault site
+  (`ac2vault.ign.com`, 2002-2005) baked in at build time from `AC2VAULT_DIR`, the merged mirror
+  tree, nothing of it committed; it replaced the AC2Hero mirror the guide first baked, which
+  `ac2_guide::html` still reads for the tools' `--mirror`). `ac2_guide::vault` takes the quest
+  database (facts from its table), the atlas (the Places tab, by landmass and type; each place's
+  own coordinate is its map marker), the bestiary (by level band), the trophy database (the
+  Rewards tab, one table page per trophy type) and the guides: the player and class guides, key
+  map and commands, glyph vaults, monthly event guides and patch notes, the spell and uniques
+  lists and the race pages. Left out: the PC tuning guide, forums, screenshots, site news,
+  interviews, columns, player stories and the lore archive. Each record is read once, from its
+  largest saved copy, and its links to other records open their pages. `tools/vault-wiki` is the
+  same window as its own application (`build_styled_hud` in either look, every other root
+  hidden, the window filling the application, `GuideWindow::unbound_size` lifting its 1000 x 740
+  cap); Share and a coordinate press copy to the clipboard and print `share …` / `point-at …` on
+  stdout. The window's text buttons (`window_parts::text_button`, copies of the book's
+  `BookCopyButton`) take fixed edges: the template's anchors made `UpdateSizeAndPosition` put a
+  copy back at the copy button's place on every state change, so a pointer over a guide tab moved
+  it away and no press released on it. The guide window, the help window's links and the world
+  map's layers sidecar open a row or link on a left-button press only (`mouse::is_left_press`):
+  the tree's `mouse_press_top` carries the button, and each wheel notch arrives as one, so
+  scrolling the guide's quest list opened whatever row passed under the pointer. The guide's
+  list maps a press through the text's wrapped display lines (`UiTree::text_line_paragraphs`) and
+  scrolls by display lines: a title too long for the list wraps onto a second line, and counting
+  one line per entry opened an entry a few rows below the pointer once the list was scrolled. The option panel's Assistance button
   (`gmOptionUI`, which opened the hidden `AssistanceTab` page for `gmAssistanceUI`'s calls) is
   the In-Game Wiki button: it opens and closes the guide window (`ac2_ui::guide_window`), and the
   assistance page is no longer reached (the servers do not answer its calls). The window is another
   `Book` of the gameplay layout made as its own root, its frame in nine pieces, resized by a copy
   of the chat strip's grip dragging two edges (the DATs' diagonal cursor, a drawn grip mark) and
   kept at its size with its place; its panes scroll by copies of the layouts' vertical scrollbar
-  (`0x413DE718`). Tabs list quests (by level band; the search also matches rewards), NPCs,
+  (`0x413DE718`). Tabs list quests (by level band; the search also matches rewards), places,
   monsters, guides and reward items; a page shows its facts, rewards with their item icons, text
   with coloured runs (the book's text area drew one colour), links, map coordinates that point the
   floating arrow, and its pictures, decoded on a worker and dropped with the guide when the window
@@ -681,7 +703,7 @@ game rules and server-visible behaviour exactly retail.
   default layers, denser kinds appearing as it zooms, with the server's markers and the player
   marker kept. A layers button in the coordinates row opens a list beside the panel
   (`ac2_ui::world_map_sidecar`, another `Book`, right of the panel or left when the right would
-  leave the screen) that toggles each note kind, the AC2Hero guide's places and zone levels
+  leave the screen) that toggles each note kind, the guide's places and zone levels
   (`ac2_guide`, baked at build time; zone levels are the levels of the guide's quests starting in
   each 16 x 16 block square, as the game data has none), all off by default, and the painted region
   art as a background, also off. The terrain is read on its own store with an 8 MB free-object

@@ -13,7 +13,7 @@ use crate::compose::NINE_SLICE;
 use crate::element::UiTree;
 use crate::layout::{ElementDesc, LayoutDesc};
 use crate::mouse::UiMessage;
-use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP, SIZE_IMAGE_TO_OWNER};
+use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, SIZE_IMAGE_TO_OWNER};
 use crate::world_map_layers::{GuideLayer, NoteKind, WorldNote};
 
 /// One map layer.
@@ -104,7 +104,7 @@ impl Sidecar {
                 on.insert(Layer::Note(kind), true);
             }
         }
-        rows.push(Row::Heading("AC2Hero guide"));
+        rows.push(Row::Heading("AC2 Vault guide"));
         for layer in GuideLayer::ALL {
             rows.push(Row::Layer(Layer::Guide(layer)));
             on.insert(Layer::Guide(layer), false);
@@ -241,7 +241,7 @@ impl Sidecar {
             self.show(tree, false);
             return true;
         }
-        if message.message == MSG_MOUSE_PRESS_TOP {
+        if crate::mouse::is_left_press(message) {
             let Some(text) = self.text(tree) else {
                 return true;
             };

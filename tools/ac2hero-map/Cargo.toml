@@ -10,7 +10,7 @@ workspace = true
 
 # Standalone test tool for the in-client world map overlay: the quest guide's places (quest
 # starts, quest steps, NPCs, guide points) as icons on a zoomable map of the world, from the
-# guide `ac2hero-guide` bakes (`AC2HERO_DIR`), over the world drawn from its own landscape in the
+# guide `ac2hero-guide` bakes (`AC2VAULT_DIR`), over the world drawn from its own landscape in the
 # DATs (`AC2_DAT_DIR`, optional), with more detail as you zoom. It changes no client crate.
 [dependencies]
 ac2-guide = { path = "../../crates/ac2-guide" }

@@ -1,10 +1,10 @@
-//! The quest guide's window (a modern addition, `ac2_guide`): the AC2Hero site baked into the
+//! The quest guide's window (a modern addition, `ac2_guide`): the AC2 Vault site baked into the
 //! client, browsed in the retail UI. The window is another `Book` of the gameplay layout made as
 //! its own root, as the help window and the Tracker are, its frame in nine pieces so it can take
 //! any size; a copy of the chat strip's corner grip resizes it, and its size is kept with its
 //! place.
 //!
-//! - Tabs (the book's text button) pick Quests, NPCs, Monsters, Guides or Rewards.
+//! - Tabs (the book's text button) pick Quests, Places, Monsters, Guides or Rewards.
 //! - The left pane is a search field and the tab's list (`ac2_guide::browse`), quests under
 //!   level bands, in a second copy of the book's text area with a copy of its slider.
 //! - The right pane is the page (`guide_page`): its facts, rewards with their item icons, text,
@@ -35,7 +35,7 @@ use crate::mouse::{UiMessage, GLOBAL_MOUSE_DOWN, UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::scrollbar::MSG_NEW_POSITION;
 use crate::token::{
     tokenize, BORDER_BOTTOM, BORDER_RIGHT, MAX_HEIGHT, MAX_WIDTH, MIN_HEIGHT, MIN_WIDTH,
-    MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP, SIZE_IMAGE_TO_OWNER, TEXT_MAX_CHARS,
+    MSG_BUTTON_RELEASE_ON, SIZE_IMAGE_TO_OWNER, TEXT_MAX_CHARS,
 };
 use crate::window_parts::{
     copy_of, entry_field, grip_art, inside, max_scroll, owned_by, place_button, place_entry,
@@ -347,6 +347,26 @@ impl GuideWindow {
         (self.tab, self.view)
     }
 
+    /// Lifts the window's largest size (`MAX_SIZE` keeps it off most of the game view), for a
+    /// host where the window is the whole application (the standalone `vault-wiki`).
+    pub fn unbound_size(&self, tree: &mut UiTree) {
+        tree.set_int(self.root(), MAX_WIDTH, i32::MAX);
+        tree.set_int(self.root(), MAX_HEIGHT, i32::MAX);
+    }
+
+    /// The shown page's slug (its stable name, as `open_slug` takes it); `None` for an item,
+    /// the welcome text, or before the guide has loaded.
+    pub fn slug(&self) -> Option<String> {
+        let (Some(View::Page(page)), Some(loaded)) = (self.view, &self.loaded) else {
+            return None;
+        };
+        loaded
+            .guide
+            .pages
+            .get(page as usize)
+            .map(|p| p.path.clone())
+    }
+
     /// Opens the window (the guide starts decoding the first time).
     pub fn open(&mut self, tree: &mut UiTree) {
         if !self.is_shown() {
@@ -614,10 +634,12 @@ impl GuideWindow {
     }
 
     fn sync_list(&mut self, tree: &mut UiTree) {
-        let (Some(list), rows) = (self.list, self.list_rows.len()) else {
+        let Some(list) = self.list else {
             return;
         };
-        self.list_scroll = sync_scroll(tree, list, self.list_slider, rows, self.list_scroll);
+        // Display lines, not entries: a long title wraps onto a second line.
+        let lines = tree.text_line_count(list).max(self.list_rows.len());
+        self.list_scroll = sync_scroll(tree, list, self.list_slider, lines, self.list_scroll);
     }
 
     // ---- the page ----
@@ -648,13 +670,13 @@ impl GuideWindow {
         if pages == 0 {
             return self.show_page_message(
                 tree,
-                "This client was built without the guide (AC2HERO_DIR was not set).",
+                "This client was built without the guide (AC2VAULT_DIR was not set).",
             );
         }
         self.show_page_message(
             tree,
             &format!(
-                "{pages} pages from AC2Hero. Pick a quest, or search titles and rewards. \
+                "{pages} pages from the AC2 Vault. Pick a quest, or search titles and rewards. \
                  Gold coordinates point the arrow; Share links a page in chat."
             ),
         );
@@ -891,7 +913,7 @@ impl GuideWindow {
                 return (true, None);
             }
         }
-        if message.message == MSG_MOUSE_PRESS_TOP {
+        if crate::mouse::is_left_press(message) {
             let pointer = tree.pointer();
             if let Some(view) = self.list_view_at(tree, pointer) {
                 self.show(tree, view);
@@ -946,12 +968,17 @@ impl GuideWindow {
         false
     }
 
-    fn list_view_at(&self, tree: &UiTree, (x, y): (i32, i32)) -> Option<View> {
+    /// The entry under the pointer: its display line, then the entry that line belongs to (a
+    /// wrapped title takes two lines, so lines and entries part ways below it).
+    fn list_view_at(&self, tree: &mut UiTree, (x, y): (i32, i32)) -> Option<View> {
         let list = self.list.filter(|&l| inside(tree, l, (x, y)))?;
         let rect = tree.screen_box(list);
         let top = margin_top(tree, list);
-        let row = (y - rect.y0 - top + self.list_scroll) / line_height(tree, list);
-        match self.list_rows.get(usize::try_from(row).ok()?)? {
+        let line = (y - rect.y0 - top + self.list_scroll) / line_height(tree, list);
+        let row = *tree
+            .text_line_paragraphs(list)
+            .get(usize::try_from(line).ok()?)?;
+        match self.list_rows.get(row)? {
             ListRow::Open(view, _) => Some(*view),
             _ => None,
         }

@@ -112,7 +112,7 @@ fn field(html: &str, label: &str) -> Option<String> {
 }
 
 /// The entries of a field: split at `&nbsp;` runs and breaks, tags stripped.
-fn split_entries(raw: &str) -> Vec<String> {
+pub(crate) fn split_entries(raw: &str) -> Vec<String> {
     let mut s = raw.replace("\r", "");
     for sep in ["<br>", "<br/>", "<br />", "<p>", "</p>", "<li>", "</li>"] {
         s = s
@@ -129,7 +129,7 @@ fn split_entries(raw: &str) -> Vec<String> {
 }
 
 /// Text with tags removed, entities decoded and whitespace collapsed.
-fn plain(raw: &str) -> String {
+pub(crate) fn plain(raw: &str) -> String {
     let mut out = String::new();
     let mut in_tag = false;
     for c in raw.chars() {

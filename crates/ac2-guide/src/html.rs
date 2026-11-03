@@ -14,10 +14,10 @@ const CONTENT_START: &str = "<!-- header2 end-->";
 const CONTENT_END: &str = "<!-- footer2 start-->";
 
 /// A page as read, before the guide joins them: its images and item rows by mirror path.
-struct Parsed {
-    page: Page,
-    images: Vec<String>,
-    items: Vec<ItemRow>,
+pub(crate) struct Parsed {
+    pub(crate) page: Page,
+    pub(crate) images: Vec<String>,
+    pub(crate) items: Vec<ItemRow>,
 }
 
 /// Every content page under `root` (the mirror's `ac2hero.e5i5o.com` folder), sorted by kind and
@@ -34,6 +34,32 @@ pub fn read_mirror(root: &Path) -> std::io::Result<Guide> {
             parsed.push(p);
         }
     }
+    let read_image = |path: &str| {
+        std::fs::read(root.join(path))
+            .or_else(|_| std::fs::read(root.join(percent_decode(path))))
+            .ok()
+    };
+    let page_key = |path: &str| path.to_string();
+    let href_keys = |href: &str| {
+        vec![
+            href.to_string(),
+            format!("{href}.html"),
+            percent_decode(href),
+        ]
+    };
+    Ok(assemble(parsed, &read_image, &page_key, &href_keys))
+}
+
+/// The guide from its parsed pages, sorted by kind and title: the images they show loaded
+/// (`read_image` gives a mirror path's bytes; pictures it cannot give are dropped), the item rows
+/// made items, quest rewards matched to them, and each link whose `href_keys` meet a page's
+/// `page_key` made a link to that page.
+pub(crate) fn assemble(
+    mut parsed: Vec<Parsed>,
+    read_image: &dyn Fn(&str) -> Option<Vec<u8>>,
+    page_key: &dyn Fn(&str) -> String,
+    href_keys: &dyn Fn(&str) -> Vec<String>,
+) -> Guide {
     parsed.sort_by(|a, b| {
         let (a, b) = (&a.page, &b.page);
         (a.kind as u8, a.title.to_lowercase(), &a.path).cmp(&(
@@ -47,10 +73,7 @@ pub fn read_mirror(root: &Path) -> std::io::Result<Guide> {
     let mut image_index: HashMap<String, Option<u32>> = HashMap::new();
     let mut load = |path: &str| -> Option<u32> {
         *image_index.entry(path.to_string()).or_insert_with(|| {
-            let bytes = std::fs::read(root.join(path))
-                .or_else(|_| std::fs::read(root.join(percent_decode(path))))
-                .ok()
-                .filter(|b| Image::format(b).is_some())?;
+            let bytes = read_image(path).filter(|b| Image::format(b).is_some())?;
             images.push(Image {
                 path: path.to_string(),
                 bytes: bytes.into(),
@@ -87,22 +110,18 @@ pub fn read_mirror(root: &Path) -> std::io::Result<Guide> {
         pages.push(page);
     }
     match_rewards(&mut pages, &items);
-    let index: HashMap<String, u32> = pages
-        .iter()
-        .enumerate()
-        .map(|(i, p)| (p.path.clone(), i as u32))
-        .collect();
+    let mut index: HashMap<String, u32> = HashMap::new();
+    for (i, p) in pages.iter().enumerate() {
+        index.entry(page_key(&p.path)).or_insert(i as u32);
+    }
     for span in pages
         .iter_mut()
         .flat_map(|p| &mut p.lines)
         .flat_map(|l| &mut l.spans)
     {
         if let Span::Missing { text, href } = span {
-            let page = index
-                .get(href.as_str())
-                .or_else(|| index.get(&format!("{href}.html")))
-                .or_else(|| index.get(&percent_decode(href)));
-            if let Some(&page) = page {
+            let page = href_keys(href).iter().find_map(|k| index.get(k).copied());
+            if let Some(page) = page {
                 *span = Span::Page {
                     text: std::mem::take(text),
                     page,
@@ -110,11 +129,11 @@ pub fn read_mirror(root: &Path) -> std::io::Result<Guide> {
             }
         }
     }
-    Ok(Guide {
+    Guide {
         pages,
         items,
         images,
-    })
+    }
 }
 
 /// Points each quest reward at the item table entry it names: the same name (letters and digits,
@@ -162,7 +181,7 @@ fn collect(root: &Path, dir: &Path, out: &mut Vec<String>) -> std::io::Result<()
 }
 
 /// UTF-8 when it is valid, else Windows-1252 (the site's older pages).
-fn decode_text(bytes: &[u8]) -> String {
+pub(crate) fn decode_text(bytes: &[u8]) -> String {
     match std::str::from_utf8(bytes) {
         Ok(s) => s.replace('\u{feff}', ""),
         Err(_) => bytes.iter().map(|&b| cp1252(b)).collect(),
@@ -286,7 +305,7 @@ pub fn line_text(line: &Line) -> String {
 }
 
 /// `%XX` escapes decoded; malformed ones kept.
-fn percent_decode(s: &str) -> String {
+pub(crate) fn percent_decode(s: &str) -> String {
     let b = s.as_bytes();
     let mut out = Vec::with_capacity(b.len());
     let mut i = 0;
@@ -381,6 +400,12 @@ pub(crate) fn resolve(dir: &str, href: &str) -> String {
         }
     }
     parts.join("/")
+}
+
+/// A content block's tag soup as lines, and the images they show by mirror path (`Span::Image`
+/// indexes that list); links and images resolve against `dir`.
+pub(crate) fn content_lines(dir: &str, html: &str) -> (Vec<Line>, Vec<String>) {
+    Lines::new(dir).run(html)
 }
 
 /// The content block's tag soup turned into lines.

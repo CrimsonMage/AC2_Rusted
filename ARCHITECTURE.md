@@ -12,9 +12,12 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
   it walks the world under the player camera (`ac2-smartbox`, `ac2-physics`) with an egui panel,
   and the HUD's session is the client logged on to `legions-server-double` in process (starter
   inventory, worn gear, skills), so the toolbar's panels work. It never opens a socket. `race-table` runs the `CharacterGenSystem`
-  script once and writes the playable race and sex models the viewer reads. `ac2hero-guide`
+  script once and writes the playable race and sex models the viewer reads. `vault-wiki` is the
+  In-Game Wiki as its own application: the client's guide window (`ac2_ui::guide_window`) built
+  from the DATs in the modern or classic look, alone in a window with the client's input stack. `ac2hero-guide`
   and `ac2hero-map` are standalone egui tools for the in-client quest guide: the guide `ac2-guide`
-  bakes from the AC2Hero site mirror (`AC2HERO_DIR`; nothing from it is committed), browsed with
+  bakes from the AC2 Vault site mirror (`AC2VAULT_DIR`; nothing from it is committed; `--vault`
+  or `--mirror` read an AC2 Vault or AC2Hero mirror at run time), browsed with
   clickable map coordinates, a target arrow and route, and shown as icons on a world map drawn
   from the landscape (`AC2_DAT_DIR`: per-vertex far colours, normals, water and roads, finer as
   you zoom). They only read the client's crates.
@@ -42,7 +45,7 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-script` | WSL interpreter (10) | `WLib`/`ByteStream` and `WState` decode, the script VM and native glue (AC2 UI and much gameplay run on it) | rebuilt from the decompile |
 | `ac2-gameplay` | Gameplay (11) | characters, quests, fellowships, crafting, examination; `quest` (`gmQuestInfo` status, time and extra-text rules) so far | started |
 | `ac2-audio` | Audio (16) | sound records (`SoundInfo`, `MusicInfo`, `DBWave`) decoded on a loader thread, `SoundManager` (play requests, budget, channel volumes), the music queue (`DXMusicMessageThread`: primary and secondary segments over `MusicPerformance` and `StylePerformance`, events to an `EventSink`), the DLS software synthesizer (`synth`: voices from the band collections or the user's GM file, an `EventSink` that renders), the mixer and speaker output (cpal), the ambient driver, rain and thunder, the portal space's sounds and the screens' music (`SoundSpace`: the client answers the place questions over physics, so this crate names no physics or world type) | rebuilt from the decompile |
-| `ac2-guide` | Quest guide (no retail subsystem: the AC2Hero site, a modern addition) | the AC2Hero mirror baked in at build time (`AC2HERO_DIR`, nothing from it committed): pages, quest facts, reward items, images and their decoding, map coordinates (`Position::FromRealMapCoords` forms), steering to them, map markers, browsing (tabs, search, chat share tokens) | new |
+| `ac2-guide` | Quest guide (no retail subsystem: the AC2 Vault site, a modern addition) | the AC2 Vault mirror baked in at build time (`AC2VAULT_DIR`, the merged `ac2vault.ign.com` tree, nothing from it committed; `vault` reads it, `html` an AC2Hero mirror): pages, quest facts, reward items, images and their decoding, map coordinates (`Position::FromRealMapCoords` forms), steering to them, map markers, browsing (tabs, search, chat share tokens) | new |
 | `ac2-macro` | Player automation tools (no retail subsystem: a modern addition) | pure policy the client feeds and acts on: the Tracker (name patterns over the objects the client sees, Virindi Sense's `patterns.txt`; matches announced in chat, listed with distances, picked for the arrow); no files, drawing or network | new |
 | `ac2-client` | Client entry (09 `main`) | the program: window, input, login screen, world loop | new |
 | `ac2-launcher` | Launcher (retail's separate `ac2launcher.exe`; a modern addition) | the `ac2-launcher` program, in ThwargLauncher's way: servers as a name, a connect string and a type (`ServerItem` XML, the player's and a published list, `docs/server-list.md`), the command line built per type, each server's sign-in (a Pyrealium account service's tickets), and the start of `ac2` with its ticket in a file | new |

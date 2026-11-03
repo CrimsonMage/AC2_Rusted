@@ -27,7 +27,7 @@ use crate::ksml::{KsmlDocument, KsmlFrame, KsmlNode};
 use crate::layout::LayoutDesc;
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS, GLOBAL_MOUSE_DOWN, UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::scrollbar::MSG_NEW_POSITION;
-use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP};
+use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON};
 use std::sync::Arc;
 
 /// The gap between two tabs in a row, in spaces.
@@ -216,7 +216,7 @@ impl HelpWindow {
             return true;
         }
         if message.element_id == tokenize("BookClientAreaText")
-            && message.message == MSG_MOUSE_PRESS_TOP
+            && crate::mouse::is_left_press(message)
         {
             if let (Some(link), Some(pages)) = (self.link_at(tree, tree.pointer()), pages) {
                 if let Some(HelpRequest::Load {

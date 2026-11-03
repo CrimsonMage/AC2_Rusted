@@ -20,7 +20,7 @@ impl Kind {
     pub fn label(self) -> &'static str {
         match self {
             Kind::Quest => "Quests",
-            Kind::Npc => "NPCs",
+            Kind::Npc => "Places",
             Kind::Monster => "Monsters",
             Kind::Guide => "Guides",
         }

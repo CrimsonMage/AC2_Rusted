@@ -61,6 +61,10 @@ pub(crate) fn text_button(
     let template = gameplay.find_element(tokenize("BookCopyButton"))?;
     let mut desc: ElementDesc = (*template).clone();
     desc.id = tokenize(id);
+    // The client places the copy; fixed edges keep that place when a state change runs
+    // `UpdateSizeAndPosition` (the template's anchors would put it back at the book's copy
+    // button: a pointer over a guide tab moved the tab away, so no press released on it).
+    desc.edges = [0; 4];
     let element = tree.create_element(Arc::clone(gameplay), Arc::new(desc), false)?;
     tree.set_parent(element, Some(parent));
     tree.move_to(element, x, y);

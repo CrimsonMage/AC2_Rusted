@@ -94,7 +94,7 @@ fn the_map_grows_zooms_and_lists_its_layers() {
         Some(text),
         tokenize("BookClientAreaText"),
         MSG_MOUSE_PRESS_TOP,
-        0,
+        crate::window_locations::UI_LEFT_BUTTON as i32,
     );
     assert!(map.message(tree, &nav, &press));
     assert!(!map.layer(Layer::Note(NoteKind::Town)));

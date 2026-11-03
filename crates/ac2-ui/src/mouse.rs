@@ -26,6 +26,14 @@ use crate::token::{
 };
 use crate::window_locations::UI_LEFT_BUTTON;
 
+/// Whether `message` is a press of the left button (its `mouse_press_top` carries the action:
+/// the tree sends one for every button and for each wheel notch too). The client's own windows
+/// open links and rows on this only, so a wheel turn scrolls without opening what is under it.
+pub fn is_left_press(message: &UiMessage) -> bool {
+    message.message == crate::token::MSG_MOUSE_PRESS_TOP
+        && message.data as u32 == crate::window_locations::UI_LEFT_BUTTON
+}
+
 /// `UIMESSAGE_GLOBAL_*` (`UIElementManager::BroadcastGlobalMessage`).
 pub const GLOBAL_MOUSE_DOWN: u32 = 0xFFFF_0000;
 pub const GLOBAL_MOUSE_UP: u32 = 0xFFFF_0001;

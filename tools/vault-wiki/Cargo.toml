@@ -1,0 +1,27 @@
+[package]
+name = "vault-wiki"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# The In-Game Wiki as its own application: the client's guide window (`ac2_ui::guide_window`, the
+# AC2 Vault baked in by `ac2-guide` from `AC2VAULT_DIR`) built from the DATs' layouts in the
+# client's modern or classic look, alone in a window, with the client's input stack. It never
+# connects anywhere.
+[dependencies]
+ac2-client = { path = "../../crates/ac2-client" }
+ac2-dat = { path = "../../crates/ac2-dat" }
+ac2-db = { path = "../../crates/ac2-db" }
+ac2-gpu = { path = "../../crates/ac2-gpu" }
+ac2-guide = { path = "../../crates/ac2-guide" }
+ac2-ui = { path = "../../crates/ac2-ui" }
+wgpu = { version = "30.0.1", default-features = false }
+winit = "0.30"
+png = "0.18"
+
+[dev-dependencies]
+ac2-dat = { path = "../../crates/ac2-dat", features = ["test-support"] }

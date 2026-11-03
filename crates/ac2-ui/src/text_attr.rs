@@ -424,6 +424,46 @@ impl UiTree {
             .map_or(0, |text| text.lines.len())
     }
 
+    /// For each display line of the text (as `RecalculateGlyphList` wraps it), how many hard
+    /// line breaks come before it: the paragraph it belongs to. A client window that lists one
+    /// entry per paragraph maps a pressed line to its entry with it, wrapped entries included.
+    pub(crate) fn text_line_paragraphs(&mut self, index: usize) -> Vec<usize> {
+        self.text_paper_height(index);
+        let Some(text) = self.el(index).text.as_ref() else {
+            return Vec::new();
+        };
+        let mut out = Vec::with_capacity(text.lines.len());
+        let (mut breaks, mut counted) = (0, 0);
+        for line in &text.lines {
+            let start = line.index.min(text.glyphs.len());
+            breaks += text.glyphs[counted..start]
+                .iter()
+                .filter(|g| g.ch == 10)
+                .count();
+            counted = start;
+            out.push(breaks);
+        }
+        out
+    }
+
+    /// The characters of display line `line` as laid out (tests compare what is drawn there).
+    #[cfg(test)]
+    pub(crate) fn text_display_line(&mut self, index: usize, line: usize) -> Option<String> {
+        self.text_paper_height(index);
+        let text = self.el(index).text.as_ref()?;
+        let start = text.lines.get(line)?.index;
+        let end = text
+            .lines
+            .get(line + 1)
+            .map_or(text.glyphs.len(), |l| l.index);
+        let units: Vec<u16> = text.glyphs[start..end.min(text.glyphs.len())]
+            .iter()
+            .map(|g| g.ch)
+            .filter(|&ch| ch != 10)
+            .collect();
+        Some(String::from_utf16_lossy(&units))
+    }
+
     /// `UIElement_Text::SetViewY`: the text's view moved to `y` pixels.
     pub(crate) fn set_text_view_y(&mut self, index: usize, y: i32) {
         if let Some(text) = self.el_mut(index).text.as_mut() {

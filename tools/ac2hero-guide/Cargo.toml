@@ -8,7 +8,7 @@ license.workspace = true
 [lints]
 workspace = true
 
-# Standalone test tool for the in-client quest guide: the guide `ac2-guide` bakes (`AC2HERO_DIR`)
+# Standalone test tool for the in-client quest guide: the guide `ac2-guide` bakes (`AC2VAULT_DIR`)
 # browsed in egui with clickable map coordinates, a target arrow and a route map.
 [dependencies]
 ac2-guide = { path = "../../crates/ac2-guide" }

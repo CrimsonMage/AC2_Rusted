@@ -243,8 +243,14 @@ takes no `--server` flag.
 # Compare two DAT sets: records added, removed or changed, per file and record type
 cargo run --release -p dat-diff -- OLD_DIR NEW_DIR [--tsv OUT.tsv]
 
-# The quest guide (needs AC2HERO_DIR at build time, or --mirror at run time)
-cargo run --release -p ac2hero-guide -- [--mirror DIR] [--page TITLE] [--stats]
+# The quest guide (needs AC2VAULT_DIR=../third_party/ac2vault-merged at build time, or --vault DIR
+# at run time; --mirror DIR reads an AC2Hero mirror instead)
+cargo run --release -p ac2hero-guide -- [--vault DIR | --mirror DIR] [--page TITLE] [--stats] [--dump TITLE]
+
+# The In-Game Wiki as its own application: the client's guide window in the custom (modern) or
+# default (classic) UI, F7 switches; needs AC2VAULT_DIR at build time and AC2_DAT_DIR (or --dat-dir)
+cargo run --release -p vault-wiki -- [--dat-dir DIR] [--style modern|classic] [--size WxH] \
+    [--page SLUG] [--snapshot OUT.png]
 cargo run --release -p ac2hero-map -- [--mirror DIR] [--dat-dir DIR] [--snapshot OUT.png] \
     [--screenshot OUT.png [--at COORD] [--zoom PX_PER_CELL]] [--size WxH] [--bare 1] \
     [--player "COORD@HEADING"] [--export DIR]

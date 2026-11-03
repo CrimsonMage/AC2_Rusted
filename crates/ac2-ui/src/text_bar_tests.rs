@@ -81,3 +81,20 @@ fn a_long_text_sizes_the_widget_and_pages_by_its_height() {
     let view = tree.get(text).unwrap().text.as_ref().unwrap().view.1;
     assert_eq!(view, 10, "one page is the element's height");
 }
+
+/// A long paragraph wraps onto more lines; each display line names the paragraph it belongs to
+/// (`text_line_paragraphs`), so a client list maps a pressed line to its entry.
+#[test]
+fn wrapped_lines_name_their_paragraph() {
+    let (mut tree, text, _, _) = panel();
+    tree.set_text(text, "a\nb b b b b b b b b b b b b b b b\nc");
+    let lines = tree.text_line_paragraphs(text);
+    assert!(lines.len() > 3, "the middle paragraph wraps: {lines:?}");
+    assert_eq!(lines.first(), Some(&0));
+    assert_eq!(lines.last(), Some(&2));
+    assert!(
+        lines[1..lines.len() - 1].iter().all(|&p| p == 1),
+        "{lines:?}"
+    );
+    assert_eq!(lines.len(), tree.text_line_count(text));
+}

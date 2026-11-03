@@ -32,6 +32,8 @@ mod client_positions;
 mod client_prefs;
 mod client_shadow;
 mod clipboard;
+/// The OS clipboard the client's text elements share (the standalone tools use it too).
+pub use clipboard::shared as shared_clipboard;
 pub use help_content::{content_dir, resolve_content_dir, set_content_dir, CONTENT_DIR_ENV};
 mod help_content;
 use ac2_smartbox::{camera, cells, scene};

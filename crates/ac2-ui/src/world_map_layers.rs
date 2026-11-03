@@ -4,9 +4,9 @@
 //!   `gmNavigationUI::AddMapNotes` places): towns, outposts, gateways, ringways, dungeons, vaults
 //!   and points of interest, with their names from each record's string table and their icons.
 //!   These are the default layers; the denser kinds appear as the map zooms in.
-//! - The AC2Hero guide's places (`ac2_guide::atlas`), off by default, with the DAT's coloured map
+//! - The AC2 Vault guide's places (`ac2_guide::atlas`), off by default, with the DAT's coloured map
 //!   markers (`marker_yellow` and the others).
-//! - Zone levels, off by default: the levels of the AC2Hero quests that start in each square of
+//! - Zone levels, off by default: the levels of the guide's quests that start in each square of
 //!   16 x 16 landblocks (the game data has no zone levels; the server decides encounters).
 
 use ac2_core::DataId;
@@ -131,7 +131,7 @@ pub fn load_notes(store: &ResourceStore) -> Vec<WorldNote> {
     notes
 }
 
-/// The AC2Hero guide's layers.
+/// The guide's layers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum GuideLayer {
     QuestStarts,
@@ -151,7 +151,7 @@ impl GuideLayer {
     pub fn label(self) -> &'static str {
         match self {
             GuideLayer::QuestStarts => "Quest starts",
-            GuideLayer::Npcs => "NPCs",
+            GuideLayer::Npcs => "Places",
             GuideLayer::QuestSteps => "Quest steps",
             GuideLayer::GuidePoints => "Guide points",
         }

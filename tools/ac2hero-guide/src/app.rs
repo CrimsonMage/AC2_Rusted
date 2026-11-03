@@ -1,4 +1,4 @@
-//! The window: the page list on the left (quests by level, NPCs, monsters, guides, or reward
+//! The window: the page list on the left (quests by level, places, monsters, guides, or reward
 //! items), the page or the route map in the middle, the navigator on the right.
 
 use ac2_guide::{html, Guide, Kind, MapCoord, Page};
@@ -219,7 +219,7 @@ impl App {
     }
 
     fn list(&mut self, ui: &mut egui::Ui) {
-        ui.heading("AC2Hero guide");
+        ui.heading("AC2 Vault guide");
         let hint = match self.mode {
             Mode::Rewards => "Search reward items",
             Mode::Pages(_) => "Search titles",

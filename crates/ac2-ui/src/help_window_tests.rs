@@ -131,6 +131,7 @@ fn press_text(
     };
     let press = UiMessage {
         message: crate::token::MSG_MOUSE_PRESS_TOP,
+        data: crate::window_locations::UI_LEFT_BUTTON as i32,
         ..press
     };
     help.message(tree, Some(pages), &press)

@@ -4030,6 +4030,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a0e2d11620c50695fe12bbbfde96b3477fe606e7284c22d505c12ce51214514"
 
 [[package]]
+name = "vault-wiki"
+version = "0.1.0"
+dependencies = [
+ "ac2-client",
+ "ac2-dat",
+ "ac2-db",
+ "ac2-gpu",
+ "ac2-guide",
+ "ac2-ui",
+ "png",
+ "wgpu",
+ "winit",
+]
+
+[[package]]
 name = "vello_common"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

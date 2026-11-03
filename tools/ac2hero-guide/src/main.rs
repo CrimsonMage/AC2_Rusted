@@ -1,46 +1,71 @@
-//! The quest guide as a standalone egui tool: browse the baked AC2Hero pages, click a map
+//! The quest guide as a standalone egui tool: browse the baked AC2 Vault pages, click a map
 //! coordinate to make it the target, and see the arrow and route the client will draw.
 //!
-//! `ac2hero-guide [--mirror DIR] [--page TITLE] [--stats]`: `--mirror` reads a mirror at run time
-//! instead of the baked guide (for checking a parser change without a rebuild); `--page` opens
-//! the first page whose title contains TITLE; `--stats` prints counts and exits.
+//! `ac2hero-guide [--vault DIR | --mirror DIR] [--page TITLE] [--stats] [--dump TITLE]`:
+//! `--vault` reads an AC2 Vault mirror and `--mirror` an AC2Hero one at run time instead of the
+//! baked guide (for checking a parser change without a rebuild); `--page` opens the first page
+//! whose title contains TITLE; `--stats` prints counts and exits; `--dump` prints the lines of
+//! the pages whose title contains TITLE.
 
 mod app;
 mod map_view;
 mod navigator;
 mod page_view;
 
-use ac2_guide::{html, Guide, Kind};
+use ac2_guide::{html, vault, Guide, Kind};
 
 fn main() -> eframe::Result {
     let mut mirror = None;
+    let mut vault = None;
     let mut stats = false;
     let mut page = None;
+    let mut dump = None;
     let mut args = std::env::args().skip(1);
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--mirror" => mirror = args.next(),
+            "--vault" => vault = args.next(),
+            "--dump" => dump = args.next(),
             "--stats" => stats = true,
             "--page" => page = args.next(),
             _ => {
-                eprintln!("usage: ac2hero-guide [--mirror DIR] [--page TITLE] [--stats]");
+                eprintln!(
+                    "usage: ac2hero-guide [--vault DIR | --mirror DIR] [--page TITLE] [--stats] \\
+                     [--dump TITLE]"
+                );
                 std::process::exit(2);
             }
         }
     }
-    let guide = match mirror {
-        Some(dir) => html::read_mirror(dir.as_ref()).unwrap_or_else(|e| {
+    let read = |dir: &str, guide: std::io::Result<Guide>| {
+        guide.unwrap_or_else(|e| {
             eprintln!("{dir}: {e}");
             std::process::exit(1);
-        }),
-        None => ac2_guide::baked(),
+        })
     };
+    let guide = match (vault, mirror) {
+        (Some(dir), _) => read(&dir, vault::read_vault(dir.as_ref())),
+        (None, Some(dir)) => read(&dir, html::read_mirror(dir.as_ref())),
+        (None, None) => ac2_guide::baked(),
+    };
+    if let Some(title) = dump {
+        for p in guide.pages.iter().filter(|p| p.title.contains(&title)) {
+            println!("== {} [{}] {:?} / {}", p.title, p.path, p.kind, p.area);
+            if let Some(q) = &p.quest {
+                println!("   facts {q:?}");
+            }
+            for l in &p.lines {
+                println!("   {:?} {}", l.style, html::line_text(l));
+            }
+        }
+        return Ok(());
+    }
     if stats {
         print_stats(&guide);
         return Ok(());
     }
     if guide.pages.is_empty() {
-        eprintln!("the guide is empty: build with AC2HERO_DIR set, or pass --mirror DIR");
+        eprintln!("the guide is empty: build with AC2VAULT_DIR set, or pass --vault DIR");
     }
     let options = light_options("AC2 quest guide", [1280.0, 800.0]);
     eframe::run_native(

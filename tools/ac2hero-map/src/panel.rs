@@ -19,7 +19,7 @@ pub fn show(
     picked: &mut Vec<usize>,
 ) -> Option<usize> {
     let mut focus = None;
-    ui.label(RichText::new("AC2Hero guide").strong());
+    ui.label(RichText::new("AC2 Vault guide").strong());
     for (kind, on) in &mut filter.layers {
         let count = markers.iter().filter(|m| m.kind == *kind).count();
         ui.horizontal(|ui| {

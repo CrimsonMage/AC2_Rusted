@@ -1,5 +1,5 @@
 //! The guide window on the real gameplay layouts (`AC2_DAT_DIR`) with the guide baked in
-//! (`AC2HERO_DIR` at build time; skipped when the guide is empty): it opens and loads, lists
+//! (`AC2VAULT_DIR` at build time; skipped when the guide is empty): it opens and loads, lists
 //! quests by level, opens a page with its pictures, shares it as a chat token that opens it again,
 //! follows a resize, switches tabs, and lets its guide and pictures go when it closes.
 
@@ -10,6 +10,7 @@ use ac2_db::ResourceStore;
 use super::*;
 use crate::build_gameplay_hud;
 use crate::mouse::UiMessage;
+use crate::token::MSG_MOUSE_PRESS_TOP;
 
 fn message(element: Option<usize>, message: u32) -> UiMessage {
     UiMessage {
@@ -37,9 +38,11 @@ fn press(window: &mut GuideWindow, tree: &mut UiTree, at: (i32, i32)) -> Option<
     tree.start_input(crate::UI_POINTER_X, at.0 as f32);
     tree.start_input(crate::UI_POINTER_Y, at.1 as f32);
     let target = window.page.or(window.list);
-    window
-        .message(tree, &message(target, MSG_MOUSE_PRESS_TOP))
-        .1
+    let press = UiMessage {
+        data: crate::window_locations::UI_LEFT_BUTTON as i32,
+        ..message(target, MSG_MOUSE_PRESS_TOP)
+    };
+    window.message(tree, &press).1
 }
 
 /// The screen point of list row `row`'s middle.
@@ -80,7 +83,7 @@ fn the_guide_window_browses_shares_and_lets_go() {
 
     // A search narrows the list (titles and rewards).
     let (field, _) = window.search.expect("the search field");
-    tree.set_text(field, "ancient knights");
+    tree.set_text(field, "darkstone");
     window.frame(tree, &mut images);
     let opened: Vec<View> = window
         .list_rows
@@ -201,5 +204,60 @@ fn render(tree: &mut UiTree, images: &HashMap<u32, UiPixels>, root: usize, path:
             .unwrap()
             .write_image_data(&surface.rgba)
             .unwrap();
+    }
+}
+
+/// A press on the quest list after scrolling past titles that wrap onto two lines opens the
+/// title drawn under the pointer (the press maps through the wrapped display lines, not one line
+/// per entry, which opened an entry a few rows further down).
+#[test]
+fn a_press_below_wrapped_titles_opens_the_title_under_it() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    if ac2_guide::baked().pages.is_empty() {
+        return;
+    }
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1920, 1080).unwrap();
+    let mut window = hud.guide.take().expect("the guide window");
+    let mut images = crate::load_ui_images(&store, &hud.tree).unwrap();
+    let tree = &mut hud.tree;
+    window.open(tree);
+    wait_loaded(&mut window, tree, &mut images);
+    let list = window.list.unwrap();
+    assert!(
+        tree.text_line_count(list) > window.list_rows.len(),
+        "some quest titles wrap at the window's width"
+    );
+    // The wheel over the list scrolls it well down.
+    let rect = tree.screen_box(list);
+    let at = (rect.x0 + 30, (rect.y0 + rect.y1) / 2);
+    tree.start_input(crate::UI_POINTER_X, at.0 as f32);
+    tree.start_input(crate::UI_POINTER_Y, at.1 as f32);
+    for _ in 0..40 {
+        let turn = UiMessage {
+            data: crate::mouse::UI_WHEEL_OUT as i32,
+            ..message(None, crate::mouse::GLOBAL_MOUSE_DOWN)
+        };
+        window.message(tree, &turn);
+    }
+    assert!(window.list_scroll > 0);
+    for dy in [-60, -20, 0, 20, 60] {
+        let point = (at.0, at.1 + dy);
+        let line = (point.1 - rect.y0 - margin_top(tree, list) + window.list_scroll)
+            / line_height(tree, list);
+        let drawn = tree.text_display_line(list, line as usize).unwrap();
+        let drawn = drawn.trim_start_matches(|c: char| c.is_ascii_digit() || c == ' ');
+        assert!(press(&mut window, tree, point).is_none());
+        let Some(View::Page(page)) = window.view else {
+            // A level band heading opens nothing.
+            continue;
+        };
+        let title = &window.loaded.as_ref().unwrap().guide.pages[page as usize].title;
+        assert!(
+            title.contains(drawn.trim()),
+            "pressed the line {drawn:?}, opened {title:?}"
+        );
     }
 }

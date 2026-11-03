@@ -34,7 +34,7 @@ impl Tab {
     pub fn noun(self) -> &'static str {
         match self {
             Tab::Pages(Kind::Quest) => "quests",
-            Tab::Pages(Kind::Npc) => "NPCs",
+            Tab::Pages(Kind::Npc) => "places",
             Tab::Pages(Kind::Monster) => "monsters",
             Tab::Pages(Kind::Guide) => "guides",
             Tab::Rewards => "items",
@@ -61,7 +61,7 @@ fn matches(words: &[String], text: &str) -> bool {
 /// The list `tab` shows for `query` (words, any case, all present):
 ///
 /// - Quests: matched on the title or a reward, sorted by level then title, under level bands.
-/// - NPCs, monsters and guides: matched on the title, by title, under their continent.
+/// - Places, monsters and guides: matched on the title, by title, under their area.
 /// - Rewards: the item tables' rows matched on name, note or table, under each table's title.
 pub fn entries(guide: &Guide, tab: Tab, query: &str) -> Vec<Entry> {
     let words: Vec<String> = query.split_whitespace().map(str::to_lowercase).collect();
@@ -124,10 +124,11 @@ pub fn entries(guide: &Guide, tab: Tab, query: &str) -> Vec<Entry> {
                 .filter(|(_, p)| matches(&words, &p.title))
                 .map(|(i, _)| i)
                 .collect();
-            // Pages with no continent after the rest.
+            // Pages with no area after the rest; numbers in areas in numeric order (the
+            // monsters' "Levels 20 to 29" before "Levels 100 to 109").
             pages.sort_by_key(|&i| {
                 let p = &guide.pages[i as usize];
-                (p.area.is_empty(), p.area.clone(), p.title.to_lowercase())
+                (p.area.is_empty(), natural(&p.area), p.title.to_lowercase())
             });
             let mut area = None;
             for i in pages {
@@ -142,6 +143,26 @@ pub fn entries(guide: &Guide, tab: Tab, query: &str) -> Vec<Entry> {
                 }
                 out.push(Entry::Page(i));
             }
+        }
+    }
+    out
+}
+
+/// `s` with each run of digits padded to ten places, so that text order is numeric order.
+fn natural(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 16);
+    let mut digits = String::new();
+    for c in s.chars().chain(std::iter::once('\0')) {
+        if c.is_ascii_digit() {
+            digits.push(c);
+            continue;
+        }
+        if !digits.is_empty() {
+            out.push_str(&format!("{digits:0>10}"));
+            digits.clear();
+        }
+        if c != '\0' {
+            out.push(c);
         }
     }
     out
