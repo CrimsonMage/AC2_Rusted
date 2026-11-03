@@ -196,7 +196,7 @@ impl ClientOptionsUi {
             if let Some(text) = tree.child_recursive(element, tokenize("OptionText")) {
                 tree.set_text(text, &title);
             }
-            let header = tree.child_recursive(element, tokenize("TreeToggle"));
+            let header = tree.child_recursive(element, crate::option_expander::EXPANDER_TOGGLE);
             let list = tree.child_recursive(element, tokenize("TreeList"));
             let index = self.expanders.len();
             self.expanders.push(Expander {
@@ -364,6 +364,12 @@ impl ClientOptionsUi {
             tree.set_bool(header, BUTTON_HIGHLIGHTED, open);
         }
         crate::option_expander::refit(tree, element, header, Some(list));
+        // `gmClientUI::ListenToMessage` on `Token_Expander_Toggle`: the page's list
+        // (`ClientList`) is laid out again (`UIElement_ListBox::UpdateAndDraw`), so the expanders
+        // under this one move to its new height.
+        if let Some(page_list) = self.list {
+            tree.list_update_and_draw(page_list);
+        }
         for row in self.rows.clone() {
             if let Some(pref) = Self::pref(bank, &row) {
                 sync_row(tree, &row, pref);

@@ -481,14 +481,14 @@ fn the_expanders_collapse_and_expand_their_options() {
     page.message(
         tree,
         &mut dialogs,
-        &message("TreeToggle", Some(header), MSG_BUTTON_RELEASE_ON),
+        &message("TreeHeader", Some(header), MSG_BUTTON_RELEASE_ON),
     );
     assert_eq!(page.is_open("ID_Options_Combat"), Some(true));
     assert_eq!(page.rows(tree, "ID_Options_Combat"), Some(5));
     page.message(
         tree,
         &mut dialogs,
-        &message("TreeToggle", Some(header), MSG_BUTTON_RELEASE_ON),
+        &message("TreeHeader", Some(header), MSG_BUTTON_RELEASE_ON),
     );
     assert_eq!(page.is_open("ID_Options_Combat"), Some(false));
     assert_eq!(page.rows(tree, "ID_Options_Combat"), Some(0));
@@ -516,7 +516,7 @@ fn the_expanders_collapse_and_expand_their_options() {
     page.message(
         tree,
         &mut dialogs,
-        &message("TreeToggle", Some(header), MSG_BUTTON_RELEASE_ON),
+        &message("TreeHeader", Some(header), MSG_BUTTON_RELEASE_ON),
     );
     let list = tree
         .child_recursive(expander, tokenize("TreeList"))
@@ -532,7 +532,7 @@ fn the_expanders_collapse_and_expand_their_options() {
     page.message(
         tree,
         &mut dialogs,
-        &message("TreeToggle", Some(header), MSG_BUTTON_RELEASE_ON),
+        &message("TreeHeader", Some(header), MSG_BUTTON_RELEASE_ON),
     );
     assert_eq!(height(tree, expander), header_height);
     // The other expanders are untouched.

@@ -198,7 +198,7 @@ impl CharacterUi {
             let Some(element) = self.make(tree, toolbar, "OptionTree") else {
                 continue;
             };
-            let header = tree.child_recursive(element, id("TreeToggle"));
+            let header = tree.child_recursive(element, crate::option_expander::EXPANDER_TOGGLE);
             let list = tree.child_recursive(element, id("TreeList"));
             describe(tree, labels, element, tree_desc.title, None);
             let index = self.entries.len();
@@ -674,7 +674,7 @@ impl CharacterUi {
             .collect()
     }
 
-    /// The expander titled `title`'s header button (`TreeToggle`).
+    /// The expander titled `title`'s header button (`TreeHeader`, `Token_Expander_Toggle`).
     pub fn header(&self, title: &str) -> Option<usize> {
         self.entries.iter().find_map(|e| match e {
             Entry::Tree(t) if t.title == title => t.header,
@@ -811,6 +811,12 @@ impl CharacterUi {
             tree.set_state(header, tokenize(if open { "highlight" } else { "normal" }));
         }
         crate::option_expander::refit(tree, element, header, Some(list));
+        // `gmCharacterUI::ListenToMessage` on `Token_Expander_Toggle`: the page's list
+        // (`CharacterList`) is laid out again (`UIElement_ListBox::UpdateAndDraw`), so the expanders
+        // under this one move to its new height.
+        if let Some(page_list) = self.list {
+            tree.list_update_and_draw(page_list);
+        }
     }
 }
 

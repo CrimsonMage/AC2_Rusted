@@ -3,6 +3,13 @@
 //! plus the options it lists, and its list is as tall as those options.
 
 use crate::element::UiTree;
+use crate::token::tokenize;
+
+/// `Token_Expander_Toggle`, the expander's header button that `OptionExpander::OptionExpander`
+/// retrieves (`OptionBase::Retrieve`) and listens to for `mouse_release_on`: `Tokenize("TreeHeader")`
+/// (the token's initializer in `optionexpander.cpp`). The template's `TreeToggle` is the arrow
+/// image inside that button, not the button.
+pub(crate) const EXPANDER_TOGGLE: u32 = tokenize("TreeHeader");
 
 /// `OptionExpander::Refit`: the list's items' heights are summed, the expander's element is
 /// resized to its own width and the header's height plus that sum, and the list to its own width
