@@ -237,8 +237,10 @@ fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
         "the background mesh fills the view behind the rings ({background_pixels})"
     );
     // The clouds are a few particles near the tunnel's far end: some pixels, never the frame.
+    // Their material's own property table, applied at load (`RenderMaterial::GetSubObjects`),
+    // draws them fainter than the streamed layer did (169 pixels past the tolerance).
     assert!(
-        cloud_pixels > 200 && cloud_pixels < total / 10,
+        cloud_pixels > 100 && cloud_pixels < total / 10,
         "the cloud particles draw a part of the frame ({cloud_pixels})"
     );
     eprintln!("town mean {town_mean:.1}, tunnel mean {tunnel_mean:.1}");

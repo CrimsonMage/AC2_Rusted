@@ -565,8 +565,10 @@ game rules and server-visible behaviour exactly retail.
   position and set on the ground there (`ac2_render::frill::grass_copy`, `scene/grass.rs`).
   Retail drew each DAT frill once. Every frill sways in a wind by the square of its height
   (`grass_wind`), and discards fragments whose alpha is at most 0.2 (`GRASS_ALPHA_CUT`): the
-  DAT's grass layers blend with depth writes and an alpha test above 0, so overlapping copies'
-  faint fringes hid the blades behind them. While the temporal anti-aliasing is on, a frill's
+  DAT's grass layers blend with an alpha test above 0, and with depth writes where the instance
+  sets them (`frill_diffusealphamap`, `0x2B0000D5`, streams them on, but its own `DepthWrite`
+  property, applied at load by `RenderMaterial::GetSubObjects`, turns them off; 2 of its 27
+  instances turn them back on), so overlapping copies' faint fringes hid the blades behind them. While the temporal anti-aliasing is on, a frill's
   alpha between that cut and 0.6 becomes coverage instead (`object_modern.wgsl` `grass_dither`:
   the fragment draws opaque where its alpha beats a per-pixel noise that moves with the jitter's
   phase), so the resolve gives soft, crisp blade edges and distant blades keep their mean
