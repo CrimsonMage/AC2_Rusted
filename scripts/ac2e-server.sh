@@ -115,11 +115,11 @@ for line in lines:
         taken.add(f'{value:016x}')
         f[0] = f'{value:016x}'
         # The captured pink portal (`wsl_genericportal_pink`) has no captured name, no route and no
-        # DAT name, so the client showed "Name_StringInfoStat missing": it takes the name AC2e
-        # gives its other generic portal entity (0x4700084D, "Portal"). Column 13 is the v4 world's
-        # captured name.
+        # DAT name, so the client showed "Name_StringInfoStat missing". AC2Hero's "Rescue the
+        # Shelter Hold" walkthrough names it the Menhir Portal (a Menhir Glyph used on it leads to
+        # the Menhir Shard). Column 13 is the v4 world's captured name.
         if f[1].lower() == '47001451' and len(f) > 12 and f[12] in ('', '-'):
-            f[12] = 'Portal'
+            f[12] = 'Menhir Portal'
         f[3] = '0299' + f[3][4:]
         mirrored.append('\t'.join(f))
 open(path, 'w', encoding='utf-8').write('\n'.join(lines + mirrored) + '\n')
