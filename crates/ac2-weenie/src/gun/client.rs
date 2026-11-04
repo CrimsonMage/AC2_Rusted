@@ -433,9 +433,11 @@ impl GunClient {
         }
     }
 
-    /// `gmClient::RecvNotice_CharacterSet`'s GUN half (Legions 0x401D81): a character set with
+    /// `gmClient::RecvNotice_CharacterSet`'s GUN half (Legions 0x00401D70): a character set with
     /// `m_fUseTurbineChat` sets `S_fUseTurbineChatInsteadOfGUN = 1` and
-    /// `S_fStripWorldNameFromRoomChatEvents = false`.
+    /// `S_fStripWorldNameFromRoomChatEvents = false`, then calls the client's slot +0x9C,
+    /// `Turbine::Client::StartupTurbineChat` (Legions 0x006A2A30: `Client+0xB0` and the chat
+    /// manager), whose chat client is built in here (`GunShared::set_chat_client`).
     pub fn recv_notice_character_set(&self, use_turbine_chat: bool) {
         if use_turbine_chat {
             self.shared.set_use_turbine_chat(true);

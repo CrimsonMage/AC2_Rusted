@@ -4,8 +4,8 @@
 use ac2_prefs::{NameTable, PreferenceBank, Value};
 
 use super::{
-    apply_quality, landscape_draw_distance, register_device, register_graphics, AVATAR_SECTION,
-    DEVICE_SECTION, GRAPHICS_SECTION, QUALITY_PRESETS,
+    apply_quality, landscape_draw_distance, matching_quality, register_device, register_graphics,
+    AVATAR_SECTION, DEVICE_SECTION, GRAPHICS_SECTION, QUALITY_PRESETS,
 };
 
 /// Every section and key the render registers, named as the DAT names them (fixed here).
@@ -180,11 +180,17 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
 
     let mut bank = bank();
     register_graphics(&mut bank, &Names);
-    // The defaults are the scene's own: draw distance 2 (radius 4), the long frill distance;
+    // The defaults are the scene's own: draw distance 2 (radius 4); `LandscapeFrillDistance`
+    // registers at 0, so the frills are off (`SmartBox::InitPreferences`);
     // `DynamicObjectShadows` registers at 0, no object shadows, and `LightCoronas` off.
     assert_eq!(
         scene_options(&bank),
         SceneOptions {
+            frill: FrillSettings {
+                enabled: false,
+                lscape_radius: 0,
+                ..SceneOptions::default().frill
+            },
             object_shadows: crate::prefs::ObjectShadows::Off,
             light_coronas: false,
             // `VolumetricFogEffects` registers off.
@@ -226,6 +232,18 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
             ..FrillSettings::default()
         }
     );
+    // 2 is the long distance at radius 1; 0 turns the frills off.
+    for (choice, enabled, radius) in [(2, true, 1), (0, false, 0)] {
+        bank.find_mut(LANDSCAPE_FRILL_DISTANCE)
+            .expect("LandscapeFrillDistance")
+            .set_choice(choice);
+        let frill = scene_options(&bank).frill;
+        assert_eq!(
+            (frill.enabled, frill.lscape_radius, frill.short_distance),
+            (enabled, radius, false),
+            "choice {choice}"
+        );
+    }
 }
 
 /// `FXManager::DoLightSourceFX` places a light only while `LightSourceEffects` is on, and the
@@ -401,4 +419,28 @@ fn quality_four_and_five_reach_the_scenery_over_five_by_five_blocks() {
         assert_eq!(super::scenery_reach_for_level(level), 2.0);
         assert_eq!(super::near_radius_for_level(level), 2);
     }
+}
+
+#[test]
+fn each_quality_preset_matches_its_own_level_and_a_changed_option_matches_none() {
+    let mut bank = bank();
+    register_graphics(&mut bank, &Names);
+    for level in 1..=5 {
+        assert!(apply_quality(&mut bank, level));
+        assert_eq!(matching_quality(&bank), level, "level {level}");
+    }
+    // `AdaptiveDegradeBias` is not compared (`Render::UpdateOverallGraphicsQuality`).
+    bank.find_mut(0x4000_0065).expect("bias").set_float(0.25);
+    assert_eq!(matching_quality(&bank), 5);
+    // Level 5 but its cloud shadows off: no level (4 wants anisotropic and the level-4 values).
+    bank.find_mut(0x4000_0020)
+        .expect("cloud shadows")
+        .set_bool(false);
+    assert_eq!(matching_quality(&bank), 0);
+    // Levels 4 and 5 expect the client's anisotropic filtering on.
+    assert!(apply_quality(&mut bank, 4));
+    bank.find_mut(0x4000_005F)
+        .expect("anisotropic")
+        .set_bool(false);
+    assert_eq!(matching_quality(&bank), 0);
 }

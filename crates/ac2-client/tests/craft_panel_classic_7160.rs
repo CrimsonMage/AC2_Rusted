@@ -161,6 +161,11 @@ fn a_selected_craft_skill_shows_its_name_level_and_raise_text() {
     double_click(&mut rig, categories[0]);
     rig.idle(8);
     snapshot(&mut rig, "craft_recipes.png");
+    // The category's recipe is listed: the registry's records come shown, as retail's did.
+    assert!(
+        !rows(&rig, "RecipeList").is_empty(),
+        "the category's recipes are listed"
+    );
     let level = text_of(&rig, "SelectedLevel");
     assert!(
         level.contains(char::is_numeric),

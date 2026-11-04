@@ -54,6 +54,40 @@ pub fn shadow_light_bit(light_dir: Vec3) -> Option<u32> {
     }
 }
 
+/// `LScapeRender::GetSunLightDirectionBits` (Legions 0x005537D0): the `SHADOWGEN_LIGHT_VECTORS`
+/// index whose unit vector has the largest dot product with `light_dir` (`m_finalLightDir`, the
+/// direction light travels times the direct brightness), the largest among the others, and that
+/// first dot product (`_fClosestAngle`). An index is `None` where no dot product beats -1 (the
+/// search starts there and keeps the first of equals).
+pub fn sun_light_direction_bits(light_dir: Vec3) -> (Option<usize>, Option<usize>, f32) {
+    let light = [
+        f64::from(light_dir.x),
+        f64::from(light_dir.y),
+        f64::from(light_dir.z),
+    ];
+    let dot = |i: usize| {
+        let unit = normalise(SHADOW_LIGHT_VECTORS[i]);
+        (unit[0] * light[0] + unit[1] * light[1] + unit[2] * light[2]) as f32
+    };
+    let (mut closest, mut l0) = (-1.0_f32, None);
+    for i in 0..SHADOW_LIGHT_VECTORS.len() {
+        let d = dot(i);
+        if closest < d {
+            closest = d;
+            l0 = Some(i);
+        }
+    }
+    let (mut second, mut l1) = (-1.0_f32, None);
+    for i in (0..SHADOW_LIGHT_VECTORS.len()).filter(|i| Some(*i) != l0) {
+        let d = dot(i);
+        if second < d {
+            second = d;
+            l1 = Some(i);
+        }
+    }
+    (l0, l1, closest)
+}
+
 /// `D3DXVec3Normalize` in f64; the zero vector stays zero.
 fn normalise(v: [f32; 3]) -> [f64; 3] {
     let v = v.map(f64::from);
@@ -90,7 +124,10 @@ pub fn self_shadow_factor(alphas: [u8; 4]) -> f32 {
 
 #[cfg(test)]
 mod tests {
-    use super::{self_shadow_factor, shadow_light_bit, vertex_shadow_alpha};
+    use super::{
+        self_shadow_factor, shadow_light_bit, sun_light_direction_bits, vertex_shadow_alpha,
+        SHADOW_LIGHT_VECTORS,
+    };
     use ac2_math::Vec3;
 
     #[test]
@@ -133,5 +170,20 @@ mod tests {
     fn zero_vector_wins_when_no_light_faces_the_sun() {
         // Straight up: every table direction is below the horizon, so the zero vector (dot 0) wins.
         assert_eq!(shadow_light_bit(Vec3::new(0.0, 0.0, 1.0)), None);
+    }
+
+    /// `GetSunLightDirectionBits`: the nearest direction, the nearest of the others, and the
+    /// first's dot product with the (brightness-scaled) light direction.
+    #[test]
+    fn sun_direction_bits_are_the_two_nearest_and_the_first_cosine() {
+        let toward_first = Vec3::from_array(SHADOW_LIGHT_VECTORS[2]).normalize() * 0.5;
+        let (l0, l1, alpha) = sun_light_direction_bits(toward_first);
+        assert_eq!(l0, Some(2));
+        assert!(matches!(l1, Some(1) | Some(3)), "{l1:?}");
+        assert!((alpha - 0.5).abs() < 1e-5);
+        // Straight up: every real direction faces away; the zero vector (index 4) is nearest.
+        let (l0, _, alpha) = sun_light_direction_bits(Vec3::Z);
+        assert_eq!(l0, Some(4));
+        assert_eq!(alpha, 0.0);
     }
 }

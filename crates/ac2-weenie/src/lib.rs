@@ -60,13 +60,13 @@ pub use progress::{
 pub use qualities::{truncate_float, truncate_int, truncate_long_int, DescKind, WeenieQualities};
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
 pub use session::{
-    CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, SessionTrace, WorldEntry,
-    IFUN_HANDLE_COLLISION, IFUN_ON_STAT_CHANGED,
+    hit_chance_of, killer_of, untagged, CharacterChoice, Killer, OnlineConfig, OnlineSession,
+    SessionEvent, SessionTrace, WorldEntry, IFUN_HANDLE_COLLISION, IFUN_ON_STAT_CHANGED,
 };
 pub use shell::{
-    handler as chat_handler, ChatCommands, ChatHistory, ChatState, ShellAction, Speaker,
-    COMMAND_TABLE_ENUM, DEFAULT_COMMAND, EMOTE_TABLE_PACKAGE, HELP_STRINGS, REGISTERED_COMMANDS,
-    SQUELCH_WORDS,
+    expand_text, handler as chat_handler, ChatCommands, ChatHistory, ChatState, ScriptHelp,
+    ShellAction, Speaker, COMMAND_TABLE_ENUM, DEFAULT_COMMAND, EMOTE_TABLE_PACKAGE, HELP_STRINGS,
+    REGISTERED_COMMANDS, SQUELCH_WORDS,
 };
 pub use social::{
     AllegianceMember, AllegianceProfile, FellowInfo, FellowshipInfo, Social, SocialContext,

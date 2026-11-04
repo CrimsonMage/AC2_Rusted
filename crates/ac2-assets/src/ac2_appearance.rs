@@ -438,8 +438,8 @@ fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
     store.load_cached_packed::<T>(TypedResourceRef::new(DatFileKind::Portal, did, 0))
 }
 
-/// `DBObj::GetByEnum(value, group, type)`'s DID: the group's `EnumIDMap` (from the enum-mapper
-/// group map `0x28000000`), then `value` in it.
+/// `DBObj::GetByEnum(value, group, type)`'s DID (`DBCache::GetFromEnum`): the group's
+/// `EnumIDMap` (from the enum-mapper group map `0x28000000`), then `value` in it.
 pub fn ac2_enum_did(
     store: &ResourceStore,
     group: u32,

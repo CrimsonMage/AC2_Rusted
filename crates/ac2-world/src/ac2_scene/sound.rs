@@ -19,7 +19,9 @@ pub struct Ac2AmbientSoundPoint {
 }
 
 /// The ambient sound points of the landblock holding `block_cell_id`, in vertex order (empty
-/// where the block or the region's descriptions are missing).
+/// where the block or the region's descriptions are missing). `CLandBlock::GetAmbientSoundPoints`
+/// creates them on the first ask and keeps them with the block; the client's loader asks once
+/// per block that becomes resident.
 pub fn ac2_ambient_sound_points(
     store: &ResourceStore,
     block_cell_id: CellId,

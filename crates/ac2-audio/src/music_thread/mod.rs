@@ -9,8 +9,11 @@
 //! argument lists that identify each method):
 //!
 //! - `PlayInternal`, `+0xB4`: `PlaySegmentEx(segment, NULL, NULL, dwFlags, 0, &state, pAfter,
-//!   audioPath)`. [`MusicThread::play`] starts the segment in the queue's time; the timing flags
-//!   and the audio path are not modelled (a secondary segment starts at once).
+//!   audioPath)`. [`MusicThread::play`] starts the segment in the queue's time; a secondary
+//!   waits for its start boundary on the primary (`SegmentInfo::start`). DirectMusic's latency
+//!   time (a noncontrol secondary's earliest play time), a secondary control segment's own time
+//!   signature, and the audio path's `Activate` check are not modelled. Scripted plays and
+//!   segment triggers start at once.
 //! - `Stop`, `+0xB8`: `StopEx(state, 0, dwStopFlags)` for a secondary; for the current primary
 //!   retail only clears `m_bLoopPrimary` (`DXMusicMessageThread::Stop`, admin 0x005A9540), so its
 //!   pass plays out to its end whatever the boundary. [`MusicThread::stop`] follows that. A
@@ -39,6 +42,7 @@ use crate::music::library::LoadedMusic;
 use crate::music::performance::{EventSink, TimedEvent};
 use crate::music::script::{BoundSegment, Instance};
 use crate::music::style_performance::PatternChoice;
+use crate::music::MusicObject;
 use crate::sink::Boundary;
 use crate::synth::{ChannelSources, PerformanceBand};
 
@@ -54,6 +58,8 @@ mod script_tests;
 mod scripts;
 #[cfg(test)]
 mod secondary_stop_tests;
+#[cfg(test)]
+mod start_boundary_tests;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
@@ -86,6 +92,11 @@ pub struct SegmentInfo {
     /// Its cues: the script calls of its script track and its segment triggers (none for a wave,
     /// or a segment with neither).
     pub cues: Arc<BoundSegment>,
+    /// When a secondary starts (`DirectXPlayingSound::PlayInternal`'s `dwFlags` from
+    /// `m_startTiming`: `DMUS_SEGF_SECONDARY` with `SEGMENTEND` 0x800000, `GRID` 0x800, `BEAT`
+    /// 0x1000, `MARKER` 0x1000000, `MEASURE` 0x2000, or none for an immediate start). A primary
+    /// ignores it (it queues behind the current one).
+    pub start: Boundary,
 }
 
 /// A segment a script call or a segment trigger started: the sound manager gives it a voice, as it
@@ -192,6 +203,8 @@ pub struct MusicThread {
     scripted: Vec<ScriptedPlay>,
     /// The next handle for a scripted segment.
     next_scripted: u32,
+    /// Secondaries cued for a later boundary: (queue time it starts, its state, the segment).
+    pending: Vec<(f64, u32, SegmentInfo)>,
 }
 
 impl Default for MusicThread {
@@ -226,6 +239,7 @@ impl MusicThread {
             instances: HashMap::new(),
             scripted: Vec::new(),
             next_scripted: SCRIPTED_HANDLE_BASE,
+            pending: Vec::new(),
         }
     }
 
@@ -284,6 +298,8 @@ impl MusicThread {
             }
             return;
         }
+        // A secondary cued for a later boundary that has not started yet never plays.
+        self.pending.retain(|(_, id, _)| *id != state);
         if boundary != Boundary::Immediate {
             if let Some(playback) = self
                 .playbacks
@@ -389,7 +405,12 @@ impl MusicThread {
                 .filter(|p| !p.ended())
                 .map(|p| p.remaining().min(p.next_band_in()).min(p.next_cue_in()))
                 .fold(f64::INFINITY, f64::min);
-            let step = remaining.min(to_end);
+            let to_pending = self
+                .pending
+                .iter()
+                .map(|(at, _, _)| (at - self.clock).max(0.0))
+                .fold(f64::INFINITY, f64::min);
+            let step = remaining.min(to_end).min(to_pending);
             for playback in self.playbacks.iter_mut().filter(|p| !p.ended()) {
                 playback.advance(step, &mut self.out);
             }
@@ -406,8 +427,9 @@ impl MusicThread {
                 self.notices.push_back((playback.id(), Notice::End));
                 ended = true;
             }
+            let started = self.start_due();
             self.pump();
-            if remaining <= 0.0 || (step <= 0.0 && !ended) {
+            if remaining <= 0.0 || (step <= 0.0 && !ended && !started) {
                 break;
             }
         }
@@ -453,6 +475,7 @@ impl MusicThread {
         self.changes.clear();
         self.instances.clear();
         self.scripted.clear();
+        self.pending.clear();
     }
 
     /// The segments scripts started since the last call (see [`ScriptedPlay`]).
@@ -463,12 +486,67 @@ impl MusicThread {
     /// `DXMusicMessageThread::PlayInternal`: starts `info`'s segment now as a new playback and
     /// posts its start notification. Retail passes the segment it follows (`pAfter`); a primary
     /// is only started here at the end of that segment, so the start time is the boundary.
+    ///
+    /// A secondary passes `PlaySegmentEx` its start boundary with a start time of 0 ("as soon as
+    /// possible"); DirectMusic resolves it against the primary segment playing (`DMUS_SEGF_FLAGS`:
+    /// the next grid, beat or measure of its time signature, its next marker, or its end). With
+    /// no primary playing, or no marker left in it, the other resolution flags apply and retail
+    /// sets none, so the segment starts at once (`DMUS_SEGF_TIMESIG_ALWAYS` is not passed). A
+    /// later start waits in the queue ([`Self::start_due`]); its start notice comes then.
     fn play_internal(&mut self, info: &SegmentInfo) -> Option<u32> {
         if !self.attached {
             return None;
         }
+        if !matches!(
+            &info.segment.segment,
+            MusicObject::Segment(_) | MusicObject::Wave(_)
+        ) {
+            return None;
+        }
         let id = self.next_state;
         self.next_state = self.next_state.wrapping_add(1).max(1);
+        let delay = match info.kind {
+            SegmentKind::Secondary => self.start_delay(info.start),
+            SegmentKind::Primary => 0.0,
+        };
+        if delay > EPS {
+            self.pending.push((self.clock + delay, id, info.clone()));
+            return Some(id);
+        }
+        self.start_playback(id, info)
+    }
+
+    /// The seconds from now to `boundary` of the current primary (0 when none is playing or it
+    /// has no such boundary left).
+    fn start_delay(&self, boundary: Boundary) -> f64 {
+        self.current
+            .and_then(|state| {
+                self.playbacks
+                    .iter()
+                    .find(|p| p.id() == state && !p.ended())
+            })
+            .and_then(|primary| primary.until(boundary))
+            .unwrap_or(0.0)
+    }
+
+    /// Starts the cued secondaries whose time has come; whether any started.
+    fn start_due(&mut self) -> bool {
+        let clock = self.clock;
+        let (due, wait): (Vec<_>, Vec<_>) = std::mem::take(&mut self.pending)
+            .into_iter()
+            .partition(|(at, _, _)| *at <= clock + EPS);
+        self.pending = wait;
+        let started = !due.is_empty();
+        for (_, id, info) in due {
+            if self.start_playback(id, &info).is_none() {
+                self.notices.push_back((id, Notice::End));
+            }
+        }
+        started
+    }
+
+    /// Makes the playback `id` of `info`'s segment at the queue's time and posts its start.
+    fn start_playback(&mut self, id: u32, info: &SegmentInfo) -> Option<u32> {
         let mut playback = Playback::new(
             id,
             info.handle,

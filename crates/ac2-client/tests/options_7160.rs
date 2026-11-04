@@ -163,11 +163,51 @@ fn a_render_change_asks_for_verification_and_does_not_save() {
         .set_bool(on != ac2_prefs::Value::Bool(true));
     let outcome = prefs.options_apply();
     assert!(outcome.verify_render);
-    assert!(
-        outcome.save.is_none(),
-        "nothing is written while verification is asked"
-    );
-    assert!(!path.exists());
+    // The page's save waits for the verification; `Render::HandleApply`'s
+    // `SaveOverallGraphicsQuality` writes its one line at once.
+    outcome
+        .save
+        .expect("the quality level is written at once")
+        .join()
+        .expect("the writer thread")
+        .expect("written");
+    let text = String::from_utf8(std::fs::read(&path).expect("written")).expect("ASCII");
+    assert_eq!(text.trim_end(), "[Graphics]\r\nOverallGraphicsQuality=0");
+}
+
+#[test]
+fn an_options_apply_saves_the_preset_level_the_graphics_now_match() {
+    let Some(store) = store() else {
+        return;
+    };
+    let dir = temp_dir("quality-update");
+    let path = dir.join("Preferences.ini");
+    let mut prefs = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    assert!(prefs.set_overall_graphics_quality(4));
+    let quality = |prefs: &mut ClientPrefs| {
+        prefs
+            .file_mut()
+            .options_apply()
+            .save
+            .expect("saved")
+            .join()
+            .expect("the writer thread")
+            .expect("written");
+        let back = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("reload");
+        back.overall_graphics_quality()
+    };
+    // Unchanged, the preset still matches level 4 (its anisotropic filtering on).
+    assert_eq!(quality(&mut prefs), Some(4));
+    // One option off the preset: custom, so the next start keeps the player's options.
+    prefs
+        .bank_mut()
+        .find_mut(0x4000_0043)
+        .expect("the landscape draw distance is registered")
+        .set_choice(1);
+    assert_eq!(quality(&mut prefs), Some(0));
+    // Back on level 2's values: level 2.
+    assert!(prefs.set_overall_graphics_quality(2));
+    assert_eq!(quality(&mut prefs), Some(2));
 }
 
 #[test]
@@ -299,6 +339,14 @@ fn the_scene_takes_the_draw_and_frill_distances_the_page_sets() {
             water_reflections: 0,
             // `LandscapeShoreEffects` registers at 1.
             shore_effects: 1,
+            // `LandscapeFrillDistance` registers at 0: `SmartBox::InitPreferences` turns the
+            // frills off (`FrillRender::EnableFrillObjects(0)`) and sets the ring to 0
+            // (`SetOutsideRadius`).
+            frill: ac2_render::frill::FrillSettings {
+                enabled: false,
+                lscape_radius: 0,
+                ..ac2_render::prefs::SceneOptions::default().frill
+            },
             ..ac2_render::prefs::SceneOptions::default()
         },
         "the scene's defaults until the page changes them"
@@ -323,5 +371,6 @@ fn the_scene_takes_the_draw_and_frill_distances_the_page_sets() {
     outcome.wait_saved().expect("saved");
     let options = prefs.scene_options();
     assert_eq!(options.far_radius, 0);
+    assert!(options.frill.enabled, "choice 1 draws the frills");
     assert!(options.frill.short_distance);
 }

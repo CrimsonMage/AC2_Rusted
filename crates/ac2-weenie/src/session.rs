@@ -31,6 +31,7 @@ use crate::reporter::{BodyState, PositionReporter, ReportStamps};
 use crate::world::{World, WorldEvent, WorldState};
 
 mod gameplay;
+mod hit_chance;
 mod inventory;
 mod money;
 mod observer;
@@ -39,6 +40,7 @@ mod select;
 mod shell;
 mod trade;
 
+pub use hit_chance::{hit_chance_of, killer_of, untagged, Killer};
 pub use observer::SessionTrace;
 
 /// Which listed character to enter the world with.
@@ -254,6 +256,8 @@ pub struct OnlineSession {
     chat: crate::shell::ChatState,
     /// A tool's view of the logon stages ([`OnlineSession::set_observer`]).
     observer: Option<Box<dyn FnMut(&SessionTrace) + Send>>,
+    /// The hit chances the examinations carried ([`hit_chance`]).
+    hit_chances: hit_chance::HitChances,
 }
 
 impl OnlineSession {
@@ -345,6 +349,7 @@ impl OnlineSession {
             script_functions: Default::default(),
             chat: Default::default(),
             observer: None,
+            hit_chances: Default::default(),
         })
     }
 
@@ -614,6 +619,7 @@ impl OnlineSession {
             }
             WorldEvent::Destroyed(id) => {
                 self.script.forget_object(id);
+                self.forget_hit_chance(id);
                 out.push(SessionEvent::ObjectRemoved(id));
                 return;
             }

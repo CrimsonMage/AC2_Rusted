@@ -5,7 +5,7 @@
 use super::clearance::Clearance;
 use super::format::{Ac2SceneEntity, Ac2SceneGroup};
 use super::geometry::{
-    circle_in_triangle, cross, downhill_heading, heading_of, orient_to_plane, plane_z, q_from_axes,
+    circle_in_poly2d, cross, downhill_heading, heading_of, orient_to_plane, plane_z, q_from_axes,
     q_heading, qmul, qrot, Ac2SceneTerrain, BLOCK_LENGTH, EPSILON, IDENTITY, POLYGON, Q, SIDE, V3,
 };
 use super::hash::{check_freq, prand2};
@@ -447,7 +447,7 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
                     if ok && !g.align {
                         continue;
                     }
-                    if !circle_in_triangle(&corners, x, y, r) {
+                    if !circle_in_poly2d(&corners, pose.origin, r) {
                         continue;
                     }
                     if !ok {

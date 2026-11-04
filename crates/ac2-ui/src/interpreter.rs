@@ -170,8 +170,9 @@ impl ActionInterpreter {
         self.last_press = now;
     }
 
-    /// `TurnOffRunLock`.
-    fn turn_off_run_lock(&mut self) {
+    /// `ActionInterpreter::TurnOffRunLock` (Legions 0x00475380): every run-lock entry leaves
+    /// `m_current_actions`; the loop erases them without any stop dispatch.
+    pub fn turn_off_run_lock(&mut self) {
         self.current.retain(|info| info.action != ACTION_RUN_LOCK);
     }
 

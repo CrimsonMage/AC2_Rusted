@@ -460,6 +460,59 @@ mod tests {
         w.iter().flat_map(|w| w.to_le_bytes()).collect()
     }
 
+    /// The hit chance row of a creature's profile as the retail servers sent it (the 2017
+    /// captures, pkt_2017-1-22_1485083221_log.pcap: a 51% target), read in a Legions profile:
+    /// the label text, the value text with its int variable, a break.
+    #[test]
+    fn the_captured_hit_chance_row_reads_as_two_texts_and_a_break() {
+        let mut bytes = words(&[ExaminationRequest::OBJECT, 0, 7, 0, 0x203, 3]);
+        bytes.extend(words(&[
+            0x4000_0004,
+            2,
+            0x33BE_4035,
+            0x9E78_D75C,
+            0x2500_0011,
+            0,
+            0x4000_0004,
+            2,
+            0xBE5B_6513,
+            0xD819_12CB,
+            0x2500_0011,
+            1,
+            0xF662_0CE8,
+            2,
+            51,
+            0x4000_0006,
+            2,
+        ]));
+        bytes.extend(words(&[0x203]));
+        let mut r = Reader::new(&bytes);
+        let profile = ExaminationProfile::read(&mut r).unwrap();
+        r.finish().unwrap();
+        assert_eq!(profile.request, ExaminationRequest::object(7));
+        let [label, value, end] = &profile.nodes[..] else {
+            panic!("{profile:?}");
+        };
+        let ExaminationValue::Text(label) = &label.value else {
+            panic!("{label:?}");
+        };
+        assert_eq!(
+            (label.string_id, label.table_id),
+            (0x9E78_D75C, 0x2500_0011)
+        );
+        let ExaminationValue::Text(value) = &value.value else {
+            panic!("{value:?}");
+        };
+        assert_eq!(
+            value.variables,
+            [(
+                0xF662_0CE8,
+                crate::protocol::StringVariable::Word { kind: 2, value: 51 }
+            )]
+        );
+        assert_eq!(end.value, ExaminationValue::Break);
+    }
+
     #[test]
     fn selection_info_packs_health_and_vigor_only_for_creatures() {
         let creature = SelectionInfo {

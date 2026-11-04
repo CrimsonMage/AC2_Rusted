@@ -95,6 +95,11 @@ pub struct Ac2ParticleSystemDesc {
     pub force_draw: bool,
     pub emitters: Arc<[Ac2ParticleEmitterDesc]>,
     pub material: Option<DataId>,
+    /// `m_bUseParticleLighting` of the first layer of the material's template
+    /// (`ParticleSystem::FillVertexBuffer` reads `m_pMaterial->m_pMaterial->layers[0]`): the
+    /// particles are coloured by the lights around the system (`FillVerts::GetLighting`). Not in
+    /// the record: the decode leaves it false and [`Self::resolve_particle_lighting`] reads it.
+    pub particle_lighting: bool,
 }
 
 impl Ac2ParticleSystemDesc {
@@ -141,6 +146,13 @@ impl Ac2ParticleSystemDesc {
     /// its handle.
     pub fn is_looping(&self) -> bool {
         self.approximate_lifetime() < 0.0
+    }
+
+    /// Fills [`Self::particle_lighting`] from the material's template in `store`.
+    pub fn resolve_particle_lighting(&mut self, store: &ac2_db::ResourceStore) {
+        self.particle_lighting = self
+            .material
+            .is_some_and(|did| crate::ac2_material_uses_particle_lighting(store, did));
     }
 }
 
@@ -194,6 +206,7 @@ impl ResourcePackedDecode for Ac2ParticleSystemDesc {
             force_draw,
             emitters: Arc::from(emitters),
             material,
+            particle_lighting: false,
         })
     }
 

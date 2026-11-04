@@ -137,12 +137,28 @@ impl Hud {
                 *dirty |= map.message(tree, nav, message);
             }
         }
-        // The Tracker's eyeball and window.
+        // The Tracker's eyeball and window; its Tools button opens the tools' settings.
         if let Some(tracker) = self.tracker.as_mut() {
             for message in messages {
                 let (taken, request) = tracker.message(tree, message);
                 *dirty |= taken;
-                requests.extend(request.map(HudRequest::Tracker));
+                match request {
+                    Some(crate::tracker_ui::TrackerRequest::Tools) => {
+                        if let Some(tools) = self.automation.as_mut() {
+                            let shown = tools.is_shown();
+                            tools.show(tree, !shown);
+                        }
+                    }
+                    other => requests.extend(other.map(HudRequest::Tracker)),
+                }
+            }
+        }
+        // The automatic tools' settings window.
+        if let Some(tools) = self.automation.as_mut() {
+            for message in messages {
+                let (taken, change) = tools.message(tree, message);
+                *dirty |= taken;
+                requests.extend(change.map(HudRequest::Automation));
             }
         }
     }

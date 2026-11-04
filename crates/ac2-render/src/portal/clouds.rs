@@ -97,7 +97,7 @@ impl PortalClouds {
         let mut out = ParticleGeometry::default();
         if let Some(system) = self.system.as_mut() {
             system.think(now);
-            system.fill(basis, now, 1.0, &mut out);
+            system.fill(basis, now, 1.0, &[], &mut out);
         }
         out
     }

@@ -440,6 +440,8 @@ impl State {
     /// zero ints.
     pub fn send_init_player(&mut self) {
         let mut args = vec![PackValue::Int(0); 14];
+        // Argument 1: the money (`CPlayer` 0x65 sets int 3100 from it).
+        args[0] = PackValue::Int(self.script_world.character.money as u32);
         // Argument 2: the act registry (`CPlayer` 0x65 keeps it as the player's `ActRegistry`).
         args[1] = PackValue::Reference(crate::act_registry());
         // Argument 3: the quest list (`gmQuestInfoList`, native 0xA1), when the player has any.

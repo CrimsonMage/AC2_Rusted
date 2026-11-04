@@ -79,6 +79,7 @@ fn a_band_segment_starting_reaches_a_band_less_segment_already_playing() {
     // A band segment starts at 0.6 s: its band (patch 40 on channel 0) is the performance's.
     let band_segment = sequence(QUARTER, Vec::new());
     assert!(thread.play(SegmentInfo {
+        start: crate::sink::Boundary::Immediate,
         kind: SegmentKind::Secondary,
         handle: 2,
         segment: band_segment,
@@ -123,6 +124,7 @@ fn a_band_track_item_reaches_the_segments_playing_at_its_instant() {
         ],
     );
     assert!(thread.play(SegmentInfo {
+        start: crate::sink::Boundary::Immediate,
         kind: SegmentKind::Secondary,
         handle: 2,
         segment: banded,
@@ -183,6 +185,7 @@ fn a_segment_with_its_own_band_keeps_it_when_another_band_starts() {
         vec![seq(0, QUARTER, 0, 60), seq(2 * QUARTER, QUARTER, 0, 62)],
     );
     assert!(thread.play(SegmentInfo {
+        start: crate::sink::Boundary::Immediate,
         kind: SegmentKind::Secondary,
         handle: 1,
         segment: own,
@@ -192,6 +195,7 @@ fn a_segment_with_its_own_band_keeps_it_when_another_band_starts() {
     let _ = run(&mut thread, 0.5, &mut calls);
     // Another band starts at 0.5 s: patch 50 becomes the performance's, not this segment's.
     assert!(thread.play(SegmentInfo {
+        start: crate::sink::Boundary::Immediate,
         kind: SegmentKind::Secondary,
         handle: 2,
         segment: sequence(QUARTER, Vec::new()),

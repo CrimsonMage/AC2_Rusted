@@ -112,21 +112,46 @@ pub fn ac2_total_icon_desc(
     };
     let own = local.or(dat.as_deref());
     if let Some(own) = own {
-        let group = Ac2TotalGroup {
-            appearance: own
-                .global_appearance
-                .iter()
-                .map(|(table, keys)| (*table, keys.to_vec()))
-                .collect(),
-            ..Ac2TotalGroup::default()
-        };
-        let mut atoms = Ac2Atoms::default();
-        augment_atoms(store, &group, false, &mut atoms)?;
-        for layer in &atoms.icons {
+        let appearance: Vec<_> = own
+            .global_appearance
+            .iter()
+            .map(|(table, keys)| (*table, keys.to_vec()))
+            .collect();
+        for layer in &global_icon_atoms(store, appearance)? {
             icon.apply_additive_layer(layer);
         }
     }
     Ok((!icon.layers.is_empty()).then_some(icon))
+}
+
+/// `VisualDesc::GetTotalIconDesc` in its two halves, for a local description whose own layers the
+/// caller merges itself: the DAT `VisualDesc` `visual`'s chain's icon layers
+/// (`GetTotalVisualDescInternal` and `ModifyPGDTreeBasedOnApr` of the chain, no atoms; empty when
+/// the chain does not load), and the icon atoms of the local description's global appearance keys
+/// (`PartGroupDataDesc::AugmentAtomCollection(&this->m_global_app_mods)`), which retail applies
+/// after the local layers (`IconDesc::ApplyAdditiveIconLayer` of each, in order).
+pub fn ac2_icon_desc_parts(
+    store: &ResourceStore,
+    visual: DataId,
+    global_appearance: Vec<(DataId, Vec<(u32, f32)>)>,
+) -> ResourceResult<(Vec<crate::Ac2IconLayer>, Vec<crate::Ac2IconLayer>)> {
+    let chain = total_visual_desc(store, visual, None)?.map_or_else(Vec::new, |t| t.icon.layers);
+    Ok((chain, global_icon_atoms(store, global_appearance)?))
+}
+
+/// The icon atoms of a global group's appearance keys, in the order `AugmentAtomCollection`
+/// gathers them.
+fn global_icon_atoms(
+    store: &ResourceStore,
+    appearance: Vec<(DataId, Vec<(u32, f32)>)>,
+) -> ResourceResult<Vec<crate::Ac2IconLayer>> {
+    let group = Ac2TotalGroup {
+        appearance,
+        ..Ac2TotalGroup::default()
+    };
+    let mut atoms = Ac2Atoms::default();
+    augment_atoms(store, &group, false, &mut atoms)?;
+    Ok(atoms.icons)
 }
 
 /// The FX atoms of a visual's global appearance keys, in set order: what

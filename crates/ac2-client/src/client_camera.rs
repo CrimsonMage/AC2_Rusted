@@ -189,6 +189,20 @@ impl Client {
         self.camera.first_person_ready() && !self.avatar_shown()
     }
 
+    /// `CPhysicsObj`'s draw of the player with the camera in first person
+    /// (`HACK_bDrawingFirstPersonPlayer`, outside shadow volumes and the reflection map) and
+    /// `CBaseMesh::DrawMesh`'s check under it: the head, beard, crest and totem meshes are left
+    /// out, so the camera does not sit inside them. Empty in third person.
+    pub(crate) fn first_person_hidden_mesh_types(&self) -> Vec<u32> {
+        if !self.camera.first_person_ready() {
+            return Vec::new();
+        }
+        self.prefs
+            .as_ref()
+            .map(|p| p.head_mesh_types().to_vec())
+            .unwrap_or_default()
+    }
+
     /// `SmartBox::UpdateCamera`. Without `interpolate` (the mouse-look camera, every frame) the
     /// subject is where the body is drawn, so camera and body move together between quanta. The
     /// camera can follow the other objects too ([`CameraWorld`]).

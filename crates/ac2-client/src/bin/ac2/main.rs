@@ -131,6 +131,9 @@ struct State {
     started: Instant,
     /// Whether the OS input method is enabled (`CIme`'s active state; see `sync_ime`).
     ime_allowed: bool,
+    /// `CIme::Init`'s enable (`g_UseIme`): `imeon` or the preference (0x40000010, 0x40000077).
+    /// Without it `CIme::Activate` never turns the input method on.
+    use_ime: bool,
     grabbed: bool,
     /// Screenshots being encoded and written on a worker (`Device::SaveScreenshot`'s file).
     screenshots: Vec<Receiver<io::Result<PathBuf>>>,
@@ -157,6 +160,9 @@ struct App {
     chargen_file: Option<std::path::PathBuf>,
     /// `--intro`: show the intro's pictures before connecting (skipped by default).
     intro: bool,
+    /// `CIme::Init`'s enable (`Turbine::Client::InitUI`, Legions 0x006A0100): `imeon` or
+    /// the preference (0x40000010, 0x40000077).
+    use_ime: bool,
     /// `width` / `height` (`Client+0x60` / `Client+100`): the initial window size, when given.
     window_size: Option<winit::dpi::PhysicalSize<u32>>,
     /// The server's host (as given, `--host`, else its address) and port
@@ -191,14 +197,15 @@ impl State {
     /// into a text element not marked `no_IME` (`set_ime_allowed`), so composed text reaches the
     /// window (`UIElement_Text::IMETurnOn`; the OS draws its own candidates).
     fn sync_ime(&mut self) {
-        let on = self.controls.input.text_mode() && self.controls.ime_allowed();
+        let on = self.use_ime && self.controls.input.text_mode() && self.controls.ime_allowed();
         if on != self.ime_allowed {
             self.window.set_ime_allowed(on);
             self.ime_allowed = on;
         }
     }
 
-    /// Copies the presented frame and queues its save on a worker (`Device::SaveScreenshot`). The
+    /// Copies the frame (the world alone, `SmartBox::RenderScreenshot`, when the world drew; the
+    /// presented frame otherwise) and queues its save on a worker (`Device::SaveScreenshot`). The
     /// read-back waits for the GPU; the encode and the file write do not run on this thread.
     fn save_screenshot(&mut self, texture: &wgpu::Texture) {
         let (width, height) = (self.config.width, self.config.height);
@@ -354,6 +361,7 @@ impl App {
         }
         state.sync_mouse_look(self.client.camera().mouse_look);
         let frame = self.client.frame();
+        self.client.examine_nearby_for_hit_chance(&frame);
         // The HUD frameworks that ask the player: skills panel, shortcut bar, chat options.
         let script_notices = self.client.take_script_notices();
         let asked = view.frameworks(&mut self.client, &frame, &events, &script_notices);
@@ -445,8 +453,24 @@ impl App {
         if view.take_deselect() {
             state.commands.push(Command::Select(None));
         }
+        // `SmartBox::RenderScreenshot`: the shot is the world alone, without the HUD.
+        let capture = (screenshot && drawn).then(|| {
+            screenshot::capture_target(
+                &state.gpu,
+                state.format,
+                state.config.width,
+                state.config.height,
+            )
+        });
         if drawn {
-            view.render(&state.gpu, &target, &state.depth, true);
+            let capture_view = capture.as_ref().map(|t| t.create_view(&Default::default()));
+            view.render_capturing(
+                &state.gpu,
+                &target,
+                &state.depth,
+                true,
+                capture_view.as_ref(),
+            );
         } else {
             render_to(
                 &state.gpu.device,
@@ -458,7 +482,7 @@ impl App {
             );
         }
         if screenshot {
-            state.save_screenshot(&output.texture);
+            state.save_screenshot(capture.as_ref().unwrap_or(&output.texture));
         }
         state.gpu.queue.present(output);
     }
@@ -599,6 +623,7 @@ impl ApplicationHandler for App {
             cursor: cursor::GameCursor::default(),
             started: Instant::now(),
             ime_allowed: false,
+            use_ime: self.use_ime,
             grabbed: false,
             screenshots: Vec::new(),
         });
@@ -777,6 +802,7 @@ fn run(args: Args) -> Result<(), String> {
         dat_options.local_dat_file_name =
             ac2_dat::local_dat_for_language(args.dat_dir.as_ref(), language)?;
     }
+    let local_dat_name = dat_options.local_dat_file_name.clone();
     let dataset = ac2_dat::DatDataset::open(dat_options).map_err(|e| e.to_string())?;
     let store = Arc::new(ac2_db::ResourceStore::new(Arc::clone(&dataset)));
     ac2_db::install_ac2_property_types(&store).map_err(|e| e.to_string())?;
@@ -785,8 +811,25 @@ fn run(args: Args) -> Result<(), String> {
         Some(name) => ac2_prefs::paths::resolve(name),
         None => ac2_prefs::paths::default_file(),
     };
-    let mut prefs = ac2_client::ClientPrefs::load(prefs_path, Arc::clone(&store))
-        .map_err(|e| format!("preferences: {e}"))?;
+    let mut prefs =
+        ac2_client::ClientPrefs::load_with(prefs_path, Arc::clone(&store), args.top_levels)
+            .map_err(|e| format!("preferences: {e}"))?;
+    // `ff`, `sb`, `sw`, `lb`, `nolb`: `Turbine::Client::EvaluateCommandLineArg`'s
+    // `Preferences::SetBool`s.
+    for &(section, key, value) in &args.pref_bools {
+        prefs.file_mut().set_bool(section, key, value);
+    }
+    // `CLCache`'s language setup: the name validator takes the local DAT's language
+    // (`g_validator->SetLanguage`, its id in enum mapper 0x4000002A by the file's suffix).
+    let language_name = local_dat_name
+        .strip_prefix("local_")
+        .and_then(|rest| rest.strip_suffix(".dat"))
+        .unwrap_or("English");
+    if let Some(id) =
+        ac2_prefs::NameTable::enum_label(prefs.file().names(), 0x4000_002A, language_name)
+    {
+        ac2_db::set_name_language(id);
+    }
     // The saved graphics quality, else one chosen from the GPU, before anything reads the bank.
     let quality = prefs.apply_startup_quality(ac2_gpu::suggested_quality_level());
     // `RenderTexture::DropUnwantedLevels` reads `TextureDetail` as each texture loads.
@@ -812,27 +855,33 @@ fn run(args: Args) -> Result<(), String> {
     );
     // `gmClient::Connect`: `StartupGUN` before the game connection, so the logon is held
     // until the client's first frames have run it (`Client::attach_gun`).
-    let mut session = OnlineSession::connect_held(OnlineConfig {
-        server: server_address,
-        account: args.account,
-        credential: Credential::from_ticket(&args.ticket),
-        version: if args.version.is_empty() {
-            ac2_net::default_version().to_owned()
-        } else {
-            args.version
+    // `outport`: the local port the game connection sends from (`ConnectionOptions::dwPort`).
+    let transport = ac2_net::UdpTransport::bind_port(server_address, args.out_port.unwrap_or(0))
+        .map_err(|e| e.to_string())?;
+    let mut session = OnlineSession::with_transport_held(
+        OnlineConfig {
+            server: server_address,
+            account: args.account,
+            credential: Credential::from_ticket(&args.ticket),
+            version: if args.version.is_empty() {
+                ac2_net::default_version().to_owned()
+            } else {
+                args.version
+            },
+            // Without a start character the session waits at the character set for the
+            // selection screen (`gmCharacterSelectionUI`).
+            character: match &args.character {
+                Some(name) => CharacterChoice::Name(name.clone()),
+                None => CharacterChoice::Wait,
+            },
+            // Retail always exports an RSA-wrapped session key (`ClientNet::Init`); the servers we
+            // talk to cannot unwrap it, so the logon carries none (auth flags 0).
+            server_key: None,
+            language: 0,
+            dat_iterations: ac2_weenie::dat_iterations(&dataset)?,
         },
-        // Without a start character the session waits at the character set for the
-        // selection screen (`gmCharacterSelectionUI`).
-        character: match &args.character {
-            Some(name) => CharacterChoice::Name(name.clone()),
-            None => CharacterChoice::Wait,
-        },
-        // Retail always exports an RSA-wrapped session key (`ClientNet::Init`); the servers we
-        // talk to cannot unwrap it, so the logon carries none (auth flags 0).
-        server_key: None,
-        language: 0,
-        dat_iterations: ac2_weenie::dat_iterations(&dataset)?,
-    })
+        Box::new(transport),
+    )
     .map_err(|e| e.to_string())?;
     // The string tables chat and usage lines name (`StringInfo::SetTableEnum`), by DID, read
     // through the client's own store so the script host's reads share its cache.
@@ -891,6 +940,12 @@ fn run(args: Args) -> Result<(), String> {
     client.apply_light_preferences(prefs.bank());
     client.apply_streak_preferences(prefs.bank());
     ac2_smartbox::fx_prefs::apply(prefs.bank());
+    // `Turbine::Client::InitUI`: `imeon` (`Client+0x68`) or the preference turns `CIme` on.
+    let use_ime = args.ime_on
+        || prefs
+            .file()
+            .inq_bool(0x4000_0010, 0x4000_0077)
+            .is_some_and(|value| value != 0);
     client.attach_prefs(prefs);
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
     let mut app = App {
@@ -911,6 +966,7 @@ fn run(args: Args) -> Result<(), String> {
         },
         chargen_file: args.chargen.as_deref().map(ac2_prefs::paths::config_file),
         intro: args.intro,
+        use_ime,
         // `Client+0x60` / `+100` start at 0x400 x 0x300; either argument alone keeps the other.
         window_size: (args.width.is_some() || args.height.is_some()).then(|| {
             winit::dpi::PhysicalSize::new(args.width.unwrap_or(1024), args.height.unwrap_or(768))

@@ -40,7 +40,10 @@ pub enum NoticeArg {
 }
 
 /// Each notice efun with its arguments after `obj`: `o` the object, `i` one word, `L` a 64-bit
-/// id, `f` a float, `w` a wide string, `s` a `StringInfo`, `n` another native.
+/// id, `f` a float, `w` a wide string, `s` a `StringInfo`, `n` another native. The efun of
+/// `CM_X::SendNotice_Y` is `gCM_X::CallEFun_SendNotice_Y` (e.g. `gCM_Store::
+/// CallEFun_SendNotice_ShowSaleReminder`, admin 0x00467B80, and `CallEFun_SendNotice_UpdateSale`,
+/// 0x00467BD0): it reads the arguments, raises the notice and returns its result (tagged 4).
 const NOTICES: [(u32, &str, &str); 104] = [
     (
         0x0084_0001,

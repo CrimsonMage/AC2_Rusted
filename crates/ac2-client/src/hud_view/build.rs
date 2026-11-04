@@ -124,6 +124,7 @@ impl HudView {
             gameplay_shown: true,
             story_hid_gameplay: None,
             tracker: Default::default(),
+            automation: Default::default(),
             chat_text,
             images,
             overlay: {
@@ -211,6 +212,7 @@ impl HudView {
                     help,
                     help_pages,
                     tracker,
+                    automation,
                     modern_edit,
                     modern_banner,
                     guide_arrow,
@@ -289,6 +291,7 @@ impl HudView {
                 self.panels.help = help;
                 self.panels.help_pages = help_pages;
                 self.panels.tracker = tracker;
+                self.panels.automation = automation;
                 self.panels.modern_edit = modern_edit;
                 self.panels.modern_banner = modern_banner;
                 self.panels.guide_arrow = guide_arrow;

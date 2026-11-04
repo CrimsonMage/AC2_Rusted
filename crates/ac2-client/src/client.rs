@@ -176,6 +176,12 @@ pub struct Client {
     pub(crate) remotes: Remotes,
     /// The weenies' script processes, when a script VM is attached.
     pub(crate) scripts: Option<ac2_script::host::ScriptState>,
+    /// The no-draw physics objects while no script VM is attached (with one, its state holds
+    /// them, `ScriptState::no_draw`).
+    pub(crate) no_draw: std::collections::BTreeSet<u64>,
+    /// When the client last asked for a creature's examination for its hit chance
+    /// ([`crate::client_hit_chance`]).
+    pub(crate) hit_chance_asked: f64,
     pub(crate) audio: Option<crate::client_audio::ClientAudio>,
     /// The FX-made objects, colours and hides (`FXManager`'s object parts); no sound device needed.
     pub(crate) fx_objects: ac2_smartbox::fx_objects::FxObjects,
@@ -220,9 +226,9 @@ pub struct Client {
     /// Session events a script resumed outside a frame made (a latent mode or behaviour that
     /// finished on its body); they join the next frame's events.
     pub(crate) script_outbox: Vec<SessionEvent>,
-    /// Each object's icon layers from its visual's DAT chain (`VisualDesc::GetTotalIconDesc`),
-    /// read by the loader threads.
-    pub(crate) total_icons: HashMap<u64, Vec<(u32, u32, u32)>>,
+    /// Each item's icon parts read by the loader threads (`VisualDesc::GetTotalIconDesc`'s chain
+    /// layers and global icon atoms, `client_item_icons`).
+    pub(crate) item_icons: HashMap<u64, crate::client_item_icons::ItemIcon>,
     /// Whether the HUD's background has a fade to report (`StoryView::fades_by_media`): the
     /// story waits for its `token_play` ([`Client::story_fade_done`]) instead of starting at once.
     pub(crate) story_fades_on_hud: bool,
@@ -230,6 +236,9 @@ pub struct Client {
     /// take (`gmStoryUI`'s constructor 0, its destructor 1); the frame's owner passes them on to
     /// `gmCameraUI::RecvNotice_UpdateCanMouseLook` (`ac2_ui::Controls::update_can_mouse_look`).
     pub(crate) mouse_look_notices: Vec<bool>,
+    /// `SmartBox::HandleTeleport` called `ActionInterpreter::TurnOffRunLock` since the last take;
+    /// the frame's owner passes it to its `ac2_ui::Controls`.
+    pub(crate) turn_off_run_lock: bool,
     /// The client's preferences (`Preferences.ini`): the bank the options pages write, and the file.
     pub(crate) prefs: Option<crate::client_prefs::ClientPrefs>,
     /// `Turbine::Client`'s world name (`Turbine::Client::SetWorldName`, from the world-name
@@ -242,6 +251,8 @@ pub struct Client {
     pub(crate) logon_connected: bool,
     /// `gmClient::Connect` returned a `NetError`: the logon stays held.
     pub(crate) gun_failed: bool,
+    /// The automatic tools (`automation`): what they saw and the gestures they asked for.
+    pub(crate) automation: crate::automation::AutomationHost,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -309,6 +320,8 @@ impl Client {
             radar_coords: None,
             remotes: Remotes::default(),
             scripts: None,
+            no_draw: Default::default(),
+            hit_chance_asked: f64::NEG_INFINITY,
             audio: None,
             fx_objects: ac2_smartbox::fx_objects::FxObjects::default(),
             fx_streaks: Default::default(),
@@ -329,13 +342,15 @@ impl Client {
             stories: Default::default(),
             story_outbox: Vec::new(),
             script_outbox: Vec::new(),
-            total_icons: HashMap::new(),
+            item_icons: HashMap::new(),
             story_fades_on_hud: false,
             mouse_look_notices: Vec::new(),
+            turn_off_run_lock: false,
             world_name: String::new(),
             gun: None,
             logon_connected: false,
             gun_failed: false,
+            automation: Default::default(),
             prefs: None,
         }
     }
@@ -423,7 +438,10 @@ impl Client {
         }
         let commanded = {
             profile_scope!("commands");
-            self.commands(&input.commands)
+            let mut commanded = self.commands(&input.commands);
+            // The automatic tools' gestures, done as the player's (`automation`).
+            commanded.extend(self.automation_gestures());
+            commanded
         };
         {
             profile_scope!("movement");
@@ -478,6 +496,7 @@ impl Client {
         events.extend(produced);
         self.notices_seen(&events);
         self.portal_notices(&events);
+        self.automation_frame(&events);
         self.camera_actions(input);
         self.render();
         Ok(events)
@@ -486,6 +505,12 @@ impl Client {
     /// The mouse-look notices the story slot sent since the last call.
     pub fn take_mouse_look_notices(&mut self) -> Vec<bool> {
         std::mem::take(&mut self.mouse_look_notices)
+    }
+
+    /// Whether a teleport asked the action interpreter to turn its run lock off since the last
+    /// call (`SmartBox::HandleTeleport` -> `ActionInterpreter::TurnOffRunLock`).
+    pub fn take_turn_off_run_lock(&mut self) -> bool {
+        std::mem::take(&mut self.turn_off_run_lock)
     }
 
     /// `PlayerMovementModule::LockActions` (`m_lock_actions`): the player's movement keys do
@@ -583,6 +608,12 @@ impl Client {
                 // class defaults too.
                 if let Some(defaults) = defaults {
                     if self.session.set_object_defaults(id, defaults) {
+                        // `CWPhysicsObject::InitPhysics` with the qualities as retail had them.
+                        if let (Some(object), Some(body)) =
+                            (self.session.objects().get(id), self.remotes.body_mut(id))
+                        {
+                            crate::remote::init_physics(body, &object.qualities);
+                        }
                         // Retail read the class defaults before the object existed for the
                         // panels, so a slot never drew the item without its icon, name or
                         // locations; here the read finishes frames after the `CreateObject`,
@@ -596,14 +627,8 @@ impl Client {
                 }
                 self.script_state_loaded(id, pid, did)
             }
-            Loaded::TotalIcon(id, layers) => {
-                if !layers.is_empty() {
-                    self.total_icons.insert(id, layers);
-                    // The slots that drew the item without them redraw it.
-                    self.script_outbox.push(SessionEvent::Notice(
-                        ac2_weenie::GameplayNotice::ItemUpdate(id),
-                    ));
-                }
+            Loaded::TotalIcon(id, global, chain, atoms) => {
+                self.item_icon_loaded(id, &global, chain, atoms)
             }
             Loaded::MotionDesc(object, desc) => self.motion_desc_loaded(object, desc),
             Loaded::CameraFx(source, scalar, fx) => self.camera_fx_loaded(source, scalar, fx),
@@ -983,6 +1008,8 @@ impl Client {
             SessionEvent::LoginFinished => self.login_finished(),
             // `GlobalEventHandler::RecvEvt_WorldName` -> `gmClient::RecvNotice_WorldName`.
             SessionEvent::WorldName(info) => self.set_world_name(info),
+            // Leaving the world resets it (`LScapeRender::ResetWorldState` ->
+            // `LScapeManager::ResetWorldState`, Legions 0x0054A1B0, which frees the blocks).
             SessionEvent::LeftWorld | SessionEvent::Disconnected(_) => {
                 self.player = None;
                 self.camera.reset();
@@ -1044,6 +1071,8 @@ impl Client {
             .camera
             .update_camera(ENTRY_CAMERA_QUANTUM, subject.as_ref(), &target);
         self.set_camera_position(desired, true);
+        // `ActionInterpreter::TurnOffRunLock` (Legions 0x00544220, right after the camera).
+        self.turn_off_run_lock = true;
         // `CPhysicsObj::LeaveWorld` -> `HandleLeaveWorld` on the player.
         self.player_handle_leave_world();
         if let Some(player) = &mut self.player {

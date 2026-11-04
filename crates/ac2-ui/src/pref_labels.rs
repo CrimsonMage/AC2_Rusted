@@ -120,6 +120,18 @@ const PREF_LABELS: &[(u32, u32, &str)] = &[
         crate::damage_text_pref::DAMAGE_TEXT_SIZE,
         "ID_Misc_DamageTextSize",
     ),
+    // The hit chance switches, client-only keys likewise (`ShowHitChanceOnNameplates`,
+    // `ExamineNearbyForHitChance`).
+    (
+        crate::hit_chance_pref::HIT_CHANCE_SECTION,
+        crate::hit_chance_pref::SHOW_HIT_CHANCE,
+        "ID_Misc_ShowHitChanceOnNameplates",
+    ),
+    (
+        crate::hit_chance_pref::HIT_CHANCE_SECTION,
+        crate::hit_chance_pref::EXAMINE_NEARBY,
+        "ID_Misc_ExamineNearbyForHitChance",
+    ),
 ];
 
 #[cfg(test)]

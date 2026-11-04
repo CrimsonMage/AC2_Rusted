@@ -69,6 +69,45 @@ impl WeenieQualities {
         self.inq_bool(MOBILE_QUALITY).unwrap_or(1) != 0
     }
 
+    /// `CWRepository::GatherPhysicsState` (Legions 0x00515E70): the physics state bits from the
+    /// engine bools: 0x4 unless ReportCollisions (2) reads false, 0x8 unless IgnoreCollisions (1)
+    /// reads false, 0x400 when LightsStatus (5) reads true, 0x200 unless GravityStatus (4) reads
+    /// false, 0x2000 when Inelastic (6) reads true, 0x8000 when AllowEdgeSlide (7) reads true.
+    pub fn gather_physics_state(&self) -> u32 {
+        let read = |stype: u32| self.inq_bool(stype);
+        let mut state = 0;
+        if read(2).is_none_or(|v| v != 0) {
+            state |= 0x4;
+        }
+        if read(1).is_none_or(|v| v != 0) {
+            state |= 0x8;
+        }
+        if read(5).is_some_and(|v| v != 0) {
+            state |= 0x400;
+        }
+        if read(4).is_none_or(|v| v != 0) {
+            state |= 0x200;
+        }
+        if read(6).is_some_and(|v| v != 0) {
+            state |= 0x2000;
+        }
+        if read(7).is_some_and(|v| v != 0) {
+            state |= 0x8000;
+        }
+        state
+    }
+
+    /// `CWRepository::BuildPhysObjProfile` (Legions 0x00516230): the state, the placement (int
+    /// quality 1, 0 without it) and the scale (float 0x12A, 1 without it). (Its friction,
+    /// elasticity and mass are not read by `CPhysicsObj::ApplyPhysObjProfile`.)
+    pub fn phys_obj_profile(&self) -> (u32, u32, f32) {
+        (
+            self.gather_physics_state(),
+            self.inq_int(1).map_or(0, |v| v as u32),
+            self.inq_float(0x12A).unwrap_or(1.0),
+        )
+    }
+
     /// `CWInterface::IsPlayer`: the weenie type (int quality 0x14) has all of 0x1F.
     pub fn is_player(&self) -> bool {
         self.inq_int(WEENIE_TYPE_QUALITY)
@@ -295,6 +334,19 @@ impl WeenieQualities {
             .map(|w| i32::from(w.bitfield.unwrap_or(0) & bit != 0))
             .or_else(|| self.bools.get(&stype).copied())
             .or_else(|| self.defaults.as_ref().and_then(|d| d.inq_bool(stype)))
+    }
+
+    /// `gmCWInterface::HandleSetWeenieDesc` (Legions 0x004531B0): what the description makes of
+    /// the physics object's no-draw: `NoDraw` (bool 10) set turns it on; otherwise it turns off,
+    /// unless the object is `Dead` (bool 0x117), when it is left as it is (`None`).
+    pub fn set_weenie_desc_no_draw(&self) -> Option<bool> {
+        if self.inq_bool(10).unwrap_or(0) != 0 {
+            Some(true)
+        } else if self.inq_bool(0x117).unwrap_or(0) == 0 {
+            Some(false)
+        } else {
+            None
+        }
     }
 
     pub fn inq_float(&self, stype: u32) -> Option<f32> {
@@ -525,6 +577,42 @@ fn set_in_weenie_desc(w: &mut WeenieDesc, quality: u32, value: &QualityValue) ->
 mod tests {
     use super::WeenieQualities;
     use ac2_net::protocol::QualityValue;
+
+    /// `gmCWInterface::HandleSetWeenieDesc`: NoDraw (bool 10, bitfield 4) hides the physics
+    /// object; otherwise it shows, unless the object is Dead (bool 0x117, bitfield 8), which
+    /// leaves it as it is.
+    #[test]
+    fn the_weenie_description_sets_the_no_draw() {
+        let desc = |bitfield: u32| {
+            WeenieQualities::from_weenie_desc(ac2_net::protocol::WeenieDesc {
+                data_mask: 0x0100_0000 | 0x4000,
+                bitfield: Some(bitfield),
+                ..Default::default()
+            })
+        };
+        assert_eq!(desc(4).set_weenie_desc_no_draw(), Some(true));
+        assert_eq!(desc(4 | 8).set_weenie_desc_no_draw(), Some(true));
+        assert_eq!(desc(0).set_weenie_desc_no_draw(), Some(false));
+        assert_eq!(desc(8).set_weenie_desc_no_draw(), None);
+        assert_eq!(
+            WeenieQualities::default().set_weenie_desc_no_draw(),
+            Some(false)
+        );
+    }
+
+    /// `CWRepository::GatherPhysicsState` and `BuildPhysObjProfile`: absent bools leave report,
+    /// ignore-collisions and gravity on and the rest off; the placement and scale default to 0 and 1.
+    #[test]
+    fn the_physics_profile_follows_the_engine_bools() {
+        let mut q = WeenieQualities::default();
+        assert_eq!(q.phys_obj_profile(), (0x4 | 0x8 | 0x200, 0, 1.0));
+        for (stype, value) in [(1, 0), (2, 0), (4, 0), (5, 1), (6, 1), (7, 1)] {
+            q.set(stype, &QualityValue::Bool(value));
+        }
+        q.set(1, &QualityValue::Int(3));
+        q.set(0x12A, &QualityValue::Float(2.0));
+        assert_eq!(q.phys_obj_profile(), (0x400 | 0x2000 | 0x8000, 3, 2.0));
+    }
 
     #[test]
     fn inq_reads_the_description_before_the_tables() {

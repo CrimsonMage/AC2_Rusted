@@ -315,7 +315,9 @@ pub enum NativeObject {
 }
 
 impl NativeObject {
-    /// `CNativeFactory::NewNativeObject`: an empty object of `native_type`.
+    /// `CNativeFactory::NewNativeObject`: an empty object of `native_type`; the gameplay types
+    /// (0x82-0xAF, 0x33A5, 0x380A-0x380B) are `gmCNativeFactory::NewNativeObject`'s (Legions
+    /// 0x004678C0), which asks the base factory first.
     pub fn new_empty(native_type: u32) -> Self {
         let list = |wide: bool| {
             NativeObject::List(ScriptList {

@@ -18,6 +18,7 @@ macro_rules! profile_scope {
 }
 
 mod audio;
+mod automation;
 mod chargen;
 mod chat_commands;
 mod client;
@@ -25,6 +26,7 @@ mod client_ambient;
 mod client_audio;
 mod client_camera;
 mod client_fx_objects;
+mod client_item_icons;
 mod client_latent;
 mod client_locations;
 mod client_part_trees;
@@ -40,6 +42,7 @@ use ac2_smartbox::{camera, cells, scene};
 mod client_frame;
 #[cfg(feature = "test-support")]
 mod client_ground;
+mod client_hit_chance;
 #[cfg(feature = "test-support")]
 pub use client_ground::Footing;
 mod client_objects;
@@ -69,6 +72,7 @@ mod hud_friends;
 pub use friends::FriendEvent;
 mod gameplay;
 mod hud_arrow;
+mod hud_automation;
 #[cfg(feature = "window")]
 #[cfg(feature = "window")]
 mod hud_character;

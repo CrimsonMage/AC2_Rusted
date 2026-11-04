@@ -27,7 +27,7 @@ pub use ac2_render::ui_scene::data::{CameraData, EntityData, LightData, ObjectDa
 pub use ac2_render::ui_scene::figure::{figure_key, scene_figures, At, Drawn, Figure, Placed};
 pub use ac2_render::ui_scene::{ScenePick, UiViews, ViewSetup};
 use data::SceneLoader;
-pub use render::render_with_scenes;
+pub use render::{render_capturing, render_with_scenes};
 
 /// The UI's viewport scenes.
 pub struct UiScenes {

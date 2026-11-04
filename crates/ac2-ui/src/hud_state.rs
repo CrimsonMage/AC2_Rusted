@@ -131,6 +131,8 @@ pub struct Hud {
     pub help_pages: Option<HelpPages>,
     /// The Tracker's eyeball on the radar and its window (`ac2_macro::tracker`).
     pub tracker: Option<crate::tracker_ui::TrackerUi>,
+    /// The automatic tools' settings window (`automation_ui`).
+    pub automation: Option<crate::automation_ui::AutomationUi>,
     /// The modern style's Edit layout mode (`modern_layout_edit`).
     pub modern_edit: Option<crate::modern_layout_edit::EditLayout>,
     /// The modern style's targeting banner (`modern_banner`).

@@ -1,18 +1,18 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 159 done, 11 partial, 102 to do, 154 skipped.
+426 retail functions: 214 done, 0 partial, 0 to do, 212 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
+## `portal/shared/src/geometry/aframe.cpp.c` (3/5)
 
 ### AFrame
-- [ ] `AFrame::Pack` · 0062ac90 · legions 005e4d70 — needs port (check): implemented as ac2-math frame.rs AFrame::to_packed_bytes, uncited
+- [x] `AFrame::Pack` · 0062ac90 · legions 005e4d70 — audit: covered: no direct callers; Frame::Pack callers use it [ac2-math/src/frame.rs:114 AFrame::to_packed_bytes]
 - [x] `AFrame::IsValid` · 0062acf0 · legions 005e4dd0
 - [x] `AFrame::UnPack` · 0062ae10 · legions 005e4ef0
 - [-] `AFrame::FromFileNode` · 0062ae80 — text source format (admin tools)
 - [-] `AFrame::ToFileNode` · 0062afd0 — text source format (admin tools)
 
-## `portal/shared/src/geometry/animassetkey.cpp.c` (0/13)
+## `portal/shared/src/geometry/animassetkey.cpp.c` (2/13)
 
 ### AnimAssetScaleKey
 - [-] `AnimAssetScaleKey::AnimAssetScaleKey` · 007365a0 · legions 006b2110 — ctor/dtor: Rust struct construction and Drop
@@ -33,10 +33,10 @@ Legend and workflow: [README](README.md).
 - [-] `AnimAssetWeightKey::operator=` · 00736690 · legions 006b2230 — operator=: Rust value semantics (glam/ac2-math provides it)
 
 ### AnimAssetScaleKey
-- [ ] `AnimAssetScaleKey::StreamPack` · 007366b0 · legions 006b2250 — needs port: AnimAsset key stream layout (value, then sTime)
+- [x] `AnimAssetScaleKey::StreamPack` · 007366b0 · legions 006b2250 — audit: covered:  [ac2-anim/src/dbanimator/asset.rs:97-120 key tables decoded value then time]
 
 ### AnimAssetQuatKey
-- [ ] `AnimAssetQuatKey::StreamPack` · 007366f0 · legions 006b2290 — needs port: AnimAsset key stream layout (value, then sTime)
+- [x] `AnimAssetQuatKey::StreamPack` · 007366f0 · legions 006b2290 — audit: covered:  [ac2-anim/src/dbanimator/asset.rs:97-120 key tables decoded value then time]
 
 ### AnimAssetKey
 - [-] `AnimAssetKey::FromFileNode` · 00736730 · legions 006b2310 — text source format (admin tools)
@@ -53,37 +53,37 @@ Legend and workflow: [README](README.md).
 ### AnimAssetWeightKey
 - [-] `AnimAssetWeightKey::FromFileNode` · 00736a50 · legions 006b2630 — text source format (admin tools)
 
-## `portal/shared/src/geometry/bbox.cpp.c` (7/26)
+## `portal/shared/src/geometry/bbox.cpp.c` (14/26)
 
 ### Plane
-- [ ] `Plane::IsValid` · 0061ca70 · legions 005d8660 — needs port: plane validity test (normal length threshold)
+- [-] `Plane::IsValid` · 0061ca70 · legions 005d8660 — not needed: path-map builder [sole caller BBox::CalcPlaneIntersection (PathBSPNode::FindPlanePolys, tool, no Legions address)]
 
 ### BBox
 - [-] `BBox::BBox` · 0061cb10 · legions 005d8700 — ctor/dtor: Rust struct construction and Drop
 - [-] `BBox::GetPackSize` · 0061cb20 — stream size helper: Rust decodes by slice length, no size pass
 - [-] `BBox::Pack` · 0061cb30 · legions 005d8720 — inline copy of 00426d40
-- [ ] `BBox::UnPack` · 0061cbb0 — needs port: 28-byte BBox read (min, max, padding)
+- [x] `BBox::UnPack` · 0061cbb0 — audit: covered: 28-byte read done by the owning decoders [ac2-assets/src/ac2_mesh.rs:135 and ac2-anim/src/setup.rs:245 read min/max inline]
 - [x] `BBox::InitForAdjustment` · 0061cc10 · legions 005d8800 — ac2-physics objects.rs (BBox::InitForAdjustment: empty box before adjust); ac2-math geometry.rs BBox::for_adjustment
 - [x] `BBox::GetPlane` · 0061cc30 · legions 005d8820 — ac2-physics envcell.rs: portal clipping against the cell-search box
 - [x] `BBox::localtoglobal` · 0061cd10 · legions 005d8900 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `BBox::ScaleCentered` · 0061cf40 · legions 005d8b30 — needs port: scale a box about its centre
-- [ ] `BBox::BuildBoundingBox` · 0061d040 · legions 005d8c30 — needs port: box built from a point set
+- [-] `BBox::ScaleCentered` · 0061cf40 · legions 005d8b30 — not needed: per-object cull margin; render-only perf, not visual [callers CEnvCell::CullObjects / CLandBlock::CullObjects only (ac2-render has its own frustum culling, catalog [~])]
+- [x] `BBox::BuildBoundingBox` · 0061d040 · legions 005d8c30 — audit: covered:  [ac2-math/src/geometry.rs:178 expand_to_include_point; ac2-assets/src/ac2_mesh.rs:7 bounds_min/bounds_max]
 - [x] `BBox::GetCenter` · 0061d070 · legions 005d8c60 — ac2-physics envcell.rs: portal clipping against the cell-search box
 - [x] `BBox::Within` · 0061d0b0 · legions 005d8ca0 — ac2-physics detection_volume.rs box_within, box_does_overlap, cylinder_intersects_cylinder
-- [~] `BBox::Intersects` · 0061d110 · legions 005d8d00 — ac2-physics detection_volume.rs box_intersects_sphere / box_intersects_cylinder
-- [ ] `BBox::GetPoints` · 0061d1e0 · legions 005d8dd0 — needs port: the eight corners of a box
-- [ ] `BBox::StreamPack` · 0061d2b0 — needs port: BBox stream layout, 28 bytes read and write
+- [x] `BBox::Intersects` · 0061d110 · legions 005d8d00 — audit: covered: only callers DetectionVolume::IsWithin (unreachable in Legions); implemented anyway [ac2-physics/src/detection_volume.rs:43 and :66 box_intersects_sphere/cylinder]
+- [x] `BBox::GetPoints` · 0061d1e0 · legions 005d8dd0 — audit: covered:  [ac2-math/src/geometry.rs:207 BBox::points (retail corner order)]
+- [x] `BBox::StreamPack` · 0061d2b0 — audit: covered: 28-byte read done by the owning decoders [ac2-assets/src/ac2_mesh.rs:135 and ac2-anim/src/setup.rs:245 read min/max inline]
 - [x] `BBox::InitFromCylSpheres` · 0061d300 · legions 005d8ef0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `BBox::InitFromSpheres` · 0061d440 · legions 005d9030 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `BBox::CalculateRadius` · 0061d580 · legions 005d9170 — needs port: box radius (half diagonal)
-- [~] `BBox::Intersects` · 0061d660 · legions 005d9250 — ac2-physics detection_volume.rs box_intersects_sphere / box_intersects_cylinder
-- [ ] `BBox::FindCoverRays` · 0061d750 · legions 005d9340 — needs port: cover rays for a box
+- [x] `BBox::CalculateRadius` · 0061d580 · legions 005d9170 — audit: covered:  [ac2-render/src/scene/interiors.rs:189 half diagonal x1.5 in DrawCellMesh; ac2-physics/src/envcell.rs:142]
+- [x] `BBox::Intersects` · 0061d660 · legions 005d9250 — audit: covered: only callers DetectionVolume::IsWithin (unreachable in Legions); implemented anyway [ac2-physics/src/detection_volume.rs:43 and :66 box_intersects_sphere/cylinder]
+- [-] `BBox::FindCoverRays` · 0061d750 · legions 005d9340 — not needed:  [callers unreachable in Legions (path system/detection manager; catalog rows Obstacle::CheckIfSolid, DetectionVolume::IsWithin, CPhysicsObj::AddToLOSList are [-]); CalcPlaneIntersection only from PathBSPNode::FindPlanePolys (tool)]
 - [-] `BBox::ToFileNode` · 0061e280 — text source format (admin tools)
 - [-] `BBox::FromFileNode` · 0061e330 — text source format (admin tools)
-- [ ] `BBox::FindXYPlaneIntersect` · 0061e530 · legions 005d9e70 — needs port: exact box and plane intersection (XY, XZ, YZ, general plane)
-- [ ] `BBox::FindXZPlaneIntersect` · 0061e6c0 · legions 005da000 — needs port: exact box and plane intersection (XY, XZ, YZ, general plane)
-- [ ] `BBox::FindYZPlaneIntersect` · 0061e850 · legions 005da190 — needs port: exact box and plane intersection (XY, XZ, YZ, general plane)
-- [ ] `BBox::CalcPlaneIntersection` · 0061e9e0 · legions 005da320 — needs port: exact box and plane intersection (XY, XZ, YZ, general plane)
+- [-] `BBox::FindXYPlaneIntersect` · 0061e530 · legions 005d9e70 — not needed:  [callers unreachable in Legions (path system/detection manager; catalog rows Obstacle::CheckIfSolid, DetectionVolume::IsWithin, CPhysicsObj::AddToLOSList are [-]); CalcPlaneIntersection only from PathBSPNode::FindPlanePolys (tool)]
+- [-] `BBox::FindXZPlaneIntersect` · 0061e6c0 · legions 005da000 — not needed:  [callers unreachable in Legions (path system/detection manager; catalog rows Obstacle::CheckIfSolid, DetectionVolume::IsWithin, CPhysicsObj::AddToLOSList are [-]); CalcPlaneIntersection only from PathBSPNode::FindPlanePolys (tool)]
+- [-] `BBox::FindYZPlaneIntersect` · 0061e850 · legions 005da190 — not needed:  [callers unreachable in Legions (path system/detection manager; catalog rows Obstacle::CheckIfSolid, DetectionVolume::IsWithin, CPhysicsObj::AddToLOSList are [-]); CalcPlaneIntersection only from PathBSPNode::FindPlanePolys (tool)]
+- [-] `BBox::CalcPlaneIntersection` · 0061e9e0 · legions 005da320 — not needed:  [callers unreachable in Legions (path system/detection manager; catalog rows Obstacle::CheckIfSolid, DetectionVolume::IsWithin, CPhysicsObj::AddToLOSList are [-]); CalcPlaneIntersection only from PathBSPNode::FindPlanePolys (tool)]
 
 ## `portal/shared/src/geometry/bvolume.cpp.c` (0/1)
 
@@ -132,39 +132,39 @@ Legend and workflow: [README](README.md).
 - [-] `DetectionObjRay::~DetectionObjRay` · 0062ac40 · legions 005e4d20 — ctor/dtor: Rust struct construction and Drop
 - [-] `DetectionObjRay::AddRay` · 0062ac80 · legions 005e4d60 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
-## `portal/shared/src/geometry/frame.cpp.c` (7/19)
+## `portal/shared/src/geometry/frame.cpp.c` (15/19)
 
 ### Frame
 - [x] `Frame::cache_matrix` · 00619f70 · legions 005d5c10
 - [x] `Frame::cache_quaternion` · 00619fe0 · legions 005d5c80
-- [ ] `Frame::SetMatrix` · 0061a040 · legions 005d5ce0 — needs port: frame from matrix (rotation extraction)
-- [ ] `Frame::GetMatrix` · 0061a170 · legions 005d5e10 — needs port (check): implemented as ac2-math frame.rs Frame::to_mat4, uncited
+- [x] `Frame::SetMatrix` · 0061a040 · legions 005d5ce0 — audit: covered: no standalone port; all callers are [x] [matrix to quaternion is ac2-render/src/portal/camera.rs:103-153 (SetRotationAxesInternal); other callers keep glam matrices (render skeleton, shadow map, pregame camera)]
+- [x] `Frame::GetMatrix` · 0061a170 · legions 005d5e10 — audit: covered:  [ac2-math/src/frame.rs:484 Frame::to_mat4; ac2-render/src/interior_cull.rs:37]
 - [x] `Frame::get_vector_heading` · 0061a220 · legions 005d5ec0
 - [x] `Frame::get_heading` · 0061a240 · legions 005d5ee0
-- [ ] `Frame::get_pitch` · 0061a270 · legions 005d5f10 — needs port: frame pitch read and set with the retail clamp
-- [ ] `Frame::Pack` · 0061a290 · legions 005d5f30 — needs port: frame stream layout (write and read)
-- [ ] `Frame::UnPack` · 0061a2a0 · legions 005d5f40 — needs port: frame stream layout (write and read)
+- [-] `Frame::get_pitch` · 0061a270 · legions 005d5f10 — not needed:  [sole caller WorldRender::RenderReflectionMap, replaced by screen-space reflection (AGENTS.md exception; ac2-gpu water_reflection.rs)]
+- [x] `Frame::Pack` · 0061a290 · legions 005d5f30 — audit: covered:  [ac2-math/src/frame.rs:114-160 AFrame pack/unpack; ac2-net/src/protocol/types.rs:54 AFrame::UnPack validation]
+- [x] `Frame::UnPack` · 0061a2a0 · legions 005d5f40 — audit: covered:  [ac2-math/src/frame.rs:114-160 AFrame pack/unpack; ac2-net/src/protocol/types.rs:54 AFrame::UnPack validation]
 - [-] `Frame::FromFileNode` · 0061a2d0 — text source format (admin tools)
 - [-] `Frame::ToFileNode` · 0061a300 — text source format (admin tools)
 - [x] `Frame::grotate` · 0061a310 · legions 005d5f70
-- [~] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — ac2-physics interp (slice 3)
-- [ ] `Frame::OrientFrame` · 0061a460 · legions 005d60c0 — needs port (check): ac2-math frame.rs align_axis_to_vector is the analogue, uncited
-- [ ] `Frame::subtract2` · 0061a4e0 · legions 005d6140 — needs port (check): ac2-math frame.rs difference_from_frame is the analogue, uncited
+- [x] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — audit: covered:  [ac2-physics/src/frame.rs:337]
+- [x] `Frame::OrientFrame` · 0061a460 · legions 005d60c0 — audit: covered:  [ac2-physics/src/frame.rs:255; ac2-math/src/frame.rs:416 align_axis_to_vector]
+- [x] `Frame::subtract2` · 0061a4e0 · legions 005d6140 — audit: covered: semantics checked against 0061a4e0 [ac2-math/src/frame.rs:250 difference_from_frame (origin globaltolocal, q = conj(f2)*f1)]
 - [x] `Frame::set_vector_heading` · 0061a5b0 · legions 005d6210
 - [x] `Frame::set_heading` · 0061a810 · legions 005d6470
-- [ ] `Frame::set_pitch` · 0061a860 · legions 005d64c0 — needs port: frame pitch read and set with the retail clamp
-- [~] `Frame::slerp` · 0061a8a0 · legions 005d6500 — ac2-ui pregame/arms.rs (D3DXQuaternionSlerp in f64)
+- [-] `Frame::set_pitch` · 0061a860 · legions 005d64c0 — not needed:  [sole caller WorldRender::RenderReflectionMap, replaced by screen-space reflection (AGENTS.md exception; ac2-gpu water_reflection.rs)]
+- [x] `Frame::slerp` · 0061a8a0 · legions 005d6500 — audit: covered:  [ac2-ui/src/pregame/arms.rs:12 (D3DXQuaternionSlerp in f64); ac2-render/src/portal/camera.rs:166]
 
-## `portal/shared/src/geometry/gcylsphere.cpp.c` (4/10)
+## `portal/shared/src/geometry/gcylsphere.cpp.c` (6/10)
 
 ### Cylsphere
-- [~] `Cylsphere::BuildBoundingBox` · 006211c0 · legions 005dc960 — ac2-physics detection_volume.rs cylinder_global_box (retail tests only the x component of the turned axis, twice); Sphere::BuildBoundingBox is inline in DetectionVolume::global_box
+- [x] `Cylsphere::BuildBoundingBox` · 006211c0 · legions 005dc960 — audit: covered: callers unreachable in Legions [ac2-physics/src/detection_volume.rs:286 cylinder_global_box]
 - [x] `Cylsphere::Intersects` · 00621380 · legions 005dcb20 — ac2-physics detection_volume.rs box_within, box_does_overlap, cylinder_intersects_cylinder
 - [x] `Cylsphere::Intersects` · 00621390 · legions 005dcb30 — ac2-physics detection_volume.rs box_within, box_does_overlap, cylinder_intersects_cylinder
 - [x] `Cylsphere::Intersects` · 00621410 · legions 005dcbb0 — ac2-physics detection_volume.rs box_within, box_does_overlap, cylinder_intersects_cylinder
-- [ ] `Cylsphere::Within` · 00621420 · legions 005dcbc0 — needs port: cylinder bounding box, containment, stream layout and scale
-- [ ] `Cylsphere::StreamPack` · 00621480 · legions 005dcc20 — needs port: cylinder bounding box, containment, stream layout and scale
-- [ ] `Cylsphere::Scale` · 006214d0 · legions 005dcc70 — needs port: cylinder bounding box, containment, stream layout and scale
+- [-] `Cylsphere::Within` · 00621420 · legions 005dcbc0 — not needed:  [callers Obstacle::Within/GetGlobalBoundingBox/GetGlobalCornersFromCylinder: path system unreachable in Legions (catalog [-])]
+- [x] `Cylsphere::StreamPack` · 00621480 · legions 005dcc20 — covered: ac2-assets ac2_physics_mesh/setup.rs Ac2CylSphere (low_pt, radius, height; five floats), doc names it
+- [-] `Cylsphere::Scale` · 006214d0 · legions 005dcc70 — not needed:  [callers Obstacle::Within/GetGlobalBoundingBox/GetGlobalCornersFromCylinder: path system unreachable in Legions (catalog [-])]
 - [x] `Cylsphere::TraceRay` · 00621510 · legions 005dccb0 — ac2-physics los (Terrain::los_check)
 - [-] `Cylsphere::ToFileNode` · 006218b0 — text source format (admin tools)
 - [-] `Cylsphere::FromFileNode` · 006219a0 — text source format (admin tools)
@@ -178,11 +178,11 @@ Legend and workflow: [README](README.md).
 - [x] `Sphere::Intersects` · 00628460 · legions 005e33b0
 - [x] `Sphere::Intersects` · 00628580 · legions 005e34d0
 - [x] `Sphere::TraceRay` · 00628590 · legions 005e34e0 — ac2-physics los (Terrain::los_check)
-- [ ] `Sphere::FindCoverRays` · 006286a0 · legions 005e35f0 — needs port: sphere cover rays and bounding box
+- [-] `Sphere::FindCoverRays` · 006286a0 · legions 005e35f0 — not needed:  [callers unreachable in Legions (path system/detection manager; catalog rows Obstacle::CheckIfSolid, DetectionVolume::IsWithin, CPhysicsObj::AddToLOSList are [-])]
 - [-] `Sphere::FromFileNode` · 00628f40 — text source format (admin tools)
 - [-] `Sphere::ToFileNode` · 00629040 — text source format (admin tools)
 
-## `portal/shared/src/geometry/heading.cpp.c` (12/21)
+## `portal/shared/src/geometry/heading.cpp.c` (15/21)
 
 ### Heading
 - [x] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
@@ -193,7 +193,7 @@ Legend and workflow: [README](README.md).
 - [-] `Heading::operator=` · 0061a980 · legions 005d65e0 — operator=: Rust value semantics (glam/ac2-math provides it)
 
 ### (free functions)
-- [ ] `operator+` · 0061a990 · legions 005d65f0 — needs port: heading addition with the 360 degree wrap
+- [x] `operator+` · 0061a990 · legions 005d65f0 — audit: covered:  [ac2-weenie/src/movement_module.rs:82 (Heading::set/operator+ fmod 360)]
 - [x] `operator-` · 0061a9e0 · legions 005d6640
 
 ### Heading
@@ -203,50 +203,50 @@ Legend and workflow: [README](README.md).
 - [-] `Heading::Heading` · 0061ab50 · legions 005d67b0 — ctor/dtor: Rust struct construction and Drop
 - [x] `Heading::Heading` · 0061ab60 · legions 005d67c0
 - [x] `Heading::abs` · 0061ab80 · legions 005d67e0 — ac2-physics moveto (slice 3)
-- [ ] `Heading::lerp` · 0061abf0 · legions 005d6850 — needs port: heading lerp along the shorter arc
+- [-] `Heading::lerp` · 0061abf0 · legions 005d6850 — not needed:  [no efun wrapper and no real caller (index lists only a mis-attributed ToPString)]
 - [x] `Heading::is_in_range` · 0061acb0 · legions 005d6910 — ac2-physics moveto (slice 3)
 - [x] `Heading::is_inside` · 0061ad30 · legions 005d6990 — ac2-physics moveto (slice 3)
-- [~] `Heading::equals` · 0061ad80 · legions 005d69e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
-- [ ] `Heading::is_zero` · 0061add0 · legions 005d6a30 — needs port: heading zero test with the retail epsilon
-- [ ] `Heading::ToPString` · 0061ae20 · legions 005d6a80 — needs port: heading text form (narrow and wide)
-- [ ] `Heading::ToWPString` · 0061b2e0 · legions 005d6f40 — needs port: heading text form (narrow and wide)
+- [x] `Heading::equals` · 0061ad80 · legions 005d69e0 — audit: covered:  [ac2-weenie/src/reporter.rs:51,108]
+- [x] `Heading::is_zero` · 0061add0 · legions 005d6a30 — audit: covered: is_zero is a shortcut guard in gmAvatarModificationUI::UpdateCamera; result identical [ac2-ui/src/pregame/modification_camera.rs:60-97 builds the eye from the rotation slider directly]
+- [-] `Heading::ToPString` · 0061ae20 · legions 005d6a80 — not needed:  [efun gHeading::CallEFun_ToWPString has no call site in the Legions wlib; ToPString otherwise only SceneTool::UpdateDebugHUD (debug)]
+- [-] `Heading::ToWPString` · 0061b2e0 · legions 005d6f40 — not needed:  [efun gHeading::CallEFun_ToWPString has no call site in the Legions wlib; ToPString otherwise only SceneTool::UpdateDebugHUD (debug)]
 
-## `portal/shared/src/geometry/landdefs.cpp.c` (7/13)
+## `portal/shared/src/geometry/landdefs.cpp.c` (12/13)
 
 ### LandDefs
 - [x] `LandDefs::init_misc` · 0061ed40 · legions 005da680 — ac2-world land_lattice.rs; ac2-physics landdefs.rs (LandDefs::init_misc installs the values at startup)
 - [x] `LandDefs::set_bitlengths` · 0061ef30 · legions 005da870
-- [ ] `LandDefs::set_height_table` · 0061efd0 · legions 005da910 — needs port: LandDefs height table, interpolation, sizing, nearest pixel and block lists
-- [ ] `LandDefs::Interpolate` · 0061f020 · legions 005da960 — needs port: LandDefs height table, interpolation, sizing, nearest pixel and block lists
+- [x] `LandDefs::set_height_table` · 0061efd0 · legions 005da910 — audit: covered: Rust errors if the DAT lattice is not retail 20/8/2 [ac2-world/src/ac2_land_defs.rs:84 decode (height table, 20/8/2 lattice) + ac2-physics/src/landdefs.rs:1-30 constants]
+- [x] `LandDefs::Interpolate` · 0061f020 · legions 005da960 — audit: covered:  [ac2-world/src/land_blocks.rs:72]
 - [x] `LandDefs::MoveVectorToBeInBlock` · 0061f0e0 · legions 005daa20 — ac2-physics los (Terrain::los_check)
 - [x] `LandDefs::get_outside_lcoord` · 0061f140 · legions 005daa80
 - [x] `LandDefs::GetBlockOffset` · 0061f200 · legions 005dab40 — ac2-physics los (Terrain::los_check)
-- [ ] `LandDefs::init_size` · 0061f240 · legions 005dab80 — needs port: LandDefs height table, interpolation, sizing, nearest pixel and block lists
+- [x] `LandDefs::init_size` · 0061f240 · legions 005dab80 — audit: covered: Rust errors if the DAT lattice is not retail 20/8/2 [ac2-world/src/ac2_land_defs.rs:84 decode (height table, 20/8/2 lattice) + ac2-physics/src/landdefs.rs:1-30 constants]
 - [x] `LandDefs::adjust_to_outside` · 0061f300 · legions 005dac40
 - [x] `LandDefs::BlockRayClip` · 0061f400 · legions 005dad40 — ac2-physics los (Terrain::los_check)
-- [ ] `LandDefs::GetNearestPixel` · 0061f880 · legions 005db1c0 — needs port: LandDefs height table, interpolation, sizing, nearest pixel and block lists
-- [ ] `LandDefs::InqLandblockIIDFromStaticObjectIID` · 0061fb30 · legions 005db470 — needs port: LandDefs height table, interpolation, sizing, nearest pixel and block lists
-- [ ] `LandDefs::get_block_list` · 0061fb90 · legions 005db4d0 — needs port: LandDefs height table, interpolation, sizing, nearest pixel and block lists
+- [x] `LandDefs::GetNearestPixel` · 0061f880 · legions 005db1c0 — audit: covered:  [ac2-physics/src/landdefs.rs:117]
+- [x] `LandDefs::InqLandblockIIDFromStaticObjectIID` · 0061fb30 · legions 005db470 — audit: covered: efun gLandDefs wrapper has no wlib call site anyway [ac2-client/src/view/hud_api.rs:60]
+- [-] `LandDefs::get_block_list` · 0061fb90 · legions 005db4d0 — not needed:  [sole caller CDetectionManager::DoDetect (unreachable in Legions, catalog [-])]
 
-## `portal/shared/src/geometry/landscapedefs.cpp.c` (1/14)
+## `portal/shared/src/geometry/landscapedefs.cpp.c` (5/14)
 
 ### LandscapeDefs
 - [-] `LandscapeDefs::LandscapeDefs` · 006297e0 · legions 005e4340 — ctor/dtor: Rust struct construction and Drop
 - [-] `LandscapeDefs::GetDBOType` · 00629970 — accessor or type constant: Rust field or enum provides it
-- [ ] `LandscapeDefs::InitEnd` · 00629980 · legions 005e44e0 — needs port: LandscapeDefs init, old defs and world extents
-- [ ] `LandscapeDefs::InitOldLandDefs` · 00629a30 · legions 005e4590 — needs port: LandscapeDefs init, old defs and world extents
+- [x] `LandscapeDefs::InitEnd` · 00629980 · legions 005e44e0 — audit: covered: global current_land_defs replaced by explicit passing (catalog LandscapeDefs::SetCurrentLandscapeDefs [-]) [ac2-world/src/ac2_land_defs.rs:84-146 (decode + layout check) and ac2-physics/src/landdefs.rs:1-30 fixed derived constants]
+- [x] `LandscapeDefs::InitOldLandDefs` · 00629a30 · legions 005e4590 — audit: covered: global current_land_defs replaced by explicit passing (catalog LandscapeDefs::SetCurrentLandscapeDefs [-]) [ac2-world/src/ac2_land_defs.rs:84-146 (decode + layout check) and ac2-physics/src/landdefs.rs:1-30 fixed derived constants]
 - [-] `LandscapeDefs::GetPackSize` · 00629a90 — stream size helper: Rust decodes by slice length, no size pass
 - [-] `LandscapeDefs::Pack` · 00629ab0 — write side of a DAT/admin layout the client never writes; the read side is ported or cited
 - [x] `LandscapeDefs::UnPack` · 00629d60
 - [-] `LandscapeDefs::Allocate` · 00629ff0 — container/memory helper: Rust Vec and struct ownership
 - [-] `LandscapeDefs::SetCurrentLandscapeDefs` · 0062a030 · legions 005e4b90 — singleton setter: Rust passes the landdefs value explicitly, no global
-- [ ] `LandscapeDefs::SetWorldExtents` · 0062a070 · legions 005e4bd0 — needs port: LandscapeDefs init, old defs and world extents
-- [ ] `LandscapeDefs::Init` · 0062a0c0 · legions 005e4c20 — needs port: LandscapeDefs init, old defs and world extents
+- [x] `LandscapeDefs::SetWorldExtents` · 0062a070 · legions 005e4bd0 — audit: covered: global current_land_defs replaced by explicit passing (catalog LandscapeDefs::SetCurrentLandscapeDefs [-]) [ac2-world/src/ac2_land_defs.rs:84-146 (decode + layout check) and ac2-physics/src/landdefs.rs:1-30 fixed derived constants]
+- [x] `LandscapeDefs::Init` · 0062a0c0 · legions 005e4c20 — audit: covered: global current_land_defs replaced by explicit passing (catalog LandscapeDefs::SetCurrentLandscapeDefs [-]) [ac2-world/src/ac2_land_defs.rs:84-146 (decode + layout check) and ac2-physics/src/landdefs.rs:1-30 fixed derived constants]
 - [-] `LandscapeDefs::LoadHeightEntry` · 0062a140 — text source loader, admin build only
 - [-] `LandscapeDefs::LoadHeightList` · 0062a2f0 — text source loader, admin build only
 - [-] `LandscapeDefs::FromFileNode` · 0062a430 — text source format (admin tools)
 
-## `portal/shared/src/geometry/lightsource.cpp.c` (7/12)
+## `portal/shared/src/geometry/lightsource.cpp.c` (9/12)
 
 ### LightSource
 - [-] `LightSource::operator=` · 00621cd0 · legions 005dd0b0 — operator=: Rust value semantics (glam/ac2-math provides it)
@@ -254,15 +254,15 @@ Legend and workflow: [README](README.md).
 - [x] `LightSource::GetAnimatedRange` · 00621ed0 · legions 005dd2b0 — ac2-assets ac2_light_source.rs (FX lights) and ac2-world ac2_light_info.rs (cell lights) keep m_wRange as a Waveform: range_at(time) is GetAnimatedRange, is_range_animating is GetIsRangeAnimating; sampled each frame by ac2-render scene/object_lights.rs and the cell light pools (light_decals.rs)
 - [x] `LightSource::RefreshMaxRange` · 00621ef0 · legions 005dd2d0 — ac2-render object::cell / point_lights
 - [x] `LightSource::CalculateAttenuation` · 00621f30 · legions 005dd310 — ac2-world ac2_light_info.rs (LightSource::CalculateAttenuation formula)
-- [~] `LightSource::ApplyProperty` · 00621fb0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+- [x] `LightSource::ApplyProperty` · 00621fb0 — covered: the three LightSource property readers (ac2-assets ac2_light_source.rs for FX lights, ac2-world ac2_light_info.rs for cell lights with the corona fields, ac2-render ui_scene/data.rs for UI scene lights): type, direction, range, diffuse, intensity, specular; coronas only matter for cell lights (LensFlareEffect::InitNew/AddPoint have the one caller CEnvCell::CreateLightSource); m_ShadowType (0x4000005B, set by FX lights) feeds only the stencil shadow volumes the sun cascades replace (AGENTS.md)
 - [-] `LightSource::BuildOptionalProperties` · 00622190 — admin-only (no 7160 match); the Legions property read is ac2-assets read_ac2_light_source and ac2-world ac2_light_info decode
 - [-] `LightSource::LightSource` · 00622500 · legions 005dd8d0 — ctor/dtor: Rust struct construction and Drop
 - [x] `LightSource::ApplyPropertyCollection` · 00622650 — ac2-assets ac2_light_source.rs (LightSource::ApplyPropertyCollection decode)
-- [ ] `LightSource::GetDiffuse` · 00622730 · legions 005ddb00 — needs port (check): cited only in render cell.rs comment; confirm GetDiffuse is implemented there
+- [x] `LightSource::GetDiffuse` · 00622730 · legions 005ddb00 — audit: covered:  [ac2-render/src/object/cell.rs:281 (sunlight type answers sun ambient, black inside; others use light.color)]
 - [x] `LightSource::GetWeight` · 00622760 · legions 005ddb30 — object/point_lights.rs weight (range waveform now, intensity upper bound, sun terms for type 0x40000003) and fill_render_light (sun colour x intensity + outdoor ambient for sunlight-type)
 - [x] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0 — object/point_lights.rs weight (range waveform now, intensity upper bound, sun terms for type 0x40000003) and fill_render_light (sun colour x intensity + outdoor ambient for sunlight-type)
 
-## `portal/shared/src/geometry/matrix4.cpp.c` (11/18)
+## `portal/shared/src/geometry/matrix4.cpp.c` (15/18)
 
 ### Matrix4
 - [x] `Matrix4::Translate` · 0061b390 · legions 005d6ff0 — ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -275,14 +275,14 @@ Legend and workflow: [README](README.md).
 - [x] `Matrix4::CalcDeterminant` · 0061b5c0 · legions 005d7220 — ac2-render object/skeleton.rs (bone matrices)
 - [x] `Matrix4::Adjoint` · 0061b780 · legions 005d73e0 — ac2-render object/skeleton.rs (bone matrices)
 - [-] `Matrix4::Inverse3` · 0061bb10 · legions 005d7770 — basic vector/matrix/quaternion operator: the Rust math type (glam) provides it
-- [ ] `Matrix4::QuaternionFromRotation` · 0061bc80 · legions 005d78e0 — needs port: matrix to quaternion convention
+- [x] `Matrix4::QuaternionFromRotation` · 0061bc80 · legions 005d78e0 — audit: covered:  [ac2-render/src/portal/camera.rs:103]
 - [x] `Matrix4::RotateBasis` · 0061bce0 · legions 005d7940 — ac2-render object/skeleton.rs (bone matrices)
 - [-] `Matrix4::Transpose` · 0061bd60 · legions 005d79c0 — basic vector/matrix/quaternion operator: the Rust math type (glam) provides it
 - [x] `Matrix4::Inverse` · 0061bdd0 · legions 005d7a30 — ac2-render object/skeleton.rs (bone matrices)
-- [ ] `Matrix4::DirectionMatrix` · 0061be40 · legions 005d7aa0 — needs port (check): cited only by shadow_map.rs and emitter.rs comments; no implementing function cited
+- [x] `Matrix4::DirectionMatrix` · 0061be40 · legions 005d7aa0 — audit: covered:  [ac2-gpu/src/shadow_map.rs:2, ac2-gpu/src/sun_shadow.rs:118, ac2-render/src/particles/emitter.rs:470]
 - [x] `Matrix4::RotationFromQuaternion` · 0061c080 · legions 005d7ce0 — ac2-render object/skeleton.rs (bone matrices)
-- [~] `Matrix4::RotateAngles` · 0061c0c0 · legions 005d7d20 — the forward row CameraManager::UpdateCamera reads (ac2-client camera.rs)
-- [ ] `Matrix4::LookAt` · 0061c1a0 · legions 005d7e00 — needs port: LookAt matrix convention
+- [x] `Matrix4::RotateAngles` · 0061c0c0 · legions 005d7d20 — audit: covered:  [ac2-smartbox/src/camera.rs:114; ac2-render/src/particles/fill.rs:164]
+- [x] `Matrix4::LookAt` · 0061c1a0 · legions 005d7e00 — covered: ac2-ui pregame/modification_camera.rs modification_camera (eye/target, world z up, drawn through ac2_render::Camera look-at); doc names it
 
 ## `portal/shared/src/geometry/perlinnoise.cpp.c` (3/3)
 
@@ -291,27 +291,27 @@ Legend and workflow: [README](README.md).
 - [x] `PerlinNoise::Noise` · 0062b0f0 · legions 005e5010 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 - [x] `PerlinNoise::fBm1` · 0062b180 · legions 005e50a0 — ac2-math perlin.rs fbm1: double accumulator and weights (no float casts), the fractional octave, float at the return
 
-## `portal/shared/src/geometry/plane.cpp.c` (2/16)
+## `portal/shared/src/geometry/plane.cpp.c` (5/16)
 
 ### Plane
 - [x] `Plane::localtoglobal` · 00623960 · legions 005ded30 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 - [x] `Plane::intersect_line` · 00623a20 · legions 005dedf0 — ac2-physics los (Terrain::los_check)
-- [ ] `Plane::compute_time_of_intersection` · 00623b30 · legions 005def00 — needs port: plane time of intersection and intercept
-- [ ] `Plane::FindIntercept` · 00623bb0 · legions 005def80 — needs port: plane time of intersection and intercept
+- [-] `Plane::compute_time_of_intersection` · 00623b30 · legions 005def00 — not needed:  [callers only PathBSPNode (path-map tool), SimplePolygon, BSPNODE::ClipToCellBSP (no caller anywhere)]
+- [-] `Plane::FindIntercept` · 00623bb0 · legions 005def80 — not needed:  [callers only PathBSPNode (path-map tool), SimplePolygon, BSPNODE::ClipToCellBSP (no caller anywhere)]
 - [-] `Plane::Pack` · 00623c40 · legions 005df010 — write side of a DAT/admin layout the client never writes; the read side is ported or cited
-- [ ] `Plane::UnPack` · 00623c90 · legions 005df060 — needs port: plane stream read (normal and distance)
-- [ ] `Plane::IntersectLineSegment` · 00623ce0 · legions 005df0b0 — needs port: line segment, clip-to-positive and cut-ray plane tests
-- [ ] `Plane::ClipRayToPositive` · 00623e40 · legions 005df210 — needs port: line segment, clip-to-positive and cut-ray plane tests
-- [ ] `Plane::OrientFrameToPlane` · 00623fc0 · legions 005df390 — needs port: orient a frame onto a plane
-- [ ] `Plane::StreamPack` · 006240c0 · legions 005df490 — needs port: plane stream layout (read and write)
-- [ ] `Plane::CutRay` · 006240f0 · legions 005df4c0 — needs port: line segment, clip-to-positive and cut-ray plane tests
-- [ ] `Plane::GetString` · 00624310 · legions 005df6e0 — needs port (check): plane text form, compare against Vector::GetStringW format
-- [ ] `Plane::GetStringW` · 00624380 · legions 005df750 — needs port (check): plane text form, compare against Vector::GetStringW format
+- [x] `Plane::UnPack` · 00623c90 · legions 005df060 — audit: covered:  [ac2-assets/src/ac2_physics_mesh.rs:13 BSPNODE::UnPack plane; ac2-anim/src/setup.rs:3 height/radius planes]
+- [x] `Plane::IntersectLineSegment` · 00623ce0 · legions 005df0b0 — audit: covered:  [ac2-render/src/terrain/shore.rs:89]
+- [-] `Plane::ClipRayToPositive` · 00623e40 · legions 005df210 — not needed:  [callers only PathBSPNode (path-map tool), SimplePolygon, BSPNODE::ClipToCellBSP (no caller anywhere)]
+- [x] `Plane::OrientFrameToPlane` · 00623fc0 · legions 005df390 — audit: covered:  [ac2-world/src/ac2_scene/geometry.rs:118]
+- [-] `Plane::StreamPack` · 006240c0 · legions 005df490 — not needed: unpack is covered under Plane::UnPack [pack direction only (STREAMPACK_STREAMPACKOBJ); the client never writes planes]
+- [-] `Plane::CutRay` · 006240f0 · legions 005df4c0 — not needed:  [callers only PathBSPNode (path-map tool), SimplePolygon, BSPNODE::ClipToCellBSP (no caller anywhere)]
+- [-] `Plane::GetString` · 00624310 · legions 005df6e0 — not needed:  [efun gPlane::CallEFun_GetStringW has no call site in the Legions wlib (catalog); GetString only from GetStringW]
+- [-] `Plane::GetStringW` · 00624380 · legions 005df750 — not needed:  [efun gPlane::CallEFun_GetStringW has no call site in the Legions wlib (catalog); GetString only from GetStringW]
 - [-] `Plane::FromFileNode` · 00624440 — text source format (admin tools)
 - [-] `Plane::ToFileNode` · 00624550 — text source format (admin tools)
-- [ ] `Plane::SplitPolygon` · 006245b0 · legions 005df810 — needs port: split a polygon by a plane
+- [-] `Plane::SplitPolygon` · 006245b0 · legions 005df810 — not needed:  [callers only PathBSPNode (path-map tool), SimplePolygon, BSPNODE::ClipToCellBSP (no caller anywhere)]
 
-## `portal/shared/src/geometry/polygon.cpp.c` (18/36)
+## `portal/shared/src/geometry/polygon.cpp.c` (21/36)
 
 ### SPHEREPATH
 - [x] `SPHEREPATH::is_walkable_allowable` · 00499290 · legions 004917c0 — ac2-physics transition/localspace.rs, sphere_path.rs
@@ -320,7 +320,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPolygon::CPolygon` · 004992b0 — ctor/dtor: Rust struct construction and Drop
 - [-] `CPolygon::GetVertexLoc` · 004992d0 · legions 00491800 — accessor or type constant: Rust field or enum provides it
 - [x] `CPolygon::point_in_poly2D` · 004992f0 · legions 00491820
-- [ ] `CPolygon::circle_in_poly2D` · 00499380 · legions 004918b0 — needs port: circle inside a 2D polygon
+- [x] `CPolygon::circle_in_poly2D` · 00499380 · legions 004918b0 — ported: ac2-world ac2_scene/geometry.rs circle_in_poly2d (3D corner distance, unnormalised edge cross product against the radius, projection-in-span touch, counter-clockwise terrain triangles), used by check_radius in place of an exact circle-triangle test; test circle_in_poly2d_follows_retail
 - [-] `CPolygon::Destroy` · 00499530 · legions 00491a60 — container/memory helper: Rust Vec and struct ownership
 - [-] `CPolygon::InitEmpty` · 00499570 · legions 00491aa0 — container/memory helper: Rust Vec and struct ownership
 - [-] `CPolygon::GetPackSize` · 004995c0 · legions 00491af0 — stream size helper: Rust decodes by slice length, no size pass
@@ -344,8 +344,8 @@ Legend and workflow: [README](README.md).
 
 ### WorkerPolygon
 - [-] `WorkerPolygon::WorkerPolygon` · 0049a530 · legions 00492a20 — ctor/dtor: Rust struct construction and Drop
-- [ ] `WorkerPolygon::RecalculatePlane` · 0049a560 · legions 00492a50 — needs port: worker polygon plane recalculation and area
-- [ ] `WorkerPolygon::CalcArea` · 0049a6a0 · legions 00492b90 — needs port: worker polygon plane recalculation and area
+- [x] `WorkerPolygon::RecalculatePlane` · 0049a560 · legions 00492a50 — audit: covered:  [ac2-render/src/worker_polygon.rs:72]
+- [x] `WorkerPolygon::CalcArea` · 0049a6a0 · legions 00492b90 — audit: covered:  [ac2-render/src/worker_polygon.rs:98]
 
 ### CPolygon
 - [x] `CPolygon::pos_hits_sphere` · 0049a860 · legions 00492d50 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
@@ -378,7 +378,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPortalPoly::StreamPack` · 0072f890 · legions 006ad130 — ac2-world ac2_cell_struct.rs (CPortalPoly::StreamPack decode)
 - [-] `CPortalPoly::FromFileNode` · 0072f930 — text source format (admin tools)
 
-## `portal/shared/src/geometry/position.cpp.c` (26/36)
+## `portal/shared/src/geometry/position.cpp.c` (27/36)
 
 ### Position
 - [-] `Position::Position` · 0061fd70 · legions 005db6b0 — ctor/dtor: Rust struct construction and Drop
@@ -393,9 +393,9 @@ Legend and workflow: [README](README.md).
 - [x] `Position::Pack` · 00620070 · legions 005db9b0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [x] `Position::UnPack` · 006200b0 · legions 005db9f0
 - [x] `Position::cylinder_distance` · 006200f0 · legions 005dba30 — ac2-physics moveto (slice 3)
-- [ ] `Position::cylinder_distance_squared` · 00620190 · legions 005dbad0 — needs port (check): ac2-physics moveto Position::cylinder_distance is the non-squared form
+- [-] `Position::cylinder_distance_squared` · 00620190 · legions 005dbad0 — not needed: non-squared form exists in ac2-physics moveto [sole caller CPhysicsObj::get_distance_to_object_squared is [-]]
 - [x] `Position::IsValid` · 00620230 · legions 005dbb70 — ac2-script glue::position (ported beside the gPosition glue)
-- [ ] `Position::CreateRay` · 00620260 · legions 005dbba0 — needs port: ray from a position
+- [-] `Position::CreateRay` · 00620260 · legions 005dbba0 — not needed:  [callers unreachable in Legions (path system/detection manager; catalog rows Obstacle::CheckIfSolid, DetectionVolume::IsWithin, CPhysicsObj::AddToLOSList are [-])]
 
 ### LandDefs
 - [x] `LandDefs::gid_to_game_map_coords` · 006202c0 · legions 005dbc00 — ac2-physics landdefs.rs + ac2-client ui_sources.rs map_coords_string (the radar) + ac2-script glue
@@ -418,7 +418,7 @@ Legend and workflow: [README](README.md).
 - [x] `Position::GetCellY` · 00620620 · legions 005dbec0 — ac2-script glue::position (ported beside the gPosition glue)
 - [x] `Position::FromCellCoords` · 00620650 · legions 005dbef0 — ac2-script glue::position (ported beside the gPosition glue)
 - [x] `Position::ToRealMapCoords_Info` · 006206d0 · legions 005dbf70 — ac2-physics landdefs.rs + ac2-client ui_sources.rs map_coords_string (the radar) + ac2-script glue
-- [ ] `Position::FromGameMapCoords` · 00620830 · legions 005dc0d0 — needs port: game map coordinates to position
+- [x] `Position::FromGameMapCoords` · 00620830 · legions 005dc0d0 — audit: covered:  [ac2-script/src/glue/position.rs:218; ac2-physics/src/landdefs.rs:73]
 - [x] `Position::FromRealMapCoords` · 006208b0 · legions 005dc150 — ac2-script glue/position.rs (Position::FromRealMapCoords)
 - [x] `Position::GetCellDistance` · 00620a40 · legions 005dc2e0 — ac2-script glue::position (ported beside the gPosition glue)
 - [x] `Position::FromCellCoordsString` · 00620a60 · legions 005dc300 — ac2-script glue::position (ported beside the gPosition glue)
@@ -438,16 +438,16 @@ Legend and workflow: [README](README.md).
 - [-] `PositionOffset::FromFileNode` · 00625980 — text source format (admin tools)
 - [-] `PositionOffset::ToFileNode` · 00625b60 — text source format (admin tools)
 
-## `portal/shared/src/geometry/quaternion.cpp.c` (4/11)
+## `portal/shared/src/geometry/quaternion.cpp.c` (7/11)
 
 ### Quaternion
 - [x] `Quaternion::rotate` · 0061c210 · legions 005d7e70
 - [-] `Quaternion::Transform` · 0061c2e0 · legions 005d7f40 — basic vector/matrix/quaternion operator: the Rust math type (glam) provides it
-- [ ] `Quaternion::RotationAxis` · 0061c3c0 · legions 005d8020 — needs port: rotation axes to quaternion and the normalize rule
-- [ ] `Quaternion::SetRotationAxesInternal` · 0061c3f0 · legions 005d8050 — needs port: rotation axes to quaternion and the normalize rule
+- [x] `Quaternion::RotationAxis` · 0061c3c0 · legions 005d8020 — audit: covered:  [ac2-render/src/fx_decals.rs:85 (f64); pregame camera ac2-ui modification_camera.rs:82]
+- [x] `Quaternion::SetRotationAxesInternal` · 0061c3f0 · legions 005d8050 — audit: covered:  [ac2-render/src/portal/camera.rs:104-153]
 - [x] `Quaternion::InqRotationAxes` · 0061c570 · legions 005d81d0
 - [-] `Quaternion::Pack` · 0061c640 · legions 005d82a0 — write side of a DAT/admin layout the client never writes; the read side is ported or cited
-- [ ] `Quaternion::SetRotationAxesAndNormalize` · 0061c680 · legions 005d82e0 — needs port: rotation axes to quaternion and the normalize rule
+- [x] `Quaternion::SetRotationAxesAndNormalize` · 0061c680 · legions 005d82e0 — audit: covered:  [ac2-render/src/portal/camera.rs:104-153]
 - [x] `Quaternion::SetRotationAxes` · 0061c700 · legions 005d8360
 - [x] `Quaternion::UnPack` · 0061c710 · legions 005d8370
 - [-] `Quaternion::ToFileNode` · 0061c850 — text source format (admin tools)
@@ -456,7 +456,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/ray.cpp.c` (0/3)
 
 ### Ray
-- [ ] `Ray::StreamPack` · 00621b30 — needs port: Ray stream layout
+- [-] `Ray::StreamPack` · 00621b30 — not needed: admin-only [no callers and no Legions address (00621b30)]
 - [-] `Ray::FromFileNode` · 00621b90 — text source format (admin tools)
 - [-] `Ray::ToFileNode` · 00621c50 — text source format (admin tools)
 
@@ -482,43 +482,43 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<Vector>::RemoveOrderedByIndex` · 00625c10 · legions 005e0b60 — container/memory helper: Rust Vec and struct ownership
 
 ### SimplePolygon
-- [ ] `SimplePolygon::GetEdge` · 00625c60 · legions 005e0bb0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::ReplaceEdgeWithMidpoint` · 00625cd0 · legions 005e0c20 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::GetEdgePlane` · 00625da0 · legions 005e0cf0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::RemoveColinearAndConcavePoints` · 00625e70 · legions 005e0dc0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::FindArea` · 006260d0 · legions 005e1020 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::FindArea2D` · 00626420 · legions 005e1370 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::CheckIfInPlane` · 00626560 · legions 005e14b0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::GetBounds` · 006265b0 · legions 005e1500 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::RemoveShortEdges` · 00626610 · legions 005e1560 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::IsOutside` · 00626790 · legions 005e16e0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::SelfCutByEdges` · 006268c0 · legions 005e1810 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::IsDegenerate` · 00626c90 · legions 005e1be0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::CalculatePlane` · 00626cb0 · legions 005e1c00 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::IsConvex` · 00626ff0 · legions 005e1f61 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::AdjustToPolygonHeight` · 00627150 · legions 005e20a0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
+- [-] `SimplePolygon::GetEdge` · 00625c60 · legions 005e0bb0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::ReplaceEdgeWithMidpoint` · 00625cd0 · legions 005e0c20 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::GetEdgePlane` · 00625da0 · legions 005e0cf0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::RemoveColinearAndConcavePoints` · 00625e70 · legions 005e0dc0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::FindArea` · 006260d0 · legions 005e1020 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::FindArea2D` · 00626420 · legions 005e1370 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::CheckIfInPlane` · 00626560 · legions 005e14b0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::GetBounds` · 006265b0 · legions 005e1500 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::RemoveShortEdges` · 00626610 · legions 005e1560 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::IsOutside` · 00626790 · legions 005e16e0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::SelfCutByEdges` · 006268c0 · legions 005e1810 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::IsDegenerate` · 00626c90 · legions 005e1be0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::CalculatePlane` · 00626cb0 · legions 005e1c00 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::IsConvex` · 00626ff0 · legions 005e1f61 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::AdjustToPolygonHeight` · 00627150 · legions 005e20a0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
 
 ### SmartArray<Vector>
 - [-] `SmartArray<Vector>::InsertOrderedByIndex` · 00627450 · legions 005e23a0 — container/memory helper: Rust Vec and struct ownership
 
 ### SimplePolygon
-- [ ] `SimplePolygon::ExtendConvexHull` · 006274f0 · legions 005e2440 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::AdjustVertexHeights` · 00627860 · legions 005e27b0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::CleanupConvex` · 00627960 · legions 005e28b0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::ApplyZConstraints` · 00627a20 · legions 005e2970 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
+- [-] `SimplePolygon::ExtendConvexHull` · 006274f0 · legions 005e2440 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::AdjustVertexHeights` · 00627860 · legions 005e27b0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::CleanupConvex` · 00627960 · legions 005e28b0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::ApplyZConstraints` · 00627a20 · legions 005e2970 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
 
 ### SmartArray<Ray>
 - [-] `SmartArray<Ray>::AddToEnd` · 00627eb0 · legions 005e2e00 — container/memory helper: Rust Vec and struct ownership
 
 ### SimplePolygon
-- [ ] `SimplePolygon::Convexify` · 00627f20 · legions 005e2e70 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::ConvexifyWithZConstraints` · 00628050 · legions 005e2fa0 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
-- [ ] `SimplePolygon::Calc2DOverlap` · 006280c0 · legions 005e3010 — needs port: retail SimplePolygon clipping, convex hull and edge tests (exact vertex order and epsilons)
+- [-] `SimplePolygon::Convexify` · 00627f20 · legions 005e2e70 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::ConvexifyWithZConstraints` · 00628050 · legions 005e2fa0 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
+- [-] `SimplePolygon::Calc2DOverlap` · 006280c0 · legions 005e3010 — not needed: path system entered only via gPathSystem/gPathFinder efuns no wlib function calls [only callers are other SimplePolygon/Plane::SplitPolygon functions, Obstacle::CheckIfSolid (path system, unreachable in Legions) and PathBSPNode (tool)]
 
-## `portal/shared/src/geometry/sphcone.cpp.c` (0/9)
+## `portal/shared/src/geometry/sphcone.cpp.c` (1/9)
 
 ### Sphere
-- [~] `Sphere::BuildBoundingBox` · 00736b30 · legions 006b2710 — inline in DetectionVolume::global_box
+- [x] `Sphere::BuildBoundingBox` · 00736b30 · legions 006b2710 — audit: covered: caller DetectionVolume::GetGlobalBox unreachable in Legions [ac2-physics/src/detection_volume.rs global_box (inline)]
 
 ### SphCone
 - [-] `SphCone::SphCone` · 00736bd0 · legions 006b27b0 — ctor/dtor: Rust struct construction and Drop
@@ -568,24 +568,24 @@ Legend and workflow: [README](README.md).
 - [-] `SphPlaneCone::Intersects` · 007379a0 · legions 006b3560 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `SphPlaneCone::StreamPack` · 00737bd0 · legions 006b3790 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
-## `portal/shared/src/geometry/transform.cpp.c` (4/13)
+## `portal/shared/src/geometry/transform.cpp.c` (6/13)
 
 ### TransformBase
 - [-] `TransformBase::GetPackSize` · 00624ed0 · legions 005e0130 — stream size helper: Rust decodes by slice length, no size pass
 - [-] `TransformBase::Pack` · 00624ee0 · legions 005e0140 — write side of a DAT/admin layout the client never writes; the read side is ported or cited
-- [ ] `TransformBase::SetFrame` · 00624f60 · legions 005e01c0 — needs port: transform frame set, validity and normalisation
+- [-] `TransformBase::SetFrame` · 00624f60 · legions 005e01c0 — not needed: same class as skipped accessors [plain field copy of an AFrame into offset/scale=1/qt; Rust Ac2Transform from frame (ac2-math frame.rs:160)]
 - [x] `TransformBase::AddWeightedTransform` · 00624fb0 · legions 005e0210 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [x] `TransformBase::WeightTransform` · 00625070 · legions 005e02d0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-- [ ] `TransformBase::NormalizeEvenInvalid` · 00625110 · legions 005e0370 — needs port: transform frame set, validity and normalisation
+- [x] `TransformBase::NormalizeEvenInvalid` · 00625110 · legions 005e0370 — audit: covered:  [ac2-anim/src/dbanimator/look.rs:40]
 - [x] `TransformBase::FillMatrix` · 00625190 · legions 005e03f0 — ac2-render object/skeleton.rs (bone matrices)
 
 ### (free functions)
 - [-] `STREAMPACK_PACKOBJ` · 00625290 · legions 005e04f0 — helper macro for the stream layout; the Rust readers decode directly
 
 ### TransformBase
-- [ ] `TransformBase::IsValid` · 00625300 · legions 005e0560 — needs port: transform frame set, validity and normalisation
+- [-] `TransformBase::IsValid` · 00625300 · legions 005e0560 — not needed: only callers TransformBase::UnPack (and the tool FromFileNode); every 7230 Setup transform passes it (|q|^2 within 0.0002 of 1, no NaN; probe over all 0x04 Setups), so ac2-anim setup.rs read_transform decodes the same records; AFrame::IsValid is ac2-math frame.rs is_valid
 - [x] `TransformBase::UnPack` · 00625460 · legions 005e06c0 — ac2-anim setup.rs (TransformBase::UnPack: offset, scale, quaternion w,x,y,z)
-- [ ] `TransformBase::NormalizeIfInvalid` · 006254e0 · legions 005e0740 — needs port: transform frame set, validity and normalisation
+- [x] `TransformBase::NormalizeIfInvalid` · 006254e0 · legions 005e0740 — audit: covered:  [ac2-anim/src/dbanimator/look.rs:40]
 - [-] `TransformBase::FromFileNode` · 00625640 · legions 005e08a0 — text source format (admin tools)
 - [-] `TransformBase::ToFileNode` · 006257e0 — text source format (admin tools)
 
@@ -594,15 +594,15 @@ Legend and workflow: [README](README.md).
 ### Vec2D
 - [-] `Vec2D::Vec2D` · 00628430 · legions 005e3380 — ctor/dtor: Rust struct construction and Drop
 
-## `portal/shared/src/geometry/vector.cpp.c` (2/7)
+## `portal/shared/src/geometry/vector.cpp.c` (4/7)
 
 ### Vector
 - [x] `Vector::FromSpherical` · 00620e20 · legions 005dc5c0
-- [~] `Vector::UnitVectorFromUInt24` · 00620e60 · legions 005dc600 — wire quantizer in ac2-net protocol::position
+- [x] `Vector::UnitVectorFromUInt24` · 00620e60 · legions 005dc600 — audit: covered:  [ac2-net/src/protocol/position.rs:38,54]
 - [-] `Vector::ToFileNode` · 00620ed0 · legions 005dc670 — text source format (admin tools)
-- [~] `Vector::UnitVectorToUInt24` · 00620f70 · legions 005dc710 — wire quantizer in ac2-net protocol::position
+- [x] `Vector::UnitVectorToUInt24` · 00620f70 · legions 005dc710 — audit: covered:  [ac2-net/src/protocol/position.rs:38,54]
 - [-] `Vector::FromFileNode` · 00621090 · legions 005dc830 — text source format (admin tools)
-- [ ] `Vector::GetString` · 00621160 · legions 005dc900 — needs port (check): same format as Vector::GetStringW (ac2-script glue/math.rs)
+- [-] `Vector::GetString` · 00621160 · legions 005dc900 — not needed:  [callers Plane::GetString and PathNode::StreamPack (tool); the W form is ac2-script glue/math.rs:259]
 - [x] `Vector::GetStringW` · 00621190 · legions 005dc930 — ac2-script glue/math.rs (Vector::GetStringW format)
 
 ## `portal/shared/src/geometry/vertex.cpp.c` (1/1)
@@ -610,7 +610,7 @@ Legend and workflow: [README](README.md).
 ### VertexFormatInfo
 - [x] `VertexFormatInfo::GenerateOffsets` · 0062b380 · legions 005e52a0 — ac2-assets ac2_mesh.rs (VertexFormatInfo::GenerateOffsets stride)
 
-## `portal/shared/src/geometry/vertexarray.cpp.c` (0/31)
+## `portal/shared/src/geometry/vertexarray.cpp.c` (2/31)
 
 ### CVertexArray
 - [-] `CVertexArray::Begin` · 0072fc70 · legions 006ad1d0 — D3D vertex buffer wrapper: Rust vertex buffers
@@ -620,7 +620,7 @@ Legend and workflow: [README](README.md).
 - [-] `CVertexArray::Startup` · 0072fd30 · legions 006ad290 — D3D vertex buffer wrapper: Rust vertex buffers
 - [-] `CVertexArray::Shutdown` · 0072fda0 · legions 006ad300 — D3D vertex buffer wrapper: Rust vertex buffers
 - [-] `CVertexArray::Lock` · 0072fdf0 · legions 006ad350 — D3D vertex buffer wrapper: Rust vertex buffers
-- [ ] `CVertexArray::BuildBoundingBox` · 0072fe40 · legions 006ad3a0 — needs port: vertex array bounds and UnPack (check ac2_mesh decode, uncited)
+- [x] `CVertexArray::BuildBoundingBox` · 0072fe40 · legions 006ad3a0 — audit: covered: caller CVertexArray::Unlock [-] [ac2-assets/src/ac2_mesh.rs:7,56 bounds_min/bounds_max]
 - [-] `CVertexArray::GetPackSize` · 0072fe90 · legions 006ad3f0 — stream size helper: Rust decodes by slice length, no size pass
 - [-] `CVertexArray::Pack` · 0072fed0 · legions 006ad430 — write side of a DAT/admin layout the client never writes; the read side is ported or cited
 
@@ -637,23 +637,23 @@ Legend and workflow: [README](README.md).
 
 ### CVertexArray
 - [-] `CVertexArray::CreateVertexArray` · 00730130 · legions 006ad4f0 — D3D vertex buffer wrapper: Rust vertex buffers
-- [ ] `CVertexArray::UnPack` · 00730160 · legions 006ad520 — needs port: vertex array bounds and UnPack (check ac2_mesh decode, uncited)
+- [x] `CVertexArray::UnPack` · 00730160 · legions 006ad520 — audit: covered:  [ac2-assets/src/ac2_mesh.rs:6 (decoded with the mesh, verified by every_legions_mesh_setup_and_visual_desc_decodes)]
 
 ### (free functions)
-- [ ] `StreamArbitraryVertex` · 00730280 — needs port (check): arbitrary vertex stream, compare ac2_mesh decode
+- [-] `StreamArbitraryVertex` · 00730280 — not needed:  [sole caller CVertexArray::FromFileNode (text source, admin tools)]
 
 ### CVertexArray
 - [-] `CVertexArray::Unlock` · 00730630 · legions 006ad640 — D3D vertex buffer wrapper: Rust vertex buffers
 
 ### PSmartArray<LOAD_UVPAIR>
-- [ ] `PSmartArray<LOAD_UVPAIR>::StreamPack` · 00730690 — needs port: LOAD_UVPAIR and LOAD_WEIGHTS array stream
+- [-] `PSmartArray<LOAD_UVPAIR>::StreamPack` · 00730690 — not needed: admin-only [no callers and no Legions address]
 
 ### LOAD_UVPAIR
 - [-] `LOAD_UVPAIR::LOAD_UVPAIR` · 00730820 — ctor/dtor: Rust struct construction and Drop
-- [ ] `LOAD_UVPAIR::UnPack` · 00730830 — needs port: LOAD_UVPAIR and LOAD_WEIGHTS array stream
+- [-] `LOAD_UVPAIR::UnPack` · 00730830 — not needed: admin-only [no callers and no Legions address]
 
 ### PSmartArray<LOAD_WEIGHTS>
-- [ ] `PSmartArray<LOAD_WEIGHTS>::StreamPack` · 00730870 — needs port: LOAD_UVPAIR and LOAD_WEIGHTS array stream
+- [-] `PSmartArray<LOAD_WEIGHTS>::StreamPack` · 00730870 — not needed: admin-only [no callers and no Legions address]
 
 ### LOAD_WEIGHTS
 - [-] `LOAD_WEIGHTS::LOAD_WEIGHTS` · 00730a00 — ctor/dtor: Rust struct construction and Drop
@@ -662,7 +662,7 @@ Legend and workflow: [README](README.md).
 - [-] `CLandCell::Pack` · 00730a10 · legions 00659b50 — write side of a DAT/admin layout the client never writes; the read side is ported or cited
 
 ### (free functions)
-- [ ] `LoadArbitraryVertex` · 00730a20 — needs port (check): arbitrary vertex stream, compare ac2_mesh decode
+- [-] `LoadArbitraryVertex` · 00730a20 — not needed:  [sole caller CVertexArray::FromFileNode (text source, admin tools)]
 
 ### CVertexArray
 - [-] `CVertexArray::FromFileNode` · 00730df0 — text source format (admin tools)
@@ -670,7 +670,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/waveform.cpp.c` (3/10)
 
 ### Waveform
-- [ ] `Waveform::SetDefaults` · 00622c40 · legions 005de010 — needs port: waveform defaults and upper bound
+- [-] `Waveform::SetDefaults` · 00622c40 · legions 005de010 — not needed:  [constructor defaults of LM_* light modulators (many admin-only); shipped values all come from ac2-math/src/waveform.rs:50 from_packed]
 - [x] `Waveform::GetUpperBounds` · 00622c70 · legions 005de040 — ac2-math Waveform::upper_bound (GetUpperBounds)
 - [x] `Waveform::GetValueForPhase` · 00622cf0 · legions 005de0c0 — ac2-math waveform.rs: all kinds; NOISE = RollDice(-1,1) * amplitude + base, FRACTAL = fBm1(freq*phase + time, 1 - roughness, 2, 6) * amplitude + base, checked against the admin disassembly (kind table 0x622EEC)
 - [x] `Waveform::GetValue` · 00622f10 · legions 005de2e0 — ac2-math waveform.rs: all kinds; NOISE = RollDice(-1,1) * amplitude + base, FRACTAL = fBm1(freq*phase + time, 1 - roughness, 2, 6) * amplitude + base, checked against the admin disassembly (kind table 0x622EEC)

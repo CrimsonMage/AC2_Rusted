@@ -93,6 +93,9 @@ pub struct BlockCull {
     /// `m_fCullingPlane` of the cell the cull starts from: the block's interior fog far distance
     /// when it has fog, else -1.
     pub culling_plane: f32,
+    /// `m_InteriorFogColor` (RGBA; `CLandBlockInfo::CLandBlockInfo` defaults it to opaque white):
+    /// the full-screen quad `WorldRender::Render` paints when a cell was fog culled.
+    pub fog_quad: [f32; 4],
 }
 
 impl BlockCull {

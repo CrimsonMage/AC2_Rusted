@@ -172,6 +172,7 @@ impl Session {
             (None, Some(own)) => {
                 frame.player = Some(ac2_client::PlayerFrame {
                     hidden: true,
+                    hidden_mesh_types: Vec::new(),
                     ..own.clone()
                 });
             }

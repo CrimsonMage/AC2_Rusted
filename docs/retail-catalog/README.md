@@ -34,24 +34,24 @@ scripts/retail_catalog.py status
 
 | Crate | Functions | Done | Partial | To do | Skipped |
 |---|---:|---:|---:|---:|---:|
-| [ac2-core](ac2-core.md) | 589 | 22 | 4 | 12 | 551 |
-| [ac2-math](ac2-math.md) | 426 | 159 | 11 | 102 | 154 |
-| [ac2-dat](ac2-dat.md) | 507 | 42 | 7 | 67 | 391 |
-| [ac2-db](ac2-db.md) | 633 | 197 | 15 | 128 | 293 |
-| [ac2-net](ac2-net.md) | 556 | 301 | 23 | 57 | 175 |
-| [ac2-weenie](ac2-weenie.md) | 1904 | 1008 | 132 | 116 | 648 |
-| [ac2-anim](ac2-anim.md) | 532 | 172 | 1 | 2 | 357 |
-| [ac2-assets](ac2-assets.md) | 785 | 208 | 6 | 0 | 571 |
-| [ac2-world](ac2-world.md) | 989 | 369 | 23 | 14 | 583 |
-| [ac2-render](ac2-render.md) | 781 | 196 | 51 | 175 | 359 |
-| [ac2-gpu](ac2-gpu.md) | 95 | 12 | 1 | 6 | 76 |
+| [ac2-core](ac2-core.md) | 589 | 27 | 0 | 0 | 562 |
+| [ac2-math](ac2-math.md) | 426 | 214 | 0 | 0 | 212 |
+| [ac2-dat](ac2-dat.md) | 507 | 74 | 0 | 0 | 433 |
+| [ac2-db](ac2-db.md) | 633 | 271 | 0 | 0 | 362 |
+| [ac2-net](ac2-net.md) | 556 | 323 | 0 | 0 | 233 |
+| [ac2-weenie](ac2-weenie.md) | 1904 | 1194 | 0 | 0 | 710 |
+| [ac2-anim](ac2-anim.md) | 532 | 175 | 0 | 0 | 357 |
+| [ac2-assets](ac2-assets.md) | 785 | 214 | 0 | 0 | 571 |
+| [ac2-world](ac2-world.md) | 989 | 396 | 0 | 0 | 593 |
+| [ac2-render](ac2-render.md) | 781 | 300 | 0 | 0 | 481 |
+| [ac2-gpu](ac2-gpu.md) | 95 | 13 | 0 | 0 | 82 |
 | [ac2-physics](ac2-physics.md) | 2124 | 1135 | 0 | 0 | 989 |
-| [ac2-smartbox](ac2-smartbox.md) | 262 | 146 | 23 | 52 | 41 |
-| [ac2-client](ac2-client.md) | 354 | 145 | 46 | 59 | 104 |
+| [ac2-smartbox](ac2-smartbox.md) | 262 | 183 | 0 | 0 | 79 |
+| [ac2-client](ac2-client.md) | 354 | 187 | 0 | 0 | 167 |
 | [ac2-ui](ac2-ui.md) | 2247 | 1656 | 0 | 0 | 591 |
-| [ac2-script](ac2-script.md) | 2468 | 1695 | 32 | 331 | 410 |
-| [ac2-gameplay](ac2-gameplay.md) | 499 | 227 | 30 | 29 | 213 |
-| [ac2-audio](ac2-audio.md) | 367 | 140 | 35 | 16 | 176 |
+| [ac2-script](ac2-script.md) | 2468 | 1711 | 1 | 0 | 756 |
+| [ac2-gameplay](ac2-gameplay.md) | 499 | 264 | 0 | 0 | 235 |
+| [ac2-audio](ac2-audio.md) | 367 | 178 | 0 | 0 | 189 |
 | [replaced](replaced.md) | 2058 | 38 | 0 | 0 | 2020 |
 
 Data formats ([data-formats.md](data-formats.md)): 81 `DBObj` types, 1 done, 0 partial, 80 to do.

@@ -274,6 +274,7 @@ impl UiViews {
                     // UI viewport scenes draw with degrades off.
                     detail: crate::object::DrawDetail::FULL,
                     cell: 0,
+                    hidden_mesh_types: Vec::new(),
                 })
             })
             .collect();

@@ -236,24 +236,53 @@ fn triangle_normal(a: V3, b: V3, c: V3) -> (V3, V3) {
     (if n[2] < 0.0 { [-n[0], -n[1], -n[2]] } else { n }, a)
 }
 
-/// Whether a circle of radius `r` at `(x, y)` touches triangle `t` (in XY).
-pub(super) fn circle_in_triangle(t: &[V3; 3], x: f64, y: f64, r: f64) -> bool {
-    let side = |p: V3, q: V3| (q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0]);
-    let (s1, s2, s3) = (side(t[0], t[1]), side(t[1], t[2]), side(t[2], t[0]));
-    if (s1 >= 0.0 && s2 >= 0.0 && s3 >= 0.0) || (s1 <= 0.0 && s2 <= 0.0 && s3 <= 0.0) {
+/// `CPolygon::circle_in_poly2D(point, POSITIVE, r)` for a terrain triangle `t`, its corners taken
+/// counter-clockwise from above (a terrain polygon's plane faces up, so its vertices run that
+/// way). Retail's test: a corner within `r` of `p` (in 3D, `p` being the placed object's origin)
+/// is a touch; walking the edges from the last, an edge whose line `p` lies beyond by more than
+/// `r` rejects, where the distance is the cross product with the edge left unnormalised (the
+/// distance times the edge's length), and an edge `p` lies beyond whose span holds `p`'s
+/// projection touches; a point beyond no edge is inside.
+pub(super) fn circle_in_poly2d(t: &[V3; 3], p: V3, r: f64) -> bool {
+    let mut v = *t;
+    let winding =
+        (v[1][0] - v[0][0]) * (v[2][1] - v[0][1]) - (v[1][1] - v[0][1]) * (v[2][0] - v[0][0]);
+    if winding < 0.0 {
+        v.swap(1, 2);
+    }
+    let distance2 = |q: V3| (q[0] - p[0]).powi(2) + (q[1] - p[1]).powi(2) + (q[2] - p[2]).powi(2);
+    if r * r > distance2(v[0]) {
         return true;
     }
-    [(t[0], t[1]), (t[1], t[2]), (t[2], t[0])]
-        .into_iter()
-        .any(|(p, q)| {
-            let (dx, dy) = (q[0] - p[0], q[1] - p[1]);
-            let s = (((x - p[0]) * dx + (y - p[1]) * dy) / (dx * dx + dy * dy)).clamp(0.0, 1.0);
-            (p[0] + s * dx - x).powi(2) + (p[1] + s * dy - y).powi(2) <= r * r
-        })
+    let mut inside = true;
+    let mut next = v[0];
+    for &cur in v.iter().rev() {
+        if distance2(cur) < r * r {
+            return true;
+        }
+        let ey = next[1] - cur[1];
+        let ex = cur[0] - next[0];
+        let beyond = ex * p[1] + ey * p[0] - ey * cur[0] - ex * cur[1];
+        if r < beyond {
+            return false;
+        }
+        if beyond > 0.0 {
+            inside = false;
+            let (a, b) = (ex * p[0], ey * p[1]);
+            if (a - b) + (ey * next[1] - ex * next[0]) >= 0.0
+                && (b - a) + (ex * cur[0] - ey * cur[1]) >= 0.0
+            {
+                return true;
+            }
+        }
+        next = cur;
+    }
+    inside
 }
 
 #[cfg(test)]
 mod tests {
+    use super::circle_in_poly2d;
     use super::{
         downhill_heading, heading_of, orient_to_plane, q_from_axes, q_heading, qmul, qrot,
     };
@@ -292,5 +321,23 @@ mod tests {
         assert!((right[1] + 1.0).abs() < 1e-12);
         // A plane rising to the east slopes downhill toward the west (270 degrees).
         assert!((downhill_heading([-0.6, 0.0, 0.8]) - 270.0).abs() < 1e-9);
+    }
+
+    /// `CPolygon::circle_in_poly2D`: inside is a touch; past an edge the distance is the
+    /// unnormalised cross product, so 0.05 m past a 10 m edge (0.5) rejects a 0.4 m circle a
+    /// true distance test would let touch; a corner within the radius in 3D touches.
+    #[test]
+    fn circle_in_poly2d_follows_retail() {
+        let t = [[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [0.0, 10.0, 0.0]];
+        assert!(circle_in_poly2d(&t, [2.0, 2.0, 0.0], 0.4));
+        // Clockwise corners are taken counter-clockwise.
+        let cw = [t[0], t[2], t[1]];
+        assert!(circle_in_poly2d(&cw, [2.0, 2.0, 0.0], 0.4));
+        assert!(!circle_in_poly2d(&t, [5.0, -0.05, 0.0], 0.4));
+        // 0.03 past: 0.3 is within the radius and the projection is on the edge.
+        assert!(circle_in_poly2d(&t, [5.0, -0.03, 0.0], 0.4));
+        // A corner near in xy but 1 m below is not within the radius.
+        assert!(!circle_in_poly2d(&t, [10.2, -0.2, 1.0], 0.4));
+        assert!(circle_in_poly2d(&t, [10.2, -0.2, 0.0], 0.4));
     }
 }

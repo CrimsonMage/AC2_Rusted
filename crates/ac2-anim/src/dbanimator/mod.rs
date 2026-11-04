@@ -10,6 +10,7 @@
 // Negated float comparisons keep retail's unordered (NaN) branches.
 #![allow(clippy::neg_cmp_op_on_partial_ord)]
 
+mod angle;
 mod asset;
 mod compose;
 mod interpolator;
@@ -18,6 +19,7 @@ mod tree;
 mod triggers;
 
 use crate::behavior::Ac2SliderInterpolator;
+pub use angle::{Ac2AngleAnimator, Ac2BoneAngleMod};
 pub(crate) use asset::{decode_effects, decode_impulses};
 pub use asset::{
     Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AssetBone, Ac2ImpulseTrigger, Ac2WeenieHook,
@@ -57,6 +59,15 @@ pub trait Ac2AnimatorContext {
     /// `Random::RollDice(long, long)`: a whole number in `lower..=upper`.
     fn roll_dice(&mut self, lower: i32, _upper: i32) -> i32 {
         lower
+    }
+    /// `PHYSICSOBJREP::HasContact` and not `IsSlidingDown`: `GetContactPlane`'s normal in the
+    /// object's frame (`Position::globaltolocalvec` of `GetPosition`); `None` otherwise.
+    fn local_contact_normal(&self) -> Option<[f32; 3]> {
+        None
+    }
+    /// `Position::IsValid` of `PHYSICSOBJREP::GetPosition`.
+    fn position_valid(&self) -> bool {
+        true
     }
     /// `Random::RollDice(float, float)`.
     fn roll_dice_f32(&mut self, lower: f32, _upper: f32) -> f32 {

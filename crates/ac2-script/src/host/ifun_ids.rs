@@ -49,6 +49,29 @@ pub const IFUN_REQUEST_SET_PET_NAME: u32 = 0x00B4_0149;
 /// `gmCWInterface::AcceptTrade`'s IFun (`ggmCWInterface::CallIFun_AcceptTrade`: no
 /// arguments; `WM_Trade` stub 0x45 sends 0x35 with the instance packed).
 pub const IFUN_ACCEPT_TRADE: u32 = 0x00B4_00BA;
+/// `gmCWInterface::OpenTradeNegotiations` (`ggmCWInterface::CallIFun_OpenTradeNegotiations`,
+/// Legions 0x004603E0: the other party's id, two words tagged 0x84).
+pub const IFUN_OPEN_TRADE: u32 = 0x00B4_00B8;
+/// `gmCWInterface::CloseTradeNegotiations` (`CallIFun_CloseTradeNegotiations`, Legions
+/// 0x00458C80: no arguments).
+pub const IFUN_CLOSE_TRADE: u32 = 0x00B4_00B9;
+/// `gmCWInterface::DragToMoneyBag(item, quantity, fromSlot, fromContainer)`
+/// (`ggmCWInterface::CallIFun_DragToMoneyBag`, Legions 0x00459C30: the item, two words tagged
+/// 0x84, the quantity and slot tagged 4, the container; `CPlayer` 0xD0 -> `CMoneySystem` 0x4 ->
+/// `WM_Money` 0x7).
+pub const IFUN_DRAG_TO_MONEY_BAG: u32 = 0x00B4_0016;
+/// `gmCWInterface::DragFromMoneyBag(quantity, toSlot, toContainer)`
+/// (`ggmCWInterface::CallIFun_DragFromMoneyBag`, Legions 0x00459B10; `CPlayer` 0xD5 ->
+/// `CMoneySystem` 0x5 -> `WM_Money` 0x8).
+pub const IFUN_DRAG_FROM_MONEY_BAG: u32 = 0x00B4_0017;
+/// `gmCWInterface::DeclineTrade` (`CallIFun_DeclineTrade`, Legions 0x00458D10: no arguments).
+pub const IFUN_DECLINE_TRADE: u32 = 0x00B4_00BB;
+/// `gmCWInterface::OfferItemForTrade` (`CallIFun_OfferItemForTrade`, Legions 0x00460230: the
+/// item, two words tagged 0x84, then the amount tagged 4).
+pub const IFUN_OFFER_ITEM_FOR_TRADE: u32 = 0x00B4_00BC;
+/// `gmCWInterface::RevokeItemFromTrade` (`CallIFun_RevokeItemFromTrade`, Legions 0x00462860:
+/// the item).
+pub const IFUN_REVOKE_ITEM_FROM_TRADE: u32 = 0x00B4_00BD;
 
 /// `gmCWInterface::RequestEnterStore` (`ggmCWInterface::CallIFun_RequestEnterStore`: the store).
 pub const IFUN_REQUEST_ENTER_STORE: u32 = 0x00B4_0137;

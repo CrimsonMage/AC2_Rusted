@@ -7,12 +7,14 @@
 mod decals;
 mod entity_lights;
 mod grass;
+mod interior_sun;
 mod interiors;
 mod light_decals;
 mod lighting;
 mod loader;
 mod lod;
 mod object_lights;
+mod particle_lights;
 mod particles;
 pub(crate) mod shore_strips;
 mod skeleton_effects;
@@ -29,6 +31,7 @@ use ac2_core::{DataId, Random};
 use ac2_math::{Frame, Mat4, Vec3};
 use ac2_world::Ac2WorldSource;
 
+pub use interior_sun::CellColors;
 pub use interiors::{load_block_interiors, BlockInteriors, CellCorona};
 pub use loader::{
     BlockKey, CloudShadow, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject,
@@ -102,19 +105,29 @@ pub struct ObjectPlacement {
 
 /// What a frame's viewer can see beyond the env cells (`WorldRender::m_bCanSeeOutside` and the
 /// `bDrawSky` out parameter of `GatherIndoorObjects`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct Sight {
     /// The viewer is outdoors (`GatherOutdoorObjects` ran for the camera), or an outside portal
     /// of the cells it sees opened a viewport (`GatherIndoorObjects` runs it for each).
     can_see_outside: bool,
     /// A cell of the visible set has `m_bDrawSky` (`CEnvCell::CullCells`).
     draw_sky: bool,
+    /// The viewer's walk dropped a cell at the interior fog's culling plane (`bFogCull`): the
+    /// colour of the full-screen quad painted first ([`SceneFrame::interior_fog`]).
+    fog_culled: Option<[f32; 4]>,
+    /// The viewer stands in an env cell (`GatherIndoorObjects` ran: `m_bCanSeeInside`).
+    can_see_inside: bool,
 }
 
 /// What one frame draws, in order.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct SceneFrame {
     pub lighting: SceneLighting,
+    /// `WorldRender::Render`: when the viewer's interior walk dropped a cell at the interior
+    /// fog's culling plane (`GatherIndoorObjects`' `bFogCull`), a full-screen quad of the
+    /// block's `m_InteriorFogColor` (RGBA, alpha blended) painted before the sky and the world
+    /// (`SceneTool::DrawScreenQuad`), so what lies past the fog shows as fog, not the clear.
+    pub interior_fog: Option<[f32; 4]>,
     /// The sky objects before and after the world, and the fog quad between.
     pub sky: SkyFrame,
     /// Scenery and entities, then the frills `RefreshFrillMesh` keeps.
@@ -144,6 +157,9 @@ pub struct SceneFrame {
     pub shore: Option<ParticleBatch>,
     /// The bodies the grass bends away from (`frill::grass_pushers`), `[x, y, z, radius]`.
     pub grass_pushers: Vec<[f32; 4]>,
+    /// Interior cells whose vertices the sun lit again this frame
+    /// (`CEnvCell::DynamicLightVisibleCells`).
+    pub cell_colors: Vec<CellColors>,
 }
 
 /// The frame's reflecting water: its height, the `WaterReflections` level, and the resident
@@ -180,6 +196,9 @@ pub struct SceneObject {
     /// (`WorldRender::DrawBrushes`) it draws under its landblock's inside environment; 0 outdoors
     /// and in UI scenes.
     pub cell: u32,
+    /// Mesh types whose parts the world pass leaves out (`CBaseMesh::DrawMesh` with
+    /// `HACK_bDrawingFirstPersonPlayer`); they still cast sun shadows. Empty draws every part.
+    pub hidden_mesh_types: Vec<u32>,
 }
 
 impl SceneObject {
@@ -202,6 +221,8 @@ struct BlockInfo {
     /// The block's point lights for the objects that move (`SceneTool::m_aIndoorSceneLights` and
     /// `m_aOutdoorSceneLights`).
     scene_lights: Option<Arc<[crate::object::SceneLight]>>,
+    /// The interior cells a sun pass can change.
+    sun_cells: Vec<interior_sun::SunCell>,
 }
 
 /// The resident world around a centre block.
@@ -244,6 +265,8 @@ pub struct WorldScene {
     /// The sun a sunlight-type static light follows (`SceneTool::SetSunlight`), as the last
     /// frame laid it out.
     sun_terms: Option<crate::object::SunTerms>,
+    /// When the interior cells are lit by the sun again.
+    interior_sun: interior_sun::InteriorSun,
     /// The emitters' streaks (`CPartArray::CreateStreakEffect`) and whether they draw
     /// (`Render::m_Prefs.StreakEffects`: `StreakEffectManager::RenderStreakEffects` skips them).
     object_streaks: ObjectStreaks,
@@ -326,6 +349,7 @@ impl WorldScene {
                 lights
             },
             sun_terms: None,
+            interior_sun: interior_sun::InteriorSun::new(),
             object_streaks: ObjectStreaks::default(),
             streaks_visible: true,
             decals: crate::decal::DecalEffects::default(),
@@ -411,6 +435,7 @@ impl WorldScene {
             .filter(|block| !near(center, *block, radius))
             .collect();
         for block in leaving {
+            self.interior_sun.blocks_changed();
             self.blocks.remove(&block);
             self.heights.remove(&block);
             self.particles.remove_block(&block);
@@ -520,8 +545,22 @@ impl WorldScene {
                             .interiors
                             .as_ref()
                             .map(|i| Arc::clone(&i.scene_lights)),
+                        sun_cells: block
+                            .interiors
+                            .iter()
+                            .flat_map(|i| {
+                                i.suns.iter().enumerate().filter_map(|(index, sun)| {
+                                    Some(interior_sun::SunCell {
+                                        index,
+                                        sun: Arc::clone(sun.as_ref()?),
+                                        computed: false,
+                                    })
+                                })
+                            })
+                            .collect(),
                     },
                 );
+                self.interior_sun.blocks_changed();
             }
             Loaded::Model(visual, model, _) => self.note_model(*visual, model.as_ref()),
             Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
@@ -868,6 +907,18 @@ impl WorldScene {
         }
         interiors.truncate(MAX_INTERIOR_BLOCKS);
         let (interior_cells, sight) = self.visible_interior_cells(camera, &frustum, &interiors);
+        // `WorldRender::Update`'s time-of-day and env light ticks, then `WorldRender::Render`'s
+        // `DynamicLightVisibleCells(force, 1, L0, L1, alpha)` while the viewer is inside.
+        let ticks = self.world.region().and_then(|region| {
+            Some((region.sky_tick_size(0.5)?, region.sky_light_tick_size(0.5)?))
+        });
+        let now = self.particles.now();
+        self.interior_sun.update(now, ticks, &mut self.blocks);
+        let cell_colors = self.interior_sun.render(
+            sight.can_see_inside,
+            &crate::object::SunPass::from_lighting(&lighting),
+            &mut self.blocks,
+        );
         // `WorldRender::Render`: the landscape, its scenery and water, the rain and (without a
         // sky cell) the sky draw only when `GatherOutdoorObjects` ran (`m_bCanSeeOutside`): the
         // viewer is outdoors, or an outside portal of the cells it sees opens a viewport.
@@ -883,7 +934,7 @@ impl WorldScene {
             .flat_map(|key| self.blocks[key].placements.iter().map(move |p| (*key, p)))
             .filter(|(_, p)| p.frill && self.models.contains_key(&p.visual))
             .collect();
-        let candidates: Vec<FrillCandidate> = frills
+        let mut candidates: Vec<FrillCandidate> = frills
             .iter()
             .map(|(_, p)| {
                 let (indices, vertices) = self.models[&p.visual];
@@ -894,6 +945,10 @@ impl WorldScene {
                 }
             })
             .collect();
+        // `FrillRender::Render` draws nothing while the frills are off (`EnableFrillObjects`).
+        if !self.frill.enabled {
+            candidates.clear();
+        }
         let chosen = select_frills(&candidates, eye, &self.frill);
         // The client's grass past retail's ring (`AGENTS.md`), thinning and growing out with
         // distance; every frill carries the ring so the near ones stay whole.
@@ -902,7 +957,10 @@ impl WorldScene {
         let shadow_bit = shadow_light_bit(lighting.light_dir);
         self.degrades.tick();
         let degrades = &self.degrades;
-        // Scenery is client-made (temporary ids): `CPartArray::Draw` without adaptive degrade.
+        // `WorldRender::GatherOutdoorObjects` -> `LScapeRender::GatherVisibleOutsideObjects`:
+        // each resident block's objects (`CLandBlock::GatherObjects`), only when the viewer can
+        // see outside. Scenery is client-made (temporary ids): `CPartArray::Draw` without
+        // adaptive degrade.
         let placements: Vec<FramePlacement> = all()
             .filter(|_| outside)
             .filter(|p| !p.frill)
@@ -974,7 +1032,15 @@ impl WorldScene {
             .copied()
             .filter(|k| outside && self.blocks[k].water)
             .collect();
-        let mut particles = self.particles.frame(camera);
+        let lights = particle_lights::SceneLights {
+            blocks: &self.blocks,
+            object_lights: &self.object_lights,
+            sun: self.sun_terms,
+            now: self.particles.now(),
+        };
+        let mut particles = self
+            .particles
+            .frame(camera, &|at, indoor| lights.at(at, indoor));
         self.skeleton_effects(lighting.rain, lighting.rain_wind);
         if outside {
             particles.extend(self.rain_frame(camera, &lighting));
@@ -1007,6 +1073,7 @@ impl WorldScene {
         );
         SceneFrame {
             lighting,
+            interior_fog: sight.fog_culled,
             sky,
             placements,
             shadow_placements,
@@ -1020,10 +1087,12 @@ impl WorldScene {
             reflection,
             shore,
             grass_pushers,
+            cell_colors,
         }
     }
 
-    /// Which env cells of `blocks` draw (`WorldRender::Render`'s gather): from the camera's own
+    /// Which env cells of `blocks` draw (`WorldRender::GatherIndoorObjects`, with its `bDrawSky`
+    /// and `bFogCull` out flags in the returned [`Sight`]): from the camera's own
     /// cell when it stands in one (`CEnvCell::CullCells`), whose outside portals open the
     /// viewports the other blocks' cells are looked at through; from the outside, each outside-
     /// stab cell that touches the outside and passes `CEnvCell::CheckVisibility`.
@@ -1045,6 +1114,7 @@ impl WorldScene {
         let mut viewports = vec![*frustum];
         let mut viewer_inside = false;
         let mut draw_sky = false;
+        let mut fog_culled = None;
         for key in blocks {
             let Some(cull) = self.blocks.get(key).and_then(|b| b.cull.as_deref()) else {
                 continue;
@@ -1065,6 +1135,7 @@ impl WorldScene {
             let result = walk.finish();
             viewports = result.outside_viewports;
             draw_sky = result.draw_sky;
+            fog_culled = result.fog_culled.then_some(cull.fog_quad);
             visible.entry(*key).or_default().extend(result.visible);
             break;
         }
@@ -1097,6 +1168,8 @@ impl WorldScene {
         let sight = Sight {
             can_see_outside: !viewer_inside || !viewports.is_empty(),
             draw_sky,
+            fog_culled,
+            can_see_inside: viewer_inside,
         };
         (visible, sight)
     }
@@ -1131,7 +1204,8 @@ impl WorldScene {
                 continue;
             };
             let mut geometry = crate::particles::ParticleGeometry::default();
-            system.fill(&basis, now, 1.0, &mut geometry);
+            // The rain's, ripples' and bubbles' materials are not particle lit.
+            system.fill(&basis, now, 1.0, &[], &mut geometry);
             if !geometry.is_empty() {
                 batches.push(ParticleBatch { material, geometry });
             }

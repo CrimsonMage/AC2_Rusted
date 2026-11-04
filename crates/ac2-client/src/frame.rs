@@ -28,6 +28,9 @@ pub struct PlayerFrame {
     /// The first-person camera hides the avatar and what it holds
     /// (`AvatarVisibleInFirstPerson`, `Client::avatar_hidden`).
     pub hidden: bool,
+    /// The mesh types left out of the player's draw while the first-person camera shows it
+    /// (`CBaseMesh::DrawMesh` under `HACK_bDrawingFirstPersonPlayer`); empty otherwise.
+    pub hidden_mesh_types: Vec<u32>,
     /// The colour scale the body's sliders give it (`PHYSICSOBJREP::Draw`: r, g, b and alpha),
     /// as for other objects.
     pub anim_scale: [f32; 4],
@@ -188,4 +191,11 @@ pub struct ClientFrame {
     pub markers: Arc<Vec<MapMarker>>,
     /// The objects an FX hid or tinted (`FXManager`'s hides and colours, and fades).
     pub fx_looks: ac2_smartbox::fx_objects::FxLooks,
+    /// The no-draw physics objects (`CPhysicsObj::is_nodraw`): `CPhysicsObj::Draw` draws none of
+    /// them.
+    pub no_draw: std::collections::BTreeSet<u64>,
+    /// The latest hit chance of each examined object, in percent, while the player shows it on
+    /// the name plates (`ShowHitChanceOnNameplates`, see [`crate::client_hit_chance`]); empty
+    /// otherwise.
+    pub hit_chances: std::collections::BTreeMap<u64, u32>,
 }

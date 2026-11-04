@@ -42,7 +42,10 @@ impl ScriptHost {
     /// `Resume_DoMode(obj, cid, error)` / `Resume_DoBehavior(obj, cid, error)`: the context
     /// `context` of object `id` waits in a DoMode or DoBehavior efun. Its out parameter takes
     /// `error` (0 when the mode or behaviour is done), the efun's frame closes and the context runs
-    /// on. `None` when no such context waits (retail returns 0 and changes nothing).
+    /// on. `None` when no such context waits (retail returns 0 and changes nothing). Retail's
+    /// `Resume_*` found the context with `CWDistributor::GetContextState` (Legions 0x005123A0)
+    /// and queued it by `CWInterface::ResumeCallback`, whose `ClientLatentEfunActivator::
+    /// OnTrigger` (admin 0x0052E960) runs `CWDistributor::ResumeContext` on the next fire.
     pub fn resume_latent(&mut self, id: u64, context: u32, error: u32) -> Option<DispatchOutcome> {
         let process = self.processes.get_mut(&id)?;
         let at = process
@@ -129,7 +132,12 @@ impl ScriptHost {
     /// `g_ClientEventTriggers` for the sleeps: each `SleepAwakener` whose time has come
     /// (`Timer::cur_time`, earliest first) runs `gCWInterface::Resume_Sleep` (admin 0x004BB120):
     /// a context of the object still waiting in `Sleep` has its efun frame closed and runs on.
-    /// Returns each object with how its context ended.
+    /// Returns each object with how its context ended. This is
+    /// `GenericTriggerScheduler<ClientTrigger>::FireTriggers` (Legions 0x006A2F60) for the
+    /// sleeps; `ClientTriggerScheduler::PurgeEventsForInterface` (Legions 0x004B91A0, by
+    /// `ClientTrigger::IsAborted`, the trigger's interface) and `ClearTriggers` (0x004B90D0) drop
+    /// the triggers of a destroyed interface or of all, which here is the woken sleep finding no
+    /// process (`resume_sleep` returns `None`).
     pub fn wake_sleepers(&mut self) -> Vec<(u64, DispatchOutcome)> {
         let now = self.vm.cur_time;
         let mut due: Vec<(f64, u64, u32)> = Vec::new();

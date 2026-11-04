@@ -14,7 +14,9 @@ pub use far::{
 pub use heights::TerrainHeights;
 pub use layers::{terrain_layers, AlphaRotation, Corners, TerrainLayer, TerrainLayers};
 pub use mesh::{build_terrain_mesh, TerrainBatch, TerrainMesh, TerrainVertex};
-pub use shadow::{self_shadow_factor, shadow_light_bit, vertex_shadow_alpha};
+pub use shadow::{
+    self_shadow_factor, shadow_light_bit, sun_light_direction_bits, vertex_shadow_alpha,
+};
 pub use shore::{generate_shore, Shore, ShoreStrip};
 
 #[cfg(test)]

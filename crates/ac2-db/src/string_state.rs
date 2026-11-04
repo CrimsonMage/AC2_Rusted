@@ -156,9 +156,73 @@ pub fn load_string_state(
     store.load_cached_packed::<StringState>(TypedResourceRef::new(DatFileKind::Local, did, 0))
 }
 
+/// The command line's overrides of the top gore and blood levels (`StringStateInfo`'s two
+/// statics, Legions `DAT_00af6eac` and `DAT_00af6eb0`; 0 is none).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct TopLevelOverrides {
+    /// `StringStateInfo::SetTopGoreLevelOverride`.
+    pub gore: u32,
+    /// `StringStateInfo::SetTopBloodColorOverride`.
+    pub blood: u32,
+}
+
+impl TopLevelOverrides {
+    /// `Turbine::Client::EvaluateCommandLineArg` `maxgore <level>` (Legions client.cpp,
+    /// "Forces the maximum gore level (fun,none,low,normal)"): the value in lower case, `fun` 1,
+    /// `none` 2, `low` 3, `normal` 4; anything else is refused with retail's message.
+    pub fn set_max_gore(&mut self, value: &str) -> Result<(), &'static str> {
+        self.gore = match value.to_ascii_lowercase().as_str() {
+            "fun" => 1,
+            "none" => 2,
+            "low" => 3,
+            "normal" => 4,
+            _ => return Err("gore level must be one of these: (fun,none,low,normal)"),
+        };
+        Ok(())
+    }
+
+    /// `greenblood` ("Forces the game to use green blood"): `SetTopBloodColorOverride(1)`.
+    pub fn set_green_blood(&mut self) {
+        self.blood = 1;
+    }
+
+    /// `StringStateInfo::GetTopGoreLevel` and `GetTopBloodLevel` (Legions 0x00602330,
+    /// 0x00602370): a set override, else the `StringState`'s own word (`settings` 0 and 1).
+    pub fn top_levels(self, state: &StringState) -> (u32, u32) {
+        let pick = |over: u32, own: u32| if over != 0 { over } else { own };
+        (
+            pick(self.gore, state.settings[0]),
+            pick(self.blood, state.settings[1]),
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_command_line_overrides_the_top_gore_and_blood_levels() {
+        let state = StringState {
+            settings: {
+                let mut s = [0; 20];
+                s[0] = 4;
+                s[1] = 2;
+                s
+            },
+            ..Default::default()
+        };
+        let mut over = TopLevelOverrides::default();
+        assert_eq!(over.top_levels(&state), (4, 2), "the state's own");
+        over.set_max_gore("LOW").expect("low");
+        over.set_green_blood();
+        assert_eq!(over.top_levels(&state), (3, 1));
+        for (text, level) in [("fun", 1), ("none", 2), ("normal", 4)] {
+            over.set_max_gore(text).expect(text);
+            assert_eq!(over.gore, level);
+        }
+        assert!(over.set_max_gore("gory").is_err());
+    }
 
     #[test]
     fn singular_rules_and_fallbacks() {

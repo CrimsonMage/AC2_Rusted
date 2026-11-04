@@ -313,6 +313,8 @@ impl HudView {
                 }
                 TrackerUpdate::default()
             }
+            // The HUD opens the tools' window itself (`ac2_ui::Hud::addition_pass`).
+            TrackerRequest::Tools => TrackerUpdate::default(),
             TrackerRequest::Dismiss(object) => {
                 self.tracker.tracker.dismiss_match(object);
                 TrackerUpdate::default()

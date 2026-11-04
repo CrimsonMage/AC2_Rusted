@@ -1,6 +1,6 @@
 //! `gmGenerationConfirmationUI`: avatar modification's naming dialog (`GenerationConfirmationField`
 //! over layout `0x4100000C`). The player names the character in `NameEntry` (cleared the first
-//! time it is activated; letters, `'`, `-` and space only, `NameInputFilter`) and creates it
+//! time it is activated; letters, `'`, `-` and space, and the language's letters, `NameInputFilter`) and creates it
 //! (`CreateButton`) or creates and enters with it (`EnterButton`). The result is checked for a
 //! name, a race (Legions: one needing the expansion or drudges needs the account's
 //! entitlement) and a sex, named, and sent (`Proto_UI::SendCharGenResult`); the server's answer
@@ -27,10 +27,10 @@ const RACE_NEEDS_DRUDGES: u32 = 0x8;
 /// The `EnumMapper` naming the weenie's character generation errors.
 const WEENIE_ERRORS: u32 = 0x4000_0035;
 
-/// `gmCharNameCharacterValidator::IsCharacterValid` for English: ASCII letters, `'`, `-` and
-/// space (the other languages' extra letters are not modelled).
+/// `NameInputFilter`: ASCII letters, `'`, `-` and space, and the client language's own letters
+/// (`gmCharNameCharacterValidator`, `ac2_db::name_input_filter`).
 pub fn is_name_character(ch: u16) -> bool {
-    (ch < 0x80 && (ch as u8).is_ascii_alphabetic()) || matches!(ch, 0x27 | 0x2D | 0x20)
+    ac2_db::name_input_filter(ch)
 }
 
 /// `gmGenerationConfirmationUI`'s state.

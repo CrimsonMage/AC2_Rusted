@@ -94,6 +94,7 @@ fn a_viewport_scene_casts_its_objects_shadows() {
                 point_lights: Vec::new(),
                 detail: Default::default(),
                 cell: 0,
+                hidden_mesh_types: Vec::new(),
             })
             .to_vec();
         let frame = SceneFrame {

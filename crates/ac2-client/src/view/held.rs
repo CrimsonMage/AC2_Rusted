@@ -157,6 +157,7 @@ mod tests {
             child_poses: Vec::new(),
             appearance: Arc::new(Appearance::default()),
             hidden: false,
+            hidden_mesh_types: Vec::new(),
             anim_scale: [1.0; 4],
             child_scale: 1.0,
         }
@@ -174,6 +175,21 @@ mod tests {
 
     fn ids(frame: &ClientFrame) -> Vec<u64> {
         drawn_objects(frame).iter().map(|d| d.id).collect()
+    }
+
+    /// `CPhysicsObj::Draw` skips a no-draw object (`is_nodraw`), the player included.
+    #[test]
+    fn no_draw_objects_are_not_drawn() {
+        let frame = ClientFrame {
+            player: Some(player(7)),
+            objects: vec![
+                object(9, Some(0x0200_0002), None, true),
+                object(10, Some(0x0200_0002), None, true),
+            ],
+            no_draw: [7, 9].into_iter().collect(),
+            ..ClientFrame::default()
+        };
+        assert_eq!(ids(&frame), vec![10]);
     }
 
     #[test]
@@ -231,6 +247,7 @@ mod tests {
         let frame = ClientFrame {
             player: Some(PlayerFrame {
                 hidden: true,
+                hidden_mesh_types: Vec::new(),
                 ..player(7)
             }),
             objects: vec![

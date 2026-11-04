@@ -147,6 +147,9 @@ impl ObjectRenderer {
             });
             let model_address = std::ptr::from_ref(instance.model).addr();
             for (part_index, part) in instance.model.parts.iter().enumerate() {
+                if instance.hidden_mesh_types.contains(&part.mesh_type) {
+                    continue;
+                }
                 let (transform, skin) = match instance.pose {
                     Some(pose) => (
                         pose.parts

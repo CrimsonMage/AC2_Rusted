@@ -48,7 +48,7 @@ fn every_description_runs_and_fills_finite_quads() {
             now += 1.0 / 30.0;
             system.think(now);
             geometry = ParticleGeometry::default();
-            system.fill(&basis, now, 1.0, &mut geometry);
+            system.fill(&basis, now, 1.0, &[], &mut geometry);
         }
         ran += 1;
         for vertex in &geometry.vertices {
@@ -122,7 +122,7 @@ fn every_repulse_description_runs_under_a_repulsor() {
             system.think_with(now, &repulsors);
         }
         let mut geometry = ParticleGeometry::default();
-        system.fill(&basis, now, 1.0, &mut geometry);
+        system.fill(&basis, now, 1.0, &[], &mut geometry);
         ran += 1;
         assert!(
             geometry
@@ -133,4 +133,54 @@ fn every_repulse_description_runs_under_a_repulsor() {
         );
     }
     assert!(ran > 0, "the data has repulse systems");
+}
+
+/// `FillVerts::GetLighting`: a system whose material's template sets `m_bUseParticleLighting`
+/// (the smoke template `0x2B00009C` behind `0x39000001`) draws black with no light around it
+/// and takes the sun's colour outside; the light does not touch the alpha.
+#[test]
+fn a_particle_lit_system_takes_the_lights_around_it() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(Arc::clone(&dataset));
+    let mut desc = (*store
+        .load_cached_packed::<Ac2ParticleSystemDesc>(TypedResourceRef::new(
+            DatFileKind::Portal,
+            DataId::new(0x3900_0001),
+            0,
+        ))
+        .expect("decodes")
+        .expect("exists"))
+    .clone();
+    desc.resolve_particle_lighting(&store);
+    assert!(desc.particle_lighting);
+    let mut system = ParticleSystem::new(Arc::new(desc), Frame::IDENTITY, Vec3::ONE, 1.0, 1, 0.0);
+    let basis = CameraBasis::look_at(Vec3::new(-6.0, -6.0, 3.0), Vec3::new(0.0, 0.0, 1.0))
+        .expect("a basis");
+    let mut now = 0.0;
+    for _ in 0..90 {
+        now += 1.0 / 30.0;
+        system.think(now);
+    }
+    let fill = |lights: &[super::ParticleLight]| {
+        let mut geometry = ParticleGeometry::default();
+        system.fill(&basis, now, 1.0, lights, &mut geometry);
+        geometry
+    };
+    let dark = fill(&[]);
+    assert!(!dark.vertices.is_empty(), "the smoke has particles");
+    assert!(dark.vertices.iter().all(|v| v.color[..3] == [0.0; 3]));
+    let sun = super::ParticleLight {
+        origin: Vec3::ZERO,
+        diffuse: [0.5, 0.4, 0.3],
+        range: None,
+    };
+    let lit = fill(&[sun]);
+    assert_eq!(lit.vertices.len(), dark.vertices.len());
+    for (lit, dark) in lit.vertices.iter().zip(&dark.vertices) {
+        assert_eq!(lit.color[3], dark.color[3]);
+        assert!(lit.color[0] <= 0.5 && lit.color[1] <= 0.4 && lit.color[2] <= 0.3);
+    }
+    assert!(lit.vertices.iter().any(|v| v.color[0] > 0.0));
 }

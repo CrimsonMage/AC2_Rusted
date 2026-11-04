@@ -44,6 +44,7 @@ impl MusicThread {
         let target = &trigger.target;
         let handle = self.next_scripted_handle();
         let info = SegmentInfo {
+            start: crate::sink::Boundary::Immediate,
             kind: SegmentKind::Secondary,
             handle,
             segment: Arc::clone(&target.music),
@@ -137,6 +138,7 @@ impl ScriptHost for QueueHost<'_> {
         };
         let handle = self.queue.next_scripted_handle();
         let info = SegmentInfo {
+            start: crate::sink::Boundary::Immediate,
             kind,
             handle,
             segment: Arc::clone(&target.music),

@@ -8,7 +8,9 @@ use ac2_net::protocol::{
 
 use super::history::{ChatHistory, CommandHistory, HistoryList};
 use super::lines::*;
-use super::{expand_aliases, handler, process_text, ChatCommands, Parsed, UI_DEFAULT_NAME};
+use super::{
+    expand_text, expandable_text, handler, process_text, ChatCommands, Parsed, UI_DEFAULT_NAME,
+};
 use crate::notice::GameplayNotice;
 use crate::tables::StringTableIds;
 
@@ -102,6 +104,15 @@ impl ChatState {
         self.commands = commands;
     }
 
+    /// `CWAllocator::ResetShell` -> `ResetShellInternal` (Legions 0x00511190 / 0x005111A0), run
+    /// by `gmGamePlayUI::EndSession`: a new `CPlayerShell` (`CPlayerShell::CPlayerShell`, an
+    /// empty command history, the `/` prefix) and a new `CPlayerShellCmdTable`, which the next
+    /// player's script fills again by `RegisterCommands` with the same names; the command table
+    /// resolved from the DATs is kept for that reason.
+    pub fn reset_shell(&mut self) {
+        self.commands_entered = CommandHistory::default();
+    }
+
     /// The options profile `CPlayer` 0x65 receives: its aliases and chat filters.
     pub fn login_options(&mut self, profile: &GameplayOptionsProfile) {
         self.aliases = profile.aliases.1.clone();
@@ -118,8 +129,42 @@ impl ChatState {
         speaker: Speaker<'_>,
         tables: &StringTableIds,
     ) -> Vec<ShellAction> {
+        let expanded = self.expand_with_table(line);
+        self.process_expanded_text(line, &expanded, speaker, tables)
+    }
+
+    /// `CPlayerShell::ExpandableText`: whether `CWInterface::ProcessText` expands `line`'s
+    /// aliases.
+    pub fn expandable(&self, line: &str) -> bool {
+        expandable_text(line, &self.commands)
+    }
+
+    /// `ExpandText` with the options profile's alias table this shell holds (for a session
+    /// without the script VM; with it, the script answers `InqAlias`).
+    fn expand_with_table(&self, line: &str) -> String {
+        if !self.expandable(line) {
+            return line.to_owned();
+        }
+        let aliases = &self.aliases;
+        expand_text(line, &mut |alias| {
+            aliases
+                .iter()
+                .find(|(a, _)| a == alias)
+                .map(|(_, text)| text.clone())
+        })
+    }
+
+    /// [`Self::process_text`] for a `line` whose aliases the caller already expanded into
+    /// `expanded`: the line typed joins the history, the expanded one runs.
+    pub fn process_expanded_text(
+        &mut self,
+        line: &str,
+        expanded: &str,
+        speaker: Speaker<'_>,
+        tables: &StringTableIds,
+    ) -> Vec<ShellAction> {
         self.commands_entered.add(line);
-        let out = self.process_line(line, speaker, tables);
+        let out = self.process_line(expanded, speaker, tables);
         self.told.reset();
         self.heard.reset();
         out
@@ -141,8 +186,7 @@ impl ChatState {
         speaker: Speaker<'_>,
         tables: &StringTableIds,
     ) -> Vec<ShellAction> {
-        let line = expand_aliases(line, &self.aliases, &self.commands);
-        match process_text(&line, &self.commands) {
+        match process_text(line, &self.commands) {
             Parsed::Empty | Parsed::Failure => Vec::new(),
             Parsed::Unknown => vec![show_line(
                 tables,
@@ -163,17 +207,29 @@ impl ChatState {
     /// (display type 8, nothing when the text is empty); any other shows
     /// `ID_UnrecognizedCommand` with `CMD` set to it (display type 1). Both strings are in the
     /// shell's table (enum 0x40000009).
-    pub fn display_help(&self, cmd: &str, tables: &StringTableIds) -> Vec<ShellAction> {
+    pub fn display_help(
+        &self,
+        cmd: &str,
+        tables: &StringTableIds,
+        script: &ScriptHelp,
+    ) -> Vec<ShellAction> {
         let shell = |name: &str| line(tables, TABLE_SHELL, ac2_net::tokenize(name.as_bytes()));
         if cmd.is_empty() {
             let mut out = vec![show(KIND_INFO, shell("ID_HelpListLabel"))];
-            let all = self.commands.all_cmd_help();
+            let all = self.commands.all_cmd_help(&script.all);
             if !all.is_empty() {
                 out.push(show(KIND_INFO, literal(&all)));
             }
             return out;
         }
-        match self.commands.cmd_help(cmd) {
+        // `GetCmdHelpText`: the native handler, else the script's (`DoHelpInterp`), else
+        // `UnknownCmd`; a `Failure` shows nothing.
+        let text = match (self.commands.cmd_help(cmd), &script.one) {
+            (Some(text), _) => Some(text),
+            (None, Some(answer)) => answer.clone().or_else(|| Some(String::new())),
+            (None, None) => None,
+        };
+        match text {
             None => {
                 let variable = ac2_net::tokenize(b"CMD");
                 vec![show(
@@ -460,3 +516,14 @@ fn room_message(room: u32, text: String, flags: u32) -> ShellAction {
 
 #[path = "state.rs"]
 mod state;
+
+/// What the script's help functions answered for `CWInterface::DisplayHelpText`
+/// (`CWInterface::DoHelpInterp` run on the VM by the client).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ScriptHelp {
+    /// For one command: `None` when no script registered help for it, `Some(None)` when its
+    /// help function failed (`Failure_ShellHelpStatus`), `Some(Some(text))` on `Success`.
+    pub one: Option<Option<String>>,
+    /// For the full list: each script help word with its list-mode text (failures left out).
+    pub all: Vec<(String, String)>,
+}

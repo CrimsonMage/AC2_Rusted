@@ -76,20 +76,30 @@ fn lines_split_into_the_command_its_text_and_tokens() {
     assert_eq!(command("/WAVE"), parsed(EMOTE_BY_NAME, "", &["WAVE"]));
 }
 
+/// `gmCWInterface::ExpandText` / `HandleAlias`: each `;alias` token is replaced in place by its
+/// text, expanded again; a token being expanded stays as it is (a loop); a `;` alone is left;
+/// a token without an alias is kept.
 #[test]
-fn aliases_expand_whole_lines_until_one_repeats() {
-    let c = commands();
-    let aliases = vec![
-        ("/hi".to_string(), "/s hello".to_string()),
-        ("/a1".to_string(), "/a2".to_string()),
-        ("/a2".to_string(), "/a1".to_string()),
-        ("/alias x".to_string(), "/s no".to_string()),
+fn alias_tokens_expand_in_place_and_loops_stop() {
+    let aliases = [
+        (";hi", "/s hello ;who"),
+        (";who", "friend"),
+        (";a1", ";a2"),
+        (";a2", ";a1"),
     ];
-    assert_eq!(expand_aliases("/hi", &aliases, &c), "/s hello");
-    assert_eq!(expand_aliases("/a1", &aliases, &c), "/a1");
-    assert_eq!(expand_aliases("/HI", &aliases, &c), "/HI");
-    // `alias` is registered as not expandable.
-    assert_eq!(expand_aliases("/alias x", &aliases, &c), "/alias x");
+    let mut inq = |alias: &str| {
+        aliases
+            .iter()
+            .find(|(a, _)| *a == alias)
+            .map(|(_, t)| t.to_string())
+    };
+    assert_eq!(expand_text(";hi", &mut inq), "/s hello friend");
+    assert_eq!(
+        expand_text("/s ;who there; ok", &mut inq),
+        "/s friend there; ok"
+    );
+    assert_eq!(expand_text(";a1 x", &mut inq), ";a1 x");
+    assert_eq!(expand_text(";none, ;who!", &mut inq), ";none, friend!");
 }
 
 fn tables() -> StringTableIds {
@@ -295,9 +305,9 @@ fn rooms_come_from_the_server_calls() {
     );
     let mut profile = GameplayOptionsProfile::default();
     profile.filters.pairs = vec![(2, 0x10_0000)];
-    profile.aliases.1 = vec![("/sell".into(), "/ct selling".into())];
+    profile.aliases.1 = vec![(";sell".into(), "/ct selling".into())];
     s.login_options(&profile);
-    assert_eq!(shown(&run(&mut s, "/sell")[0]).2, 0x9FEE_074C);
+    assert_eq!(shown(&run(&mut s, ";sell")[0]).2, 0x9FEE_074C);
     let table = PackedReference {
         ids: vec![1, 2],
         entries: vec![
@@ -316,7 +326,7 @@ fn rooms_come_from_the_server_calls() {
     };
     let call = ScriptCall::new(0x8205_001B, vec![PackValue::Reference(table)]).unwrap();
     s.server_call(&call, &t);
-    assert_eq!(run(&mut s, "/sell"), [room(0x55, "selling", 0)]);
+    assert_eq!(run(&mut s, ";sell"), [room(0x55, "selling", 0)]);
     assert_eq!(run(&mut s, "/ct"), []);
     assert_eq!(run(&mut s, "/ck").len(), 1, "usage");
 }
@@ -425,6 +435,7 @@ fn help_is_shown_for_a_command_an_unknown_one_and_all() {
     c.set_help(SAY, "usage: /say".into());
     state.set_commands(c);
     let tables = StringTableIds::default();
+    let none = crate::shell::ScriptHelp::default();
     let kinds = |actions: Vec<ShellAction>| -> Vec<(u32, Option<String>)> {
         actions
             .into_iter()
@@ -437,10 +448,10 @@ fn help_is_shown_for_a_command_an_unknown_one_and_all() {
             .collect()
     };
     assert_eq!(
-        kinds(state.display_help("Tell", &tables)),
+        kinds(state.display_help("Tell", &tables, &none)),
         vec![(8, Some("usage: /tell".into()))]
     );
-    let unknown = state.display_help("nosuch", &tables);
+    let unknown = state.display_help("nosuch", &tables, &none);
     let ShellAction::Notice(GameplayNotice::DisplayStringInfo { kind, text }) = &unknown[0] else {
         panic!("a notice");
     };
@@ -448,11 +459,14 @@ fn help_is_shown_for_a_command_an_unknown_one_and_all() {
     assert_eq!(text.string_id, ac2_net::tokenize(b"ID_UnrecognizedCommand"));
     assert_eq!(text.variables.len(), 1);
     // Every command of a handler with help appears, sorted by name: c, s, say, send, t, tell.
-    let all = kinds(state.display_help("", &tables));
+    let all = kinds(state.display_help("", &tables, &none));
     assert_eq!(all[0].0, 8);
     assert_eq!(
         all[1].1.as_deref(),
-        Some("usage: /sayusage: /sayusage: /sayusage: /tellusage: /tellusage: /tell")
+        Some(
+            "  c -- usage: /say  s -- usage: /say  say -- usage: /say  send -- usage: /tell  \
+             t -- usage: /tell  tell -- usage: /tell"
+        )
     );
 }
 
@@ -557,4 +571,29 @@ fn saveui_and_loadui_with_more_than_one_argument_show_their_usage() {
     // The 7230 script's commands are untouched, and the new ones sit outside its handler ids.
     assert_eq!(s.commands().handler("say"), Some(SAY));
     const { assert!(SAVE_UI > 0xFFFF && LOAD_UI > 0xFFFF) };
+}
+
+#[test]
+fn a_command_name_holding_a_space_is_refused_and_the_first_handler_stays() {
+    // `ShellCmdTable::AddCmdHandler`: the lowered name must hold no space and be new.
+    let mut c = ChatCommands::new("say");
+    c.register("Two Words; Wave ", 0x10, true);
+    c.register("wave", 0x11, true);
+    assert_eq!(c.handler("two words"), None);
+    assert_eq!(c.handler("WAVE"), Some(0x10));
+}
+
+/// `CWAllocator::ResetShell` at `gmGamePlayUI::EndSession`: the next character starts with an
+/// empty command history; the registered commands stay.
+#[test]
+fn ending_the_session_empties_the_command_history() {
+    let mut s = state();
+    run(&mut s, "/say hello");
+    assert_eq!(
+        s.history(ChatHistory::Command, true).as_deref(),
+        Some("/say hello")
+    );
+    s.reset_shell();
+    assert_eq!(s.history(ChatHistory::Command, true), None);
+    assert_eq!(s.commands().handler("say"), Some(SAY));
 }

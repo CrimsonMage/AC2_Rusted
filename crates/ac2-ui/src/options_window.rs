@@ -6,7 +6,8 @@
 //!
 //! Apply saves the file on a worker thread ([`OptionsPrefs::save`]), except when the render section
 //! changed: retail then asks the player to verify the render options (`VerifyRenderOptions`) and
-//! does not save. That question is not modelled, so such an apply leaves the file as it was.
+//! does not save. That question is not modelled, so such an apply writes only the overall graphics
+//! quality line (`Render::HandleApply`'s `SaveOverallGraphicsQuality`, which wrote at once).
 //!
 //! The preferences are `ac2_prefs::PrefsFile`; the sound manager's and the view's reactions to the
 //! applied keys are the client's (it reads [`ApplyOutcome::keys`] and [`PageOutcome::keys`]).
@@ -135,6 +136,11 @@ pub trait OptionsPrefs {
     /// Saves the file on a worker thread (`PreferenceBank::Save`).
     fn save(&mut self) -> JoinHandle<io::Result<()>>;
 
+    /// `Render::UpdateOverallGraphicsQuality`, run by `Render::HandleApply` after the graphics
+    /// section is applied: the matching preset level (0 custom) goes into the file image, or is
+    /// written at once with `write_now`. Returns the write started, if any.
+    fn update_overall_quality(&mut self, write_now: bool) -> Option<JoinHandle<io::Result<()>>>;
+
     /// `gmClientUI::Changed`: a value differs from the one last applied, in one of the sections.
     fn options_changed(&self) -> bool {
         std::iter::once(DISPLAY_SECTION)
@@ -151,8 +157,11 @@ pub trait OptionsPrefs {
         for section in SECTIONS {
             keys.extend(self.bank_mut().apply(section));
         }
+        // `Render::HandleApply`'s tail. Without the page's save (a display change waits for the
+        // verification) the level is written at once, as `SaveOverallGraphicsQuality` did.
+        let quality = self.update_overall_quality(verify_render);
         let save = if verify_render {
-            None
+            quality
         } else {
             Some(self.save())
         };
@@ -222,5 +231,9 @@ impl<N: NameTable> OptionsPrefs for PrefsFile<N> {
 
     fn save(&mut self) -> JoinHandle<io::Result<()>> {
         PrefsFile::save(self)
+    }
+
+    fn update_overall_quality(&mut self, write_now: bool) -> Option<JoinHandle<io::Result<()>>> {
+        ac2_render::prefs::update_overall_graphics_quality(self, write_now).1
     }
 }

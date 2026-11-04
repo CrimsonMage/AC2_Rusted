@@ -71,6 +71,10 @@ pub fn begin_frame(
     for message in &messages {
         selection.message(message);
     }
+    // `SmartBox::HandleTeleport`'s `ActionInterpreter::TurnOffRunLock`.
+    if client.take_turn_off_run_lock() {
+        controls.turn_off_run_lock();
+    }
     let mut input = frame_input(controls.frame());
     input.commands.append(commands);
     WorldInputFrame { input, screenshot }

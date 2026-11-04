@@ -5,9 +5,10 @@
 //! `CEnvCell::LightIndices` adds each static light over the vertices it lists, quantising to a
 //! `D3DCOLOR` after every light. The lights whose range animates are left out of that bake
 //! (`LightSource::GetIsRangeAnimating`); `CEnvCell::UpdateDynamicLights` adds them over it once
-//! per cell, at the client time of its first light tick, and retail never repeats it (the tick
-//! passes no force, and the cell stays marked `m_bDynamicLightingComputed`), so the surfaces keep
-//! that one sample while the lights themselves breathe through the point lights each draw binds.
+//! per cell, at the client time of its first light tick (the tick passes no force, and the cell
+//! stays marked `m_bDynamicLightingComputed`), so the surfaces keep that one sample while the
+//! lights themselves breathe through the point lights each draw binds. While the viewer is inside,
+//! the sun pass ([`super::cell_sun`]) relights the cells from the static diffuse, without them.
 
 use std::sync::Arc;
 
@@ -67,6 +68,18 @@ pub fn load_cell_model(
     lighting: CellLighting<'_>,
     settings: &RenderSettings,
 ) -> ResourceResult<Option<ObjectModel>> {
+    Ok(load_cell_model_with_sun(store, cell, world_frame, lighting, settings)?.map(|(m, _)| m))
+}
+
+/// [`load_cell_model`] with what the cell keeps for the interior sun pass
+/// ([`super::cell_sun::CellSun`], `None` where a pass cannot change it).
+pub fn load_cell_model_with_sun(
+    store: &ResourceStore,
+    cell: &Ac2EnvCell,
+    world_frame: Frame,
+    lighting: CellLighting<'_>,
+    settings: &RenderSettings,
+) -> ResourceResult<Option<(ObjectModel, Option<super::cell_sun::CellSun>)>> {
     let Some(mesh) = store.load_cached_packed::<Ac2Mesh>(TypedResourceRef::new(
         DatFileKind::Portal,
         cell.cell_mesh,
@@ -137,7 +150,8 @@ pub fn load_cell_model(
             }
         })
         .collect();
-    Ok(Some(ObjectModel {
+    let sun = super::cell_sun::CellSun::new(&mesh, cell, lighting);
+    let model = ObjectModel {
         visual: cell.cell_mesh,
         parts: vec![ObjectPart {
             mesh: cell.cell_mesh,
@@ -151,7 +165,8 @@ pub fn load_cell_model(
         }],
         degrade: None,
         skeleton: None,
-    }))
+    };
+    Ok(Some((model, sun)))
 }
 
 /// The degrade `CEnvCell::DrawCellMesh` hands `CBaseMesh::DrawMesh`: its factor is 1 for the
@@ -282,20 +297,31 @@ fn light_indices(
             // black inside.
             Ac2LightKind::Sunlight => continue,
         };
-        let n_dot_l = n.dot(to_light);
-        if n_dot_l <= 0.0002 {
-            continue;
-        }
-        let scale = n_dot_l.min(1.0) * attenuation;
-        let [r, g, b, _] = unpack(colors[index]);
-        let lit = [
-            r + light.color[0] * scale,
-            g + light.color[1] * scale,
-            b + light.color[2] * scale,
-            1.0,
-        ];
-        colors[index] = pack(lit.map(|c| c.clamp(0.0, 1.0)));
+        add_light(
+            &mut colors[index],
+            n.dot(to_light),
+            attenuation,
+            light.color,
+        );
     }
+}
+
+/// `LightIndices`' per-vertex step: a vertex facing the light (`N.L` over 0.0002) takes the
+/// light's colour times `min(N.L, 1)` times its attenuation onto its colour, clamped and stored
+/// back as a `D3DCOLOR`.
+pub(super) fn add_light(color: &mut u32, n_dot_l: f32, attenuation: f32, light: [f32; 3]) {
+    if n_dot_l <= 0.0002 {
+        return;
+    }
+    let scale = n_dot_l.min(1.0) * attenuation;
+    let [r, g, b, _] = unpack(*color);
+    let lit = [
+        r + light[0] * scale,
+        g + light[1] * scale,
+        b + light[2] * scale,
+        1.0,
+    ];
+    *color = pack(lit.map(|c| c.clamp(0.0, 1.0)));
 }
 
 /// `RGBAColor::GetColor32`: `_ftol2` of each channel times 255, ARGB.
@@ -305,7 +331,7 @@ fn pack([r, g, b, a]: [f32; 4]) -> u32 {
 }
 
 /// `RGBAColor::SetColor32`.
-fn unpack(color: u32) -> [f32; 4] {
+pub(super) fn unpack(color: u32) -> [f32; 4] {
     let channel = |shift: u32| ((color >> shift) & 0xFF) as f32 * 0.003_921_569;
     [channel(16), channel(8), channel(0), channel(24)]
 }

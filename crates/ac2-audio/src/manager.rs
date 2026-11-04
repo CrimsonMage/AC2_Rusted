@@ -94,6 +94,9 @@ pub struct SoundManager {
     last_music_volume: f32,
     /// `m_nGrooveLevel` / `m_nGrooveOffset`.
     groove: (i32, i32),
+    /// `DirectXSoundDevice::m_nCurrentGroove`: the level last given to the performance
+    /// (-100000 from the device's constructor).
+    current_groove: i32,
     /// The device's channel volumes and state, and `Timer::local_time`.
     device: DeviceState,
     /// `DXMusicMessageThread`: the music segments the music voices play.
@@ -127,6 +130,7 @@ impl SoundManager {
             next_handle: 1,
             last_music_volume: 1.0,
             groove: (0, 0),
+            current_groove: -100_000,
             device: DeviceState {
                 enabled: true,
                 volumes: [1.0; 4],
@@ -264,6 +268,7 @@ impl SoundManager {
                 segment: Arc::clone(segment),
                 bands: Arc::clone(bands),
                 cues: Arc::clone(cues),
+                start: playing.start_timing(),
             });
         }
         // An `EncodedWave` is a segment with a wave track: the queue plays it as any segment.
@@ -283,6 +288,7 @@ impl SoundManager {
                 }),
                 bands: Arc::from(Vec::new()),
                 cues: Arc::default(),
+                start: playing.start_timing(),
             });
         }
         if playing.is_self_exclusive() {
@@ -667,6 +673,15 @@ impl SoundManager {
                 && !self.requests.iter().any(|r| r.handle == handle))
     }
 
+    /// The device's playing sound for `handle` (`ISoundDevice` slot 0), then its
+    /// `SetFrequency` ([`PlayingSound::set_frequency`]); nothing for a handle not playing.
+    pub fn set_frequency(&mut self, handle: u32, frequency: f32) -> bool {
+        match self.playing.iter_mut().find(|p| p.handle == handle) {
+            Some(playing) => playing.set_frequency(&mut *self.sink, frequency),
+            None => false,
+        }
+    }
+
     /// `DirectXSoundDevice::SetChannelVolume`: `0..1`; the channel's sounds follow.
     pub fn set_channel_volume(&mut self, channel: Channel, volume: f32) -> bool {
         if !(0.0..=1.0).contains(&volume) {
@@ -698,12 +713,23 @@ impl SoundManager {
         self.send_groove();
     }
 
-    /// `DirectXSoundDevice::SetGrooveLevel` with the level plus its offset: the device and the
-    /// music queue (whose styles choose their patterns at it from their next measure).
+    /// `DirectXSoundDevice::SetGrooveLevel` (admin 0x005A3F10, Legions 0x005706E0) with the
+    /// level plus its offset: nothing while the device is disabled (it has no performance;
+    /// the level is not kept), and only a level other than `m_nCurrentGroove` reaches the
+    /// device and the music queue (whose styles choose their patterns at it from their next
+    /// measure). Retail's re-enabled device made a new performance but kept
+    /// `m_nCurrentGroove`; the music queue here is not remade, so it keeps its level.
     fn send_groove(&mut self) {
+        if !self.device.enabled {
+            return;
+        }
         let level = self.groove.0.wrapping_add(self.groove.1);
+        if level == self.current_groove {
+            return;
+        }
         self.sink.send(SinkCommand::Groove { level });
         self.music.set_groove_level(level);
+        self.current_groove = level;
     }
 
     /// The music queue (`DXMusicMessageThread`).

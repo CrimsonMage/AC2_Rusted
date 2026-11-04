@@ -437,6 +437,35 @@ pub fn apply_quality(bank: &mut PreferenceBank, level: u32) -> bool {
     preset.is_some()
 }
 
+/// `Render::UpdateOverallGraphicsQuality` (admin 0x005B5860; Legions `FUN_00580200`, the tail of
+/// `Render::HandleApply`): the first level from 1 to 5 whose preset every graphics preference
+/// matches, else 0 (custom). Retail compares each preset's keys but `AdaptiveDegradeBias`, which
+/// are [`QUALITY_PRESETS`]' values. Levels 4 and 5 expect `AnisotropicFiltering` on, as
+/// [`apply_quality`]'s deviation sets it (retail's table expects it off at every level).
+pub fn matching_quality(bank: &PreferenceBank) -> u32 {
+    let holds = |line: &Preset, level: u32| {
+        let want = if line.key == ANISOTROPIC_FILTERING && level >= ANISOTROPIC_FROM_LEVEL {
+            1.0
+        } else {
+            line.value
+        };
+        match bank.find(line.key).map(|pref| &pref.value) {
+            Some(Value::Bool(on)) => *on == (want != 0.0),
+            Some(Value::Int(choice)) => *choice == want as i32,
+            Some(Value::Float(value)) => *value == want,
+            _ => false,
+        }
+    };
+    (1..=5u32)
+        .find(|&level| {
+            QUALITY_PRESETS[level as usize - 1]
+                .iter()
+                .filter(|line| line.key != ADAPTIVE_DEGRADE_BIAS)
+                .all(|line| holds(line, level))
+        })
+        .unwrap_or(0)
+}
+
 /// `ID_Graphics_LandscapeFrillDistance`: choice 1 is the short distance (`FrillRender`'s 0.65).
 pub const LANDSCAPE_FRILL_DISTANCE: u32 = 0x4000_0044;
 
@@ -601,14 +630,25 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
     let defaults = SceneOptions::default();
     let draw_distance = landscape_draw_distance(bank);
     let far_radius = draw_distance.map_or(defaults.far_radius, far_radius_for_draw_distance);
-    let short = matches!(
-        bank.find(LANDSCAPE_FRILL_DISTANCE).map(|pref| &pref.value),
-        Some(Value::Int(1))
-    );
+    // `SmartBox::InitPreferences` (Legions 0x00543810): `LandscapeFrillDistance` 0 turns the
+    // frills off (`EnableFrillObjects(0)`), 1 and 2 give a radius of 1, 3 a radius of 2
+    // (`SetOutsideRadius`); `FrillRender::RefreshFrillMesh` shrinks the reach at 1.
+    let frill_distance = match bank.find(LANDSCAPE_FRILL_DISTANCE).map(|pref| &pref.value) {
+        Some(Value::Int(value)) => Some(*value),
+        _ => None,
+    };
+    let (enabled, lscape_radius) = match frill_distance {
+        None => (defaults.frill.enabled, defaults.frill.lscape_radius),
+        Some(0) => (false, 0),
+        Some(3) => (true, 2),
+        Some(_) => (true, 1),
+    };
     SceneOptions {
         far_radius,
         frill: FrillSettings {
-            short_distance: short,
+            enabled,
+            lscape_radius,
+            short_distance: frill_distance == Some(1),
             copies: draw_distance.map_or(defaults.frill.copies, grass_copies_for_draw_distance),
             ..defaults.frill
         },
@@ -782,6 +822,30 @@ const OVERALL_GRAPHICS_QUALITY_FILE: (&str, &str) = ("Graphics", "OverallGraphic
 /// it when it is 1 to 5).
 pub fn overall_graphics_quality<N: NameTable>(file: &PrefsFile<N>) -> Option<u32> {
     file.inq_bool(GRAPHICS_SECTION, OVERALL_GRAPHICS_QUALITY)
+}
+
+/// `Render::UpdateOverallGraphicsQuality`'s result for `file`: the level the graphics preferences
+/// match ([`matching_quality`]), set for the session and put into the file image when it differs
+/// from the saved one. With `write_now` the file is written at once
+/// (`SaveOverallGraphicsQuality`); otherwise the caller's save that follows writes it. Returns
+/// the level and the write started, if any.
+pub fn update_overall_graphics_quality<N: NameTable>(
+    file: &mut PrefsFile<N>,
+    write_now: bool,
+) -> (u32, Option<JoinHandle<io::Result<()>>>) {
+    let level = matching_quality(file.bank());
+    if overall_graphics_quality(file) == Some(level) {
+        return (level, None);
+    }
+    if write_now {
+        return (level, Some(save_overall_graphics_quality(file, level)));
+    }
+    file.set_uint_in_file(
+        (GRAPHICS_SECTION, OVERALL_GRAPHICS_QUALITY),
+        OVERALL_GRAPHICS_QUALITY_FILE,
+        level,
+    );
+    (level, None)
 }
 
 /// `Render::SaveOverallGraphicsQuality(level)`: the level is set for the session and written to

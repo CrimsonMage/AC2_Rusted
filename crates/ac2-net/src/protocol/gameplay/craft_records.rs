@@ -5,7 +5,12 @@
 //! each by that DID (`CraftSkillRecord` 0x4 reads slot 2, `RecipeRecord` 0x15 reads slot 7).
 //!
 //! The other members are packed as the records' constructors leave them (`CraftSkillRecord` 0x5,
-//! `RecipeRecord` 0x11); what the server put there for a player's progress is not traced.
+//! `RecipeRecord` 0x11), except `RecipeRecord`'s slot 6, which the player's script copies into the
+//! recipe adaptor's `m_shown` (`gRecipeAdaptor::SetShown`, efun 0x00AA0011): the constructor
+//! leaves it 0, which hides every recipe from the craft panel's recipe view
+//! (`gmCraftUI::RefreshRecipePage` lists only shown recipes), and the retail servers sent -1 there
+//! in 54,660 of the 55,318 recipe records of the captures (2005 and 2017-2018 registries, learns
+//! and updates). The timestamps and the other members stay as the constructor leaves them.
 
 use super::Args;
 use crate::protocol::native::{HashKey, NativeObject, ScriptHash, ScriptList};
@@ -60,12 +65,13 @@ impl Record {
                 vec![0, 0, did, 0, 0, 0],
                 vec![LONG_INT, UNINIT, INT, LONG_INT, UNINIT, INT],
             ),
-            // `RecipeRecord` 0x11: ints 0, 3, 6, 10 zero, 11 -1, the times at 1, 4 and 8 -1.0.
+            // `RecipeRecord` 0x11: ints 0, 3, 10 zero, 11 -1, the times at 1, 4 and 8 -1.0; slot 6
+            // shown (-1), as the retail servers sent it.
             Self::Recipe => {
                 let (lo, hi) = split((-1.0f64).to_bits());
                 (
                     RECIPE_RECORD,
-                    vec![0, lo, hi, 0, lo, hi, 0, did, lo, hi, 0, u32::MAX],
+                    vec![0, lo, hi, 0, lo, hi, u32::MAX, did, lo, hi, 0, u32::MAX],
                     vec![
                         INT, TIME, UNINIT, INT, TIME, UNINIT, INT, INT, TIME, UNINIT, INT, INT,
                     ],

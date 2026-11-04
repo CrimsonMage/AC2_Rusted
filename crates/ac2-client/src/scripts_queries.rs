@@ -9,11 +9,11 @@ use ac2_physics::CollisionParameters;
 use ac2_script::host::item_queries::{ItemDisplay, ItemLook, ItemQueries};
 use ac2_script::host::port::{ScriptIdentity, ScriptPort};
 use ac2_script::host::queries::ScriptQueries;
-use ac2_script::host::LatentPhysics;
+use ac2_script::host::{shell, LatentPhysics};
 use ac2_script::host::{
     DataRequest, DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptHost, ScriptState,
 };
-use ac2_weenie::{Appearance, SessionEvent, WeenieQualities};
+use ac2_weenie::{Appearance, ScriptHelp, SessionEvent, WeenieQualities};
 
 use crate::loader::Request;
 
@@ -81,7 +81,8 @@ impl ScriptPort for Client {
     }
 
     fn display_help(&mut self, cmd: &str) -> Vec<SessionEvent> {
-        self.session.display_help(cmd)
+        let script = self.script_help(cmd);
+        self.session.display_help(cmd, &script)
     }
 
     fn send_interp(&mut self, function: u32, arguments: Vec<u8>, encrypt: bool) {
@@ -130,15 +131,8 @@ impl ScriptPort for Client {
             .map_or(0, |o| o.qualities.did);
         self.loader
             .request(Request::ScriptState(id, package, did, defaults));
-        // The item's icon is its visual's total icon description (`ItemDisplay::Update`).
-        let visual = self
-            .session
-            .objects()
-            .get(id)
-            .map_or(0, |o| o.appearance.parent);
-        if visual != 0 {
-            self.loader.request(Request::TotalIcon(id, visual));
-        }
+        // The item's icon is its local description's total icon description (`ItemDisplay::Update`).
+        self.request_item_icon(id);
     }
 
     fn push_produced(&mut self, events: Vec<SessionEvent>) {
@@ -163,6 +157,35 @@ impl ScriptPort for Client {
 }
 
 impl Client {
+    /// What the script's help functions answer for `CWInterface::DisplayHelpText(cmd)`: for one
+    /// command its `AddShellHelp` function in single mode, for an empty one every script help
+    /// word in list mode (`ShellCmdTable::GetAllCmdHelpText` calls each entry with list 1);
+    /// each runs `CWInterface::DoHelpInterp` on the VM ([`shell::help_text`]).
+    fn script_help(&mut self, cmd: &str) -> ScriptHelp {
+        let mut help = ScriptHelp::default();
+        // A word the native shell has help for keeps it (`AddHelpHandler` adds only new words).
+        if self.session.chat().commands().cmd_help(cmd).is_some() {
+            return help;
+        }
+        if cmd.is_empty() {
+            let words = self
+                .script_host()
+                .map(|host| host.shell_help_words())
+                .unwrap_or_default();
+            for (word, function) in words {
+                if self.session.chat().commands().cmd_help(&word).is_some() {
+                    continue;
+                }
+                if let Some(text) = shell::help_text(self, function, true) {
+                    help.all.push((word, text));
+                }
+            }
+        } else if let Some(function) = self.script_host().and_then(|h| h.shell_help(cmd)) {
+            help.one = Some(shell::help_text(self, function, false));
+        }
+        help
+    }
+
     pub fn query(
         &mut self,
         function: u32,

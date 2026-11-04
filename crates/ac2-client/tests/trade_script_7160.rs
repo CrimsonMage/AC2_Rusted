@@ -1,5 +1,6 @@
 //! The secure trade with the player's script on the VM: the trade window's commands go out
-//! through `gmCWInterface::AcceptTrade`'s IFun and the stubs, and the double's `WM_Trade`
+//! through their IFuns (`ggmCWInterface::CallIFun_OpenTradeNegotiations`, `OfferItemForTrade`,
+//! `AcceptTrade`, ...) and the stubs, and the double's `WM_Trade`
 //! forwarders run on `CPlayer`, which raises the `CM_Trade` notices (`AC2_DAT_DIR`).
 
 mod common;

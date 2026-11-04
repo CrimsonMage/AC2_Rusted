@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 22 done, 4 partial, 12 to do, 551 skipped.
+589 retail functions: 27 done, 0 partial, 0 to do, 562 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -332,7 +332,7 @@ Legend and workflow: [README](README.md).
 ## `core/src/pstring/pstringdecls.cpp.c` (0/1)
 
 ### (free functions)
-- [ ] `ConvertWPStringToCIWPstring` · 0064b6c0 · legions 005fa9f0 — needs port: gStringUtils::ConvertWPStringToCIWPstring efun 0x25bb0004 (case-insensitive wide string conversion), not registered in ac2-script
+- [-] `ConvertWPStringToCIWPstring` · 0064b6c0 · legions 005fa9f0 — not needed: wlib scan covers Legions library only [only caller efun gStringUtils::CallEFun_ConvertWPStringToCIWPstring has no call site in the Legions wlib (catalog)]
 
 ## `core/src/serialize/smartbuffer.cpp.c` (0/12)
 
@@ -362,7 +362,7 @@ Legend and workflow: [README](README.md).
 ### `AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2
 - [-] ``AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2::s_FreeListHelper` · 00a43c30 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
-## `core/src/timer/timer.cpp.c` (3/11)
+## `core/src/timer/timer.cpp.c` (4/11)
 
 ### (free functions)
 - [-] `get_elapsed_time_internal` · 0064b0c0 · legions 005fa3f0 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
@@ -381,7 +381,7 @@ Legend and workflow: [README](README.md).
 - [x] `Timer::Init` · 0064b540 · legions 005fa870
 - [-] `Timer::asctime` · 0064b5a0 · legions 005fa8d0 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
 - [-] `Timer::strftime` · 0064b5d0 · legions 005fa900 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
-- [ ] `Timer::get_elapsed_time` · 0064b610 · legions 00455160 — needs port (check): elapsed time is passed in to ac2-core timer.rs; verify Timer::get_elapsed_time's own rule and cite
+- [x] `Timer::get_elapsed_time` · 0064b610 · legions 00455160 — audit: covered: elapsed supplied by the caller clock [ac2-core/src/timer.rs:48 server_time_at(elapsed); ac2-net/src/flow.rs:39]
 - [x] `Timer::set_time` · 0064b620 · legions 005fa950
 - [x] `Timer::update_time` · 0064b660 · legions 005fa990
 
@@ -467,10 +467,10 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/platformstring/platformstring.cpp.c` (0/4)
 
 ### PlatformString::StringAccessor
-- [ ] `PlatformString::StringAccessor::GetString` · 00569a90 · legions 00539a20 — needs port (check): implemented as ac2-db string render (%1-%3 replace) but uncited
+- [-] `PlatformString::StringAccessor::GetString` · 00569a90 · legions 00539a20 — not needed:  [callers PlatformString::DisplayString/DisplayFinalString are [-] (debug error reporting)]
 
 ### PlatformString
-- [ ] `PlatformString::GetString` · 00569be0 · legions 00539b70 — needs port (check): implemented as ac2-db string render (%1-%3 replace) but uncited
+- [-] `PlatformString::GetString` · 00569be0 · legions 00539b70 — not needed:  [callers PlatformString::DisplayString/DisplayFinalString are [-] (debug error reporting)]
 - [-] `PlatformString::DisplayFinalString` · 00569d40 · legions 00539cd0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 - [-] `PlatformString::DisplayString` · 00569f20 · legions 00539eb0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
@@ -591,8 +591,8 @@ Legend and workflow: [README](README.md).
 
 ### PSUtils
 - [-] `PSUtils::is_int32` · 00665860 · legions 006131a0 — text source files (admin tools)
-- [ ] `PSUtils::is_uint64` · 006658d0 · legions 00613210 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `PSUtils::is_int64` · 00665940 · legions 00613280 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSUtils::is_uint64` · 006658d0 · legions 00613210 — not needed:  [sole callers FileNodeName_UInt64/Int64::FromPString are [-] (text source files, admin tools)]
+- [-] `PSUtils::is_int64` · 00665940 · legions 00613280 — not needed:  [sole callers FileNodeName_UInt64/Int64::FromPString are [-] (text source files, admin tools)]
 - [-] `PSUtils::is_double` · 006659b0 · legions 006132f0 — text source files (admin tools)
 
 ### FileNodeName_UInt32
@@ -966,17 +966,17 @@ Legend and workflow: [README](README.md).
 - [x] `Random::RollGaussianDice` · 0060d450 · legions 005ce220 — crates/ac2-script/src/glue/random.rs roll_gaussian (Random::RollGaussianDice, Leva)
 - [x] `Random::RollPercentile` · 0060d520 · legions 005ce2f0 — crates/ac2-script/src/glue/random.rs roll_percentile (Random::RollPercentile)
 
-## `portal/shared/src/reg_edit/reg_edit.cpp.c` (0/8)
+## `portal/shared/src/reg_edit/reg_edit.cpp.c` (2/8)
 
 ### RegEdit
 - [-] `RegEdit::CreateKey` · 00662ba0 — registry editing (admin tools)
 - [-] `RegEdit::SetStrValue` · 00662c30 — registry editing (admin tools)
-- [~] `RegEdit::QueryStrValue` · 00662cc0 · legions 00610f50 — ac2-prefs gls_ticket: HKCU Software\Turbine\ac2 GLSTicket on Windows (unbuilt here), 0600 file stand-in elsewhere
+- [x] `RegEdit::QueryStrValue` · 00662cc0 · legions 00610f50 — audit: covered:  [ac2-prefs/src/gls_ticket.rs:4,8 (HKCU registry on Windows, 0600 file elsewhere)]
 - [-] `RegEdit::SetIntValue` · 00662d40 — registry editing (admin tools)
 - [-] `RegEdit::QueryIntValue` · 00662dc0 · legions 00610fd0 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
 - [-] `RegEdit::SetBinValue` · 00662e50 — registry editing (admin tools)
 - [-] `RegEdit::QueryBinValue` · 00662ed0 · legions 00611060 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
-- [~] `RegEdit::DeleteValue` · 00662f50 · legions 006110e0 — ac2-prefs gls_ticket: deletes the GLSTicket value / file after reading
+- [x] `RegEdit::DeleteValue` · 00662f50 · legions 006110e0 — audit: covered:  [ac2-prefs/src/gls_ticket.rs:4,8 (HKCU registry on Windows, 0600 file elsewhere)]
 
 ## `portal/shared/src/setproject/projectsettings.cpp.c` (0/7)
 
@@ -1003,41 +1003,41 @@ Legend and workflow: [README](README.md).
 - [x] `TSRecv::TSRecv` · 0065b1e0 · legions 00609af0
 - [x] `TSRecv::GetNextReadyEntry` · 0065b210 · legions 00609b20
 - [-] `TSRecv::~TSRecv` · 0065b2d0 · legions 00609be0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
-- [ ] `TSRecv::AddEntryLatest` · 0065b340 · legions 00609c50 — needs port: TSRecv latest mode (TSRecv::AddEntryLatest via AddAndCheck); ac2-weenie ordering.rs has blocking mode only
+- [-] `TSRecv::AddEntryLatest` · 0065b340 · legions 00609c50 — not needed:  [only TSRecv constructor caller CBookKeep::CBookKeep passes TSRECV_BLOCK (cbookkeep.cpp.c:32); TSRECV_LATESTONLY is never constructed]
 - [x] `TSRecv::AddEntry` · 0065b3c0 · legions 00609cd0
 - [x] `TSRecv::AddEntryBlocking` · 0065b480 · legions 00609d90
 - [x] `TSRecv::AddAndCheck` · 0065b5b0 · legions 00609ec0
 
-## `portal/shared/src/utils/argparser.cpp.c` (1/13)
+## `portal/shared/src/utils/argparser.cpp.c` (3/13)
 
 ### ArgumentParser
 - [-] `ArgumentParser::AppendOutputText` · 0065b5e0 · legions 00609ef0 — console usage text for the command-line parser (admin/tool output)
 
 ### (free functions)
-- [ ] `SortCommandLineArgs` · 0065b610 — needs port (check): implemented as ac2-client bin/ac2/cmdline.rs but uncited (cites ParseArgs)
+- [-] `SortCommandLineArgs` · 0065b610 — not needed:  [no callers, no Legions address (0065b610 admin-only)]
 
 ### CommandLineArg
 - [-] `CommandLineArg::operator=` · 0065b6c0 · legions 00609fd0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 - [-] `CommandLineArg::CommandLineArg` · 0065b760 · legions 0060a070 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### ArgumentParser
-- [~] `ArgumentParser::EvaluateCommandLineArg` · 0065b7a0 · legions 0060a0b0 — ac2 bin cmdline.rs: value types 0x22 (strtol base 0, ac2-net parse_port) and 0x32 (string)
+- [x] `ArgumentParser::EvaluateCommandLineArg` · 0065b7a0 · legions 0060a0b0 — audit: covered: value types 0x22 and 0x32 [ac2-client/src/bin/ac2/cmdline.rs:3; ac2-net/src/resolve.rs:18]
 - [x] `ArgumentParser::IsCommandLineArgument` · 0065b9b0 · legions 0060a2c0 — ac2-client cmdline.rs argument_name / ac2-net resolve.rs inet_addr then DNS, IPv4
 - [-] `ArgumentParser::DisplayUsage` · 0065bce0 · legions 0060a610 — console usage text for the command-line parser (admin/tool output)
 - [-] `ArgumentParser::AppendAndWordWrap` · 0065bf50 · legions 0060a880 — console usage text for the command-line parser (admin/tool output)
 
 ### (free functions)
-- [ ] `ConvertCommandLineToArgList` · 0065c0e0 · legions 0060aa10 — needs port (check): implemented as ac2-client bin/ac2/cmdline.rs but uncited (cites ParseArgs)
+- [-] `ConvertCommandLineToArgList` · 0065c0e0 · legions 0060aa10 — replaced by design: OS argv replaces splitting a Windows command line string [std::env::args supplies the argument list (ac2-client/src/bin/ac2/cmdline.rs:3 parse_from)]
 
 ### ArgumentParser
-- [ ] `ArgumentParser::ParseCommandLine` · 0065c1a0 · legions 0060aad0 — needs port (check): implemented as ac2-client bin/ac2/cmdline.rs but uncited (cites ParseArgs)
+- [-] `ArgumentParser::ParseCommandLine` · 0065c1a0 · legions 0060aad0 — replaced by design: OS argv replaces splitting a Windows command line string [std::env::args supplies the argument list (ac2-client/src/bin/ac2/cmdline.rs:3 parse_from)]
 
 ### ArgumentParser::CommandLineArgList
 - [-] `ArgumentParser::CommandLineArgList::add` · 0065c520 · legions 0060ae50 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 - [-] `ArgumentParser::CommandLineArgList::~CommandLineArgList` · 0065c640 · legions 0060af70 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### ArgumentParser
-- [~] `ArgumentParser::ParseArgs` · 0065c6c0 · legions 0060aff0 — ac2 bin cmdline.rs parse_from: -/ prefixes, short and long names, optional rodat value
+- [x] `ArgumentParser::ParseArgs` · 0065c6c0 · legions 0060aff0 — audit: covered:  [ac2-client/src/bin/ac2/cmdline.rs:3-8]
 
 ## `portal/shared/src/utils/checksum.cpp.c` (1/1)
 
@@ -1095,7 +1095,7 @@ Legend and workflow: [README](README.md).
 - [-] `PSUtils::strip_directory` · 0065e0b0 · legions 0060c9e0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 - [-] `PSUtils::change_directory` · 0065e180 · legions 0060cab0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 - [-] `PSUtils::GetEnvironmentPath` · 0065e350 · legions 0060cc80 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
-- [ ] `PSUtils::linewrap_string` · 0065e4b0 · legions 0060cde0 — needs port (check): unwrap_string / linewrap_string text rule, no Rust counterpart found
+- [-] `PSUtils::linewrap_string` · 0065e4b0 · legions 0060cde0 — not needed:  [callers FileNodeName_Binary::ToPString [-], PFileNode::ConvertName/GetBinaryName (tool, no Legions address)]
 - [-] `PSUtils::MakeCFriendlySymbol` · 0065e5a0 · legions 0060ced0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 - [-] `PSUtils::find_files` · 0065e750 · legions 0060d080 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 - [-] `PSUtils::narrowify` · 0065ea40 · legions 0060d370 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
@@ -1109,7 +1109,7 @@ Legend and workflow: [README](README.md).
 - [-] `PSUtils::cleanup_filename` · 0065ef20 · legions 0060d850 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 - [-] `PSUtils::cleanup_directory_name` · 0065efc0 · legions 0060d8f0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 - [-] `PSUtils::cleanup_directory_nameW` · 0065f020 · legions 0060d950 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
-- [ ] `PSUtils::unwrap_string` · 0065f0d0 · legions 0060da00 — needs port (check): unwrap_string / linewrap_string text rule, no Rust counterpart found
+- [-] `PSUtils::unwrap_string` · 0065f0d0 · legions 0060da00 — not needed:  [callers FileNodeName_Binary::ToPString [-], PFileNode::ConvertName/GetBinaryName (tool, no Legions address)]
 - [x] `PSUtils::full_path` · 0065f120 · legions 0060da50 — crates/ac2-prefs/src/paths.rs (PSUtils::full_path against the working directory)
 - [-] `PSUtils::create_directory` · 0065f180 · legions 0060dab0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 

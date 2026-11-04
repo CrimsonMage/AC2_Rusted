@@ -84,7 +84,7 @@ fn multiply(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
 
 /// `Quaternion::rotate`: turn `q` by the rotation vector `v` (axis times angle in radians);
 /// `None` (unchanged) under `F_EPSILON`.
-fn rotate(q: [f32; 4], v: [f32; 3]) -> Option<[f32; 4]> {
+pub(super) fn rotate(q: [f32; 4], v: [f32; 3]) -> Option<[f32; 4]> {
     let [x, y, z] = v.map(f64::from);
     let norm = z * z + y * y + x * x;
     let epsilon = f64::from(F_EPSILON);

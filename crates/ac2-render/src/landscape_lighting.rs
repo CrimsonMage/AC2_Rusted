@@ -30,6 +30,9 @@ struct Final {
 }
 
 impl Final {
+    /// The day's values (`LScapeRender::SetDayLighting` and `SetDayFog`, forwarded to
+    /// `LScapeLighting`, then `LScapeRender::UpdateLightingInfo` -> `LScapeLighting::UpdateInfo`),
+    /// read from the sky's sample each frame.
     fn from_sky(sample: &SkyEnvironmentSample) -> Self {
         let fog = sample.world_fog();
         Self {

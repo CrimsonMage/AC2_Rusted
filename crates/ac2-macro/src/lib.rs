@@ -4,5 +4,8 @@
 //! nothing and send nothing to the server.
 //!
 //! - `tracker`: named-object detection (Virindi Sense's pattern list and behaviour).
+//! - `automation`: the automatic tools (auto-butcher, auto-rebuff), which act only through the
+//!   player's own gestures, carried out by the client.
 
+pub mod automation;
 pub mod tracker;

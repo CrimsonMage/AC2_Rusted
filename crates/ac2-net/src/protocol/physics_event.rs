@@ -33,7 +33,8 @@ pub enum ObjectAction {
         fx: u32,
         scalar: f32,
     },
-    /// `0x100A2`: FX id, scalar and target.
+    /// `0x100A2`: FX id, scalar and target (`ECM_Physics::RecvEvt_DoTargettedFX`, Legions
+    /// 0x0048DEE0, hands them to the object's `CPhysicsObj` FX call).
     DoTargettedFx {
         fx: u32,
         scalar: f32,

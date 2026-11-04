@@ -92,6 +92,7 @@ fn styled(style: Style, measures: i32) -> Arc<LoadedMusic> {
 
 pub(super) fn info(kind: SegmentKind, handle: u32, music: &Arc<LoadedMusic>) -> SegmentInfo {
     SegmentInfo {
+        start: crate::sink::Boundary::Immediate,
         kind,
         handle,
         segment: Arc::clone(music),

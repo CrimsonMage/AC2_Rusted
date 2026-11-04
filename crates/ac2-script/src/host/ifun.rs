@@ -77,6 +77,9 @@ pub enum IFunReturn {
     Word,
     /// `ulong64 *retval`: two words, low word deeper.
     Long,
+    /// One word the function leaves a reference in, read back as a wide string
+    /// (`CWInterface::DoHelpInterp`: a `wpstring`, native type 0x76, else nothing).
+    Text,
 }
 
 /// How a UI call ended: its return value and its out parameters' values, in parameter order
@@ -86,6 +89,8 @@ pub struct IFunResult {
     pub outcome: DispatchOutcome,
     pub retval: u64,
     pub outs: Vec<Option<OutValue>>,
+    /// An [`IFunReturn::Text`] call's string, when its return slot names a `wpstring`.
+    pub ret_text: Option<String>,
 }
 
 impl IFunResult {
@@ -166,7 +171,7 @@ impl ScriptHost {
         }
         let ret_slot = ctx.sp;
         match ret {
-            IFunReturn::Word => ctx.push(0, tag::INT).map_err(bad)?,
+            IFunReturn::Word | IFunReturn::Text => ctx.push(0, tag::INT).map_err(bad)?,
             IFunReturn::Long => {
                 ctx.push(0, tag::LONG_INT).map_err(bad)?;
                 ctx.push(0, tag::LONG_INT).map_err(bad)?;
@@ -218,9 +223,18 @@ impl ScriptHost {
         let status = self.vm.call_ifun(&mut ctx, pkg, FunctionId(function));
         let word = |n: usize| ctx.slot(n).map_or(0, |(v, _)| v);
         let retval = match ret {
-            IFunReturn::Word => u64::from(word(ret_slot)),
+            IFunReturn::Word | IFunReturn::Text => u64::from(word(ret_slot)),
             IFunReturn::Long => u64::from(word(ret_slot)) | u64::from(word(ret_slot + 1)) << 32,
         };
+        let ret_text = (ret == IFunReturn::Text)
+            .then(|| match self.vm.refs.heap(retval as u32) {
+                Ok(o) if o.native_type == ntype::WPSTRING => match &o.native {
+                    Some(NativeObject::WString(s)) => Some(String::from_utf16_lossy(s)),
+                    _ => None,
+                },
+                _ => None,
+            })
+            .flatten();
         let outs = args
             .iter()
             .enumerate()
@@ -245,6 +259,7 @@ impl ScriptHost {
             outcome,
             retval,
             outs,
+            ret_text,
         })
     }
 

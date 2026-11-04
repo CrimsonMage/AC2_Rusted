@@ -26,7 +26,8 @@ const TAIL_BYTES: usize = 16 + 16 + 18 * 4 + 4 + 4 + 24;
 /// `CharacterSetup::UnPack` flag bit stored as `allow_free_heading`.
 const FLAG_ALLOW_FREE_HEADING: u32 = 0x4;
 
-/// An upright collision cylinder in Setup space.
+/// An upright collision cylinder in Setup space (`Cylsphere::StreamPack`: `low_pt`, `radius`,
+/// `height`, five floats).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Ac2CylSphere {
     pub low_point: Vec3,

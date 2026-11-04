@@ -11,6 +11,7 @@
 //! maps the requests it returns to gameplay commands ([`crate::hud_request`]).
 
 use std::cell::RefCell;
+use std::sync::Arc;
 
 use ac2_net::protocol::ExaminationRequest;
 use ac2_script::host::ScriptNotice;
@@ -174,6 +175,17 @@ impl HudView {
             )
         });
         self.tracker_frame(frame, tracker, &mut out.commands);
+        let (automation, requests): (Vec<_>, Vec<_>) = requests
+            .into_iter()
+            .partition(|r| matches!(r, ac2_ui::HudRequest::Automation(_)));
+        let changes = automation
+            .into_iter()
+            .filter_map(|r| match r {
+                ac2_ui::HudRequest::Automation(change) => Some(change),
+                _ => None,
+            })
+            .collect();
+        self.automation_frame(player.as_ref(), frame, changes);
         hud_request_commands(requests, &mut out);
         self.panels.quit_requested |= out.quit;
         // The examination panel, the help topics and the tells (`FellowshipHelper`).
@@ -236,12 +248,19 @@ pub(crate) fn name_looks(
         .filter(|b| b.shape != NO_NAME_SHAPE)
         .filter_map(|b| {
             let object = frame.objects.iter().find(|o| o.id == b.id)?;
+            let name: Arc<str> = match (&object.stack_name, player) {
+                (Some(stack), Some(player)) => player.render_info(stack).into(),
+                _ => object.name.clone()?,
+            };
+            // The hit chance after the name, while the player shows it (`frame.hit_chances` is
+            // empty otherwise).
+            let name = match frame.hit_chances.get(&b.id) {
+                Some(&percent) => ac2_ui::hit_chance_pref::plate_text(&name, Some(percent)).into(),
+                None => name,
+            };
             Some(ac2_ui::NameLook {
                 id: b.id,
-                name: match (&object.stack_name, player) {
-                    (Some(stack), Some(player)) => player.render_info(stack).into(),
-                    _ => object.name.clone()?,
-                },
+                name,
                 color: b.color,
             })
         })

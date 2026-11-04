@@ -133,7 +133,8 @@ impl DatEvent {
 }
 
 /// `CCliDatInterrogationResponseEvent::CreateData`: language, then `CAllIterationList` (a count
-/// of DAT files, each its id and iteration set).
+/// of DAT files, each its id and iteration set: `PSmartArray<CAllIterationList::
+/// PTaggedIterationList>::StreamPack`, admin 0x004C14B0, Legions 0x004B5910).
 pub fn interrogation_response(language: u32, lists: &[(u64, Vec<i32>)]) -> Vec<u8> {
     let mut w = Writer::event(Opcode::DAT_INTERROGATION_RESPONSE);
     w.u32(language).u32(lists.len() as u32);

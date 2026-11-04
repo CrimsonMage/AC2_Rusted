@@ -322,7 +322,9 @@ impl ContinSoundManager {
             }
             self.objects[0].init(sum.map(|v| (f64::from(v) * 10.0) as f32), density);
         } else {
-            // The four-copy spread (bit 0x10) is used by no Legions sound.
+            // The four-copy spread (bit 0x10, `ContinSoundManager::CalcHeight` / `CalcAngleSum`) is
+            // not reached: no 3D continuous sound is in the 7160 or 7230 region (the one
+            // `CSoundDesc`, 0x10000000; `the_region_sound_desc_decodes`).
             for object in &mut self.objects {
                 object.init([0.0; 3], density);
             }
@@ -392,8 +394,12 @@ impl IntermitObject {
         false
     }
 
-    /// `IntermitObject::Play`: unless still playing, a place picked around the viewer
-    /// (`GetIntermitLoc`, raised by `CalcHeight`), then `Play_Internal` at the sound's volume.
+    /// `IntermitObject::Play` (Legions 0x006AAAA0): unless still playing, a place picked around
+    /// the viewer (`GetIntermitLoc`, raised by `CalcHeight`), a pitch rolled between
+    /// `m_min_pitch` and `m_max_pitch`, `Play_Internal` at the sound's volume times `volume`,
+    /// then, when the pitch is more than 0.0002 from 1, `SetTempo_Internal(pitch)`:
+    /// `IntermitSoundObject::SetTempo_Internal` (Legions 0x006AB0E0) sets the playing sound's
+    /// frequency; `IntermitMusicObject`'s slot is an empty stub (Legions 0x00401BA0).
     pub fn play(&mut self, volume: f32, manager: &mut SoundManager, random: &mut Random) {
         if self.handle != 0 && !manager.has_sound_finished(self.handle) {
             return;
@@ -403,7 +409,7 @@ impl IntermitObject {
         let height = random.roll_dice_f32(self.info.max_pitch, self.info.min_height);
         offset[2] = (f64::from(offset[2]) + f64::from(height)) as f32;
         self.offset = offset;
-        random.roll_dice_f32(self.info.min_pitch, self.info.max_pitch);
+        let pitch = random.roll_dice_f32(self.info.min_pitch, self.info.max_pitch);
         let mut data = PlaySoundData::new(self.info.sound);
         data.emitter = Some(self.emitter);
         data.volume = (f64::from(self.info.volume) * f64::from(volume)) as f32;
@@ -415,6 +421,9 @@ impl IntermitObject {
         }
         if let Some(handle) = manager.play(&data) {
             self.handle = handle;
+            if !self.info.test(2) && (f64::from(pitch) - 1.0).abs() > 0.0002 {
+                manager.set_frequency(handle, pitch);
+            }
         }
     }
 }

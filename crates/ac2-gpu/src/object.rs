@@ -145,6 +145,8 @@ struct GpuPart {
     degrades: Option<Arc<PartDegrades>>,
     /// The mesh carries matrix weights.
     weighted: bool,
+    /// `CGfxObj::mesh_type` (`ObjectInstance::hidden_mesh_types` leaves such parts out).
+    mesh_type: u32,
     /// The buffers were made by `set_geometry` (`COPY_DST`, power-of-two capacity) and are
     /// refilled in place from then on.
     streamed: bool,
@@ -258,6 +260,10 @@ pub struct ObjectInstance<'a> {
     pub detail: DrawDetail,
     /// Where it stood on the previous frame, for the temporal resolve's motion vectors.
     pub previous: Previous<'a>,
+    /// Parts of these mesh types are not drawn (`CBaseMesh::DrawMesh` under
+    /// `HACK_bDrawingFirstPersonPlayer`: the first-person player's head, beard, crest and totem).
+    /// Only the world pass's instances set it; the sun casters keep every part.
+    pub hidden_mesh_types: &'a [u32],
 }
 
 impl<'a> ObjectInstance<'a> {
@@ -274,6 +280,7 @@ impl<'a> ObjectInstance<'a> {
             pose: None,
             detail: DrawDetail::FULL,
             previous: Previous::Static,
+            hidden_mesh_types: &[],
         }
     }
 }

@@ -438,7 +438,9 @@ impl Emitter {
             _ => {}
         }
         if self.flags & flag::ROTATE_VELOCITY != 0 {
-            let turned = p.rotate_velocity * relative;
+            // The turn runs over the particle's whole life (`fTimeAlive`), not the time since
+            // its controller key (Legions 0x005974D0).
+            let turned = p.rotate_velocity * time_alive;
             if self.flags & flag::ROTATION != 0 {
                 p.rotation = p.start_rotation + turned;
             }

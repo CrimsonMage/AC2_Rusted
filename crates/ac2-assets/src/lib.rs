@@ -81,8 +81,8 @@ pub use ac2_appearance::{
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_drawn_groups::{
-    ac2_total_icon_desc, drawn_groups, holding_search_order, resolve_drawn_groups,
-    rest_named_bones, total_visual_desc, DrawnGroup,
+    ac2_icon_desc_parts, ac2_total_icon_desc, drawn_groups, holding_search_order,
+    resolve_drawn_groups, rest_named_bones, total_visual_desc, DrawnGroup,
 };
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
 pub use ac2_fx::Ac2FxSoundNode;
@@ -100,7 +100,7 @@ pub use ac2_material::{
     Ac2LayerLighting, Ac2LayerModifier, Ac2LayerStage, Ac2MaterialLayer, Ac2RenderMaterial,
     Ac2Waveform,
 };
-pub use ac2_material_instance::load_ac2_material;
+pub use ac2_material_instance::{ac2_material_uses_particle_lighting, load_ac2_material};
 pub use ac2_mesh::{Ac2Mesh, Ac2MeshFragment};
 pub use ac2_particle_desc::{
     Ac2ParticleEmitterDesc, Ac2ParticleKeyframe, Ac2ParticleSystemDesc, Ac2WaveformVec3,

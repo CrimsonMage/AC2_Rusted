@@ -228,6 +228,7 @@ impl Walk {
                 })
             }),
             hidden: false,
+            hidden_mesh_types: Vec::new(),
             anim_scale: player.physics.draw_scale(),
             child_scale: player.physics.child_scale(),
         })

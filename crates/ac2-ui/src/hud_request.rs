@@ -42,6 +42,8 @@ pub enum HudRequest {
     Marker(crate::MarkerRequest),
     /// The Tracker window: a pattern added or removed, a match picked or dismissed, a reload.
     Tracker(crate::tracker_ui::TrackerRequest),
+    /// The automatic tools' settings window: a setting changed.
+    Automation(ac2_macro::automation::Change),
     /// A press on a map coordinate in chat: the floating arrow points there (north, east).
     PointAt { north: f32, east: f32 },
     /// A press on read-only text (the chat log): the line and the column it landed on.

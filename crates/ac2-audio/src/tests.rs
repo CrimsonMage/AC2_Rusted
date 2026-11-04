@@ -414,3 +414,56 @@ fn spatial_gains_roll_off_and_pan() {
     let [l, r] = gains([3.0, 0.0, 0.0]);
     assert!(l.abs() < 1e-6 && r > 0.9, "to the right");
 }
+
+#[test]
+fn the_groove_reaches_the_device_once_per_level_and_not_while_disabled() {
+    let (mut manager, sink) = manager(Vec::new());
+    let grooves = |sink: &RecordingSink| {
+        sink.commands()
+            .into_iter()
+            .filter_map(|c| match c {
+                SinkCommand::Groove { level } => Some(level),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+    };
+    // `DirectXSoundDevice::SetGrooveLevel`: a level equal to `m_nCurrentGroove` is not sent.
+    manager.set_groove_level(20);
+    manager.set_groove_level(20);
+    manager.tweak_groove_level(0);
+    assert_eq!(grooves(&sink), vec![20]);
+    // A disabled device takes nothing and keeps nothing.
+    manager.set_preference(SoundPreference::DisableSound(true));
+    manager.set_groove_level(50);
+    assert_eq!(grooves(&sink), vec![20]);
+    assert_eq!(manager.music().groove_level(), 20);
+    manager.set_preference(SoundPreference::DisableSound(false));
+    manager.set_groove_level(50);
+    assert_eq!(grooves(&sink), vec![20, 50]);
+    assert_eq!(manager.groove_level(), (50, 0));
+}
+
+#[test]
+fn a_playing_wave_takes_a_frequency_scaled_from_its_buffers_rate() {
+    let did = 0x2A00_0021;
+    let (mut manager, sink) = manager(vec![sound(did, flags::LOOP, 1.0, 22050, 1.0)]);
+    let handle = manager.play(&PlaySoundData::new(did)).unwrap();
+    // `DirectXPlayingSound::SetFrequency` before the buffer exists fails.
+    assert!(!manager.set_frequency(handle, 1.5));
+    assert!(manager.wait_for_loads(WAIT));
+    manager.use_time(0.0);
+    let frequencies = |sink: &RecordingSink| {
+        sink.commands()
+            .into_iter()
+            .filter_map(|c| match c {
+                SinkCommand::Frequency { voice, frequency } => Some((voice, frequency)),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+    };
+    assert!(manager.set_frequency(handle, 1.5));
+    // Within 0.0002 of the current modulation: nothing is sent.
+    assert!(manager.set_frequency(handle, 1.5001));
+    assert!(!manager.set_frequency(handle, -1.0));
+    assert_eq!(frequencies(&sink), vec![(handle, 33075)]);
+}

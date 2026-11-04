@@ -1,7 +1,9 @@
 //! A pool of loader threads (retail `DBCache`'s asynchronous gets): the caller queues requests,
 //! the workers run the work function on each (every DAT read and decode belongs there, never on
 //! the caller's thread), and the caller drains finished results on its own thread, in arrival
-//! order, within whatever budget it keeps.
+//! order, within whatever budget it keeps. A worker's step is `CLCache::WorkerExecuteRequest`
+//! (Legions 0x004B3320) for a get: `ThreadedCache::WorkerExecuteRequest`; its other operation
+//! (3, `WorkerExecuteBeginDDDRequest`) is the data download this client does not take.
 //!
 //! # DAT-reading threads
 //!

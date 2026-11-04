@@ -31,6 +31,9 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO_2,
     ac2_net::protocol::script_function::DISPLAY_TEXT,
     ac2_net::protocol::script_function::INIT_PLAYER,
+    // `CWInterface::PreloadWSLSingletons` as the player object is made
+    // (`SmartBox::RecvNotice_CreatePlayerObject`).
+    ac2_script::host::lifecycle::lifecycle_ifun::PRELOAD_WSL_SINGLETONS,
     ac2_net::protocol::script_function::UPDATE_SELECTION_INFO,
     IFUN_SET_SELECTION,
     // `gmCWInterface::UseSelection` (`CPlayer` 0x79 -> `CUsageSystem` 0x9) and the server's
@@ -116,8 +119,22 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::TRADE_ACCEPTANCE_CLEARED_ALT,
     ac2_net::protocol::script_function::TRADE_OFFERED,
     ac2_net::protocol::script_function::TRADE_REVOKED,
-    // `gmCWInterface::AcceptTrade` (its IFun packs the accepting instance for the stub).
+    // `gmCWInterface::AcceptTrade` (its IFun packs the accepting instance for the stub) and the
+    // other trade window calls, each the player's script's IFun.
     IFUN_ACCEPT_TRADE,
+    IFUN_OPEN_TRADE,
+    IFUN_CLOSE_TRADE,
+    IFUN_DECLINE_TRADE,
+    IFUN_OFFER_ITEM_FOR_TRADE,
+    IFUN_REVOKE_ITEM_FROM_TRADE,
+    // The money bag (`gmCWInterface::DragToMoneyBag` / `DragFromMoneyBag`, their IFuns on the
+    // player's script: `CMoneySystem` 0x4 / 0x5 check the drag against the script's money and
+    // send `WM_Money` 0x7 / 0x8) and the server's answers (`WM_Money` 0x6 -> `CPlayer` 0x12F,
+    // 0x9 -> `CPlayer` 0x38).
+    IFUN_DRAG_TO_MONEY_BAG,
+    IFUN_DRAG_FROM_MONEY_BAG,
+    0x820F_0006,
+    0x820F_0009,
     // The store's `WM_Store` forwarders (`CPlayer` -> `CStoreSystem` -> `CM_Store::SendNotice_*`).
     ac2_net::protocol::script_function::STORE_VIEW,
     ac2_net::protocol::script_function::STORE_UPDATE,
@@ -333,7 +350,18 @@ impl Client {
     /// session's shell runs what it knows, and a command a script registered (`AddShellCmd`)
     /// runs that script function (`CWInterface::DoCmdInterp`).
     pub(crate) fn chat_line(&mut self, line: &str) -> Vec<SessionEvent> {
-        let events = self.session.process_text(line);
+        // `CWInterface::ProcessText`: an expandable line's `;alias` tokens go through
+        // `gmCWInterface::ExpandText`, each asked of the player's script (`CallIFun_InqAlias`),
+        // whose options profile holds the aliases `/alias` made.
+        let events = if self.scripts.is_some() && self.session.chat_expandable(line) {
+            let expanded = ac2_weenie::expand_text(line, &mut |alias| {
+                use ac2_script::host::interface_calls::InterfaceCalls;
+                self.inq_alias(alias).ok().flatten()
+            });
+            self.session.process_text_expanded(line, &expanded)
+        } else {
+            self.session.process_text(line)
+        };
         ac2_script::host::shell::run_script_commands(self, events)
     }
 
@@ -415,11 +443,34 @@ impl Client {
         self.script_outcome(id, None, result, out);
     }
 
-    /// Whether the scripts set `id`'s physics object no-draw (`CPhysicsObj::is_nodraw`).
+    /// Whether `id`'s physics object is no-draw (`CPhysicsObj::is_nodraw`): set by the scripts
+    /// (`SetNoDrawPhysics`) or by its weenie description (`HandleSetWeenieDesc`).
     pub fn is_no_draw(&self, id: u64) -> bool {
-        self.scripts
-            .as_ref()
-            .is_some_and(|s| s.no_draw.contains(&id))
+        match &self.scripts {
+            Some(s) => s.no_draw.contains(&id),
+            None => self.no_draw.contains(&id),
+        }
+    }
+
+    /// `CWPhysicsObject::SetNoDrawPhysics` -> `CPhysicsObj::set_nodraw` (the state's 0x10 bit).
+    pub(crate) fn set_no_draw(&mut self, id: u64, no_draw: bool) {
+        let set = match &mut self.scripts {
+            Some(s) => &mut s.no_draw,
+            None => &mut self.no_draw,
+        };
+        if no_draw {
+            set.insert(id);
+        } else {
+            set.remove(&id);
+        }
+    }
+
+    /// Every no-draw physics object (`CPhysicsObj::Draw` skips them).
+    pub(crate) fn no_draw_objects(&self) -> std::collections::BTreeSet<u64> {
+        match &self.scripts {
+            Some(s) => s.no_draw.clone(),
+            None => self.no_draw.clone(),
+        }
     }
 
     /// Whether the UI's IFun (or server call) `function` is the script VM's

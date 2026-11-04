@@ -75,6 +75,8 @@ pub(crate) struct FillContext<'a> {
     pub system_start: f64,
     /// Where a system that keeps its particles relative to itself stands.
     pub placement: Option<Vec3>,
+    /// The lights of a lit system (`FillVertexBuffer`'s `_lighting == Light`); `None` unlit.
+    pub lights: Option<&'a [super::ParticleLight]>,
 }
 
 /// `FillVerts::GetVertexPositions`: the quad's corners about `position` (view space).
@@ -90,6 +92,12 @@ fn quad(position: Vec3, scale_x: f32, scale_y: f32) -> [Vec3; 4] {
 
 /// `FillVerts::GetStreakedVertexPositions`: the quad stretched from the particle to its streak
 /// origin (both in view space), its corners picked by the streak's direction on the screen.
+///
+/// The source tested `|u.x| > cos 22.5 || |u.x| < sin 22.5` to pick a diagonal layout, but the
+/// shipped code (Legions 0x00594030, reached through `FillVertexBuffer`'s function pointer)
+/// jumps to the axis layouts when `|u.x| <= 0.9238795` and again when it is above
+/// `0.3826834`, so the diagonal layouts are never reached: every streak takes the axis layout of
+/// its larger component.
 fn streaked(position: Vec3, streak: Vec3, scale_x: f32, scale_y: f32) -> [Vec3; 4] {
     let (hx, hy) = (scale_x * 0.5, scale_y * 0.5);
     let (dx, dz) = (position.x - streak.x, position.z - streak.z);
@@ -99,65 +107,36 @@ fn streaked(position: Vec3, streak: Vec3, scale_x: f32, scale_y: f32) -> [Vec3; 
     }
     let (ux, uz) = (dx / length, dz / length);
     let at = |origin: Vec3, x: f32, z: f32| Vec3::new(origin.x + x, origin.y, origin.z + z);
-    let ax = ux.abs();
-    if ax > 0.923_879_5 || ax < 0.382_683_4 {
-        if ax <= uz.abs() {
-            if uz > 0.0 {
-                [
-                    at(position, hx, hy),
-                    at(position, -hx, hy),
-                    at(streak, -hx, -hy),
-                    at(streak, hx, -hy),
-                ]
-            } else {
-                [
-                    at(position, hx, -hy),
-                    at(position, -hx, -hy),
-                    at(streak, -hx, hy),
-                    at(streak, hx, hy),
-                ]
-            }
-        } else if ux <= 0.0 {
+    if ux.abs() <= uz.abs() {
+        if uz > 0.0 {
             [
+                at(position, hx, hy),
                 at(position, -hx, hy),
-                at(position, -hx, -hy),
+                at(streak, -hx, -hy),
                 at(streak, hx, -hy),
-                at(streak, hx, hy),
             ]
         } else {
             [
-                at(position, hx, hy),
                 at(position, hx, -hy),
-                at(streak, -hx, -hy),
+                at(position, -hx, -hy),
                 at(streak, -hx, hy),
+                at(streak, hx, hy),
             ]
         }
+    } else if ux <= 0.0 {
+        [
+            at(position, -hx, hy),
+            at(position, -hx, -hy),
+            at(streak, hx, -hy),
+            at(streak, hx, hy),
+        ]
     } else {
-        // A diagonal streak: the signs of its two components, zero counting as one class.
-        let class = |u: f32| {
-            if u.abs() < EPSILON {
-                0
-            } else if u <= 0.0 {
-                2
-            } else {
-                1
-            }
-        };
-        if class(ux) == class(uz) {
-            [
-                at(position, hx, -hy),
-                at(position, -hx, hy),
-                at(streak, -hx, hy),
-                at(streak, hx, -hy),
-            ]
-        } else {
-            [
-                at(position, hx, hy),
-                at(position, -hx, -hy),
-                at(streak, -hx, -hy),
-                at(streak, hx, hy),
-            ]
-        }
+        [
+            at(position, hx, hy),
+            at(position, hx, -hy),
+            at(streak, -hx, -hy),
+            at(streak, -hx, hy),
+        ]
     }
 }
 
@@ -288,6 +267,7 @@ impl Emitter {
             if self.flags & flag::WORLD_ORIGIN != 0 {
                 origin = (origin - p.world_origin) * context.scale + p.world_origin;
             }
+            let lit_origin = origin;
             // A system that keeps its particles about itself is placed by translation alone.
             let place = context.placement.unwrap_or(Vec3::ZERO);
             let origin = origin
@@ -304,6 +284,13 @@ impl Emitter {
                     Vec3::ONE
                 }
                 + place;
+            if let Some(lights) = context.lights {
+                // `GetLighting(m_cellID, aLights, vOrigin, vLightingOrigin)`: the particle's
+                // origin (after the world-origin scale) plus `GetLightingOrigin`, the system's
+                // place for one that keeps its particles about itself.
+                let at = lit_origin + context.placement.unwrap_or(Vec3::ZERO);
+                super::lighting::light_particle(lights, at, &mut color);
+            }
             let center = basis.view_of(origin);
             color[3] *= context.alpha;
             let color = color.map(|c| c.clamp(0.0, 1.0));
@@ -342,5 +329,32 @@ impl Emitter {
                     .extend_from_slice(&[first, first + 2, first + 3]);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A diagonal streak (up and right at 45 degrees) takes the axis layout of the vertical:
+    /// the shipped `GetStreakedVertexPositions` never reaches its diagonal layouts.
+    #[test]
+    fn a_diagonal_streak_takes_the_axis_layout() {
+        let position = Vec3::new(1.0, 5.0, 1.0);
+        let streak = Vec3::new(0.0, 5.0, 0.0);
+        let corners = streaked(position, streak, 2.0, 2.0);
+        assert_eq!(
+            corners,
+            [
+                Vec3::new(2.0, 5.0, 2.0),
+                Vec3::new(0.0, 5.0, 2.0),
+                Vec3::new(-1.0, 5.0, -1.0),
+                Vec3::new(1.0, 5.0, -1.0),
+            ]
+        );
+        // Mostly right: the horizontal layout.
+        let corners = streaked(Vec3::new(2.0, 5.0, 1.0), streak, 2.0, 2.0);
+        assert_eq!(corners[0], Vec3::new(3.0, 5.0, 2.0));
+        assert_eq!(corners[1], Vec3::new(3.0, 5.0, 0.0));
     }
 }

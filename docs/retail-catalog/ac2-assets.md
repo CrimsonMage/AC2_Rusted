@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 208 done, 6 partial, 0 to do, 571 skipped.
+785 retail functions: 214 done, 0 partial, 0 to do, 571 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (29/62)
@@ -73,7 +73,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmWeenieDesc::RemoveString` · 00603c00 — vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
 - [-] `gmWeenieDesc::Dump` · 00603c60 · legions 005c4b40 — debug dump of the description's fields (Legions 0x005C4B40); no client caller outside tools
 
-## `portal/client/src/image/graphic.cpp.c` (6/12)
+## `portal/client/src/image/graphic.cpp.c` (7/12)
 
 ### RenderSurfaceLocal
 - [x] `RenderSurfaceLocal::GetGlobalOrLocal` · 00568050 · legions 00537fe0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -90,7 +90,7 @@ Legend and workflow: [README](README.md).
 - [x] `Box2D::Intersection` · 005682d0 · legions 00538260 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 
 ### Graphic
-- [~] `Graphic::Graphic` · 00568380 · legions 00538310 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `Graphic::Graphic` · 00568380 · legions 00538310 — audit: covered: Catalog note stale: Fade transitions exist; Graphic is ac2-ui element + compositor [crates/ac2-ui/src/transition.rs:85; crates/ac2-ui/src/compose.rs]
 - [-] `Graphic::Graphic` · 00568430 · legions 005383c0 — ctor/dtor of plain data; Rust constructs and drops values
 - [x] `Graphic::Draw` · 00568470 · legions 00538400 — ac2-ui compose.rs / element.rs set_image
 - [x] `Graphic::InitFromIconLayerDesc` · 00568920 · legions 005388b0 — ac2-ui icon_desc.rs: set_icon_desc keeps the layers, compose.rs draws their composite (the first layer copied and multiplied by its shift colour, each later one multiplied and alpha-blended over it, blit 0x14); a first layer with no image leaves the element as it was, a later one is left out; image_files asks for every layer; used by the item displays, the 3D items panel and the new-sale icon; icon_desc_tests (on the DAT 4049 of 4612 layers are white, 62 null)
@@ -617,7 +617,7 @@ Legend and workflow: [README](README.md).
 - [-] `LinkRequirements::LinkRequirements` · 006185f0 · legions 005d4fd0 — ctor/dtor of plain data; Rust constructs and drops values
 - [-] `LinkRequirements::StreamPack` · 00618610 · legions 005d4ff0 — EntityGroupDesc/EntityLinkDesc/LinkRequirements are authoring-side entity group records: the client never loads an entity group; the script reads link requirements through ac2-script glue data_bags.rs (LinkRequirements native) and no DAT record of these types is read
 
-## `portal/shared/src/mesh/basemesh.cpp.c` (8/50)
+## `portal/shared/src/mesh/basemesh.cpp.c` (10/50)
 
 ### CMeshTriList
 - [-] `CMeshTriList::GetMeshFragment` · 004cfbe0 · legions 004c3db0 — accessor of a Rust typed field
@@ -654,7 +654,7 @@ Legend and workflow: [README](README.md).
 - [-] `CBaseMesh::InitVertexArray` · 004cff60 · legions 004c4140 — D3D vertex buffer plumbing; ac2-gpu owns buffers
 - [-] `CBaseMesh::SetMaterial` · 004cfff0 · legions 004c41d0 — mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 - [-] `CBaseMesh::SetMaterialID` · 004d0050 · legions 004c4230 — mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
-- [~] `CBaseMesh::DrawMeshDegrade` · 004d0080 · legions 004c4260 — ac2-gpu object_prepare: the chosen degrade's batch run (PartDegrades::drawn) over one vertex/index buffer per part
+- [x] `CBaseMesh::DrawMeshDegrade` · 004d0080 · legions 004c4260 — audit: covered: Forced detail levels are tool overrides (not needed) [ac2-render DegradeLists::select; crates/ac2-gpu/src/object_prepare.rs]
 - [-] `CBaseMesh::GenerateLocalIndices` · 004d0320 · legions 004c44d0 — stencil shadow-volume data (connectivity, triangle and local index tables): its only non-draw caller is SceneTool::GenerateGlobalShadowVolume (a tool); the single modern pass has no stencil volumes
 - [-] `CBaseMesh::GenerateTriangleData` · 004d0530 · legions 004c46e0 — stencil shadow-volume data (connectivity, triangle and local index tables): its only non-draw caller is SceneTool::GenerateGlobalShadowVolume (a tool); the single modern pass has no stencil volumes
 - [-] `CBaseMesh::GenerateConnectivityData` · 004d0820 · legions 004c49d0 — stencil shadow-volume data (connectivity, triangle and local index tables): its only non-draw caller is SceneTool::GenerateGlobalShadowVolume (a tool); the single modern pass has no stencil volumes
@@ -670,7 +670,7 @@ Legend and workflow: [README](README.md).
 
 ### CBaseMesh
 - [-] `CBaseMesh::~CBaseMesh` · 004d1450 · legions 004c5600 — ctor/dtor of plain data; Rust constructs and drops values
-- [~] `CBaseMesh::DrawMesh` · 004d1460 · legions 004c5610 — ac2-render DegradeLists::select, degrade_level, mesh_degrade_factor (x1.5 player, _ftol2 truncation, empty list falls back to all degrades); ac2-gpu draws the chosen degrade's batches. Not ported: m_ForcedDetailLevel/m_nForcedDegradeLevel (tool overrides), first-person head/beard/crest/totem hide, shadow volume path
+- [x] `CBaseMesh::DrawMesh` · 004d1460 · legions 004c5610 — first-person check: ac2-client client_camera.rs first_person_hidden_mesh_types (Head/Beard/Crest/Totem from mapper 0x4000000F, ClientPrefs::head_mesh_types) -> SceneObject::hidden_mesh_types -> ac2-gpu ObjectInstance::hidden_mesh_types skips those parts in the world pass, sun casters keep them; test the_first_person_player_hides_four_named_mesh_types
 - [-] `CBaseMesh::ParseVertexArrayFileNode` · 004d17c0 — text source format (admin tools)
 
 ### PSmartArray<MeshMaterials::MaterialAndDataID>
@@ -777,7 +777,7 @@ Legend and workflow: [README](README.md).
 - [-] `CDynamicMesh::DeleteMaterialModifiers` · 004d4a40 · legions 004c7580 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [-] `CDynamicMesh::InitDynamicMesh` · 004d4ab0 · legions 004c75f0 — mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 
-## `portal/shared/src/mesh/meshgroup.cpp.c` (2/13)
+## `portal/shared/src/mesh/meshgroup.cpp.c` (3/13)
 
 ### CDataMesh
 - [x] `CDataMesh::Get` · 004d43b0 · legions 004c6f00 — ac2-assets ac2_mesh.rs Ac2Mesh: loaded by DID through the resource store (CDataMesh::Get / CMeshGroup::GetMesh); the vertex array's bounding box is Ac2Mesh::bounds_min/bounds_max (CBaseMesh::BuildBoundingBox), tested by every_legions_mesh_setup_and_visual_desc_decodes
@@ -792,7 +792,7 @@ Legend and workflow: [README](README.md).
 - [-] `CMeshGroup::InitStaticMesh` · 004d4580 · legions 004c7100 — mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 - [x] `CMeshGroup::GetMesh` · 004d4610 · legions 004c7190 — ac2-assets ac2_mesh.rs Ac2Mesh: loaded by DID through the resource store (CDataMesh::Get / CMeshGroup::GetMesh); the vertex array's bounding box is Ac2Mesh::bounds_min/bounds_max (CBaseMesh::BuildBoundingBox), tested by every_legions_mesh_setup_and_visual_desc_decodes
 - [-] `CMeshGroup::DestroyDynamicMesh` · 004d4630 · legions 004c71b0 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-- [~] `CMeshGroup::DrawMesh` · 004d4670 · legions 004c71f0 — degrade selection and the chosen degrade's batch run are ac2-render DegradeLists::select / ac2-gpu object_prepare (see CBaseMesh::DrawMesh)
+- [x] `CMeshGroup::DrawMesh` · 004d4670 · legions 004c71f0 — audit: covered: Forced detail levels are tool overrides (not needed) [ac2-render DegradeLists::select; crates/ac2-gpu/src/object_prepare.rs]
 
 ### HashBase<unsigned_long>
 - [-] `HashBase<unsigned_long>::remove` · 004d46c0 · legions 004c7240 — mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
@@ -802,7 +802,7 @@ Legend and workflow: [README](README.md).
 - [-] `CMeshGroup::Release` · 004d48e0 · legions 004c7420 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [-] `CMeshGroup::SpawnDynamicMesh` · 004d4920 · legions 004c7460 — mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 
-## `portal/shared/src/mesh/meshinstance.cpp.c` (3/15)
+## `portal/shared/src/mesh/meshinstance.cpp.c` (4/15)
 
 ### CMeshInstance
 - [-] `CMeshInstance::CMeshInstance` · 004cf840 · legions 004c3a10 — ctor/dtor of plain data; Rust constructs and drops values
@@ -813,7 +813,7 @@ Legend and workflow: [README](README.md).
 - [-] `CMeshInstance::InitStaticMesh` · 004cf8e0 · legions 004c3ab0 — mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 - [-] `CMeshInstance::ReleaseMesh` · 004cf900 · legions 004c3ad0 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [x] `CMeshInstance::PerformMeshReplacement` · 004cf930 · legions 004c3b00 — ac2-render object/model.rs load_object_model_with
-- [~] `CMeshInstance::DrawMesh` · 004cf9a0 · legions 004c3b70 — degrade selection and the chosen degrade's batch run are ac2-render DegradeLists::select / ac2-gpu object_prepare (see CBaseMesh::DrawMesh)
+- [x] `CMeshInstance::DrawMesh` · 004cf9a0 · legions 004c3b70 — audit: covered: Forced detail levels are tool overrides (not needed) [ac2-render DegradeLists::select; crates/ac2-gpu/src/object_prepare.rs]
 - [-] `CMeshInstance::~CMeshInstance` · 004cf9f0 · legions 004c3bc0 — ctor/dtor of plain data; Rust constructs and drops values
 - [-] `CMeshInstance::GetCellMesh` · 004cfa20 · legions 004c3bf0 — accessor of a Rust typed field
 - [-] `CMeshInstance::GetDynamicMesh` · 004cfa40 · legions 004c3c10 — accessor of a Rust typed field
@@ -1214,7 +1214,7 @@ Legend and workflow: [README](README.md).
 - [x] `PhysicsDesc::StreamPack` · 00641530
 - [-] `PhysicsDesc::PhysicsDesc` · 00641c70 · legions 005f5470 — ctor/dtor of plain data; Rust constructs and drops values
 
-## `portal/shared/src/objdesc/visualdesc.cpp.c` (37/58)
+## `portal/shared/src/objdesc/visualdesc.cpp.c` (38/58)
 
 ### VisualDesc
 - [x] `VisualDesc::FillFXTable` · 0063c910 · legions 005f1440 — ac2-assets ac2_drawn_groups.rs global_fx_atoms + ac2_visual_particles / ac2_visual_fx_particles / ac2_visual_fx_sounds: with FX at all (HasFX) the global appearance keys' FX atoms join the table behind the overrides (FXTable::AddEntry keeps the first); tested by fx_atoms_of_the_global_appearance_keys_join_the_fx_table (406 shipped visuals)
@@ -1300,7 +1300,7 @@ Legend and workflow: [README](README.md).
 - [x] `VisualDesc::SwapPGDD` · 0063f880 · legions 005f37b0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 - [x] `VisualDesc::ModifyPGDTreeBasedOnApr` · 0063f930 · legions 005f3860 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 - [x] `VisualDesc::GetTotalVisualDesc` · 0063f9c0 · legions 005f38f0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-- [~] `VisualDesc::GetTotalIconDesc` · 0063f9f0 · legions 005f3920 — ac2-assets ac2_total_icon_desc = GetTotalIconDesc for a DAT visual (parent chain merge + the icon atoms of its own global appearance keys), tested by total_icon_desc_merges_the_chain_and_applies_icon_atoms; the script efun and the HUD icon path (ac2-weenie/ac2-client inventory icons) merge the wire appearance with total_icon_layers and do not yet run the icon atoms
+- [x] `VisualDesc::GetTotalIconDesc` · 0063f9f0 · legions 005f3920 — ac2-assets ac2_drawn_groups.rs ac2_icon_desc_parts (chain layers + atoms of the local description's m_global_app_mods); ac2-client client_item_icons.rs item_icon_layers merges chain, local, atoms; test icon_desc_parts_recombine_to_the_total_icon_desc
 
 ## `portal/shared/src/objdesc/weeniedesc.cpp.c` (2/2)
 

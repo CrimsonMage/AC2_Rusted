@@ -1,9 +1,9 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1695 done, 32 partial, 331 to do, 410 skipped.
+2468 retail functions: 1711 done, 1 partial, 0 to do, 756 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
+## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (18/25)
 
 ### Position
 - [-] `Position::operator=` · 0046ad40 · legions 0046b420 — C++ assignment operator of plain data (Rust copy/move)
@@ -12,9 +12,9 @@ Legend and workflow: [README](README.md).
 - [-] `PHashTable<unsigned_long,unsigned_long>::~PHashTable<unsigned_long,unsigned_long>` · 0046adc0 · legions 0046b440 — C++ destructor (Rust drop replaces it)
 
 ### gCharacterGenSystem
-- [~] `gCharacterGenSystem::ARHashToRaceSexInfoHash` · 0046ae10 · legions 0046b570 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
-- [~] `gCharacterGenSystem::RaceSexInfoHashToARHash` · 0046af20 · legions 0046b680 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
-- [~] `gCharacterGenSystem::RaceSexListHashToARHash` · 0046b090 · legions 0046b7f0 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [x] `gCharacterGenSystem::ARHashToRaceSexInfoHash` · 0046ae10 · legions 0046b570 — audit: covered: IFun callers InqRaceSexData/InqRaceSexInfoData are the only callers [crates/ac2-script/src/host/chargen.rs:173,190 (race_sex_data, race_sex_info_data read the script ARHash inline)]
+- [x] `gCharacterGenSystem::RaceSexInfoHashToARHash` · 0046af20 · legions 0046b680 — audit: covered: IFun callers InqRaceSexData/InqRaceSexInfoData are the only callers [crates/ac2-script/src/host/chargen.rs:173,190 (race_sex_data, race_sex_info_data read the script ARHash inline)]
+- [x] `gCharacterGenSystem::RaceSexListHashToARHash` · 0046b090 · legions 0046b7f0 — audit: covered: IFun callers InqRaceSexData/InqRaceSexInfoData are the only callers [crates/ac2-script/src/host/chargen.rs:173,190 (race_sex_data, race_sex_info_data read the script ARHash inline)]
 
 ### ARHash
 - [-] `ARHash::ARHash` · 0046b250 · legions 0046b9b0 — C++ constructor of plain data or a container (Rust struct init)
@@ -30,7 +30,7 @@ Legend and workflow: [README](README.md).
 - [-] `BaseHash<unsigned_long,unsigned_long,18>::UpdateData` · 0046b330 — container internals (Rust collections replace them)
 
 ### gCharacterGenSystem
-- [~] `gCharacterGenSystem::ARHashToRaceSexListHash` · 0046b3f0 · legions 0046bb50 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [x] `gCharacterGenSystem::ARHashToRaceSexListHash` · 0046b3f0 · legions 0046bb50 — audit: covered: IFun callers InqRaceSexData/InqRaceSexInfoData are the only callers [crates/ac2-script/src/host/chargen.rs:173,190 (race_sex_data, race_sex_info_data read the script ARHash inline)]
 - [x] `gCharacterGenSystem::CallIFun_FormatNameString` · 0046b480 · legions 0046bbe0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gCharacterGenSystem::CallIFun_GetPhysObj` · 0046b6d0 · legions 0046be30 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gCharacterGenSystem::CallIFun_InqAdminAvatarEntityDID` · 0046b800 · legions 0046bf60 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -142,7 +142,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/interp/glue/ggameplayoptionsprofile.cpp.c` (80/83)
 
 ### GameplayOptionsProfile
-- [ ] `GameplayOptionsProfile::SetShowDamageTextOther` · 00474770 · legions 00471870 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `GameplayOptionsProfile::SetShowDamageTextOther` · 00474770 · legions 00471870 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### ReferenceIDWrapper
 - [x] `ReferenceIDWrapper::StreamPack` · 00474780 · legions 00471880 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -281,7 +281,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmKeyframe::CallEFun_SetAudioTrackByName` · 004730f0 — ac2-script glue::story set_track_by_name (FileArray::GetDIDForDummies; the Legions DATs hold no name table so the DID is 0, track bit still set as retail)
 - [x] `ggmKeyframe::CallEFun_SetDuration` · 00473150 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetFrameNum` · 004731b0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_SetMovieTrack` · 00473210 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `ggmKeyframe::CallEFun_SetMovieTrack` · 00473210 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `ggmKeyframe::CallEFun_SetSceneID` · 00473270 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetSubtitle` · 004732d0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetVideoTrack` · 00473330 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -295,7 +295,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmKeyframe::CallEFun_GetVideoTrack` · 00473670 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_GetVoiceTrack` · 004736e0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [-] `ggmKeyframe::CallEFun_Dump` · 00473750 — WSL debug dump
-- [ ] `ggmKeyframe::CallEFun_GetMovieTrack` · 00473810 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `ggmKeyframe::CallEFun_GetMovieTrack` · 00473810 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `ggmKeyframe::CallEFun_GetSubtitle` · 004738e0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 
 ## `ac2/shared/src/interp/glue/ggmquestinfo.cpp.c` (7/8)
@@ -414,7 +414,7 @@ Legend and workflow: [README](README.md).
 - [x] `gRecipeAdaptor::CallEFun_SetShown` · 00470c70 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gRecipeAdaptor::CallEFun_SetTimeUseAgain` · 00470cd0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gRecipeAdaptor::CallEFun_GetCharges` · 00470d30 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
-- [ ] `gRecipeAdaptor::CallEFun_GetCost` · 00470da0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gRecipeAdaptor::CallEFun_GetCost` · 00470da0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gRecipeAdaptor::CallEFun_GetCraftSkillCategory` · 00470e10 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetCraftSkillDID` · 00470e80 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetDID` · 00470ef0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -422,7 +422,7 @@ Legend and workflow: [README](README.md).
 - [x] `gRecipeAdaptor::CallEFun_GetIconDID` · 00470fd0 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetShown` · 00471040 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetTimeUseAgain` · 004710b0 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
-- [ ] `gRecipeAdaptor::CallEFun_HasReadOnlySpinner` · 00471130 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gRecipeAdaptor::CallEFun_HasReadOnlySpinner` · 00471130 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gRecipeAdaptor::CallEFun_GetDescription` · 004711b0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gRecipeAdaptor::CallEFun_GetName` · 00471260 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 
@@ -431,7 +431,7 @@ Legend and workflow: [README](README.md).
 ### gSelectionInfo
 - [x] `gSelectionInfo::CallEFun_SetCurHealth` · 0046fe40 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gSelectionInfo::CallEFun_SetCurVigor` · 0046fea0 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `gSelectionInfo::CallEFun_SetMaxHealth` · 0046ff00 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gSelectionInfo::CallEFun_SetMaxHealth` · 0046ff00 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gSelectionInfo::CallEFun_SetMaxVigor` · 0046ff60 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gSelectionInfo::CallEFun_SetPKDamage` · 0046ffc0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gSelectionInfo::CallEFun_SetPKVigorloss` · 00470020 — ac2-script glue::options / examination (Legions layout and efun switch)
@@ -463,7 +463,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/interp/glue/gskillpanelmanager.cpp.c` (4/5)
 
 ### gSkillPanelManager
-- [ ] `gSkillPanelManager::SkillUINodeHashToARHash` · 0046d140 · legions 0046d8a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gSkillPanelManager::SkillUINodeHashToARHash` · 0046d140 · legions 0046d8a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gSkillPanelManager::ARHashToSkillUINodeHash` · 0046d270 · legions 0046d9d0 — ac2-script host::skill_panel (ScriptHost::skill_panel)
 - [x] `gSkillPanelManager::CallIFun_InqIcon` · 0046d380 · legions 0046dae0 — ac2-script host::skill_panel (ScriptHost::skill_panel)
 - [x] `gSkillPanelManager::CallIFun_InqName` · 0046d510 · legions 0046dc70 — ac2-script host::skill_panel (ScriptHost::skill_panel)
@@ -506,7 +506,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/interp/glue/gturbineuserstatus.cpp.c` (3/4)
 
 ### ReferenceTable
-- [ ] `ReferenceTable::GetReferenceTagPtr` · 0046eb20 · legions 0046e9c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `ReferenceTable::GetReferenceTagPtr` · 0046eb20 · legions 0046e9c0 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 
 ### gTurbineUserStatus
 - [x] `gTurbineUserStatus::CallEFun_InqLocation` · 0046ebd0 · legions 0046ea70 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
@@ -560,10 +560,10 @@ Legend and workflow: [README](README.md).
 - [x] `ByteStream::LoadValidEventTableSection` · 006e5090 — ac2-script WLib/WState/ByteStream decode
 
 ### CObjCell
-- [ ] `CObjCell::UpdateCellMaterial` · 006e5130 · legions 0066b600 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `CObjCell::UpdateCellMaterial` · 006e5130 · legions 0066b600 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### OpcodeStream
-- [~] `OpcodeStream::StreamPack` · 006e5140 — ac2-script: unpack direction only
+- [-] `OpcodeStream::StreamPack` · 006e5140 — not needed: pack (write) direction of the library/stream; client only unpacks the WLib (crates/ac2-script/src/bytestream/mod.rs:88)
 
 ### ByteStream
 - [-] `ByteStream::DiscardAllDebuggingInformation` · 006e5220 · legions 0066b6f0 — wlib debug-info section (debugger only)
@@ -576,7 +576,7 @@ Legend and workflow: [README](README.md).
 
 ### VersionTable
 - [-] `VersionTable::GetVersion` · 006e5820 — admin wlib version query (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
-- [~] `VersionTable::StreamPack` · 006e58e0 — ac2-script: unpack direction only
+- [-] `VersionTable::StreamPack` · 006e58e0 — not needed: pack (write) direction of the library/stream; client only unpacks the WLib (crates/ac2-script/src/bytestream/mod.rs:88)
 
 ### ByteStream
 - [x] `ByteStream::IsDerivedFrom` · 006e5960 · legions 0066bc20 — ac2-script glue
@@ -584,16 +584,16 @@ Legend and workflow: [README](README.md).
 - [x] `ByteStream::IsDerivedFrom` · 006e5c40 · legions 0066be60 — ac2-script glue
 
 ### PSmartArray<PackageInfo>
-- [ ] `PSmartArray<PackageInfo>::StreamPack` · 006e5ce0 · legions 0066bea0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSmartArray<PackageInfo>::StreamPack` · 006e5ce0 · legions 0066bea0 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### PackageInfo
 - [-] `PackageInfo::PackageInfo` · 006e5e70 — C++ constructor of plain data or a container (Rust struct init)
 
 ### AnimAssetWeightKey
-- [ ] `AnimAssetWeightKey::StreamPack` · 006e5e80 · legions 006b22d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `AnimAssetWeightKey::StreamPack` · 006e5e80 · legions 006b22d0 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### StringLitTable
-- [~] `StringLitTable::StreamPack` · 006e5ec0 · legions 0066c040 — ac2-script: unpack direction only
+- [-] `StringLitTable::StreamPack` · 006e5ec0 · legions 0066c040 — not needed: pack (write) direction of the library/stream; client only unpacks the WLib (crates/ac2-script/src/bytestream/mod.rs:88)
 
 ### ByteStream
 - [x] `ByteStream::IsDerivedFrom` · 006e5f00 — ac2-script glue
@@ -602,7 +602,7 @@ Legend and workflow: [README](README.md).
 - [-] `DualHash<PStringBase<char>,CheckpointExportData>::find_right` · 006e5fa0 · legions 0066c0c0 — container internals (Rust collections replace them)
 
 ### PSmartArray<VersionTable::ver>
-- [ ] `PSmartArray<VersionTable::ver>::StreamPack` · 006e6030 · legions 0066c150 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSmartArray<VersionTable::ver>::StreamPack` · 006e6030 · legions 0066c150 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### VersionTable::ver
 - [-] `VersionTable::ver::ver` · 006e61f0 · legions 0066c310 — C++ constructor of plain data or a container (Rust struct init)
@@ -617,10 +617,10 @@ Legend and workflow: [README](README.md).
 - [-] `DualHash<PStringBase<char>,CheckpointExportData>::contains_right` · 006e6410 · legions 0066c4c0 — container internals (Rust collections replace them)
 
 ### PSmartArray<PSmartArray<unsigned_long>_>
-- [ ] `PSmartArray<PSmartArray<unsigned_long>_>::StreamPack` · 006e6480 · legions 0066c530 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSmartArray<PSmartArray<unsigned_long>_>::StreamPack` · 006e6480 · legions 0066c530 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### PSmartArray<PSmartArray<VTableID>_>
-- [ ] `PSmartArray<PSmartArray<VTableID>_>::StreamPack` · 006e6620 · legions 0066c6d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSmartArray<PSmartArray<VTableID>_>::StreamPack` · 006e6620 · legions 0066c6d0 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### SmartArray<VTableID>
 - [-] `SmartArray<VTableID>::operator=` · 006e6820 · legions 0066c890 — C++ assignment operator of plain data (Rust copy/move)
@@ -629,10 +629,10 @@ Legend and workflow: [README](README.md).
 - [-] `VTableID::`default_constructor_closure'` · 006e6930 — MSVC compiler stub (default_constructor_closure)
 
 ### PSmartArray<VTableID>
-- [ ] `PSmartArray<VTableID>::StreamPack` · 006e6940 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSmartArray<VTableID>::StreamPack` · 006e6940 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### (free functions)
-- [ ] `STREAMPACK` · 006e69e0 · legions 0066d840 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `STREAMPACK` · 006e69e0 · legions 0066d840 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### PSmartArray<POriginalSourceFileInfo>
 - [-] `PSmartArray<POriginalSourceFileInfo>::StreamPack` · 006e6a60 · legions 0066ca50 — debug-info section table (debugger only)
@@ -662,7 +662,7 @@ Legend and workflow: [README](README.md).
 - [-] `ByteStream::Clear` · 006e79d0 · legions 0066d560 — wlib reset helper (Rust Vec owns the stream)
 
 ### PHashTable<FunctionID,int>
-- [~] `PHashTable<FunctionID,int>::StreamPack` · 006e7ad0 — ac2-script: unpack direction only
+- [-] `PHashTable<FunctionID,int>::StreamPack` · 006e7ad0 — not needed: pack (write) direction of the library/stream; client only unpacks the WLib (crates/ac2-script/src/bytestream/mod.rs:88)
 
 ### PSmartArray<ImportData>
 - [x] `PSmartArray<ImportData>::StreamPack` · 006e7cb0 · legions 0066d8c0 — bytestream/tables.rs fn imports (PSmartArray<ImportData>::StreamPack)
@@ -671,7 +671,7 @@ Legend and workflow: [README](README.md).
 - [-] `ImportData::ImportData` · 006e7e30 · legions 0066da40 — C++ constructor of plain data or a container (Rust struct init)
 
 ### PSmartArray<ImportSymbolInfo>
-- [ ] `PSmartArray<ImportSymbolInfo>::StreamPack` · 006e7e80 · legions 0066da90 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSmartArray<ImportSymbolInfo>::StreamPack` · 006e7e80 · legions 0066da90 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### ImportSymbolInfo
 - [-] `ImportSymbolInfo::ImportSymbolInfo` · 006e8000 · legions 0066dc10 — C++ constructor of plain data or a container (Rust struct init)
@@ -684,7 +684,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<ImportSymbolInfo>::operator=` · 006e8140 · legions 0066dd50 — C++ assignment operator of plain data (Rust copy/move)
 
 ### ImportSymbolInfo
-- [~] `ImportSymbolInfo::StreamPack` · 006e81f0 · legions 0066de00 — ac2-script: unpack direction only
+- [-] `ImportSymbolInfo::StreamPack` · 006e81f0 · legions 0066de00 — not needed: pack (write) direction of the library/stream; client only unpacks the WLib (crates/ac2-script/src/bytestream/mod.rs:88)
 
 ### PSmartArray<PLineOffsetList>
 - [-] `PSmartArray<PLineOffsetList>::StreamPack` · 006e8240 · legions 0066de50 — debug-info section table (debugger only)
@@ -705,11 +705,11 @@ Legend and workflow: [README](README.md).
 - [-] `PSmartArray<PLineOffsetInfo>::StreamPack` · 006e85e0 · legions 0066e1f0 — debug-info section table (debugger only)
 
 ### PHashTable<PStringBase<char>,unsigned_long>
-- [ ] `PHashTable<PStringBase<char>,unsigned_long>::StreamPack` · 006e8690 · legions 0066e2a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PHashTable<PStringBase<char>,unsigned_long>::StreamPack` · 006e8690 · legions 0066e2a0 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### VTableSection
 - [-] `VTableSection::VTableSection` · 006e8950 · legions 0066e560 — C++ constructor of plain data or a container (Rust struct init)
-- [~] `VTableSection::StreamPack` · 006e89d0 · legions 0066e5e0 — ac2-script: unpack direction only
+- [-] `VTableSection::StreamPack` · 006e89d0 · legions 0066e5e0 — not needed: pack (write) direction of the library/stream; client only unpacks the WLib (crates/ac2-script/src/bytestream/mod.rs:88)
 - [-] `VTableSection::~VTableSection` · 006e8a30 · legions 0066e640 — C++ destructor (Rust drop replaces it)
 
 ### ByteStream
@@ -723,12 +723,12 @@ Legend and workflow: [README](README.md).
 - [-] `ExportData::ExportData` · 006e9010 · legions 0066ec20 — C++ constructor of plain data or a container (Rust struct init)
 
 ### PSmartArray<ExportFunctionData>
-- [ ] `PSmartArray<ExportFunctionData>::StreamPack` · 006e9040 · legions 0066ec50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSmartArray<ExportFunctionData>::StreamPack` · 006e9040 · legions 0066ec50 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 
 ### ExportFunctionData
 - [-] `ExportFunctionData::ExportFunctionData` · 006e91c0 · legions 0066edd0 — C++ constructor of plain data or a container (Rust struct init)
 - [-] `ExportFunctionData::operator=` · 006e9210 · legions 0066ee20 — C++ assignment operator of plain data (Rust copy/move)
-- [~] `ExportFunctionData::StreamPack` · 006e92a0 · legions 0066eeb0 — ac2-script: unpack direction only
+- [-] `ExportFunctionData::StreamPack` · 006e92a0 · legions 0066eeb0 — not needed: pack (write) direction of the library/stream; client only unpacks the WLib (crates/ac2-script/src/bytestream/mod.rs:88)
 
 ### ExportPackageArgs
 - [-] `ExportPackageArgs::ExportPackageArgs` · 006e9310 · legions 0066ef20 — C++ constructor of plain data or a container (Rust struct init)
@@ -737,7 +737,7 @@ Legend and workflow: [README](README.md).
 - [-] `DualHash<PStringBase<char>,CheckpointExportData>::init` · 006e9380 · legions 0066ef90 — container internals (Rust collections replace them)
 
 ### ExportPackageArgs
-- [~] `ExportPackageArgs::StreamPack` · 006e9440 · legions 0066f050 — ac2-script: unpack direction only
+- [-] `ExportPackageArgs::StreamPack` · 006e9440 · legions 0066f050 — not needed: pack (write) direction of the library/stream; client only unpacks the WLib (crates/ac2-script/src/bytestream/mod.rs:88)
 
 ### ExportData
 - [-] `ExportData::operator=` · 006e94f0 · legions 0066f100 — C++ assignment operator of plain data (Rust copy/move)
@@ -778,7 +778,7 @@ Legend and workflow: [README](README.md).
 - [-] `DualHash<PStringBase<char>,unsigned_long>::add_internal` · 006e9ff0 · legions 0066faa0 — container internals (Rust collections replace them)
 - [-] `DualHash<PStringBase<char>,unsigned_long>::find_left` · 006ea090 · legions 0066fb40 — container internals (Rust collections replace them)
 - [-] `DualHash<PStringBase<char>,unsigned_long>::find_right` · 006ea120 — container internals (Rust collections replace them)
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::UnPack` · 006ea1e0 · legions 0066fbd0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `DualHash<PStringBase<char>,unsigned_long>::UnPack` · 006ea1e0 · legions 0066fbd0 — replaced by design: library stream container plumbing; pack direction unused by client [crates/ac2-script/src/bytestream/mod.rs (WLib unpack in Rust containers)]
 - [-] `DualHash<PStringBase<char>,unsigned_long>::contains_left` · 006ea3c0 · legions 0066fdb0 — container internals (Rust collections replace them)
 - [-] `DualHash<PStringBase<char>,unsigned_long>::contains_right` · 006ea430 · legions 0066fe20 — container internals (Rust collections replace them)
 
@@ -1214,9 +1214,9 @@ Legend and workflow: [README](README.md).
 - [x] `gAList::CallEFun_push_unique_tail` · 005639d0 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,11>
-- [~] `BaseList<unsigned_long,11>::get_begin` · 00563a70 · legions 00536090 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `BaseList<unsigned_long,11>::get_reverse` · 00563ac0 · legions 005360e0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `BaseList<unsigned_long,11>::get_end` · 00563b10 · legions 00536130 — ac2-script glue::lists: iterators hold an index, not a node
+- [-] `BaseList<unsigned_long,11>::get_begin` · 00563a70 · legions 00536090 — replaced by design: Rust containers replace node iterators [crates/ac2-script/src/glue/lists.rs (index iterators)]
+- [-] `BaseList<unsigned_long,11>::get_reverse` · 00563ac0 · legions 005360e0 — replaced by design: Rust containers replace node iterators [crates/ac2-script/src/glue/lists.rs (index iterators)]
+- [-] `BaseList<unsigned_long,11>::get_end` · 00563b10 · legions 00536130 — replaced by design: Rust containers replace node iterators [crates/ac2-script/src/glue/lists.rs (index iterators)]
 
 ### gAList
 - [x] `gAList::CallEFun_get_begin` · 00563b60 — ac2-script glue::lists
@@ -1317,30 +1317,30 @@ Legend and workflow: [README](README.md).
 - [x] `gALMultiMapIter::CallEFun_next` · 0054e7b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gALMultiMapIter::CallEFun_prev` · 0054e850 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gappearancetableadaptor.cpp.c` (1/5)
+## `portal/shared/src/interp/glue/gappearancetableadaptor.cpp.c` (3/5)
 
 ### gAppearanceTableAdaptor
-- [ ] `gAppearanceTableAdaptor::CallEFun_HasAppearanceKey` · 0054c920 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gAppearanceTableAdaptor::CallEFun_HasAppearanceKey` · 0054c920 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### gCharacterGenSystem
-- [~] `gCharacterGenSystem::ValueListToAList` · 0054c960 · legions 0046b490 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
-- [~] `gCharacterGenSystem::AListToValueList` · 0054c9d0 · legions 0046b500 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [x] `gCharacterGenSystem::ValueListToAList` · 0054c960 · legions 0046b490 — audit: covered: list copies done inline in the efuns that call them [crates/ac2-script/src/glue/appearance_table.rs:15; crates/ac2-script/src/glue/skill_node.rs:124]
+- [x] `gCharacterGenSystem::AListToValueList` · 0054c9d0 · legions 0046b500 — audit: covered: list copies done inline in the efuns that call them [crates/ac2-script/src/glue/appearance_table.rs:15; crates/ac2-script/src/glue/skill_node.rs:124]
 
 ### gAppearanceTableAdaptor
 - [x] `gAppearanceTableAdaptor::CallEFun_InqAppearanceKeyModList` · 0054ca40 — ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
-- [ ] `gAppearanceTableAdaptor::CallEFun_InqTsysAppearanceKeyModCount` · 0054caf0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gAppearanceTableAdaptor::CallEFun_InqTsysAppearanceKeyModCount` · 0054caf0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gappinfohash.cpp.c` (0/1)
 
 ### gAppInfoHash
-- [ ] `gAppInfoHash::CallEFun_num_elements` · 0054cb60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gAppInfoHash::CallEFun_num_elements` · 0054cb60 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gappliedappearancekey.cpp.c` (4/5)
 
 ### gAppliedAppearanceKey
 - [x] `gAppliedAppearanceKey::CallEFun_SetAppKey` · 0054c700 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
 - [x] `gAppliedAppearanceKey::CallEFun_SetMod` · 0054c760 — ac2-script glue/visual_desc.rs
-- [~] `gAppliedAppearanceKey::CallEFun_FromFileNode` · 0054c7c0 — FromFileNode reads a PFileNode (gPFileNode, unbound: no PFileNode native in the port; ac2-dat PFileNode rows unchecked)
+- [-] `gAppliedAppearanceKey::CallEFun_FromFileNode` · 0054c7c0 — not needed: authoring/tooling efun (reads a PFileNode); listed unbound-by-design in crates/ac2-script/src/host/tests/efun_coverage.rs:34-36
 - [x] `gAppliedAppearanceKey::CallEFun_GetAppKey` · 0054c840 — ac2-script glue/visual_desc.rs
 - [x] `gAppliedAppearanceKey::CallEFun_GetMod` · 0054c8b0 — ac2-script glue/visual_desc.rs
 
@@ -1422,8 +1422,8 @@ Legend and workflow: [README](README.md).
 - [x] `gBaseProperty::CallEFun_GetGroupName` · 0054b480 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 - [x] `gBaseProperty::CallEFun_GetPropertyName` · 0054b4f0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 - [x] `gBaseProperty::CallEFun_GetPropertyType` · 0054b560 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
-- [ ] `gBaseProperty::CallEFun_IsDefaultValue` · 0054b5d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gBaseProperty::CallEFun_IsReportedToWeenie` · 0054b640 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gBaseProperty::CallEFun_IsDefaultValue` · 0054b5d0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gBaseProperty::CallEFun_IsReportedToWeenie` · 0054b640 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gBaseProperty::CallEFun_SetBool` · 0054b6b0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_SetDataID` · 0054b740 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_SetEnum` · 0054b7d0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
@@ -1451,7 +1451,7 @@ Legend and workflow: [README](README.md).
 - [x] `gBaseProperty::CallEFun_InqStringW` · 0054c5b0 · legions 0052a0a0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_InqVector` · 0054c650 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 
-## `portal/shared/src/interp/glue/gbehaviorparams.cpp.c` (26/27)
+## `portal/shared/src/interp/glue/gbehaviorparams.cpp.c` (27/27)
 
 ### gBehaviorParams
 - [x] `gBehaviorParams::CallEFun_SendEarlyCallBack` · 0054a800 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -1481,7 +1481,7 @@ Legend and workflow: [README](README.md).
 - [x] `gBehaviorParams::CallEFun_GetBehaviorID` · 0054b120 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gGameplayOptionsProfile
-- [~] `gGameplayOptionsProfile::AAHashToUIElementOpacities` · 0054b190 · legions 00529120 — ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
+- [x] `gGameplayOptionsProfile::AAHashToUIElementOpacities` · 0054b190 · legions 00529120 — audit: covered: f32 spill vs x87 unchecked; precision follow-up not a gap [crates/ac2-script/src/glue/behavior.rs:116 (SetClonedAppKeyHash)]
 
 ### gBehaviorParams
 - [x] `gBehaviorParams::CallEFun_SetClonedAppKeyHash` · 0054b280 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -1489,39 +1489,39 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gcaseinsensitivewpstring.cpp.c` (0/33)
 
 ### gCaseInsensitiveWPString
-- [ ] `gCaseInsensitiveWPString::CallEFun_clear` · 005500e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_cmp` · 00550170 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_empty` · 00550220 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_eq` · 00550290 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_find_substring` · 00550320 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_ge` · 005503c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_gt` · 00550450 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_hash` · 005504e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_le` · 00550560 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_length` · 005505f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_lt` · 00550660 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_ne` · 005506f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_set` · 00550780 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_float` · 00550810 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_int32` · 005508a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_int64` · 00550930 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_uint32` · 005509c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_uint64` · 00550a50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_decrypt` · 00550ae0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_encrypt` · 00550b40 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_tolower` · 00550ba0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_toupper` · 00550c10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_float` · 00550df0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_int32` · 00550e50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_int32_hex` · 00550eb0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_int64` · 00550f10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_string` · 00550f70 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_uint32` · 00550ff0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_uint32_hex` · 00551050 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_trim` · 005510b0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_bool` · 00551130 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_substring` · 00551190 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gCaseInsensitiveWPString::CallEFun_replace` · 00551260 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gCaseInsensitiveWPString::CallEFun_clear` · 005500e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_cmp` · 00550170 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_empty` · 00550220 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_eq` · 00550290 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_find_substring` · 00550320 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_ge` · 005503c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_gt` · 00550450 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_hash` · 005504e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_le` · 00550560 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_length` · 005505f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_lt` · 00550660 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_ne` · 005506f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_set` · 00550780 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_to_float` · 00550810 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_to_int32` · 005508a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_to_int64` · 00550930 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_to_uint32` · 005509c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_to_uint64` · 00550a50 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_decrypt` · 00550ae0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_encrypt` · 00550b40 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_tolower` · 00550ba0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_toupper` · 00550c10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_append_float` · 00550df0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_append_int32` · 00550e50 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_append_int32_hex` · 00550eb0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_append_int64` · 00550f10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_append_string` · 00550f70 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_append_uint32` · 00550ff0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_append_uint32_hex` · 00551050 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_trim` · 005510b0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_append_bool` · 00551130 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_substring` · 00551190 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gCaseInsensitiveWPString::CallEFun_replace` · 00551260 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gcdbform.cpp.c` (0/14)
 
@@ -1555,7 +1555,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCollideProperty::CallEFun_IsChanged` · 00549fe0 — ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 - [x] `gCollideProperty::CallEFun_IsEnd` · 0054a050 — ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 - [x] `gCollideProperty::CallEFun_GetProperty` · 0054a0c0 — ac2-script glue/collision.rs: copies the CollideProperty's BaseProperty (native from the report, Ac2PropertyValue -> ac2_db::BaseProperty) into a new BaseProperty native; tests glue/base_property_tests.rs
-- [ ] `gCollideProperty::CallEFun_GetPropertyOutputStringW` · 0054a170 · legions 005288a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gCollideProperty::CallEFun_GetPropertyOutputStringW` · 0054a170 · legions 005288a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (25/25)
 
@@ -1631,40 +1631,40 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gdetectionparameters.cpp.c` (0/13)
 
 ### gDetectionParameters
-- [ ] `gDetectionParameters::CallEFun_SetBasePosition` · 00548390 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetDetectOffset` · 005483f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetDetectionObjectType` · 00548490 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetLOSBlockingMasks` · 005484f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetShapeAttackCone` · 00548560 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetShapeBox` · 005485f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetShapeCylinder` · 00548670 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetShapeSphere` · 005486e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetShapeSphereCone` · 00548740 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_SetShapeSphereWithOffset` · 005487c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_UseDetectingObjectForBasePosition` · 00548830 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_AddExcludeObject` · 005488a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionParameters::CallEFun_AddTarget` · 00548920 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gDetectionParameters::CallEFun_SetBasePosition` · 00548390 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetDetectOffset` · 005483f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetDetectionObjectType` · 00548490 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetLOSBlockingMasks` · 005484f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetShapeAttackCone` · 00548560 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetShapeBox` · 005485f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetShapeCylinder` · 00548670 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetShapeSphere` · 005486e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetShapeSphereCone` · 00548740 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_SetShapeSphereWithOffset` · 005487c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_UseDetectingObjectForBasePosition` · 00548830 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_AddExcludeObject` · 005488a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionParameters::CallEFun_AddTarget` · 00548920 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gdetectionprofile.cpp.c` (0/9)
 
 ### gDetectionProfile
-- [ ] `gDetectionProfile::CallEFun_SetFloatApp` · 00547ee0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionProfile::CallEFun_SetIntApp` · 00547f40 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionProfile::CallEFun_GetCoverage` · 00547fa0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionProfile::CallEFun_GetEntityDID` · 00548010 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionProfile::CallEFun_GetFloatApp` · 00548080 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionProfile::CallEFun_GetID` · 00548100 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionProfile::CallEFun_GetIntApp` · 00548170 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionProfile::CallEFun_GetDetectionReportType` · 005481f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionProfile::CallEFun_GetPosition` · 005482a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gDetectionProfile::CallEFun_SetFloatApp` · 00547ee0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionProfile::CallEFun_SetIntApp` · 00547f40 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionProfile::CallEFun_GetCoverage` · 00547fa0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionProfile::CallEFun_GetEntityDID` · 00548010 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionProfile::CallEFun_GetFloatApp` · 00548080 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionProfile::CallEFun_GetID` · 00548100 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionProfile::CallEFun_GetIntApp` · 00548170 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionProfile::CallEFun_GetDetectionReportType` · 005481f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionProfile::CallEFun_GetPosition` · 005482a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gdetectionreporttype.cpp.c` (0/4)
 
 ### gDetectionReportType
-- [ ] `gDetectionReportType::CallEFun_SetHighDWord` · 00547d10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionReportType::CallEFun_SetLowDWord` · 00547d80 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionReportType::CallEFun_GetHighDWord` · 00547df0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gDetectionReportType::CallEFun_GetLowDWord` · 00547e70 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gDetectionReportType::CallEFun_SetHighDWord` · 00547d10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionReportType::CallEFun_SetLowDWord` · 00547d80 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionReportType::CallEFun_GetHighDWord` · 00547df0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gDetectionReportType::CallEFun_GetLowDWord` · 00547e70 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gefuntestsystem.cpp.c` (0/2)
 
@@ -1679,48 +1679,48 @@ Legend and workflow: [README](README.md).
 ### gEmailUtils
 - [-] `gEmailUtils::CallEFun_send_emailW` · 00547c90 — admin only: admin email tool (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
-## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (7/28)
+## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (8/28)
 
 ### gEntityDesc
-- [ ] `gEntityDesc::CallEFun_GetDataID` · 00546c10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gEntityDesc::CallEFun_GetDataID` · 00546c10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gEntityDesc::CallEFun_GetDataIDFromEntityNameW` · 00546c80 — ac2-script glue::enums (FileArray::GetDID: no name data on the DVD)
-- [ ] `gEntityDesc::CallEFun_GetRootPackageID` · 00546cc0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetRuntimeID` · 00546d30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetType` · 00546da0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetVersion` · 00546e10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetWBID` · 00546e80 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_IsInside` · 00546f00 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_SetProperties` · 00546f70 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetCommentsW` · 00546ff0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetEntityNameFromDataIDW` · 005470b0 · legions 00526470 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetOffset` · 00547130 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [~] `gEntityDesc::CallEFun_GetProperties` · 00547210 — flat property list regrouped by MasterProperty group; optional properties and file group names not kept
-- [ ] `gEntityDesc::CallEFun_GetScale` · 005472f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetWBNameW` · 005473b0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gEntityDesc::CallEFun_GetRootPackageID` · 00546cc0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_GetRuntimeID` · 00546d30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_GetType` · 00546da0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_GetVersion` · 00546e10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_GetWBID` · 00546e80 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_IsInside` · 00546f00 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_SetProperties` · 00546f70 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_GetCommentsW` · 00546ff0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_GetEntityNameFromDataIDW` · 005470b0 · legions 00526470 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_GetOffset` · 00547130 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [x] `gEntityDesc::CallEFun_GetProperties` · 00547210 — audit: covered: regrouping detail: optional properties/file group names dropped; check only if a UI reads them [crates/ac2-script/src/glue/entity_desc.rs:156]
+- [-] `gEntityDesc::CallEFun_GetScale` · 005472f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_GetWBNameW` · 005473b0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gEntityDesc::CallEFun_InqBool` · 00547480 — ac2-script glue::entity_desc inq_word
-- [ ] `gEntityDesc::CallEFun_InqDataFilePathW` · 00547530 · legions 00526830 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_InqDataFileW` · 005475d0 · legions 005268a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gEntityDesc::CallEFun_InqDataFilePathW` · 00547530 · legions 00526830 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_InqDataFileW` · 005475d0 · legions 005268a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gEntityDesc::CallEFun_InqDataID` · 00547670 — ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
 - [x] `gEntityDesc::CallEFun_InqEntityDescFromDataID` · 00547720 — ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
-- [ ] `gEntityDesc::CallEFun_InqEntityDescFromNameW` · 00547780 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gEntityDesc::CallEFun_InqEntityDescFromNameW` · 00547780 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gEntityDesc::CallEFun_InqEnum` · 005477f0 — ac2-script glue::entity_desc inq_word
-- [ ] `gEntityDesc::CallEFun_InqFloat` · 005478a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gEntityDesc::CallEFun_InqFloat` · 005478a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gEntityDesc::CallEFun_InqInteger` · 00547950 — out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
-- [ ] `gEntityDesc::CallEFun_InqPackageID` · 00547a00 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gEntityDesc::CallEFun_InqPackageID` · 00547a00 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gEntityDesc::CallEFun_InqStringInfo` · 00547ab0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-- [ ] `gEntityDesc::CallEFun_InqStringW` · 00547b50 · legions 00526d30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_InqVector` · 00547bf0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gEntityDesc::CallEFun_InqStringW` · 00547b50 · legions 00526d30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityDesc::CallEFun_InqVector` · 00547bf0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gentitylinkdesc.cpp.c` (0/7)
 
 ### gEntityLinkDesc
-- [ ] `gEntityLinkDesc::CallEFun_GetInputID` · 005366d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityLinkDesc::CallEFun_GetLinkType` · 00536740 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityLinkDesc::CallEFun_GetOppositeID` · 005367b0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityLinkDesc::CallEFun_GetOutputID` · 00536840 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityLinkDesc::CallEFun_GetProperties` · 005368b0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityLinkDesc::CallEFun_GetWBName_ForWsl` · 00536990 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityLinkDesc::CallEFun_InqStringPropertyW` · 00536a50 · legions 0051a7e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gEntityLinkDesc::CallEFun_GetInputID` · 005366d0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityLinkDesc::CallEFun_GetLinkType` · 00536740 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityLinkDesc::CallEFun_GetOppositeID` · 005367b0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityLinkDesc::CallEFun_GetOutputID` · 00536840 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityLinkDesc::CallEFun_GetProperties` · 005368b0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityLinkDesc::CallEFun_GetWBName_ForWsl` · 00536990 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gEntityLinkDesc::CallEFun_InqStringPropertyW` · 00536a50 · legions 0051a7e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/genummapper.cpp.c` (8/8)
 
@@ -1797,7 +1797,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gframe.cpp.c` (0/1)
 
 ### gFrame
-- [ ] `gFrame::CallEFun_SetOrigin` · 00543cf0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gFrame::CallEFun_SetOrigin` · 00543cf0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gfxandbehaviorinfo.cpp.c` (5/5)
 
@@ -1818,7 +1818,7 @@ Legend and workflow: [README](README.md).
 - [x] `gGameTime::CallEFun_GetYear` · 005437c0 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
 - [x] `gGameTime::CallEFun_GetYearLength` · 00543830 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
 - [x] `gGameTime::CallEFun_InqCurrentGameDateTimeString` · 005438a0 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
-- [~] `gGameTime::CallEFun_InqGameDateTimeString` · 005438f0 — not bound: no library code calls it (needs GameTime::GetGameTimeFromTimeStamp)
+- [-] `gGameTime::CallEFun_InqGameDateTimeString` · 005438f0 — not needed: no library code calls it (crates/ac2-script/src/glue/game_time.rs:8)
 - [x] `gGameTime::CallEFun_IsNight` · 00543960 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
 - [x] `gGameTime::CallEFun_TemporalDilation` · 005439b0 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
 
@@ -1829,13 +1829,13 @@ Legend and workflow: [README](README.md).
 - [x] `gHeading::CallEFun_get_degrees` · 00543430 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gHeading::CallEFun_get_degrees_0_centered` · 005434a0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gHeading::CallEFun_is_in_range` · 00543510 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
-- [ ] `gHeading::CallEFun_ToWPString` · 005435b0 · legions 005233a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gHeading::CallEFun_ToWPString` · 005435b0 · legions 005233a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
-## `portal/shared/src/interp/glue/gicondesc.cpp.c` (0/2)
+## `portal/shared/src/interp/glue/gicondesc.cpp.c` (1/2)
 
 ### gIconDesc
-- [ ] `gIconDesc::CallEFun_Empty` · 005432f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [~] `gIconDesc::CallEFun_IsValid` · 00543360 — glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so null colour = packed 0 (assumption on the packed shift colour)
+- [-] `gIconDesc::CallEFun_Empty` · 005432f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [x] `gIconDesc::CallEFun_IsValid` · 00543360 — audit: covered: null RGBAColor assumed packed 0 (bss zero) [crates/ac2-script/src/glue/ui_natives.rs:5; test glue/batch_tests.rs:768]
 
 ## `portal/shared/src/interp/glue/gifuntestsystem.cpp.c` (0/2)
 
@@ -2007,9 +2007,9 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/glanddefs.cpp.c` (0/3)
 
 ### gLandDefs
-- [ ] `gLandDefs::CallEFun_get_land_length` · 00543220 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLandDefs::CallEFun_get_land_width` · 00543250 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLandDefs::CallEFun_InqLandblockIIDFromStaticObjectIID` · 00543280 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gLandDefs::CallEFun_get_land_length` · 00543220 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLandDefs::CallEFun_get_land_width` · 00543250 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLandDefs::CallEFun_InqLandblockIIDFromStaticObjectIID` · 00543280 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/glarray.cpp.c` (12/13)
 
@@ -2243,22 +2243,22 @@ Legend and workflow: [README](README.md).
 - [x] `LOSParameters::SetFromBeginAndEndPosition` · 005425b0 · legions 00522b50 — ac2-physics los (Terrain::los_check)
 
 ### gLOSParameters
-- [ ] `gLOSParameters::CallEFun_AddToEtherealList` · 00542680 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetBlockedByWater` · 00542700 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetCheckEnvOnly` · 00542760 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetCheckPortalsOnly` · 005427c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetCheckUnconnectedPortalsOnly` · 00542820 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetExactDrawingCheck` · 00542880 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetFromBeginAndEndPosition` · 005428e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetFromPositionAndOffset` · 00542950 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetLOSParams` · 005429e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetPhysicsCheck` · 00542a50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_SetRay` · 00542ab0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_GetFinalCellID` · 00542b20 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_HitUnloadedBlock` · 00542b90 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_RayUnblocked` · 00542c10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_GetEndPoint` · 00542c90 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gLOSParameters::CallEFun_GetFinalRay` · 00542d30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gLOSParameters::CallEFun_AddToEtherealList` · 00542680 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetBlockedByWater` · 00542700 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetCheckEnvOnly` · 00542760 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetCheckPortalsOnly` · 005427c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetCheckUnconnectedPortalsOnly` · 00542820 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetExactDrawingCheck` · 00542880 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetFromBeginAndEndPosition` · 005428e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetFromPositionAndOffset` · 00542950 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetLOSParams` · 005429e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetPhysicsCheck` · 00542a50 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_SetRay` · 00542ab0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_GetFinalCellID` · 00542b20 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_HitUnloadedBlock` · 00542b90 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_RayUnblocked` · 00542c10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_GetEndPoint` · 00542c90 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gLOSParameters::CallEFun_GetFinalRay` · 00542d30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/glrhash.cpp.c` (20/20)
 
@@ -2416,65 +2416,65 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gmotionvalues.cpp.c` (0/22)
 
 ### gMotionValues
-- [ ] `gMotionValues::CallEFun_GetBackwardAcl` · 00540b30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetBackwardSB` · 00540ba0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetDrag` · 00540c10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetForwardAcl` · 00540c80 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetForwardSB` · 00540cf0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetGravity` · 00540d60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetHoverHeight` · 00540dd0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetJumpImpulse` · 00540e40 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetLift` · 00540eb0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetMaxBackwardVel` · 00540f20 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetMaxForwardVel` · 00540f90 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetMaxStrafeVel` · 00541000 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetMaxVertVel` · 00541070 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetRunningTurnVel` · 005410e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetSinkOffset` · 00541150 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetStillTurnVel` · 005411c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetStrafeAcl` · 00541230 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetStrafeSB` · 005412a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetTerminalVel` · 00541310 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetTurnAcl` · 00541380 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetTurnSB` · 005413f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMotionValues::CallEFun_GetVertAcl` · 00541460 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gMotionValues::CallEFun_GetBackwardAcl` · 00540b30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetBackwardSB` · 00540ba0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetDrag` · 00540c10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetForwardAcl` · 00540c80 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetForwardSB` · 00540cf0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetGravity` · 00540d60 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetHoverHeight` · 00540dd0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetJumpImpulse` · 00540e40 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetLift` · 00540eb0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetMaxBackwardVel` · 00540f20 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetMaxForwardVel` · 00540f90 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetMaxStrafeVel` · 00541000 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetMaxVertVel` · 00541070 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetRunningTurnVel` · 005410e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetSinkOffset` · 00541150 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetStillTurnVel` · 005411c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetStrafeAcl` · 00541230 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetStrafeSB` · 005412a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetTerminalVel` · 00541310 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetTurnAcl` · 00541380 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetTurnSB` · 005413f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMotionValues::CallEFun_GetVertAcl` · 00541460 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gmovementparameters.cpp.c` (0/21)
 
 ### gMovementParameters
-- [ ] `gMovementParameters::CallEFun_set_callback_when_in_range` · 005402a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_context_id` · 00540300 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_desired_distance` · 00540360 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_desired_velocity` · 005403c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_fail_distance` · 00540420 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_max_success_distance` · 00540480 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_min_success_distance` · 005404e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_move_away_flag` · 00540540 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_move_towards_flag` · 005405a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_object_flag` · 00540600 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_offset_vector` · 00540660 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_persistent_fail_exits_flag` · 005406c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_persistent_flag` · 00540720 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_target_heading` · 00540780 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_target_object_id` · 005407f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_target_position` · 00540850 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_turn_flag` · 005408b0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_use_cylinders` · 00540910 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_get_context_id` · 00540970 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_set_position_list` · 005409e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementParameters::CallEFun_pop_position_list` · 00540aa0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gMovementParameters::CallEFun_set_callback_when_in_range` · 005402a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_context_id` · 00540300 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_desired_distance` · 00540360 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_desired_velocity` · 005403c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_fail_distance` · 00540420 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_max_success_distance` · 00540480 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_min_success_distance` · 005404e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_move_away_flag` · 00540540 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_move_towards_flag` · 005405a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_object_flag` · 00540600 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_offset_vector` · 00540660 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_persistent_fail_exits_flag` · 005406c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_persistent_flag` · 00540720 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_target_heading` · 00540780 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_target_object_id` · 005407f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_target_position` · 00540850 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_turn_flag` · 005408b0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_use_cylinders` · 00540910 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_get_context_id` · 00540970 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_set_position_list` · 005409e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementParameters::CallEFun_pop_position_list` · 00540aa0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gmovementreturn.cpp.c` (0/8)
 
 ### gMovementReturn
-- [ ] `gMovementReturn::CallEFun_GetError` · 0053fe10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementReturn::CallEFun_GetObjectHeight` · 0053fe80 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementReturn::CallEFun_GetObjectID` · 0053fef0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementReturn::CallEFun_GetObjectRadius` · 0053ff80 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementReturn::CallEFun_GetPersistentFlag` · 0053fff0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementReturn::CallEFun_GetStatus` · 00540060 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementReturn::CallEFun_GetMovementParameters` · 005400d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gMovementReturn::CallEFun_GetPosition` · 005401a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gMovementReturn::CallEFun_GetError` · 0053fe10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementReturn::CallEFun_GetObjectHeight` · 0053fe80 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementReturn::CallEFun_GetObjectID` · 0053fef0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementReturn::CallEFun_GetObjectRadius` · 0053ff80 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementReturn::CallEFun_GetPersistentFlag` · 0053fff0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementReturn::CallEFun_GetStatus` · 00540060 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementReturn::CallEFun_GetMovementParameters` · 005400d0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gMovementReturn::CallEFun_GetPosition` · 005401a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gnahash.cpp.c` (20/20)
 
@@ -2558,10 +2558,10 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gobjcollisionprofile.cpp.c` (0/4)
 
 ### gObjCollisionProfile
-- [ ] `gObjCollisionProfile::CallEFun_GetID` · 0053fc50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gObjCollisionProfile::CallEFun_IsBeginCollision` · 0053fcc0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gObjCollisionProfile::CallEFun_IsEndCollision` · 0053fd30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gObjCollisionProfile::CallEFun_IsEthereal` · 0053fda0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gObjCollisionProfile::CallEFun_GetID` · 0053fc50 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gObjCollisionProfile::CallEFun_IsBeginCollision` · 0053fcc0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gObjCollisionProfile::CallEFun_IsEndCollision` · 0053fd30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gObjCollisionProfile::CallEFun_IsEthereal` · 0053fda0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gpackbuffer.cpp.c` (10/10)
 
@@ -2580,70 +2580,70 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gpath.cpp.c` (0/12)
 
 ### gPath
-- [ ] `gPath::CallEFun_set_dist` · 0053efd0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::CallEFun_set_ratio` · 0053f030 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::CallEFun_set_time` · 0053f090 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::CallEFun_get_dist` · 0053f0f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::CallEFun_get_ratio` · 0053f160 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::CallEFun_get_time` · 0053f1d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::CallEFun_length` · 0053f250 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::CallEFun_unsolved` · 0053f2c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPath::CallEFun_set_dist` · 0053efd0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::CallEFun_set_ratio` · 0053f030 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::CallEFun_set_time` · 0053f090 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::CallEFun_get_dist` · 0053f0f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::CallEFun_get_ratio` · 0053f160 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::CallEFun_get_time` · 0053f1d0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::CallEFun_length` · 0053f250 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::CallEFun_unsolved` · 0053f2c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### gMovementParameters
-- [ ] `gMovementParameters::RListToPositionList` · 0053f340 · legions 00521800 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gMovementParameters::RListToPositionList` · 0053f340 · legions 00521800 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### gPath
-- [ ] `gPath::CallEFun_ToStringW` · 0053f410 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::PositionListToRList` · 0053f4d0 · legions 00520a00 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPath::CallEFun_TranslateToPositionList` · 0053f590 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPath::CallEFun_ToStringW` · 0053f410 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::PositionListToRList` · 0053f4d0 · legions 00520a00 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPath::CallEFun_TranslateToPositionList` · 0053f590 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gpathfinder.cpp.c` (0/14)
 
 ### gPathFinder
-- [ ] `gPathFinder::CallEFun_AddRequiredProperties` · 0053e9b0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_AddSolutionTypes` · 0053ea10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_AddTerminateSolutionTypes` · 0053ea70 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_HasRequiredProperties` · 0053ead0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_SetRequiredProperties` · 0053eb10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_SetSolutionTypes` · 0053eb70 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_SetTerminateSolutionTypes` · 0053ebd0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_HasSolutionType` · 0053ec30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_HasTerminateSolutionType` · 0053ecb0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_SetEnd` · 0053ed30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_SetEndPosition` · 0053edb0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_SetStart` · 0053ee30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_SetStartPosition` · 0053eeb0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder::CallEFun_InqSolution` · 0053ef30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPathFinder::CallEFun_AddRequiredProperties` · 0053e9b0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_AddSolutionTypes` · 0053ea10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_AddTerminateSolutionTypes` · 0053ea70 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_HasRequiredProperties` · 0053ead0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_SetRequiredProperties` · 0053eb10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_SetSolutionTypes` · 0053eb70 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_SetTerminateSolutionTypes` · 0053ebd0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_HasSolutionType` · 0053ec30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_HasTerminateSolutionType` · 0053ecb0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_SetEnd` · 0053ed30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_SetEndPosition` · 0053edb0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_SetStart` · 0053ee30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_SetStartPosition` · 0053eeb0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder::CallEFun_InqSolution` · 0053ef30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gpathfinder_normal.cpp.c` (0/10)
 
 ### gPathFinder_Normal
-- [ ] `gPathFinder_Normal::CallEFun_SetHeight` · 0053e5e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetMaxDistance` · 0053e640 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetMinDistance` · 0053e6a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetMoveAway` · 0053e700 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetRandomComponent` · 0053e760 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetSameBlockConstraint` · 0053e7c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetSlopeConstraint` · 0053e830 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetSolidConstraint` · 0053e890 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetWaterConstraint` · 0053e8f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathFinder_Normal::CallEFun_SetWidth` · 0053e950 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPathFinder_Normal::CallEFun_SetHeight` · 0053e5e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetMaxDistance` · 0053e640 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetMinDistance` · 0053e6a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetMoveAway` · 0053e700 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetRandomComponent` · 0053e760 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetSameBlockConstraint` · 0053e7c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetSlopeConstraint` · 0053e830 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetSolidConstraint` · 0053e890 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetWaterConstraint` · 0053e8f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathFinder_Normal::CallEFun_SetWidth` · 0053e950 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gpathnodedata.cpp.c` (0/3)
 
 ### gPathNodeData
-- [ ] `gPathNodeData::CallEFun_GetSlopeConstraint` · 0053e490 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathNodeData::CallEFun_IsSolid` · 0053e500 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathNodeData::CallEFun_IsWater` · 0053e570 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPathNodeData::CallEFun_GetSlopeConstraint` · 0053e490 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathNodeData::CallEFun_IsSolid` · 0053e500 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathNodeData::CallEFun_IsWater` · 0053e570 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gpathsystem.cpp.c` (0/13)
 
 ### PathSystem
-- [ ] `PathSystem::QueryPosition_Internal` · 0053de90 · legions 0051fb50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PathSystem::QueryPosition_Internal` · 0053de90 · legions 0051fb50 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### gPathSystem
-- [ ] `gPathSystem::CallEFun_GetPathMapID` · 0053df10 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathSystem::CallEFun_GetPathNodeID` · 0053df50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPathSystem::CallEFun_GetPathMapID` · 0053df10 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathSystem::CallEFun_GetPathNodeID` · 0053df50 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### PathSystem
 - [-] `PathSystem::DumpPathMapW` · 0053dfb0 · legions 0051fc70 — WSL debugger query or dump (process, reference and perf tables)
@@ -2654,10 +2654,10 @@ Legend and workflow: [README](README.md).
 - [-] `gPathSystem::CallEFun_DumpCacheW` · 0053e220 — admin dump of path map and caches
 - [-] `gPathSystem::CallEFun_DumpPathMapW` · 0053e260 — admin dump of path map and caches
 - [-] `gPathSystem::CallEFun_DumpSearchStatsW` · 0053e2c0 — admin dump of path map and caches
-- [ ] `gPathSystem::CallEFun_FindPath` · 0053e300 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathSystem::CallEFun_InqPathNodeDataByNodeID` · 0053e360 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathSystem::CallEFun_InqPathNodeDataByPosition` · 0053e3c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPathSystem::CallEFun_QueryPosition` · 0053e430 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPathSystem::CallEFun_FindPath` · 0053e300 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathSystem::CallEFun_InqPathNodeDataByNodeID` · 0053e360 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathSystem::CallEFun_InqPathNodeDataByPosition` · 0053e3c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPathSystem::CallEFun_QueryPosition` · 0053e430 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gperfmon.cpp.c` (0/9)
 
@@ -2734,31 +2734,31 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gphysicsstory.cpp.c` (0/7)
 
 ### gPhysicsStory
-- [ ] `gPhysicsStory::CallEFun_AddHook` · 0053daa0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPhysicsStory::CallEFun_SetAttackerBehavior` · 0053db00 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPhysicsStory::CallEFun_SetAttackerID` · 0053db60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPhysicsStory::CallEFun_SetBasicAttack` · 0053dbc0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPhysicsStory::CallEFun_SetClientAttackContext` · 0053dc20 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPhysicsStory::CallEFun_SetSkillID` · 0053dc80 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPhysicsStory::CallEFun_GetOverallAttackResult` · 0053dce0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPhysicsStory::CallEFun_AddHook` · 0053daa0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPhysicsStory::CallEFun_SetAttackerBehavior` · 0053db00 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPhysicsStory::CallEFun_SetAttackerID` · 0053db60 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPhysicsStory::CallEFun_SetBasicAttack` · 0053dbc0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPhysicsStory::CallEFun_SetClientAttackContext` · 0053dc20 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPhysicsStory::CallEFun_SetSkillID` · 0053dc80 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPhysicsStory::CallEFun_GetOverallAttackResult` · 0053dce0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gplacestable.cpp.c` (3/6)
 
 ### gPlacesTable
-- [ ] `gPlacesTable::NRHashToPlacesHash` · 0053d6a0 · legions 0051f480 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPlacesTable::NRHashToPlacesHash` · 0053d6a0 · legions 0051f480 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [-] `gPlacesTable::CallEFun_WslDump` · 0053d730 — WSL debug dump
 - [x] `gPlacesTable::PlacesHashToNRHash` · 0053d7b0 · legions 0051f590 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [x] `gPlacesTable::CallEFun_InqPlace` · 0053d8f0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
-- [ ] `gPlacesTable::CallEFun_InqPlaceStr` · 0053d960 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPlacesTable::CallEFun_InqPlaceStr` · 0053d960 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gPlacesTable::CallEFun_InqPlacesHash` · 0053d9d0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ## `portal/shared/src/interp/glue/gplane.cpp.c` (0/4)
 
 ### gPlane
-- [ ] `gPlane::CallEFun_InitPlane` · 0053d3f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPlane::CallEFun_distance_to_point` · 0053d480 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPlane::CallEFun_GetStringW` · 0053d510 · legions 0051f330 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPlane::CallEFun_snap_to_plane` · 0053d590 · legions 0051f390 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gPlane::CallEFun_InitPlane` · 0053d3f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPlane::CallEFun_distance_to_point` · 0053d480 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPlane::CallEFun_GetStringW` · 0053d510 · legions 0051f330 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gPlane::CallEFun_snap_to_plane` · 0053d590 · legions 0051f390 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gposition.cpp.c` (41/41)
 
@@ -2844,8 +2844,8 @@ Legend and workflow: [README](README.md).
 ### PSUtils
 - [x] `PSUtils::is_double` · 0053ab40 · legions 0051d4b0 — ac2-prefs/src/cnum.rs fn is_double (PSUtils::is_double)
 - [x] `PSUtils::is_int32` · 0053abb0 · legions 0051d520 — ac2-prefs/src/cnum.rs fn is_int32 (PSUtils::is_int32)
-- [ ] `PSUtils::is_int64` · 0053ac20 · legions 0051d590 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `PSUtils::is_uint64` · 0053ac90 · legions 0051d600 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PSUtils::is_int64` · 0053ac20 · legions 0051d590 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `PSUtils::is_uint64` · 0053ac90 · legions 0051d600 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### gPSUtils
 - [x] `gPSUtils::CallEFun_is_double` · 0053ad00 — ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
@@ -2863,10 +2863,10 @@ Legend and workflow: [README](README.md).
 ### gQualifiedDataIDArray
 - [x] `gQualifiedDataIDArray::CallEFun_WslAddToEnd` · 0053aac0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
-## `portal/shared/src/interp/glue/grandom.cpp.c` (6/7)
+## `portal/shared/src/interp/glue/grandom.cpp.c` (7/7)
 
 ### (free functions)
-- [~] `RollSkewedNumberEx` · 005566d0 · legions 0052f650 — ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
+- [x] `RollSkewedNumberEx` · 005566d0 · legions 0052f650 — audit: covered: f32 spill vs x87 unchecked [crates/ac2-script/src/glue/random.rs:83]
 
 ### gRandom
 - [x] `gRandom::CallEFun_RollDice` · 00556740 · legions 0052f6c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -2923,24 +2923,24 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gray.cpp.c` (0/8)
 
 ### gRay
-- [ ] `gRay::CallEFun_InitFromOffset` · 00539fe0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gRay::CallEFun_InitLineSegment` · 0053a050 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gRay::CallEFun_normalize` · 0053a0f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gRay::CallEFun_GetLength` · 0053a150 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gRay::CallEFun_IsFinite` · 0053a1c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gRay::CallEFun_GetDirection` · 0053a250 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gRay::CallEFun_GetEndPoint` · 0053a300 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gRay::CallEFun_GetStartPoint` · 0053a3d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gRay::CallEFun_InitFromOffset` · 00539fe0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gRay::CallEFun_InitLineSegment` · 0053a050 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gRay::CallEFun_normalize` · 0053a0f0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gRay::CallEFun_GetLength` · 0053a150 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gRay::CallEFun_IsFinite` · 0053a1c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gRay::CallEFun_GetDirection` · 0053a250 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gRay::CallEFun_GetEndPoint` · 0053a300 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gRay::CallEFun_GetStartPoint` · 0053a3d0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/greservedids.cpp.c` (3/6)
 
 ### gReservedIDs
-- [ ] `gReservedIDs::CallEFun_IsCameraID` · 00539e60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gReservedIDs::CallEFun_IsCameraID` · 00539e60 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gReservedIDs::CallEFun_IsDynamicID` · 00539ea0 — ac2-script: gReservedIDs over ac2-net iid
 - [x] `gReservedIDs::CallEFun_IsPlayerID` · 00539ee0 — ac2-script: gReservedIDs over ac2-net iid
 - [x] `gReservedIDs::CallEFun_IsStaticID` · 00539f20 — ac2-script: gReservedIDs over ac2-net iid
-- [ ] `gReservedIDs::CallEFun_IsTemporaryID` · 00539f60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gReservedIDs::CallEFun_IsUIID` · 00539fa0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gReservedIDs::CallEFun_IsTemporaryID` · 00539f60 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gReservedIDs::CallEFun_IsUIID` · 00539fa0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/grgbacolor.cpp.c` (5/5)
 
@@ -3025,39 +3025,39 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gsetpositionstruct.cpp.c` (0/10)
 
 ### gSetPositionStruct
-- [ ] `gSetPositionStruct::CallEFun_AddFlags` · 00539840 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_RemoveFlags` · 005398a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_SetFlags` · 00539900 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_SetLine` · 00539960 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_SetLineByPos` · 005399c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_SetNumTries` · 00539a30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_SetPosition` · 00539a90 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_SetScatterRadius` · 00539af0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_GetFlags` · 00539b60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSetPositionStruct::CallEFun_IsFlagSet` · 00539bd0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gSetPositionStruct::CallEFun_AddFlags` · 00539840 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_RemoveFlags` · 005398a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_SetFlags` · 00539900 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_SetLine` · 00539960 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_SetLineByPos` · 005399c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_SetNumTries` · 00539a30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_SetPosition` · 00539a90 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_SetScatterRadius` · 00539af0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_GetFlags` · 00539b60 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSetPositionStruct::CallEFun_IsFlagSet` · 00539bd0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gsphere.cpp.c` (0/3)
 
 ### gSphere
-- [ ] `gSphere::CallEFun_Intersects` · 005396a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSphere::CallEFun_get_radius` · 00539720 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gSphere::CallEFun_get_center` · 00539790 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gSphere::CallEFun_Intersects` · 005396a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSphere::CallEFun_get_radius` · 00539720 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gSphere::CallEFun_get_center` · 00539790 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gstoryhookdata.cpp.c` (0/12)
 
 ### gStoryHookData
-- [ ] `gStoryHookData::CallEFun_SetAnimHookNumber` · 00539220 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetAttackHookNumber` · 00539280 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetAttackResult` · 005392e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetAttackerHealthChange` · 00539340 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetAttackerPKDamageChange` · 005393a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetTargetHealthChange` · 00539400 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetTargetID` · 00539460 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetTargetPKDamageChange` · 005394c0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetTypeToCreateMissiles` · 00539520 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetTypeToDamage` · 00539580 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetTypeToFireMissile` · 005395e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gStoryHookData::CallEFun_SetWeaponID` · 00539640 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gStoryHookData::CallEFun_SetAnimHookNumber` · 00539220 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetAttackHookNumber` · 00539280 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetAttackResult` · 005392e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetAttackerHealthChange` · 00539340 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetAttackerPKDamageChange` · 005393a0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetTargetHealthChange` · 00539400 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetTargetID` · 00539460 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetTargetPKDamageChange` · 005394c0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetTypeToCreateMissiles` · 00539520 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetTypeToDamage` · 00539580 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetTypeToFireMissile` · 005395e0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gStoryHookData::CallEFun_SetWeaponID` · 00539640 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gstringinfo.cpp.c` (35/38)
 
@@ -3074,7 +3074,7 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_AddVariable_StringInfo` · 005383d0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_UInt` · 00538440 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_ULInt` · 005384a0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-- [ ] `gStringInfo::CallEFun_ApplyMetasToPlayerName` · 00538500 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gStringInfo::CallEFun_ApplyMetasToPlayerName` · 00538500 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gStringInfo::CallEFun_Reset` · 00538560 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetLiteralValue` · 005385c0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetStringID` · 00538620 — ac2-script glue::string_info (lookups via ScriptData)
@@ -3095,7 +3095,7 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_ne` · 00538ca0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `gStringInfo::CallEFun_GetLogString` · 00538d20 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gStringInfo::CallEFun_GetString` · 00538de0 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [ ] `gStringInfo::CallEFun_GetStringCaseInsensitive` · 00538ea0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gStringInfo::CallEFun_GetStringCaseInsensitive` · 00538ea0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gStringInfo::CallEFun_GetStringWithMetaTags` · 00538fa0 · legions 0051c0d0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [-] `gStringInfo::CallEFun_FromFileNode` · 00539060 · legions 0051c160 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 - [x] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0 — ac2-script glue::sub_data_ids
@@ -3104,7 +3104,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gstringutils.cpp.c` (2/3)
 
 ### gStringUtils
-- [ ] `gStringUtils::CallEFun_ConvertWPStringToCIWPstring` · 00551ee0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gStringUtils::CallEFun_ConvertWPStringToCIWPstring` · 00551ee0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ### (free functions)
 - [x] `IsWordInString` · 00551fa0 · legions 0052d1d0 — ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
@@ -3115,15 +3115,15 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gtabootableadaptor.cpp.c` (1/3)
 
 ### gTabooTableAdaptor
-- [ ] `gTabooTableAdaptor::CallEFun_CheckCharactersW` · 00537ed0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gTabooTableAdaptor::CallEFun_CheckCensorsW` · 00537f20 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gTabooTableAdaptor::CallEFun_CheckCharactersW` · 00537ed0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gTabooTableAdaptor::CallEFun_CheckCensorsW` · 00537f20 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gTabooTableAdaptor::CallEFun_FormatStringForAudienceW` · 00537fa0 — ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj
 
 ## `portal/shared/src/interp/glue/gtimer.cpp.c` (1/3)
 
 ### gTimer
-- [ ] `gTimer::CallEFun_compute_time` · 00554020 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gTimer::CallEFun_get_real_time` · 00554050 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gTimer::CallEFun_compute_time` · 00554020 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gTimer::CallEFun_get_real_time` · 00554050 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [x] `gTimer::CallEFun_get_time` · 00554080 — ac2-script glue::engine_misc get_time (Vm::cur_time, ScriptHost::set_time; the client must call set_time each frame)
 
 ## `portal/shared/src/interp/glue/gtokenize.cpp.c` (1/1)
@@ -3134,14 +3134,14 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gtypeinfo.cpp.c` (0/3)
 
 ### gTypeInfo
-- [ ] `gTypeInfo::CallEFun_get_type` · 00553f30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gTypeInfo::CallEFun_new_type` · 00553f80 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gTypeInfo::CallEFun_new_validated_type` · 00553fd0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gTypeInfo::CallEFun_get_type` · 00553f30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gTypeInfo::CallEFun_new_type` · 00553f80 — the 7230 wlib calls efun 0x006E0002 once, in package TestTools (0x286) function 1 (byte 0x13F81C); no library word names a TestTools function (0x0286xxxx/0x8286xxxx) and the client exe never names the package: a developer test tool no client path reaches (efun_coverage AC2_DUMP_REFERENCED on dataset-7230 plus a probe)
+- [-] `gTypeInfo::CallEFun_new_validated_type` · 00553fd0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/guisavelocations.cpp.c` (0/1)
 
 ### gUISaveLocations
-- [ ] `gUISaveLocations::CallEFun_Clear` · 00537e30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gUISaveLocations::CallEFun_Clear` · 00537e30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gvector.cpp.c` (15/15)
 
@@ -3210,10 +3210,10 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gvmdata.cpp.c` (0/4)
 
 ### gVMData
-- [ ] `gVMData::CallEFun_AddData` · 00536e50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gVMData::CallEFun_GetData` · 00536eb0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gVMData::CallEFun_HasData` · 00536f30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gVMData::CallEFun_RemoveData` · 00536fa0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gVMData::CallEFun_AddData` · 00536e50 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gVMData::CallEFun_GetData` · 00536eb0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gVMData::CallEFun_HasData` · 00536f30 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gVMData::CallEFun_RemoveData` · 00536fa0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/gwccinternal.cpp.c` (10/10)
 
@@ -3290,8 +3290,8 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gwstate.cpp.c` (0/2)
 
 ### gWState
-- [ ] `gWState::CallEFun_SaveStateByType` · 00536bc0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gWState::CallEFun_GetStateByType` · 00536bf0 · legions 0051a960 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `gWState::CallEFun_SaveStateByType` · 00536bc0 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `gWState::CallEFun_GetStateByType` · 00536bf0 · legions 0051a960 — not needed: efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 
 ## `portal/shared/src/interp/glue/nativefactory.cpp.c` (0/2)
 
@@ -3306,7 +3306,7 @@ Legend and workflow: [README](README.md).
 - [-] `HeapObject::GetPackSize` · 006dbab0 · legions 00664f60 — VM heap clear and pack size (Rust memory and writer)
 - [x] `HeapObject::Pack` · 006dbb00 · legions 00664fb0 — ac2-net protocol::pack
 - [x] `HeapObject::UnPack` · 006dbbd0 · legions 00665080 — ac2-script reference/native unpack
-- [ ] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [x] `HeapObject::UpdateReferences` · 006dbdd0 · legions 00665280 — vm/refs.rs fn update_references (HeapObject::UpdateReferences)
 
 ## `portal/shared/src/interp/interp_binop.cpp.c` (71/71)
@@ -3434,9 +3434,9 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/interp_exec.cpp.c` (1/4)
 
 ### Interp
-- [~] `Interp::AddLongHandler` · 006de120 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
-- [~] `Interp::SetupHandlers` · 006de1e0 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
-- [~] `Interp::Interp` · 006e08d0 · legions 00667890 — ac2-script: handler table is a match in exec.rs
+- [-] `Interp::AddLongHandler` · 006de120 — replaced by design: GC/VMMon timers are admin monitoring, not behaviour [crates/ac2-script/src/vm/program.rs:13,104 (opcode consts); handler table is a match in vm/exec.rs]
+- [-] `Interp::SetupHandlers` · 006de1e0 — replaced by design: GC/VMMon timers are admin monitoring, not behaviour [crates/ac2-script/src/vm/program.rs:13,104 (opcode consts); handler table is a match in vm/exec.rs]
+- [-] `Interp::Interp` · 006e08d0 · legions 00667890 — replaced by design: GC/VMMon timers are admin monitoring, not behaviour [crates/ac2-script/src/vm/program.rs:13,104 (opcode consts); handler table is a match in vm/exec.rs]
 - [x] `Interp::Exec` · 006e08f0 — ac2-script vm::exec / Program::walk
 
 ## `portal/shared/src/interp/interp_optimized.cpp.c` (8/8)
@@ -3479,8 +3479,8 @@ Legend and workflow: [README](README.md).
 
 ### PackageState
 - [-] `PackageState::PackageState` · 006e1630 · legions 00668470 — C++ constructor of plain data or a container (Rust struct init)
-- [ ] `PackageState::Pack` · 006e1650 · legions 00668490 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `PackageState::Clear` · 006e16a0 · legions 006684e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `PackageState::Pack` · 006e1650 · legions 00668490 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
+- [-] `PackageState::Clear` · 006e16a0 · legions 006684e0 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [-] `PackageState::~PackageState` · 006e16d0 · legions 00668510 — C++ destructor (Rust drop replaces it)
 - [x] `PackageState::UnPack` · 006e1700 · legions 00668540 — ac2-script WLib/WState/ByteStream decode
 
@@ -3516,16 +3516,16 @@ Legend and workflow: [README](README.md).
 
 ### VMData
 - [-] `VMData::VMData` · 006ece90 · legions 00671ca0 — C++ constructor of plain data or a container (Rust struct init)
-- [ ] `VMData::GetReferenceData` · 006ecea0 · legions 00671cb0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VMData::GetReferenceData` · 006ecea0 · legions 00671cb0 — not needed: backing store of gVMData efuns 0x0073_xxxx which the WLib never calls; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [-] `VMData::GetPackSize` · 006eceb0 — VM data refcount or checkpoint pack (Rust memory replaces it)
 - [-] `VMData::Pack` · 006ecf30 — VM data refcount or checkpoint pack (Rust memory replaces it)
-- [ ] `VMData::GetData` · 006ecff0 · legions 00671e00 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `VMData::HasData` · 006ed020 · legions 00671e30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VMData::GetData` · 006ecff0 · legions 00671e00 — not needed: backing store of gVMData efuns 0x0073_xxxx which the WLib never calls; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
+- [-] `VMData::HasData` · 006ed020 · legions 00671e30 — not needed: backing store of gVMData efuns 0x0073_xxxx which the WLib never calls; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [-] `VMData::DecrementRefCount_` · 006ed060 · legions 00671e70 — VM data refcount or checkpoint pack (Rust memory replaces it)
 - [-] `VMData::Clear_` · 006ed0d0 · legions 00671ee0 — VM data refcount or checkpoint pack (Rust memory replaces it)
-- [ ] `VMData::RemoveData` · 006ed150 · legions 00671f60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VMData::RemoveData` · 006ed150 · legions 00671f60 — not needed: backing store of gVMData efuns 0x0073_xxxx which the WLib never calls; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [-] `VMData::operator=` · 006ed1b0 · legions 00671fc0 — C++ assignment operator of plain data (Rust copy/move)
-- [ ] `VMData::AddData` · 006ed2e0 · legions 006720f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VMData::AddData` · 006ed2e0 · legions 006720f0 — not needed: backing store of gVMData efuns 0x0073_xxxx which the WLib never calls; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm
 - [-] `VMData::VMData` · 006ed400 · legions 00672210 — C++ constructor of plain data or a container (Rust struct init)
 - [-] `VMData::UnPack` · 006ed420 — VM data refcount or checkpoint pack (Rust memory replaces it)
 
@@ -3549,15 +3549,15 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/processstate.cpp.c` (2/14)
 
 ### ProcessState
-- [ ] `ProcessState::GetPackageID` · 006dd7a0 · legions 00666b90 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `ProcessState::ClearContextTable` · 006dd7c0 · legions 00666bb0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `ProcessState::GetPackageID` · 006dd7a0 · legions 00666b90 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
+- [-] `ProcessState::ClearContextTable` · 006dd7c0 · legions 00666bb0 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [-] `ProcessState::QueryContexts` · 006dd860 — WSL debugger query or dump (process, reference and perf tables)
 - [-] `ProcessState::QueryContextReferenceTree` · 006dd9a0 — WSL debugger query or dump (process, reference and perf tables)
 - [-] `ProcessState::~ProcessState` · 006dda60 · legions 00666ca0 — C++ destructor (Rust drop replaces it)
-- [ ] `ProcessState::GetContextState` · 006ddab0 · legions 00666cf0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `ProcessState::DeleteContext` · 006ddaf0 · legions 00666d30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `ProcessState::GetContextState` · 006ddab0 · legions 00666cf0 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
+- [-] `ProcessState::DeleteContext` · 006ddaf0 · legions 00666d30 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [-] `ProcessState::QueryReferenceTree` · 006ddb60 — WSL debugger query or dump (process, reference and perf tables)
-- [ ] `ProcessState::CreateContext` · 006ddba0 · legions 00666da0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `ProcessState::CreateContext` · 006ddba0 · legions 00666da0 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [-] `ProcessState::ProcessState` · 006ddcf0 · legions 00666ea0 — C++ constructor of plain data or a container (Rust struct init)
 
 ### ReferenceTable
@@ -3576,8 +3576,8 @@ Legend and workflow: [README](README.md).
 
 ### ProcessTable
 - [-] `ProcessTable::~ProcessTable` · 006e17f0 — C++ destructor (Rust drop replaces it)
-- [ ] `ProcessTable::UnRegisterProcess` · 006e1830 · legions 00668660 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `ProcessTable::GetProcess` · 006e1860 · legions 00668640 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `ProcessTable::UnRegisterProcess` · 006e1830 · legions 00668660 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
+- [-] `ProcessTable::GetProcess` · 006e1860 · legions 00668640 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [-] `ProcessTable::QueryProcess` · 006e1880 · legions 00668690 — WSL debugger query or dump (process, reference and perf tables)
 - [-] `ProcessTable::ProcessTable` · 006e18b0 · legions 006686c0 — C++ constructor of plain data or a container (Rust struct init)
 - [x] `ProcessTable::RegisterProcess` · 006e18d0 · legions 006686e0 — ac2-script host::ScriptHost process_ids numbering (Vm::process_ids)
@@ -3611,10 +3611,10 @@ Legend and workflow: [README](README.md).
 - [-] `ReservedRefTable::StopMarking` · 006e0a00 · legions 006678d0 — container internals (Rust collections replace them)
 - [x] `ReservedRefTable::AddReference` · 006e0a50 · legions 00667920 — ac2-script vm::refs (reserved bit on every new entry)
 
-## `portal/shared/src/interp/runtimebytestream.cpp.c` (2/3)
+## `portal/shared/src/interp/runtimebytestream.cpp.c` (3/3)
 
 ### RuntimeByteStream
-- [~] `RuntimeByteStream::ValidateVersion` · 006ecb60 — ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
+- [x] `RuntimeByteStream::ValidateVersion` · 006ecb60 — crates/ac2-script/src/bytestream/mod.rs validate_versions: $wcc must be 13, run at WLib load
 
 ### ReferenceTable
 - [x] `ReferenceTable::CreateStringLiteral` · 006ecd30 · legions 00671b70 — ac2-script vm::Vm::new (string literals become wpstring natives)
@@ -3625,39 +3625,39 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/typeinfo.cpp.c` (0/3)
 
 ### (free functions)
-- [ ] `new_validated_type` · 006e1490 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `get_type` · 006e14c0 · legions 00668300 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `new_type` · 006e15a0 · legions 006683e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `new_validated_type` · 006e1490 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
+- [-] `get_type` · 006e14c0 · legions 00668300 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
+- [-] `new_type` · 006e15a0 · legions 006683e0 — the 7230 wlib calls efun 0x006E0002 once, in package TestTools (0x286) function 1 (byte 0x13F81C); no library word names a TestTools function (0x0286xxxx/0x8286xxxx) and the client exe never names the package: a developer test tool no client path reaches (efun_coverage AC2_DUMP_REFERENCED on dataset-7230 plus a probe)
 
-## `portal/shared/src/interp/vm.cpp.c` (24/66)
+## `portal/shared/src/interp/vm.cpp.c` (29/66)
 
 ### VM
 - [x] `VM::CreateProcessA` · 006dbe00 · legions 006652b0 — ac2-script host::ScriptHost::create_weenie / Vm::allocate_package (one process per weenie object)
 - [x] `VM::CreateProcessA` · 006dbe30 · legions 006652e0 — ac2-script host::ScriptHost::create_weenie / Vm::allocate_package (one process per weenie object)
-- [ ] `VM::CopyNativeObject` · 006dbe60 · legions 00665310 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VM::CopyNativeObject` · 006dbe60 · legions 00665310 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [x] `VM::IsDerivedFrom` · 006dbe80 · legions 00665330 — ac2-script vm::program Program::is_derived_from
 - [x] `VM::IsDerivedFrom` · 006dbea0 · legions 00665350 — ac2-script vm::program Program::is_derived_from
-- [ ] `VM::ValidateVersion` · 006dbec0 · legions 00665370 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [x] `VM::ValidateVersion` · 006dbec0 · legions 00665370 — crates/ac2-script/src/bytestream/mod.rs validate_versions: $wcc must be 13, run at WLib load
 - [-] `VM::GetReferences` · 006dbef0 · legions 006653a0 — VM garbage collector and allocator internals (Rust memory replaces them)
 - [-] `VM::UpdateNativeReferences` · 006dbf10 · legions 006653c0 — VM garbage collector and allocator internals (Rust memory replaces them)
 - [-] `VM::DeleteNativeObject` · 006dbf30 · legions 006653e0 — VM garbage collector and allocator internals (Rust memory replaces them)
 - [-] `VM::GetNativePackSize` · 006dbf50 · legions 00665400 — VM garbage collector and allocator internals (Rust memory replaces them)
-- [~] `VM::PackNativeObject` · 006dbf70 · legions 00665420 — ac2-net native read/write; coverage of every native object type unverified
-- [~] `VM::UnPackNativeObject` · 006dbf90 · legions 00665440 — ac2-net native read/write; coverage of every native object type unverified
-- [ ] `VM::GetContextID` · 006dbfb0 · legions 00665460 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [x] `VM::PackNativeObject` · 006dbf70 · legions 00665420 — a forward to the factory pack (slot +0x28): ac2-net protocol/native/mod.rs NativeObject::write packs every type the port can hold (each read type, the adaptors as nothing, VisualDesc as kept bytes)
+- [~] `VM::UnPackNativeObject` · 006dbf90 · legions 00665440 — the gm half is done (gmCNativeFactory::UnPackNativeObject: every gm type, ac2-net protocol/native). Still refused: the engine types CNativeFactory::UnPackNativeObject (Legions 0x004AB910) unpacks that no WState or message seen so far carries: the iterators (0x04, 0x07, 0x0B, 0x0D, 0x14, 0x35, 0x3C, 0x3E, 0x43, 0x66, 0x2E0C), Frame 0x2A, PackBuffer 0x50, Plane 0x59/0x68, RGBAColor 0x64 and the other plain types of its 0x02..0x73 list not in protocol/native. Settle: a server message or WState carrying one of them (the server agent found no capture needing any)
+- [-] `VM::GetContextID` · 006dbfb0 · legions 00665460 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [-] `VM::SetActiveGC` · 006dbfc0 · legions 00665470 — VM garbage collector and allocator internals (Rust memory replaces them)
 - [-] `VM::SetAggressiveGCDeletion` · 006dbfd0 · legions 00665480 — VM garbage collector and allocator internals (Rust memory replaces them)
 - [x] `VM::WSL_EFun_GetInstanceReference` · 006dbfe0 · legions 00665490 — ac2-script glue::vm_glue get_instance_reference
 
 ### ReferenceTable
 - [-] `ReferenceTable::GetReferencePackSize` · 006dbff0 · legions 006654a0 — VM garbage collector internals (Rust memory replaces them)
-- [~] `ReferenceTable::PackReferenceArray` · 006dc040 · legions 006654f0 — ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
+- [x] `ReferenceTable::PackReferenceArray` · 006dc040 · legions 006654f0 — ac2-net protocol/pack.rs PackedReference::write (count, ids, ReferenceEntry::Pack each) fed by ac2-script vm/pack.rs ReferenceTable::pack; ids counted from 1 is the AGENTS.md as_collected exception; the WState/slot-count checks are the unpack side
 - [x] `ReferenceTable::GetDependentReferences_Relative` · 006dc0b0 · legions 00665560 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [x] `VM::DeleteProcess` · 006dc0e0 · legions 00665590 — ac2-script host::ScriptHost::remove_weenie
-- [~] `VM::HashNativeObject` · 006dc110 · legions 006655c0 — ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
-- [~] `VM::IsNativeEqual` · 006dc140 · legions 006655f0 — ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
+- [x] `VM::HashNativeObject` · 006dc110 · legions 006655c0 — audit: covered: CaseInsensitiveWPString (0x353F) key unbound but all 33 of its efuns have no WLib call site, so no usable instance [crates/ac2-script/src/glue/hashes.rs:125-145 (NativeKeys: StringInfo, wpstring; others hash 0)]
+- [x] `VM::IsNativeEqual` · 006dc140 · legions 006655f0 — audit: covered: CaseInsensitiveWPString (0x353F) key unbound but all 33 of its efuns have no WLib call site, so no usable instance [crates/ac2-script/src/glue/hashes.rs:125-145 (NativeKeys: StringInfo, wpstring; others hash 0)]
 - [x] `VM::GetStringLiteral` · 006dc170 · legions 00665620 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [x] `VM::GetHeapObject` · 006dc190 · legions 00665640 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [-] `VM::IsReferenceValid` · 006dc1a0 — VM garbage collector and allocator internals (Rust memory replaces them)
@@ -3691,14 +3691,14 @@ Legend and workflow: [README](README.md).
 - [x] `ReferenceTable::GetDependentReferences_HeapObject` · 006dcbe0 · legions 00665fe0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
-- [ ] `VM::GetPackageNameByPkgID` · 006dcc00 · legions 00666000 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `VM::GetPackageNameByPkgIDW` · 006dcc50 · legions 00666050 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VM::GetPackageNameByPkgID` · 006dcc00 · legions 00666000 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
+- [-] `VM::GetPackageNameByPkgIDW` · 006dcc50 · legions 00666050 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [-] `VM::GarbageCollect` · 006dcc70 · legions 00666070 — VM garbage collector and allocator internals (Rust memory replaces them)
 - [-] `VM::~VM` · 006dcc80 · legions 00666080 — C++ destructor (Rust drop replaces it)
 - [x] `VM::GetPackageID` · 006dcce0 · legions 006660e0 — ac2-script vm::program Program::package_id
 - [x] `VM::GetPackageID` · 006dcd20 · legions 00666120 — ac2-script vm::program Program::package_id
-- [ ] `VM::GetSingletonPackage` · 006dce20 · legions 00666220 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `VM::GetSingletonPackageW` · 006dce90 · legions 00666290 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VM::GetSingletonPackage` · 006dce20 · legions 00666220 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
+- [-] `VM::GetSingletonPackageW` · 006dce90 · legions 00666290 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [x] `VM::GetSingletonPackageByID` · 006dcf50 · legions 00666350 — ac2-script vm::Vm::singleton_package
 - [x] `VM::GetWStateReference` · 006dcf90 · legions 00666390 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [x] `VM::GetPackageReference` · 006dcfb0 · legions 006663b0 — ac2-script glue
@@ -3711,7 +3711,7 @@ Legend and workflow: [README](README.md).
 - [x] `ReferenceTable::GetDependentReferences` · 006dd160 · legions 00666560 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
-- [ ] `VM::VM` · 006dd220 · legions 00666620 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VM::VM` · 006dd220 · legions 00666620 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [x] `VM::CreateSingletonProcess` · 006dd2d0 · legions 006666d0 — ac2-script host::ScriptHost::create_weenie / Vm::allocate_package (one process per weenie object)
 
 ### ReferenceTable
@@ -3723,7 +3723,7 @@ Legend and workflow: [README](README.md).
 - [x] `VM::PackReference` · 006dd500 · legions 00666900 — ac2-script vm::pack ReferenceTable::pack (PackedReference)
 - [x] `VM::UnPackReference` · 006dd520 · legions 00666920 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [-] `VM::Preproc_CleanWState` · 006dd540 · legions 00666940 — compiler/tool step on WState files; the client loads WStates read-only
-- [ ] `VM::GetPackageName` · 006dd630 · legions 00666a20 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `VM::GetPackageName` · 006dd630 · legions 00666a20 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 - [x] `VM::IsInstanceOf` · 006dd690 · legions 00666a80 — ac2-script glue
 - [x] `VM::CloneReference` · 006dd6c0 · legions 00666ab0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
@@ -3744,7 +3744,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/wlink/wlibdb.cpp.c` (0/4)
 
 ### WLinkMap
-- [ ] `WLinkMap::GetPackageName` · 006186a0 · legions 005d5080 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `WLinkMap::GetPackageName` · 006186a0 · legions 005d5080 — replaced by design: process/context/package/heap plumbing; efun_coverage.rs scan (every CALL_EFUN/THIS/LOAD/RLOAD site of the WLib): no call site; scan ran on the AC2_DAT_DIR set, rerun on 7230 to confirm [crates/ac2-script/src/vm/mod.rs:4,252 (Vm, caller-kept Contexts, singleton_package at 611); ho
 
 ### WLibDB
 - [-] `WLibDB::I_GetPackageName` · 00618700 — admin wlib database (no Legions match) [vtable-checked: not a slot of any located Legions vtable]

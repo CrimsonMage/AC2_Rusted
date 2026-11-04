@@ -66,6 +66,7 @@ impl DatOpenOptions {
         }
     }
 
+    /// The DAT's file path (`DiskController::GetFilename`, Legions 0x004B3F90, `filename_m`).
     pub fn path_for(&self, kind: DatFileKind) -> PathBuf {
         let file_name = match kind {
             DatFileKind::Portal => &self.portal_dat_file_name,

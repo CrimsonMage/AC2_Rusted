@@ -302,7 +302,11 @@ impl Emitter {
             _ => {}
         }
         if self.flags & flag::ROTATE_VELOCITY != 0 {
-            let turned = p.rotate_velocity * dt;
+            // Retail (Legions 0x00596F40) adds the turn up to the new key's own time, not the
+            // controller's span, and `ParticleThink` then turns by the whole time alive on top
+            // of it: kept as shipped.
+            let key_time = emitter.keyframes[self.keys[next].desc].time;
+            let turned = p.rotate_velocity * key_time;
             if self.flags & flag::START_WORLD_ROTATION != 0 {
                 p.start_world_rotation += turned;
             } else if self.flags & flag::START_ROTATION != 0 {

@@ -25,6 +25,10 @@ struct PoseContext<'a> {
     random: &'a mut ac2_core::Random,
     /// The setup's bones (`AnimSetup::IsBoneType` compares their type ids).
     bones: &'a [ac2_anim::Ac2Bone],
+    /// `HasContact` and not `IsSlidingDown`: the contact plane's normal in the body's frame.
+    contact_normal: Option<[f32; 3]>,
+    /// `Position::IsValid` of the body's position.
+    position_valid: bool,
 }
 
 impl Ac2AnimatorContext for PoseContext<'_> {
@@ -61,6 +65,12 @@ impl Ac2AnimatorContext for PoseContext<'_> {
     }
     fn roll_dice(&mut self, lower: i32, upper: i32) -> i32 {
         self.random.roll_dice(lower, upper)
+    }
+    fn local_contact_normal(&self) -> Option<[f32; 3]> {
+        self.contact_normal
+    }
+    fn position_valid(&self) -> bool {
+        self.position_valid
     }
     fn roll_dice_f32(&mut self, lower: f32, upper: f32) -> f32 {
         self.random.roll_dice_f32(lower, upper)
@@ -229,6 +239,16 @@ impl PhysicsObj {
     /// triggers are added to it either way (`DBAnimator::GetTriggers`).
     fn do_animation(&mut self, refresh: bool, local_time: f64, random: &mut ac2_core::Random) {
         let terrain = self.motion.terrain_type();
+        // `PHYSICSOBJREP::HasContact`, `IsSlidingDown` (contact off walkable ground) and
+        // `GetContactPlane`, turned into the body's frame (`AMAngle::Animate`).
+        let contact_normal = (self.has_contact() && self.on_walkable()).then(|| {
+            array(
+                self.position
+                    .frame
+                    .global_to_local_vec(self.contact_plane.n),
+            )
+        });
+        let position_valid = self.position.is_valid();
         let (anim_velocity, effects_scale, omega) = (
             array(self.anim_velocity),
             array(self.scale),
@@ -260,6 +280,8 @@ impl PhysicsObj {
             terrain,
             random,
             bones: &setup.bones,
+            contact_normal,
+            position_valid,
         };
         let root_bones = pose_group(modes, table, animators, setup, &mut ctx, refresh);
         if let Some(fresh) = root_bones {

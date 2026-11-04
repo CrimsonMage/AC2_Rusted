@@ -15,8 +15,8 @@ use crate::cell_geometry::CellGeometry;
 use crate::interior_cull::{compute_cell_groups, BlockCull, CullCell, CullPortal};
 
 use crate::object::{
-    load_cell_geometry, load_cell_model, object_point_lights, CellLighting, ObjectEnvironment,
-    ObjectModel, PointLight, RenderSettings, SceneLight,
+    load_cell_geometry, load_cell_model_with_sun, object_point_lights, CellLighting, CellSun,
+    ObjectEnvironment, ObjectModel, PointLight, RenderSettings, SceneLight,
 };
 
 /// `CLandBlockInfo::m_InteriorFogType` linear.
@@ -30,6 +30,9 @@ pub struct BlockInteriors {
     pub environment: ObjectEnvironment,
     /// Each cell's model (in world space) and the point lights cached for it.
     pub cells: Vec<(ObjectModel, Vec<PointLight>)>,
+    /// What each of `cells` keeps for the interior sun pass (`None` where a pass cannot change
+    /// its vertices).
+    pub suns: Vec<Option<Arc<CellSun>>>,
     /// The cells' static objects (`CEnvCell::InitStaticObjects`): visual, world matrix, and the
     /// point lights of the cell they stand in.
     pub objects: Vec<(DataId, Mat4, Vec<PointLight>)>,
@@ -160,6 +163,7 @@ pub fn load_block_interiors(
         })
         .collect();
     let mut cells = Vec::new();
+    let mut suns = Vec::new();
     let mut objects = Vec::new();
     let mut cell_ids = Vec::new();
     let mut object_cells = Vec::new();
@@ -174,7 +178,7 @@ pub fn load_block_interiors(
             let culled = cull_cell(&cell, &structure.arc(), frame.to_mat4(), geometry);
             cull_cells.insert(culled.id, culled);
         }
-        let Some(model) = load_cell_model(store, &cell, frame, lighting, settings)
+        let Some((model, sun)) = load_cell_model_with_sun(store, &cell, frame, lighting, settings)
             .ok()
             .flatten()
         else {
@@ -194,6 +198,7 @@ pub fn load_block_interiors(
             object_cells.push(cell.cell_id.raw());
         }
         cells.push((model, point_lights));
+        suns.push(sun.map(Arc::new));
         cell_ids.push(cell.cell_id.raw());
     }
     let fog = (interior.fog_type == Some(FOG_LINEAR)).then(|| {
@@ -260,10 +265,15 @@ pub fn load_block_interiors(
             .map(|id| id.raw())
             .collect(),
         culling_plane,
+        fog_quad: {
+            let [r, g, b] = interior.fog_color.unwrap_or([1.0; 3]);
+            [r, g, b, interior.fog_alpha.unwrap_or(1.0)]
+        },
     };
     Some(BlockInteriors {
         environment: ObjectEnvironment::inside(ambient, fog),
         cells,
+        suns,
         objects,
         cell_ids,
         object_cells,

@@ -63,11 +63,16 @@ pub trait WorldServices: Send + Sync {
     fn class_defaults(&self, _did: u32) -> Option<Arc<ac2_weenie::WeenieQualities>> {
         None
     }
-    /// `VisualDesc::GetTotalIconDesc` of the DAT `VisualDesc` `visual` (its parent chain and its
-    /// icon atoms): the icon layers `ItemDisplay::Update` draws an item with (layer id, image,
-    /// shift colour); empty without any.
-    fn total_icon(&self, _visual: u32) -> Vec<(u32, u32, u32)> {
-        Vec::new()
+    /// `VisualDesc::GetTotalIconDesc`'s DAT halves (`ac2_assets::ac2_icon_desc_parts`): the DAT
+    /// `VisualDesc` `visual`'s chain icon layers and the icon atoms of `global`, a local
+    /// description's global appearance (each layer: layer id, image, shift colour).
+    #[allow(clippy::type_complexity)]
+    fn total_icon(
+        &self,
+        _visual: u32,
+        _global: &[(u32, Vec<(u32, f32)>)],
+    ) -> (Vec<(u32, u32, u32)>, Vec<(u32, u32, u32)>) {
+        (Vec::new(), Vec::new())
     }
     /// The region's ambient sound data, if it has any.
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {
@@ -209,19 +214,28 @@ impl WorldServices for DatWorld {
         .map_err(|e| e.to_string())
     }
 
-    fn total_icon(&self, visual: u32) -> Vec<(u32, u32, u32)> {
+    fn total_icon(
+        &self,
+        visual: u32,
+        global: &[(u32, Vec<(u32, f32)>)],
+    ) -> (Vec<(u32, u32, u32)>, Vec<(u32, u32, u32)>) {
         if visual == 0 {
-            return Vec::new();
+            return (Vec::new(), Vec::new());
         }
-        ac2_assets::ac2_total_icon_desc(&self.store, ac2_core::DataId::new(visual), None)
-            .ok()
-            .flatten()
-            .map_or_else(Vec::new, |d| {
-                d.layers
-                    .iter()
-                    .map(|l| (l.layer_id, l.image, l.shift_color))
-                    .collect()
-            })
+        let global = global
+            .iter()
+            .map(|(table, keys)| (ac2_core::DataId::new(*table), keys.clone()))
+            .collect();
+        let layers = |l: Vec<ac2_assets::Ac2IconLayer>| {
+            l.iter()
+                .map(|l| (l.layer_id, l.image, l.shift_color))
+                .collect()
+        };
+        ac2_assets::ac2_icon_desc_parts(&self.store, ac2_core::DataId::new(visual), global)
+            .map_or_else(
+                |_| (Vec::new(), Vec::new()),
+                |(chain, atoms)| (layers(chain), layers(atoms)),
+            )
     }
 
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {

@@ -208,6 +208,12 @@ impl Controls {
         }
     }
 
+    /// `ActionInterpreter::TurnOffRunLock`, which `SmartBox::HandleTeleport` calls (Legions
+    /// 0x00544220) so a run lock does not carry through a portal.
+    pub fn turn_off_run_lock(&mut self) {
+        self.interpreter.turn_off_run_lock();
+    }
+
     /// `ActionInterpreter::FocusSwitchHandler`: losing focus releases every held action (with
     /// focus kept, modifier and UI actions stay).
     pub fn focus(&mut self, have_focus: bool, now: f64) {

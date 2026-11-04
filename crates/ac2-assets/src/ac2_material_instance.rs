@@ -79,6 +79,22 @@ pub fn load_ac2_material(
     }
 }
 
+/// `RenderMaterial::layers[0]->m_bUseParticleLighting` of the material `did` names: a
+/// `MaterialInstance`'s template (`MaterialInstance::m_pMaterial`, before its modifiers) or a
+/// `RenderMaterial` itself. False when it does not load.
+pub fn ac2_material_uses_particle_lighting(store: &ResourceStore, did: DataId) -> bool {
+    let template = match did.raw() & 0xFF00_0000 {
+        RENDER_MATERIAL_PREFIX => did,
+        MATERIAL_INSTANCE_PREFIX => match load_portal::<Ac2MaterialInstance>(store, did) {
+            Ok(Some(instance)) => instance.material,
+            _ => return false,
+        },
+        _ => return false,
+    };
+    matches!(load_portal::<Ac2RenderMaterial>(store, template), Ok(Some(material))
+        if material.layers.first().is_some_and(|layer| layer.lighting.particle))
+}
+
 fn load_portal<T: ac2_db::ResourcePackedDecode + Send + Sync + 'static>(
     store: &ResourceStore,
     did: DataId,

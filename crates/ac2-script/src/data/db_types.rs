@@ -1,8 +1,13 @@
 //! `MasterDBMap::DivineType`: the DB type of a DID, by the registered `DBTypeDef` DID ranges
-//! (the Legions types that have a range; generated from the decompile's DB type registry).
+//! (the Legions types that have a range; generated from the decompile's DB type registry). The
+//! client's map is a `gmMasterDBMap`, whose `DivineType_Internal(did)` (admin 0x006018C0) tests
+//! the same ranges in code, plus three single DIDs and the iteration-list range at the end of
+//! the table; `InitDBTypeDef_Internal` (admin 0x00601940) and the filename overload
+//! `DivineType_Internal(filename)` (admin 0x00601A50, the base's lookup of the text before the
+//! first '.') add nothing a DID lookup needs.
 
 /// (first DID, last DID, DB type).
-const RANGES: [(u32, u32, u32); 69] = [
+const RANGES: [(u32, u32, u32); 73] = [
     (0x0100_0000, 0x01FF_FFFE, 0x40000004), // DB_TYPE_CELLMESH
     (0x0200_0000, 0x02FF_FFFE, 0x40000005), // DB_TYPE_SCENE
     (0x0300_0000, 0x03FF_FFFE, 0x40000006), // DB_TYPE_ANIMMAP
@@ -72,6 +77,11 @@ const RANGES: [(u32, u32, u32); 69] = [
     (0x4200_1000, 0x42FF_FFFE, 0x40000060), // DB_TYPE_FONT_LOCAL
     (0x4110_0000, 0x41FF_FFFE, 0x40000061), // DB_TYPE_RENDERSURFACE_LOCAL
     (0x4010_0000, 0x40FF_FFFE, 0x40000062), // DB_TYPE_RENDERTEXTURE_LOCAL
+    // `gmMasterDBMap::DivineType_Internal`'s own DIDs.
+    (0x0E00_0003, 0x0E00_0003, 0x40000046), // DB_TYPE_FILE2ID_TABLE
+    (0x0EBA_DA55, 0x0EBA_DA55, 0x4000004D), // DB_TYPE_TABOO_TABLE
+    (0x0E00_0004, 0x0E00_0004, 0x40000054), // DB_TYPE_PLACES_TABLE
+    (0xFFFF_0000, 0xFFFF_FFFE, 0x40000053), // DB_TYPE_DATFILEDATA
 ];
 
 /// The DB type DID `did` belongs to, if any range holds it.
@@ -85,3 +95,20 @@ pub fn db_type(did: u32) -> Option<u32> {
 pub const DB_TYPE_STRING_TABLE: u32 = 0x4000_0026;
 pub const DB_TYPE_ENUM_MAPPER: u32 = 0x4000_0028;
 pub const DB_TYPE_DID_MAPPER: u32 = 0x4000_002A;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_gm_map_types_its_single_dids_and_the_iteration_lists() {
+        assert_eq!(db_type(0x0E00_0003), Some(0x4000_0046));
+        assert_eq!(db_type(0x0EBA_DA55), Some(0x4000_004D));
+        assert_eq!(db_type(0x0E00_0004), Some(0x4000_0054));
+        assert_eq!(db_type(0x0E00_0005), None);
+        assert_eq!(db_type(0xFFFF_0001), Some(0x4000_0053));
+        assert_eq!(db_type(0xFFFF_FFFF), None);
+        assert_eq!(db_type(0x46FF_FFFE), Some(0x4000_0048));
+        assert_eq!(db_type(0x46FF_FFFF), None);
+    }
+}

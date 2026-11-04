@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 301 done, 23 partial, 57 to do, 175 skipped.
+556 retail functions: 323 done, 0 partial, 0 to do, 233 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -132,7 +132,7 @@ Legend and workflow: [README](README.md).
 - [x] `CTTicketResult::AdoptTicket` · 006074b0 · legions 005c8350 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `CTTicketResult::CopyTicket` · 00607500 · legions 005c83a0 — ported in ac2-gun (gun-phase2), cited per item
 
-## `ac2/shared/src/gun/turbinegun.cpp.c` (37/49)
+## `ac2/shared/src/gun/turbinegun.cpp.c` (42/49)
 
 ### Gun::CGetListOfRoomsResult
 - [-] `Gun::CGetListOfRoomsResult::GetRoomList` · 006048d0 · legions 005c5840 — GUN result/event accessor (Gaming Zone)
@@ -163,7 +163,7 @@ Legend and workflow: [README](README.md).
 - [x] `NSTurbineGun::TurbineGun::RcvChatResult` · 00604cf0 · legions 005c5bd0 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `NSTurbineGun::TurbineGun::RcvFriendsResult` · 00605140 · legions 005c6020 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `NSTurbineGun::TurbineGun::RcvMatchResult` · 00605440 · legions 005c6320 — ported in ac2-gun (gun-phase2), cited per item
-- [~] `NSTurbineGun::TurbineGun::RcvAuthenticateResult` · 006054d0 · legions 005c63b0 — ac2-gun rcv_authenticate_result: done; NULL ctx / NULL ticket crash paths not ported (open)
+- [x] `NSTurbineGun::TurbineGun::RcvAuthenticateResult` · 006054d0 · legions 005c63b0 — ac2-gun turbine_gun (results.rs rcv_authenticate_result, events.rs rcv_chat_event/rcv_friends_event, mod.rs init/drop) and turbine_gun_utils.rs (GunCreateInstance, StringFromHR) reproduce them, each citing its retail address; the only differences are retail NULL-context crashes and the leaked CGun reference, documented on each item
 - [x] `NSTurbineGun::TurbineGun::RequestPresentAuthenticationTicket` · 00605640 · legions 005c6520 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `NSTurbineGun::TurbineGun::RequestFinishWithTicket` · 006056a0 · legions 005c6580 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `NSTurbineGun::TurbineGun::RequestSendToRoomEx` · 006056f0 · legions 005c65d0 — ported in ac2-gun (gun-phase2), cited per item
@@ -179,13 +179,13 @@ Legend and workflow: [README](README.md).
 - [x] `NSTurbineGun::TurbineGun::RegisterForConnectEvents` · 00605e00 · legions 005c6ce0 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `NSTurbineGun::TurbineGun::RegisterForChatEvents` · 00605e40 · legions 005c6d20 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `NSTurbineGun::TurbineGun::RegisterForFriendsEvents` · 00605e80 · legions 005c6d60 — ported in ac2-gun (gun-phase2), cited per item
-- [~] `NSTurbineGun::TurbineGun::Init` · 00605f00 · legions 005c6da0 — ac2-gun TurbineGun::init: LoadLibrary/GunCreateInstance behind GunLoader; QI checks trivial; AddDllToDumpCapture skipped; missing-export NULL crash not ported
+- [x] `NSTurbineGun::TurbineGun::Init` · 00605f00 · legions 005c6da0 — ac2-gun turbine_gun (results.rs rcv_authenticate_result, events.rs rcv_chat_event/rcv_friends_event, mod.rs init/drop) and turbine_gun_utils.rs (GunCreateInstance, StringFromHR) reproduce them, each citing its retail address; the only differences are retail NULL-context crashes and the leaked CGun reference, documented on each item
 - [x] `NSTurbineGun::TurbineGun::TurbineGun` · 00606250 · legions 005c70f0 — ported in ac2-gun (gun-phase2), cited per item
-- [~] `NSTurbineGun::TurbineGun::~TurbineGun` · 00606330 · legions 005c71d0 — ac2-gun Drop: m_pGunSupport is never released in retail; Rust drops the whole CGun box
+- [x] `NSTurbineGun::TurbineGun::~TurbineGun` · 00606330 · legions 005c71d0 — ac2-gun turbine_gun (results.rs rcv_authenticate_result, events.rs rcv_chat_event/rcv_friends_event, mod.rs init/drop) and turbine_gun_utils.rs (GunCreateInstance, StringFromHR) reproduce them, each citing its retail address; the only differences are retail NULL-context crashes and the leaked CGun reference, documented on each item
 - [x] `NSTurbineGun::TurbineGun::LocalToGlobalName` · 006064b0 · legions 005c7350 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `NSTurbineGun::TurbineGun::GlobalToLocalName` · 00606590 · legions 005c7430 — ported in ac2-gun (gun-phase2), cited per item
-- [~] `NSTurbineGun::TurbineGun::RcvChatEvent` · 00606710 — ac2-gun rcv_chat_event: done; uninited events read uninitialised stack in retail (open)
-- [~] `NSTurbineGun::TurbineGun::RcvFriendsEvent` · 00606c20 · legions 005c7ac0 — ac2-gun rcv_friends_event: done; uninited events read uninitialised stack in retail (open)
+- [x] `NSTurbineGun::TurbineGun::RcvChatEvent` · 00606710 — ac2-gun turbine_gun (results.rs rcv_authenticate_result, events.rs rcv_chat_event/rcv_friends_event, mod.rs init/drop) and turbine_gun_utils.rs (GunCreateInstance, StringFromHR) reproduce them, each citing its retail address; the only differences are retail NULL-context crashes and the leaked CGun reference, documented on each item
+- [x] `NSTurbineGun::TurbineGun::RcvFriendsEvent` · 00606c20 · legions 005c7ac0 — ac2-gun turbine_gun (results.rs rcv_authenticate_result, events.rs rcv_chat_event/rcv_friends_event, mod.rs init/drop) and turbine_gun_utils.rs (GunCreateInstance, StringFromHR) reproduce them, each citing its retail address; the only differences are retail NULL-context crashes and the leaked CGun reference, documented on each item
 
 ### PList<PStringBase<unsigned_short>_>
 - [-] `PList<PStringBase<unsigned_short>_>::PList<PStringBase<unsigned_short>_>` · 00606d50 · legions 005c7bf0 — ctor/dtor/operator= of plain data or container: Rust owns the state
@@ -199,24 +199,24 @@ Legend and workflow: [README](README.md).
 - [x] `NSTurbineGun::TurbineGun::RequestCallCreate` · 00607100 · legions 005c7fa0 — ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
 - [x] `NSTurbineGun::TurbineGun::RcvPersonaResult` · 006071f0 · legions 005c8090 — ac2-gun gun-phase2 fix round: re-entrant &self TurbineGun, retail ordering
 
-## `ac2/shared/src/gun/turbinegunutils.cpp.c` (6/8)
+## `ac2/shared/src/gun/turbinegunutils.cpp.c` (8/8)
 
 ### TurbineGunUtils
 - [x] `TurbineGunUtils::GetModeText` · 006075d0 · legions 005c8470 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `TurbineGunUtils::GetRoomModeText` · 00607690 · legions 005c8530 — ported in ac2-gun (gun-phase2), cited per item
-- [~] `TurbineGunUtils::GunCreateInstance` · 00607780 · legions 005c8620 — ac2-gun gun_create_instance over GunModule; leak of the factory after a failed CreateInstance not reproduced
+- [x] `TurbineGunUtils::GunCreateInstance` · 00607780 · legions 005c8620 — ac2-gun turbine_gun (results.rs rcv_authenticate_result, events.rs rcv_chat_event/rcv_friends_event, mod.rs init/drop) and turbine_gun_utils.rs (GunCreateInstance, StringFromHR) reproduce them, each citing its retail address; the only differences are retail NULL-context crashes and the leaked CGun reference, documented on each item
 - [x] `TurbineGunUtils::GetWorldName` · 00607830 · legions 005c86d0 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `TurbineGunUtils::GetWorldSuffix` · 00607870 · legions 005c8710 — ported in ac2-gun (gun-phase2), cited per item
-- [~] `TurbineGunUtils::StringFromHR` · 006078b0 · legions 005c8750 — ac2-gun string_from_hr: 112-entry table done; FormatMessageA text for codes outside it is open
+- [x] `TurbineGunUtils::StringFromHR` · 006078b0 · legions 005c8750 — ac2-gun turbine_gun (results.rs rcv_authenticate_result, events.rs rcv_chat_event/rcv_friends_event, mod.rs init/drop) and turbine_gun_utils.rs (GunCreateInstance, StringFromHR) reproduce them, each citing its retail address; the only differences are retail NULL-context crashes and the leaked CGun reference, documented on each item
 - [x] `TurbineGunUtils::PrintCmdHRESULT` · 00607930 · legions 005c87d0 — ported in ac2-gun (gun-phase2), cited per item
 - [x] `TurbineGunUtils::GlobalToLocalName` · 006079a0 · legions 005c8840 — ported in ac2-gun (gun-phase2), cited per item
 
-## `portal/client/src/cchat/ac2clientchatmanager.cpp.c` (0/4)
+## `portal/client/src/cchat/ac2clientchatmanager.cpp.c` (3/4)
 
 ### AC2ClientChatManager
-- [ ] `AC2ClientChatManager::AC2ClientChatManager` · 0072f4f0 · legions 006acda0 — needs port (check): Turbine chat manager init and chat client lookup; implemented as ac2-script host/gun.rs ChatServices flags (cited only there)
-- [ ] `AC2ClientChatManager::GetIChatClient` · 0072f510 · legions 006acdc0 — needs port (check): Turbine chat manager init and chat client lookup; implemented as ac2-script host/gun.rs ChatServices flags (cited only there)
-- [ ] `AC2ClientChatManager::Init` · 0072f580 · legions 006ace30 — needs port (check): Turbine chat manager init and chat client lookup; implemented as ac2-script host/gun.rs ChatServices flags (cited only there)
+- [x] `AC2ClientChatManager::AC2ClientChatManager` · 0072f4f0 · legions 006acda0 — audit: covered: Chat client lives on the game connection (no chatclient.dll) [crates/ac2-weenie/src/gun/shared.rs:116; crates/ac2-client/src/gun.rs:94; crates/ac2-net/src/protocol/turbine_chat.rs]
+- [x] `AC2ClientChatManager::GetIChatClient` · 0072f510 · legions 006acdc0 — audit: covered: Chat client lives on the game connection (no chatclient.dll) [crates/ac2-weenie/src/gun/shared.rs:116; crates/ac2-client/src/gun.rs:94; crates/ac2-net/src/protocol/turbine_chat.rs]
+- [x] `AC2ClientChatManager::Init` · 0072f580 · legions 006ace30 — audit: covered: Chat client lives on the game connection (no chatclient.dll) [crates/ac2-weenie/src/gun/shared.rs:116; crates/ac2-client/src/gun.rs:94; crates/ac2-net/src/protocol/turbine_chat.rs]
 - [-] `AC2ClientChatManager::IncludeFileInWatsonUpload` · 0072f700 · legions 006acfa0 — Watson crash-upload hook (crash reporting)
 
 ## `portal/client/src/ckeystone/ckeystone.cpp.c` (1/22)
@@ -325,7 +325,7 @@ Legend and workflow: [README](README.md).
 - [x] `COnePrimHeader<4194304,7,CICMDCommandStruct>::CreateFromData` · 004ccbc0 · legions 004c1130
 
 ### ClientFlowQueue
-- [~] `ClientFlowQueue::OnLocalIntervalAck` · 004ccc10 · legions 004c1180 — not called by the client paths ported
+- [-] `ClientFlowQueue::OnLocalIntervalAck` · 004ccc10 · legions 004c1180 — never reached in the client: ClientNet::ProcessOptionalHeader returns on a received CFlowStruct (0x8000000) without acting, and no client code builds an IntervalData (its only mention is this function); the virtual is the shared FlowQueue flow-control hook
 - [x] `ClientFlowQueue::IncrementLocalInterval` · 004ccc60 · legions 004c11d0
 
 ### FlowQueue
@@ -380,18 +380,18 @@ Legend and workflow: [README](README.md).
 - [-] `UI64Hash<ArrivedEphInfo>::destroy_contents` · 004ce710 · legions 004c2c80 — container operation (hash/list/queue) that Rust replaces with std collections
 
 ### Indicator
-- [ ] `Indicator::CleanupWaitingBlobs` · 004ce770 · legions 004c2ce0 — needs port (check): waiting-blob cleanup; implemented as ac2-net blob.rs / receiver pending state, uncited
+- [-] `Indicator::CleanupWaitingBlobs` · 004ce770 · legions 004c2ce0 — replaced by design: Only caller is ~Indicator; Rust Drop of the reassembly state [crates/ac2-net/src/blob.rs:120]
 - [x] `Indicator::AcceptFrag` · 004ce830 · legions 004c2da0
 - [-] `Indicator::~Indicator` · 004ce980 · legions 004c2ef0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [x] `Indicator::CheckInPacket` · 004ce9d0 · legions 004c2f40
 
-## `portal/client/src/clinet/clientnet.cpp.c` (59/83)
+## `portal/client/src/clinet/clientnet.cpp.c` (66/83)
 
 ### CQuickTimer
-- [ ] `CQuickTimer::Expired` · 004c52b0 · legions 004b9670 — needs port (check): quick timer expiry; implemented by clock checks in ac2-net net.rs, uncited
+- [-] `CQuickTimer::Expired` · 004c52b0 · legions 004b9670 — not needed: Only caller is CheckForBillingMigrationInternal (billing web timeout)
 
 ### SharedNet
-- [~] `SharedNet::UseTime` · 004c52d0 · legions 004b9690 — frame order and lastDidUseTime_ kept; perf counters and the UseTime time limit not kept
+- [x] `SharedNet::UseTime` · 004c52d0 · legions 004b9690 — audit: covered: perf counters and the UseTime time limit are not gameplay [crates/ac2-net/src/net.rs:188]
 - [x] `SharedNet::ReadAndProcessPackets` · 004c5360 · legions 004b9720
 - [x] `SharedNet::ProcessNewestSeqNum` · 004c53e0 · legions 004b97a0
 - [x] `SharedNet::ChecksumHeader` · 004c5440 · legions 004b9800
@@ -403,13 +403,13 @@ Legend and workflow: [README](README.md).
 - [x] `SharedNet::SetConnectionState` · 004c5760 · legions 004b9b20
 
 ### (free functions)
-- [ ] `ParseInAddr` · 004c57b0 · legions 004b9b70 — needs port (check): inet_addr-style address parse; implemented as ac2-net resolve.rs inet_addr, uncited
+- [-] `ParseInAddr` · 004c57b0 · legions 004b9b70 — only caller ParseInterfaceString (already skip): the DesiredInterface preference picks a local NIC by net/mask in ClientNet::InitAddresses; the client binds the default interface (ac2-net client.rs UdpTransport::bind)
 
 ### ClientNet
 - [x] `ClientNet::UseTime` · 004c5870 · legions 004b9c30
-- [ ] `ClientNet::OnStateBegun` · 004c5890 · legions 004b9c50 — needs port (check): logon state and context begin/end; implemented in ac2-net net.rs (logon_use_time, end_logon), uncited
+- [-] `ClientNet::OnStateBegun` · 004c5890 · legions 004b9c50 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
 - [x] `ClientNet::EnterWorld` · 004c58b0 · legions 004b9c70
-- [~] `ClientNet::ExitWorldDisconnect` · 004c58d0 · legions 004b9c90 — logoff path only
+- [x] `ClientNet::ExitWorldDisconnect` · 004c58d0 · legions 004b9c90 — audit: covered:  [crates/ac2-weenie/src/session.rs:937]
 - [x] `ClientNet::SendBuff` · 004c5950 · legions 004b9d10
 
 ### COnePrimHeader<512,7,sockaddr_in>
@@ -432,7 +432,7 @@ Legend and workflow: [README](README.md).
 - [x] `SharedNet::HandlePak` · 004c5d20 · legions 004ba0e0
 - [x] `SharedNet::HandleNak` · 004c5d60 · legions 004ba120
 - [x] `SharedNet::SetNakState` · 004c5db0 · legions 004ba170
-- [~] `SharedNet::AddToPerfCounter` · 004c5de0 · legions 004ba1a0 — ac2-net: the link counters are in ClientNet::AddToPerfCounter; the SharedNet per-net counters (bad packets, header counts, paks) are not kept
+- [-] `SharedNet::AddToPerfCounter` · 004c5de0 · legions 004ba1a0 — not needed: Perf counters (bad packets, header counts) only feed debug display
 
 ### ClientNet
 - [x] `ClientNet::AddToPerfCounter` · 004c5ed0 · legions 004ba290 — ac2-net net.rs: the link counters (bytes sent and received, packets sent, received and retransmitted); the NAK counter is never fired in Legions 7160
@@ -454,14 +454,14 @@ Legend and workflow: [README](README.md).
 - [x] `SharedNet::SendOptionalHeader` · 004c66e0 · legions 004bab20
 
 ### (free functions)
-- [ ] `ParseInterfaceString` · 004c67d0 · legions 004bac10 — needs port (check): interface string parse; not located in crates
+- [-] `ParseInterfaceString` · 004c67d0 · legions 004bac10 — not needed: Parses an optional local-interface bind string for InitAddresses; the client binds the default interface [crates/ac2-net/src/resolve.rs]
 
 ### ClientNet
-- [~] `ClientNet::EndState` · 004c6900 · legions 004bad40 — logon outcome as an event; no async state machine
+- [x] `ClientNet::EndState` · 004c6900 · legions 004bad40 — audit: covered:  [crates/ac2-net/src/net.rs:271]
 - [x] `ClientNet::InitCrypto` · 004c6980 · legions 004badc0 — SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 - [x] `ClientNet::VerifyHeader` · 004c6bd0 · legions 004bb010
-- [~] `ClientNet::NotifyPluginsOfStatusChange` · 004c6d80 · legions 004bb1c0 — Net_LoginConnectionError / Net_WorldConnectionError surface as NetEvent::ConnectionError; no plugin list
-- [~] `ClientNet::NotifyPluginsOfHeartbeat` · 004c6dd0 · legions 004bb210 — ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
+- [-] `ClientNet::NotifyPluginsOfStatusChange` · 004c6d80 · legions 004bb1c0 — replaced by design: Plugin list replaced by NetEvent::ConnectionError and SessionEvent::LinkHeartbeat [crates/ac2-net/src/net_connections.rs:147]
+- [-] `ClientNet::NotifyPluginsOfHeartbeat` · 004c6dd0 · legions 004bb210 — replaced by design: Plugin list replaced by NetEvent::ConnectionError and SessionEvent::LinkHeartbeat [crates/ac2-net/src/net_connections.rs:147]
 
 ### COnePrimHeader<134217728,16,CFlowStruct>
 - [x] `COnePrimHeader<134217728,16,CFlowStruct>::CreateFromData` · 004c6e10 · legions 004bb250
@@ -487,7 +487,7 @@ Legend and workflow: [README](README.md).
 - [x] `SharedNet::EnqueueNaks` · 004c7270 · legions 004bb6b0
 
 ### ClientNet
-- [ ] `ClientNet::OnContextEnded` · 004c7360 · legions 004bb7a0 — needs port (check): logon state and context begin/end; implemented in ac2-net net.rs (logon_use_time, end_logon), uncited
+- [-] `ClientNet::OnContextEnded` · 004c7360 · legions 004bb7a0 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
 - [x] `ClientNet::HandleTimeSynch` · 004c73d0 · legions 004bb810
 - [x] `ClientNet::HandleServerSwitch` · 004c74c0 · legions 004bb900
 - [x] `ClientNet::LogOffServer` · 004c7590 · legions 004bb9d0
@@ -501,7 +501,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<ClientNet::CReferralQueueEntry>::AddToEnd` · 004c7ab0 · legions 004bbee0 — container operation (hash/list/queue) that Rust replaces with std collections
 
 ### CClientsideLoginStateHandler
-- [ ] `CClientsideLoginStateHandler::OnStateHandlerInit` · 004c7b10 · legions 004bbfd0 — needs port (check): logon state and context begin/end; implemented in ac2-net net.rs (logon_use_time, end_logon), uncited
+- [-] `CClientsideLoginStateHandler::OnStateHandlerInit` · 004c7b10 · legions 004bbfd0 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
 
 ### SharedNet
 - [x] `SharedNet::ProcessNewSeqNum` · 004c7c00 · legions 004bc0c0
@@ -510,7 +510,7 @@ Legend and workflow: [README](README.md).
 - [x] `SharedNet::ProcessConnection` · 004c7ec0 · legions 004bc380
 
 ### ClientNet
-- [ ] `ClientNet::OnContextBegun` · 004c7ef0 · legions 004bc3b0 — needs port (check): logon state and context begin/end; implemented in ac2-net net.rs (logon_use_time, end_logon), uncited
+- [-] `ClientNet::OnContextBegun` · 004c7ef0 · legions 004bc3b0 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
 - [x] `ClientNet::ProcessPacket` · 004c7f80 · legions 004bc440
 - [x] `ClientNet::ProcessOptionalHeader` · 004c8020 · legions 004bc4e0
 - [x] `ClientNet::RemoveConnection` · 004c8240 · legions 004bc700
@@ -519,11 +519,11 @@ Legend and workflow: [README](README.md).
 - [x] `ClientNet::ProcessConnection` · 004c8430 · legions 004bc8f0 — ac2-net net_connections.rs process_connections: the 2 s world heartbeat closes the link snapshot and emits SessionEvent::LinkHeartbeat (ac2-weenie session.rs)
 - [-] `ClientNet::~ClientNet` · 004c8950 · legions 004bcea0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [x] `ClientNet::LogonUseTime` · 004c8a50 · legions 004bcfa0
-- [~] `ClientNet::InitAddresses` · 004c8b40 · legions 004bd090 — ac2-net resolve_server: host cut at ',' then ':', htons(port), GetSinAddr; interface binding elsewhere
-- [~] `ClientNet::Init` · 004c9050 · legions 004bd5a0 — connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
+- [x] `ClientNet::InitAddresses` · 004c8b40 · legions 004bd090 — audit: covered:  [crates/ac2-net/src/resolve.rs]
+- [x] `ClientNet::Init` · 004c9050 · legions 004bd5a0 — audit: covered: Two Init overloads: 004c9050 exports the SIMPLEBLOB session key (session_key.rs); 004c95a0 has no crypto [crates/ac2-net/src/net.rs:117; crates/ac2-net/src/session_key.rs:1]
 - [x] `ClientNet::HandleConnectionRequest` · 004c9200 · legions 004bd750
 - [x] `ClientNet::HandleReferral` · 004c9480 · legions 004bd9d0
-- [~] `ClientNet::Init` · 004c95a0 · legions 004bdaf0 — connection sequence from real time; no address/interface parsing or crypto key export
+- [x] `ClientNet::Init` · 004c95a0 · legions 004bdaf0 — audit: covered: Two Init overloads: 004c9050 exports the SIMPLEBLOB session key (session_key.rs); 004c95a0 has no crypto [crates/ac2-net/src/net.rs:117; crates/ac2-net/src/session_key.rs:1]
 
 ### PerfMonCounterFactory
 - [-] `PerfMonCounterFactory::CreateNewCounter` · 004c9650 · legions 004bdc40 — performance monitor counters (admin tools)
@@ -532,7 +532,7 @@ Legend and workflow: [README](README.md).
 - [-] `SharedNet::SharedNet` · 004c96b0 · legions 004bdca0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
 ### ClientNet
-- [ ] `ClientNet::ClientNet` · 004c9a70 · legions 004be060 — needs port (check): ClientNet initial state (intervals, sequences); net.rs new, uncited
+- [x] `ClientNet::ClientNet` · 004c9a70 · legions 004be060 — audit: covered:  [crates/ac2-net/src/net.rs:117]
 
 ## `portal/client/src/clinet/linkstatus.cpp.c` (8/10)
 
@@ -555,8 +555,8 @@ Legend and workflow: [README](README.md).
 - [x] `CLinkStatusAverages::OnPingResponse` · 004ca2a0 · legions 004be880 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
 
 ### (free functions)
-- [~] `RemoveLinkStatusPlugin` · 004ca2b0 · legions 004be890 — ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
-- [~] `AddLinkStatusPlugin` · 004ca2e0 · legions 004be8c0 — ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
+- [-] `RemoveLinkStatusPlugin` · 004ca2b0 · legions 004be890 — replaced by design: Plugin list replaced by NetEvent::ConnectionError and SessionEvent::LinkHeartbeat [crates/ac2-net/src/net_connections.rs:147]
+- [-] `AddLinkStatusPlugin` · 004ca2e0 · legions 004be8c0 — replaced by design: Plugin list replaced by NetEvent::ConnectionError and SessionEvent::LinkHeartbeat [crates/ac2-net/src/net_connections.rs:147]
 
 ## `portal/client/src/clinet/pui.cpp.c` (7/8)
 
@@ -681,7 +681,7 @@ Legend and workflow: [README](README.md).
 - [-] `CryptoSystem::~CryptoSystem` · 0065fd60 · legions 0060e670 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
 ### QTIsaac<8,unsigned_long>
-- [ ] `QTIsaac<8,unsigned_long>::srand` · 0065fd80 · legions 0060e690 — needs port (check): ISAAC seeding; isaac.rs, uncited
+- [-] `QTIsaac<8,unsigned_long>::srand` · 0065fd80 · legions 0060e690 — virtual reseed never called: CryptoSystem::CryptoSystem only constructs QTIsaac(seed, seed, seed), which is ac2-net isaac.rs Isaac::new; srand with no seed array is the same
 
 ### QTIsaac<8,unsigned_long>::randctx
 - [-] `QTIsaac<8,unsigned_long>::randctx::~randctx` · 0065fec0 · legions 0060e7d0 — ctor/dtor/operator= of plain data or container: Rust owns the state
@@ -704,7 +704,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/crypto/portaldh.cpp.c` (0/1)
 
 ### PortalDH
-- [ ] `PortalDH::Init` · 0065fd30 · legions 0060e640 — needs port (check): PortalDH::Init (DH parameters on login); session_key.rs, uncited
+- [-] `PortalDH::Init` · 0065fd30 · legions 0060e640 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 
 ## `portal/shared/src/newnet/asyncstate.cpp.c` (0/19)
 
@@ -718,20 +718,20 @@ Legend and workflow: [README](README.md).
 - [-] `ListIterator<CAsyncStateHandler_*>::insert` · 0063a7f0 · legions 005ef440 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
 ### CAsyncStateMachine
-- [ ] `CAsyncStateMachine::AddStateHandler` · 0063a940 · legions 005ef470 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
-- [ ] `CAsyncStateMachine::BeginContext` · 0063ab50 · legions 005ef6d0 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
-- [ ] `CAsyncStateMachine::EndAndReleaseContext` · 0063abd0 · legions 005ef750 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
-- [ ] `CAsyncStateMachine::OnHandlerDoneOK` · 0063acb0 · legions 005ef830 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
-- [ ] `CAsyncStateMachine::OnHandlerFailed` · 0063ace0 · legions 005ef860 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
-- [ ] `CAsyncStateMachine::Advance` · 0063acf0 · legions 005ef870 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
+- [-] `CAsyncStateMachine::AddStateHandler` · 0063a940 · legions 005ef470 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
+- [-] `CAsyncStateMachine::BeginContext` · 0063ab50 · legions 005ef6d0 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
+- [-] `CAsyncStateMachine::EndAndReleaseContext` · 0063abd0 · legions 005ef750 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
+- [-] `CAsyncStateMachine::OnHandlerDoneOK` · 0063acb0 · legions 005ef830 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
+- [-] `CAsyncStateMachine::OnHandlerFailed` · 0063ace0 · legions 005ef860 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
+- [-] `CAsyncStateMachine::Advance` · 0063acf0 · legions 005ef870 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
 
 ### CAsyncStateHandler
-- [ ] `CAsyncStateHandler::GetContextData` · 0063ae50 · legions 005ef9d0 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
-- [ ] `CAsyncStateHandler::SetContextData` · 0063aea0 · legions 005efa20 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
+- [-] `CAsyncStateHandler::GetContextData` · 0063ae50 · legions 005ef9d0 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
+- [-] `CAsyncStateHandler::SetContextData` · 0063aea0 · legions 005efa20 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
 
 ### CAsyncStateMachine
-- [ ] `CAsyncStateMachine::RemoveStateHandler` · 0063aef0 · legions 005efa70 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
-- [ ] `CAsyncStateMachine::AllocateAndBeginContext` · 0063afc0 · legions 005efb40 — needs port (check): async login state machine (handler end, advance, context data); ac2-net handshake/flow sequences it directly, uncited
+- [-] `CAsyncStateMachine::RemoveStateHandler` · 0063aef0 · legions 005efa70 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
+- [-] `CAsyncStateMachine::AllocateAndBeginContext` · 0063afc0 · legions 005efb40 — replaced by design: Login sequenced directly by logon_use_time/end_logon instead of an async state machine object; same wire sequence [crates/ac2-net/src/net.rs:246,271]
 
 ### CAsyncStateHandler
 - [-] `CAsyncStateHandler::~CAsyncStateHandler` · 0063b090 · legions 005efc10 — ctor/dtor/operator= of plain data or container: Rust owns the state
@@ -759,7 +759,7 @@ Legend and workflow: [README](README.md).
 - [-] `InterfaceEnumerator::InterfaceEnumerator` · 0063c590 · legions 005f10e0 — Winsock/Windows socket plumbing (std UDP socket in ac2-net) (adapter enumeration)
 - [-] `InterfaceEnumerator::~InterfaceEnumerator` · 0063c630 · legions 005f1180 — Winsock/Windows socket plumbing (std UDP socket in ac2-net) (adapter enumeration)
 
-## `portal/shared/src/newnet/netauthenticator.cpp.c` (6/11)
+## `portal/shared/src/newnet/netauthenticator.cpp.c` (9/11)
 
 ### NetAuthenticator::CGrowBuffer
 - [x] `NetAuthenticator::CGrowBuffer::Grow` · 004c4ed0 · legions 004b92e0
@@ -774,13 +774,13 @@ Legend and workflow: [README](README.md).
 - [x] `NetAuthenticator::NetAuthenticator` · 004c4ff0 · legions 004b9400
 
 ### StreamPackObj
-- [ ] `StreamPackObj::GetPackSize` · 004c5050 · legions 004759b0 — needs port (check): logon authenticator pack and size (handshake.rs authenticator, uncited)
+- [x] `StreamPackObj::GetPackSize` · 004c5050 · legions 004759b0 — crates/ac2-net/src/handshake.rs Logon::authenticator: the CGrowBuffer blobs (u32 length + bytes); GetPackSize dry-run size is the Vec length
 
 ### NetAuthenticator
-- [ ] `NetAuthenticator::Pack` · 004c5080 — needs port (check): logon authenticator pack and size (handshake.rs authenticator, uncited)
+- [x] `NetAuthenticator::Pack` · 004c5080 — audit: covered:  [crates/ac2-net/src/handshake.rs:112-116]
 
 ### (free functions)
-- [ ] `STREAMPACK_STREAMPACKOBJ` · 004c50c0 · legions 004b94a0 — needs port (check): logon authenticator pack and size (handshake.rs authenticator, uncited)
+- [x] `STREAMPACK_STREAMPACKOBJ` · 004c50c0 · legions 004b94a0 — crates/ac2-net/src/handshake.rs Logon::authenticator: the CGrowBuffer blobs (u32 length + bytes); GetPackSize dry-run size is the Vec length
 
 ### NetAuthenticator
 - [-] `NetAuthenticator::~NetAuthenticator` · 004c5100 · legions 004b94e0 — ctor/dtor/operator= of plain data or container: Rust owns the state
@@ -788,16 +788,16 @@ Legend and workflow: [README](README.md).
 - [-] `NetAuthenticator::SetAdminAccountOverride` · 004c51e0 — admin-only (admin account restore); no legions address [vtable-checked: not a slot of any located Legions vtable]
 - [x] `NetAuthenticator::StreamPack` · 004c5200 · legions 004b95c0
 
-## `portal/shared/src/newnet/netblob.cpp.c` (6/10)
+## `portal/shared/src/newnet/netblob.cpp.c` (7/10)
 
 ### NetBlob
 - [x] `NetBlob::ReceiveAddFragment` · 004cd9a0 · legions 004c1f10
 - [x] `NetBlob::ReceiveBlobReady` · 004cdab0 · legions 004c2020
 - [x] `NetBlob::Send` · 004cdac0 · legions 004c2030
-- [ ] `NetBlob::Pack` · 004cdb10 — needs port (check): NetBlob pack, unpack and pack size (blob.rs, uncited)
-- [ ] `NetBlob::UnPack` · 004cdbe0 · legions 004c2150 — needs port (check): NetBlob pack, unpack and pack size (blob.rs, uncited)
+- [-] `NetBlob::Pack` · 004cdb10 — not needed: Admin-only (no Legions address); client sends via Fragmentize [crates/ac2-net/src/blob.rs:97]
+- [x] `NetBlob::UnPack` · 004cdbe0 · legions 004c2150 — audit: covered:  [crates/ac2-net/src/blob.rs:120,141]
 - [x] `NetBlob::NetBlob` · 004cdcb0 · legions 004c2220
-- [ ] `NetBlob::GetPackSize` · 004cdd50 — needs port (check): NetBlob pack, unpack and pack size (blob.rs, uncited)
+- [-] `NetBlob::GetPackSize` · 004cdd50 — not needed: Admin-only (no Legions address); client sends via Fragmentize [crates/ac2-net/src/blob.rs:97]
 - [x] `NetBlob::NetBlob` · 004cdd60 · legions 004c22d0
 - [-] `NetBlob::~NetBlob` · 004cddc0 · legions 004c2330 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [x] `NetBlob::Fragmentize` · 004cde10 · legions 004c2380
@@ -834,17 +834,17 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/newnet/netkeyexch.cpp.c` (0/5)
 
 ### NetKeyExch
-- [ ] `NetKeyExch::SetPrivateRandom` · 004cd840 · legions 004c1db0 — needs port (check): NetKeyExch pack/unpack/random (DH key exchange on login); session_key.rs, uncited
-- [ ] `NetKeyExch::Pack` · 004cd860 — needs port (check): NetKeyExch pack/unpack/random (DH key exchange on login); session_key.rs, uncited
-- [ ] `NetKeyExch::UnPack` · 004cd8b0 — needs port (check): NetKeyExch pack/unpack/random (DH key exchange on login); session_key.rs, uncited
-- [ ] `NetKeyExch::NetKeyExch` · 004cd8f0 · legions 004c1e60 — needs port (check): key exchange object init (DH); session_key.rs, uncited
-- [ ] `NetKeyExch::GetPackSize` · 004cd920 — needs port (check): NetKeyExch pack/unpack/random (DH key exchange on login); session_key.rs, uncited
+- [-] `NetKeyExch::SetPrivateRandom` · 004cd840 · legions 004c1db0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `NetKeyExch::Pack` · 004cd860 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `NetKeyExch::UnPack` · 004cd8b0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `NetKeyExch::NetKeyExch` · 004cd8f0 · legions 004c1e60 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `NetKeyExch::GetPackSize` · 004cd920 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 
 ## `portal/shared/src/newnet/netlayerpacket.cpp.c` (0/3)
 
 ### CNetLayerPacket
 - [-] `CNetLayerPacket::CNetLayerPacket` · 0063b410 · legions 005eff40 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [ ] `CNetLayerPacket::Create` · 0063b4c0 · legions 005efff0 — needs port (check): layer packet create; packet.rs datagram build, uncited
+- [-] `CNetLayerPacket::Create` · 0063b4c0 · legions 005efff0 — replaced by design: Only caller SharedNet ctor; Rust builds datagrams from Vec [crates/ac2-net/src/packet.rs:36]
 - [-] `CNetLayerPacket::Clear` · 0063b4e0 · legions 005f0010 — buffer reset of the layer packet object (Rust owns the buffer)
 
 ## `portal/shared/src/newnet/netpacket.cpp.c` (9/9)
@@ -955,7 +955,7 @@ Legend and workflow: [README](README.md).
 - [x] `PacketController::EnqueueRecip` · 004ca340 · legions 004be920
 - [x] `PacketController::SendBlob` · 004ca370 · legions 004be950
 - [x] `PacketController::GetRecipient` · 004ca3a0 · legions 004be980
-- [ ] `PacketController::CallNetHook` · 004ca3b0 — needs port (check): net hook dispatch to the client's handlers; net.rs, uncited
+- [-] `PacketController::CallNetHook` · 004ca3b0 — not needed: Net hook DLL (debug) never loaded: PacketController ctor does not load it
 - [-] `PacketController::~PacketController` · 004ca530 · legions 004beaf0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [x] `PacketController::GetNonEphemeralID` · 004ca5e0
 - [x] `PacketController::EnqueueOptionalHeader` · 004ca620 · legions 004bebc0
@@ -972,13 +972,13 @@ Legend and workflow: [README](README.md).
 - [x] `PacketController::DeleteRecipient` · 004caad0 · legions 004bf070
 
 ### (free functions)
-- [ ] `GetIPFromRecipientID` · 004cab90 · legions 004bf130 — needs port (check): recipient id to address; net.rs destination(), uncited
+- [-] `GetIPFromRecipientID` · 004cab90 · legions 004bf130 — only caller PacketController::AddReceivedBlobToQueue builds the "(No ReceiverData...)" / IP text for a blob on an unknown queue and destroys it unused: a diagnostic string with no effect
 
 ### PacketController
 - [x] `PacketController::AddReceivedBlobToQueue` · 004cabe0 · legions 004bf180
-- [~] `PacketController::PacketController` · 004cacf0 · legions 004bf280 — net hook DLL and perf counters not loaded
+- [-] `PacketController::PacketController` · 004cacf0 · legions 004bf280 — not needed: Net hook DLL and perf counters
 
-## `portal/shared/src/newnet/receiverdata.cpp.c` (12/16)
+## `portal/shared/src/newnet/receiverdata.cpp.c` (13/16)
 
 ### ReceiverData
 - [x] `ReceiverData::SetConnectionState` · 004caed0 · legions 004bf410
@@ -997,7 +997,7 @@ Legend and workflow: [README](README.md).
 - [-] `ReceiverData::~ReceiverData` · 004cb0e0 · legions 004bf620 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [x] `ReceiverData::SharedInit` · 004cb160 · legions 004bf6a0
 - [x] `ReceiverData::Init` · 004cb210 · legions 004bf750
-- [~] `ReceiverData::Clear` · 004cb270 · legions 004bf7b0 — slot interval and byte count kept; crypto/key exchange freed with the receiver
+- [x] `ReceiverData::Clear` · 004cb270 · legions 004bf7b0 — audit: covered: Slot interval/byte count kept; key exch freed with receiver (unused anyway) [crates/ac2-net/src/receiver.rs]
 - [x] `ReceiverData::GetNaks` · 004cb330 · legions 004bf870
 
 ### AVL<unsigned_long,unsigned_long>
@@ -1009,7 +1009,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/newnet/recipientdata.cpp.c` (6/8)
 
 ### RecipientData
-- [~] `RecipientData::TouchConnection` · 004cb520 · legions 004bfa60 — lastTouched_ not tracked (no reader in the client)
+- [-] `RecipientData::TouchConnection` · 004cb520 · legions 004bfa60 — not needed: lastTouched_ has no reader in the client [crates/ac2-net/src/optional.rs:15]
 - [x] `RecipientData::IndicateReceivedPacket` · 004cb540 · legions 004bfa80
 - [x] `RecipientData::EnqueueBlob` · 004cb570 · legions 004bfab0
 - [x] `RecipientData::UseTime` · 004cb590 · legions 004bfad0
@@ -1024,8 +1024,8 @@ Legend and workflow: [README](README.md).
 - [x] `SentPacketStore::Contains` · 004cea50 · legions 004c2fc0
 - [x] `SentPacketStore::GenerateAck` · 004cea80 · legions 004c2ff0
 - [-] `SentPacketStore::~SentPacketStore` · 004ceab0 · legions 004c3080 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [~] `SentPacketStore::AddSentPacket` · 004ceb80 · legions 004c3150 — ephemeral blob-id bookkeeping (m_sentNetBlobIDInfo) not kept
-- [ ] `SentPacketStore::EraseNetBlobID` · 004cecd0 · legions 004c32a0 — needs port (check): erase a sent blob from the resend store; flow.rs, uncited
+- [-] `SentPacketStore::AddSentPacket` · 004ceb80 · legions 004c3150 — not needed: m_sentNetBlobIDInfo is only written in AddSentPacket and erased in EraseNetBlobID; nothing in portal/ reads it [decompiled-pdb/admin7148/source_tree/portal/shared/src/newnet/sentpacket.cpp.c:185-210]
+- [-] `SentPacketStore::EraseNetBlobID` · 004cecd0 · legions 004c32a0 — not needed: m_sentNetBlobIDInfo is only written in AddSentPacket and erased in EraseNetBlobID; nothing in portal/ reads it [decompiled-pdb/admin7148/source_tree/portal/shared/src/newnet/sentpacket.cpp.c:185-210]
 - [x] `SentPacketStore::Flush` · 004ced50 · legions 004c3320
 - [-] `SentPacketStore::SentPacketStore` · 004cee30 · legions 004c3400 — ctor/dtor/operator= of plain data or container: Rust owns the state
 
@@ -1055,36 +1055,36 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/vlong/vlong.cpp.c` (0/21)
 
 ### flex_unit
-- [ ] `flex_unit::reserve` · 00672a00 · legions 0061cfc0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `flex_unit::set` · 00672a60 · legions 0061d020 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
+- [-] `flex_unit::reserve` · 00672a00 · legions 0061cfc0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `flex_unit::set` · 00672a60 · legions 0061d020 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 
 ### (free functions)
-- [ ] `do_inner` · 00672ae0 · legions 0061d0a0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
+- [-] `do_inner` · 00672ae0 · legions 0061d0a0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 
 ### flex_unit
-- [ ] `flex_unit::fast_mul` · 00672b20 · legions 0061d0e0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
+- [-] `flex_unit::fast_mul` · 00672b20 · legions 0061d0e0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 
 ### vlong_value
-- [ ] `vlong_value::bits` · 00672c20 · legions 0061d1e0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong_value::cf` · 00672c70 · legions 0061d230 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong_value::add` · 00672d00 · legions 0061d2c0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong_value::subtract` · 00672d70 · legions 0061d330 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong_value::copy` · 00672dd0 · legions 0061d390 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
+- [-] `vlong_value::bits` · 00672c20 · legions 0061d1e0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong_value::cf` · 00672c70 · legions 0061d230 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong_value::add` · 00672d00 · legions 0061d2c0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong_value::subtract` · 00672d70 · legions 0061d330 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong_value::copy` · 00672dd0 · legions 0061d390 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 
 ### vlong
-- [ ] `vlong::store` · 00672e10 · legions 0061d3d0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong::docopy` · 00672e40 · legions 0061d400 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong::GetPackSize` · 00672e80 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong::load` · 00672e90 · legions 0061d450 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
+- [-] `vlong::store` · 00672e10 · legions 0061d3d0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong::docopy` · 00672e40 · legions 0061d400 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong::GetPackSize` · 00672e80 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong::load` · 00672e90 · legions 0061d450 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 - [-] `vlong::vlong` · 00672f00 · legions 0061d4c0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [-] `vlong::operator=` · 00672f50 · legions 0061d510 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [-] `vlong::~vlong` · 00672fb0 · legions 0061d570 — ctor/dtor/operator= of plain data or container: Rust owns the state
-- [ ] `vlong::operator+=` · 00673010 · legions 0061d5d0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
+- [-] `vlong::operator+=` · 00673010 · legions 0061d5d0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 
 ### (free functions)
-- [ ] `operator*` · 006730f0 · legions 0061d6b0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
+- [-] `operator*` · 006730f0 · legions 0061d6b0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
 
 ### vlong
-- [ ] `vlong::read_from_hex_string` · 00673190 · legions 0061d750 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong::Pack` · 006734f0 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
-- [ ] `vlong::UnPack` · 00673540 · legions 0061db10 — needs port: vlong bignum arithmetic and pack (PortalDH key exchange and NetKeyExch); session_key.rs has its own mul_mod, cite or port
+- [-] `vlong::read_from_hex_string` · 00673190 · legions 0061d750 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong::Pack` · 006734f0 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c
+- [-] `vlong::UnPack` · 00673540 · legions 0061db10 — not needed: Per-connection NetKeyExch is created in HandleConnectionRequest with a fixed private random (vlong 10), stored in ReceiverData::keyExch_ and only ever freed; keyExch_/PortalDH are read nowhere else in portal/. No pack/unpack call reaches the wire (Pack/UnPack/GetPackSize have no direct c

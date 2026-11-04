@@ -11,6 +11,9 @@ use ac2_physics::Terrain;
 
 use crate::world_data::{BodyData, WorldData};
 
+/// A local description's global appearance: appearance table DID -> its keys and scalars.
+pub(crate) type GlobalAppearance = Vec<(u32, Vec<(u32, f32)>)>;
+
 /// Work for a loader thread.
 #[derive(Debug, Clone)]
 pub(crate) enum Request {
@@ -25,9 +28,10 @@ pub(crate) enum Request {
     ScriptState(u64, u32, u32, u32),
     /// A read a script call stopped for (cache-only script data).
     ScriptData(ac2_script::vm::DataRequest),
-    /// An object's total icon description (`VisualDesc::GetTotalIconDesc` of its visual's DAT
-    /// chain, which `ItemDisplay::Update` draws): object, the visual DID.
-    TotalIcon(u64, u32),
+    /// The DAT halves of an object's total icon description (`VisualDesc::GetTotalIconDesc`,
+    /// which `ItemDisplay::Update` draws): object, the visual DID, and the local description's
+    /// global appearance (tables, keys and scalars) whose icon atoms are read.
+    TotalIcon(u64, u32, GlobalAppearance),
     /// The region's ambient sound data (`CRegionDesc::GetCurrentSoundInfo`'s `CSoundDesc`).
     AmbientData,
     /// A landblock's ambient sound points (`CLandBlock::CreateAmbientSoundPoints`).
@@ -63,8 +67,13 @@ pub(crate) enum Loaded {
     Body(Option<u32>, Result<BodyData, String>),
     /// The script state is in the cache (or does not exist): object, package, DID.
     ScriptState(u64, u32, u32, Option<Arc<ac2_weenie::WeenieQualities>>),
-    /// An object's total icon layers (empty: its visual has none).
-    TotalIcon(u64, Vec<(u32, u32, u32)>),
+    /// An object's chain icon layers and global icon atoms, with the global appearance asked for.
+    TotalIcon(
+        u64,
+        GlobalAppearance,
+        Vec<(u32, u32, u32)>,
+        Vec<(u32, u32, u32)>,
+    ),
     /// The script data read is done: `true` when the world answered it (the record is resident
     /// or known absent), `false` when the world never answers (its reads are dropped).
     ScriptData(bool),
@@ -121,7 +130,10 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
                 .flatten();
             Loaded::ScriptState(id, pid, did, defaults)
         }
-        Request::TotalIcon(id, visual) => Loaded::TotalIcon(id, data.total_icon(visual)),
+        Request::TotalIcon(id, visual, global) => {
+            let (chain, atoms) = data.total_icon(visual, &global);
+            Loaded::TotalIcon(id, global, chain, atoms)
+        }
         Request::ScriptData(read) => Loaded::ScriptData(data.load_script_data(read)),
         Request::AmbientData => Loaded::Ambient(crate::client_ambient::AmbientLoaded::Data(
             data.ambient_data(),

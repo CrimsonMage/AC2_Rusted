@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 172 done, 1 partial, 2 to do, 357 skipped.
+532 retail functions: 175 done, 0 partial, 0 to do, 357 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (8/67)
@@ -211,7 +211,7 @@ Legend and workflow: [README](README.md).
 - [-] `AnimModule::FromFile` · 00690630 — admin file loader/writer (no DVD client path), admin tools
 - [-] `AnimModule::ToFileNode` · 00690b00 — text source format (admin tools)
 
-## `portal/shared/src/animsys/animmodules/amangle.cpp.c` (2/13)
+## `portal/shared/src/animsys/animmodules/amangle.cpp.c` (4/13)
 
 ### BSPLEAF
 - [-] `BSPLEAF::ClipToCellBSP` · 00692890 — returns 1: AMLook::CheckAnimationBoneNum under a folded name. tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
@@ -226,8 +226,8 @@ Legend and workflow: [README](README.md).
 - [x] `AMLook::GetTriggers` · 006928c0 — ac2-anim dbanimator/look.rs (AMLook): GetPeriod 1.0, GetTriggers adds nothing, Animate turns the neck and head bones by the 0x40000007-9 look sliders (x87 order, f32 stores); tests in dbanimator/interpolator_tests.rs. The record 0x0500002a decodes to the last byte (retail_animator_records_decode...)
 
 ### AMAngle
-- [ ] `AMAngle::StreamPack` · 006928d0 · legions 00632a20 — AMAngle (type 0x4000000a, one DAT record 0x050002fd) decodes to Ac2DbAnimator::Other: no pose. Not ported: Animate reads the body's frame and a ground plane (PHYSICSOBJREP position/plane slots) and tilts the bones of its BoneAngleMod list; StreamPack is BoneAngleMod list, min/max x and y
-- [ ] `AMAngle::Animate` · 00692960 · legions 00632b10 — AMAngle (type 0x4000000a, one DAT record 0x050002fd) decodes to Ac2DbAnimator::Other: no pose. Not ported: Animate reads the body's frame and a ground plane (PHYSICSOBJREP position/plane slots) and tilts the bones of its BoneAngleMod list; StreamPack is BoneAngleMod list, min/max x and y
+- [x] `AMAngle::StreamPack` · 006928d0 · legions 00632a20 — ported: ac2-anim dbanimator/tree.rs AM_ANGLE 0x4000000A decodes PList<BoneAngleMod> (count, then bone type, x, y) and mMaxX, mMinX, mMaxY, mMinY (Legions 0x00632A20); av_angle.amod 0x050002FD: seven bones, limits 0.35; test the_human_bodys_angle_animator_decodes
+- [x] `AMAngle::Animate` · 00692960 · legions 00632b10 — ported from the Legions 0x00632B10 disassembly: ac2-anim dbanimator/angle.rs Ac2AngleAnimator::animate (HasContact and not IsSlidingDown: contact normal in the body frame, y clamped to MinY..MaxY, x to MinX..MaxX; sliders 0x4000001B <- -y and 0x4000001C <- x by DoSlider, 0.25 s when over 0.15 away, while the position is valid; listed bones turned by Quaternion::rotate of (0x1B value x weight x mod.x, 0x1C value x weight x mod.y, 0)); period 1 (folded AMLook::GetPeriod); the contact normal comes from ac2-physics anim_pose.rs PoseContext (vtable slots 0x9C HasContact, 0xA0 IsSlidingDown, 0xA8 GetContactPlane, 0x3C GetPosition read from the PHYSICSOBJREP vtable at 0x009DE530); tests the_ground_normal_drives_the_tilt_sliders, a_listed_bone_turns_by_the_slider_and_its_weight
 - [-] `AMAngle::DataFromFileNode` · 00692e50 — admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 - [-] `AMAngle::Destroy` · 00693210 — DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 
@@ -671,12 +671,12 @@ Legend and workflow: [README](README.md).
 ### BehaviorTrack
 - [-] `BehaviorTrack::StreamPack` · 0068fb60 · legions 006306e0 — StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
 
-## `portal/shared/src/animsys/behaviortracker.cpp.c` (20/34)
+## `portal/shared/src/animsys/behaviortracker.cpp.c` (21/34)
 
 ### BehaviorTracker
 - [x] `BehaviorTracker::SendAndClearCallback` · 0068bba0 · legions 0062cbd0 — ac2-anim Ac2BehaviorTracker
 - [x] `BehaviorTracker::ProcessParamFlags` · 0068bbf0 · legions 0062cc20 — ac2-anim behavior/tracker.rs process_param_flags: children fade out (ChildrenOpacity), FX starts, and for the player the action lock and camera parent/target/restore/targeted camera as Ac2AnimEvents (the client turns them into CameraManager calls); test a_behaviour_fades_the_children_and_drives_the_players_camera
-- [~] `BehaviorTracker::ProcessRampingDownParamFlags` · 0068bd50 · legions 0062cd80 — ac2-anim behavior/tracker.rs process_ramping_down_param_flags: children fade back in, the player's camera is restored, the FX stops, weenie behaviours count down. Not modelled: mDestroyOnCompletion (an AnimationObj slot-1 call with 0,0,0,3.0) and the clone end (slot 2, when mTargetID or mVDescToClone is set)
+- [x] `BehaviorTracker::ProcessRampingDownParamFlags` · 0068bd50 · legions 0062cd80 — ported: ac2-anim behavior/tracker.rs process_ramping_down_param_flags: children opacity, DeleteSelf(0, 3.0) for mDestroyOnCompletion, ClearFxTarget for mTargetID/mVDescToClone, camera restore, StopFx, weenie count (Legions 0x0062CD80 matches); test in behavior/tests.rs
 - [-] `BehaviorTracker::StreamPack` · 0068be30 · legions 0062ce60 — StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
 
 ### SmartArray<WeenieHook>

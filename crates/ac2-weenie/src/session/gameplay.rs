@@ -244,6 +244,8 @@ impl OnlineSession {
         if let Some(character) = self.world.player() {
             self.send(ac2_net::protocol::ClientEvent::LogOffCharacter { character });
         }
+        // `EndSession` resets the player shell (`CWAllocator::ResetShell`).
+        self.chat.reset_shell();
     }
 
     /// `CCombatSystem` 0x1 as far as the client knows it: another object whose weenie is a
@@ -270,6 +272,11 @@ impl OnlineSession {
             Ok(message) => {
                 if self.chat_drops(&message) {
                     return Some(Vec::new());
+                }
+                if let ScriptMessage::ExaminationProfile(profile) = &message {
+                    if self.observe_examination(profile) {
+                        return Some(super::hit_chance::kept());
+                    }
                 }
                 let player = self.world.player().unwrap_or_default();
                 let out = self.script.receive(message, player);

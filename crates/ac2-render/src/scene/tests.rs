@@ -549,6 +549,7 @@ fn an_object_in_an_env_cell_names_its_block_for_the_inside_environment() {
         point_lights: Vec::new(),
         detail: crate::object::DrawDetail::FULL,
         cell,
+        hidden_mesh_types: Vec::new(),
     };
     assert_eq!(object(0x0299_011B).inside_block(), Some((0x02, 0x99)));
     assert_eq!(object(0x0299_0025).inside_block(), None);
@@ -610,4 +611,75 @@ fn the_interior_walk_starts_in_the_cameras_own_cell_where_dungeon_copies_overlap
             "block {key:x?} draws a room around the viewer: {cells:x?}"
         );
     }
+}
+
+/// `WorldRender::Render`: a camera in a fogged dungeon (block 0x01BA: linear interior fog to
+/// 400 m over open cell groups) whose walk drops a cell at the fog's culling plane (`bFogCull`;
+/// retail checks it only from the start cell's group, `CEnvCell::CullCellGroupInternal`) paints
+/// the block's `m_InteriorFogColor` as a full-screen quad first; a view that drops none paints
+/// none.
+#[test]
+fn a_fog_culled_dungeon_view_paints_the_interior_fog_colour_first() {
+    use crate::frustum::Frustum;
+    use crate::interior_cull::InteriorCull;
+    use crate::object::RenderSettings;
+
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let world = Ac2WorldSource::open(Arc::clone(&store)).unwrap().unwrap();
+    let block = ac2_core::CellId::new(0x01BA_0100);
+    if !world.has_landblock(ac2_core::CellId::new(0x01BA_FFFF)) {
+        return;
+    }
+    let interior = world.landblock_interior(block).unwrap().unwrap();
+    let fog = interior.fog_color.expect("the block has interior fog");
+    let expected = [fog[0], fog[1], fog[2], interior.fog_alpha.unwrap_or(1.0)];
+    let interiors =
+        super::load_block_interiors(&world, &store, block, &RenderSettings::default(), 0.0)
+            .expect("the dungeon has cells");
+    let cull = &interiors.cull;
+    assert_eq!(cull.fog_quad, expected);
+    let camera = |eye: Vec3, dir: Vec3| Camera {
+        eye,
+        target: eye + dir,
+        fov_y: 60_f32.to_radians(),
+        near: 0.1,
+        far: 4000.0,
+    };
+    let (mut culled, mut clear) = (None, None);
+    let mut ids: Vec<u32> = cull.cells.keys().copied().collect();
+    ids.sort_unstable();
+    'search: for id in ids {
+        let cell = &cull.cells[&id];
+        let centre = (cell.bbox.min + cell.bbox.max) * 0.5;
+        if cull.cell_at(centre) != Some(id) {
+            continue;
+        }
+        for dir in [Vec3::X, Vec3::NEG_X, Vec3::Y, Vec3::NEG_Y] {
+            let view = camera(centre, dir);
+            let mut walk = InteriorCull::new(&cull.cells, &cull.groups, centre);
+            walk.cull_cells(id, &Frustum::from_camera(&view, 1.5), cull.culling_plane);
+            match (walk.finish().fog_culled, culled, clear) {
+                (true, None, _) => culled = Some(view),
+                (false, _, None) => clear = Some(view),
+                _ => {}
+            }
+            if culled.is_some() && clear.is_some() {
+                break 'search;
+            }
+        }
+    }
+    let (culled, clear) = (
+        culled.expect("a fog-culled view"),
+        clear.expect("a clear view"),
+    );
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0x01, 0xBA));
+    scene.wait();
+    scene.frame(&culled, 1.5);
+    scene.wait();
+    assert_eq!(scene.frame(&culled, 1.5).interior_fog, Some(expected));
+    assert_eq!(scene.frame(&clear, 1.5).interior_fog, None);
 }

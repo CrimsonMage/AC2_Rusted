@@ -1,42 +1,42 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 197 done, 15 partial, 128 to do, 293 skipped.
+633 retail functions: 271 done, 0 partial, 0 to do, 362 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
+## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (2/5)
 
 ### gmCLCache
-- [ ] `gmCLCache::Init_Internal` · 00401940 · legions 00401870 — needs port (check): implemented as crates/ac2-weenie/src/ddd.rs but uncited; gmCLCache::Init_Internal opens the five DAT slots in order
+- [x] `gmCLCache::Init_Internal` · 00401940 · legions 00401870 — a forward to CLCache::Init_Internal (done): ac2-dat DatDataset::open and ac2-weenie ddd.rs slot order, which now names it
 - [-] `gmCLCache::gmCLCache` · 00401950 · legions 00401880 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### PortalThread
 - [-] `PortalThread::SetShouldExit` · 00401970 · legions 004018a0 — thread shutdown flag; worker threads stop on drop (ac2-db worker_lanes.rs)
 
 ### Turbine::Client
-- [ ] `Turbine::Client::CreateChatInterfaceProvider` · 00401990 · legions 00401b60 — needs port (check): implemented as crates/ac2-weenie/src/session.rs but uncited; Turbine::Client::CreateChatInterfaceProvider creates the chat provider
+- [-] `Turbine::Client::CreateChatInterfaceProvider` · 00401990 · legions 00401b60 — not needed:  [body is "return NULL" (gmclcacheinit.cpp.c:1889)]
 
 ### gmCLCache
-- [ ] `gmCLCache::Init` · 004019e0 · legions 00401900 — needs port (check): implemented as crates/ac2-weenie/src/ddd.rs but uncited; gmCLCache::Init
+- [x] `gmCLCache::Init` · 004019e0 · legions 00401900 — audit: covered: internal.dat (slot 4) is a dev file not opened [ac2-dat/src/dataset.rs:20 DatDataset::open (portal, cell, local, highres); ac2-weenie/src/ddd.rs:3-30 slot order and initialized check]
 
-## `ac2/shared/src/database/gmmasterdbmap.cpp.c` (0/4)
+## `ac2/shared/src/database/gmmasterdbmap.cpp.c` (3/4)
 
 ### gmMasterDBMap
-- [ ] `gmMasterDBMap::DivineType_Internal` · 006018c0 — needs port (check): implemented as crates/ac2-script/src/data/db_types.rs but uncited; gmMasterDBMap::DivineType_Internal (DID -> DB type)
+- [x] `gmMasterDBMap::DivineType_Internal` · 006018c0 — ac2-script data/db_types.rs RANGES/db_type: every range of the hard-coded gmMasterDBMap::DivineType_Internal(did) table, now with its own DIDs 0x0E000003 (FILE2ID_TABLE), 0x0EBADA55 (TABOO_TABLE), 0x0E000004 (PLACES_TABLE) and 0xFFFF0000..0xFFFFFFFE (DATFILEDATA); InitDBTypeDef_Internal and the filename overload add nothing a DID lookup needs. Test the_gm_map_types_its_single_dids_and_the_iteration_lists
 
 ### DBTypeDef
 - [-] `DBTypeDef::DBTypeDef` · 006018d0 · legions 005c27b0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### gmMasterDBMap
-- [ ] `gmMasterDBMap::InitDBTypeDef_Internal` · 00601940 — needs port (check): implemented as crates/ac2-script/src/data/db_types.rs but uncited; gmMasterDBMap::InitDBTypeDef_Internal builds the DB type definitions
-- [ ] `gmMasterDBMap::DivineType_Internal` · 00601a50 — needs port (check): implemented as crates/ac2-script/src/data/db_types.rs but uncited; gmMasterDBMap::DivineType_Internal (DID -> DB type)
+- [x] `gmMasterDBMap::InitDBTypeDef_Internal` · 00601940 — ac2-script data/db_types.rs RANGES/db_type: every range of the hard-coded gmMasterDBMap::DivineType_Internal(did) table, now with its own DIDs 0x0E000003 (FILE2ID_TABLE), 0x0EBADA55 (TABOO_TABLE), 0x0E000004 (PLACES_TABLE) and 0xFFFF0000..0xFFFFFFFE (DATFILEDATA); InitDBTypeDef_Internal and the filename overload add nothing a DID lookup needs. Test the_gm_map_types_its_single_dids_and_the_iteration_lists
+- [x] `gmMasterDBMap::DivineType_Internal` · 00601a50 — ac2-script data/db_types.rs RANGES/db_type: every range of the hard-coded gmMasterDBMap::DivineType_Internal(did) table, now with its own DIDs 0x0E000003 (FILE2ID_TABLE), 0x0EBADA55 (TABOO_TABLE), 0x0E000004 (PLACES_TABLE) and 0xFFFF0000..0xFFFFFFFE (DATFILEDATA); InitDBTypeDef_Internal and the filename overload add nothing a DID lookup needs. Test the_gm_map_types_its_single_dids_and_the_iteration_lists
 
-## `ac2/shared/src/languagespecific/gmcharnames.cpp.c` (0/2)
+## `ac2/shared/src/languagespecific/gmcharnames.cpp.c` (2/2)
 
 ### gmCharNameCharacterValidator
-- [~] `gmCharNameCharacterValidator::IsCharacterValid` · 0060cb90 · legions 005cd990 — pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
-- [ ] `gmCharNameCharacterValidator::IsCharacterValidForTransitions` · 0060cc50 · legions 005cda50 — needs port: gmCharNameCharacterValidator::IsCharacterValidForTransitions (Hangul jamo range for character names)
+- [x] `gmCharNameCharacterValidator::IsCharacterValid` · 0060cb90 · legions 005cd990 — ac2-db char_names.rs (LanguageLetters from Legions 0x00A3B7D0; language set from the local DAT's name in mapper 0x4000002A, g_validator->SetLanguage at 0x004B43E2); ac2-ui confirmation.rs is_name_character = NameInputFilter; tests each_language_takes_ascii_and_its_own_letters, only_korean_takes_the_jamo..., the_language_names_map_to_the_name_validators_ids
+- [x] `gmCharNameCharacterValidator::IsCharacterValidForTransitions` · 0060cc50 · legions 005cda50 — ac2-db char_names.rs (LanguageLetters from Legions 0x00A3B7D0; language set from the local DAT's name in mapper 0x4000002A, g_validator->SetLanguage at 0x004B43E2); ac2-ui confirmation.rs is_name_character = NameInputFilter; tests each_language_takes_ascii_and_its_own_letters, only_korean_takes_the_jamo..., the_language_names_map_to_the_name_validators_ids
 
-## `portal/client/src/clcache/clcachemain.cpp.c` (2/132)
+## `portal/client/src/clcache/clcachemain.cpp.c` (21/132)
 
 ### EntityDesc
 - [-] `EntityDesc::Allocator` · 004be6e0 · legions 004b2a20 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
@@ -238,9 +238,9 @@ Legend and workflow: [README](README.md).
 - [-] `DatFileData::Allocator` · 004befb0 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 
 ### CLCache
-- [ ] `CLCache::ResetCache` · 004befd0 · legions 004b3310 — needs port: CLCache::ResetCache (clear cached DBOs on session/region reset)
-- [ ] `CLCache::WorkerExecuteRequest` · 004befe0 · legions 004b3320 — needs port (check): implemented as crates/ac2-db/src/worker_lanes.rs but uncited; CLCache::WorkerExecuteRequest runs a request on a worker
-- [ ] `CLCache::OnRequestFinished` · 004bf000 · legions 004b3340 — needs port: CLCache::OnRequestFinished (completion callback; the AsyncCache main-thread pump, AGENTS)
+- [-] `CLCache::ResetCache` · 004befd0 · legions 004b3310 — replaced by design:  [AGENTS.md DB object cache exception: free on last drop, no retention pool to reset]
+- [x] `CLCache::WorkerExecuteRequest` · 004befe0 · legions 004b3320 — ac2-db loader_pool.rs (named there): a get runs ThreadedCache::WorkerExecuteRequest on the loader workers; operation 3 is the BeginDDD download (skipped)
+- [x] `CLCache::OnRequestFinished` · 004bf000 · legions 004b3340 — audit: covered: AGENTS.md item 2 [ac2-client/src/client.rs:557 db_cache(): time-budgeted drain of the loader channel (LOAD_BUDGET, ac2-client/src/bin/ac2/main.rs:64); ac2-db/src/loader_pool.rs:102 try_next]
 
 ### Cache_Pack_t
 - [-] `Cache_Pack_t::~Cache_Pack_t` · 004bf500 · legions 004b38d0 — skip: constructor/destructor of plain data; Rust struct init and Drop
@@ -255,15 +255,15 @@ Legend and workflow: [README](README.md).
 - [-] `FontLocal::Allocator` · 004bf610 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 
 ### CThreadsafeDiskController
-- [ ] `CThreadsafeDiskController::LoadData` · 004bf670 · legions 004b3a40 — needs port (check): implemented as crates/ac2-dat/src/file.rs but uncited; CThreadsafeDiskController::LoadData (locked DID load; the B-tree read is cited as DiskController::LoadDataEx)
+- [x] `CThreadsafeDiskController::LoadData` · 004bf670 · legions 004b3a40 — audit: covered:  [ac2-dat/src/file.rs:83 read_record (locked B-tree read)]
 - [-] `CThreadsafeDiskController::SaveData` · 004bf6b0 · legions 004b3a80 — skip: DAT writing/saving/packing (tools only)
 - [-] `CThreadsafeDiskController::DeleteData` · 004bf6f0 · legions 004b3ac0 — skip: DAT writing/saving/packing (tools only)
-- [ ] `CThreadsafeDiskController::IsMember` · 004bf730 · legions 004b3b00 — needs port (check): implemented as crates/ac2-dat/src/file_btree_runtime.rs but uncited; CThreadsafeDiskController::IsMember (DID presence in the B-tree)
+- [x] `CThreadsafeDiskController::IsMember` · 004bf730 · legions 004b3b00 — audit: covered:  [ac2-dat/src/dataset.rs:72 contains; file_btree_runtime.rs:97]
 - [-] `CThreadsafeDiskController::DeleteDataByMask` · 004bf770 · legions 004b3b40 — skip: DAT writing/saving/packing (tools only)
 
 ### CLCache
-- [ ] `CLCache::AsyncGetFromOtherSources` · 004bf7b0 · legions 004b3b80 — needs port: CLCache::AsyncGetFromOtherSources (fetch a missing DID from other DAT slots)
-- [ ] `CLCache::WorkerExecuteBeginDDDRequest` · 004bf800 · legions 004b3bd0 — needs port (check): implemented as crates/ac2-db/src/ddd.rs but uncited; CLCache::WorkerExecuteBeginDDDRequest (DDD begin on a worker)
+- [-] `CLCache::AsyncGetFromOtherSources` · 004bf7b0 · legions 004b3b80 — the data download (DDD) path: no supported server sends it. Pyrealium sends only 0x1003B (end) before the character set and never 0x1003A (begin), 0x10035 (data) or an answer to a missing-DID CCliDatRequestEvent (pyrealium-server crates/pyrealium/src/server.rs); the listeners (gmClient/Turbine::Client/gmDataPatchUI::OnDDDEvent) are already skipped. Recorded in AGENTS.md (DB cache rule)
+- [-] `CLCache::WorkerExecuteBeginDDDRequest` · 004bf800 · legions 004b3bd0 — the data download (DDD) path: no supported server sends it. Pyrealium sends only 0x1003B (end) before the character set and never 0x1003A (begin), 0x10035 (data) or an answer to a missing-DID CCliDatRequestEvent (pyrealium-server crates/pyrealium/src/server.rs); the listeners (gmClient/Turbine::Client/gmDataPatchUI::OnDDDEvent) are already skipped. Recorded in AGENTS.md (DB cache rule)
 
 ### PSmartArray<LOAD_UVPAIR>
 - [-] `PSmartArray<LOAD_UVPAIR>::~PSmartArray<LOAD_UVPAIR>` · 004bfa10 · legions 0063bba0 — skip: constructor/destructor of plain data; Rust struct init and Drop
@@ -288,12 +288,12 @@ Legend and workflow: [README](README.md).
 
 ### DiskController
 - [-] `DiskController::HowmuchFreeSpace` · 004bfbb0 · legions 004b3f50 — skip: DAT writing/saving/packing (tools only)
-- [ ] `DiskController::GetMasterMapDID` · 004bfbc0 · legions 004b3f60 — needs port (check): implemented as crates/ac2-script/src/data/mod.rs (MASTER_MAP_DID) but uncited; DiskController::GetMasterMapDID (master map DID)
-- [ ] `DiskController::GetDatIDStamp` · 004bfbd0 · legions 004b3f70 — needs port: DiskController::GetDatIDStamp (DAT id stamp from the header)
-- [ ] `DiskController::GetFilename` · 004bfbf0 · legions 004b3f90 — needs port: DiskController::GetFilename (DAT file name of a slot)
+- [x] `DiskController::GetMasterMapDID` · 004bfbc0 · legions 004b3f60 — a field getter: ac2-dat btree.rs DatHeader master_map_did (named there), read by ac2-script data MASTER_MAP_DID
+- [x] `DiskController::GetDatIDStamp` · 004bfbd0 · legions 004b3f70 — audit: covered:  [ac2-dat/src/btree.rs:92; ac2-weenie/src/ddd.rs dat_file_id]
+- [x] `DiskController::GetFilename` · 004bfbf0 · legions 004b3f90 — a field getter: ac2-dat paths.rs DatOpenOptions::path_for (named there)
 
 ### CLCache
-- [ ] `CLCache::NotifyDDDEvent` · 004bfc40 · legions 004b3fe0 — needs port: CLCache::NotifyDDDEvent (DDD event fan-out)
+- [-] `CLCache::NotifyDDDEvent` · 004bfc40 · legions 004b3fe0 — the data download (DDD) path: no supported server sends it. Pyrealium sends only 0x1003B (end) before the character set and never 0x1003A (begin), 0x10035 (data) or an answer to a missing-DID CCliDatRequestEvent (pyrealium-server crates/pyrealium/src/server.rs); the listeners (gmClient/Turbine::Client/gmDataPatchUI::OnDDDEvent) are already skipped. Recorded in AGENTS.md (DB cache rule)
 
 ### (free functions)
 - [-] `operator+` · 004bfc80 · legions 004b40c0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
@@ -303,26 +303,26 @@ Legend and workflow: [README](README.md).
 - [-] `FxScript::Allocate` · 004bfd30 — editor text source / cache allocator (admin tools or Rust value type)
 
 ### CThreadsafeDiskController
-- [ ] `CThreadsafeDiskController::InitFile` · 004bfd70 · legions 004b41b0 — needs port (check): implemented as crates/ac2-dat/src/file.rs but uncited; CThreadsafeDiskController::InitFile (open a DAT slot)
+- [x] `CThreadsafeDiskController::InitFile` · 004bfd70 · legions 004b41b0 — audit: covered:  [ac2-dat/src/dataset.rs:20 open; file_btree_runtime.rs:47]
 
 ### ThreadedCache
 - [-] `ThreadedCache::~ThreadedCache` · 004bfe10 · legions 004b4250 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### CLCache
-- [~] `CLCache::OnServerInterrogation` · 004bfeb0 — ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
-- [ ] `CLCache::OnBeginDDD` · 004c0060 · legions 004b44a0 — needs port: CLCache::OnBeginDDD (dynamic data download begin)
-- [~] `CLCache::SetLanguageInternal` · 004c00f0 · legions 004b4530 — the local_<name>.dat name (ac2_dat local_dat_for_language) at mount; the engine-only reload is not ported
-- [ ] `CLCache::OnEndDDD` · 004c0610 · legions 004b4aa0 — needs port: CLCache::OnEndDDD (dynamic data download end)
-- [ ] `CLCache::SetRegion` · 004c0690 · legions 004b4b20 — needs port: CLCache::SetRegion (region change on DDD)
+- [x] `CLCache::OnServerInterrogation` · 004bfeb0 — audit: covered: internal.dat slot not opened; language id configured, not looked up via EnumMapper 0x4000002A [ac2-weenie/src/session.rs:559, ac2-weenie/src/ddd.rs:1; ac2-net/src/protocol/dat_event.rs:137]
+- [-] `CLCache::OnBeginDDD` · 004c0060 · legions 004b44a0 — the data download (DDD) path: no supported server sends it. Pyrealium sends only 0x1003B (end) before the character set and never 0x1003A (begin), 0x10035 (data) or an answer to a missing-DID CCliDatRequestEvent (pyrealium-server crates/pyrealium/src/server.rs); the listeners (gmClient/Turbine::Client/gmDataPatchUI::OnDDDEvent) are already skipped. Recorded in AGENTS.md (DB cache rule)
+- [x] `CLCache::SetLanguageInternal` · 004c00f0 · legions 004b4530 — audit: covered: no live reload [ac2-dat/src/paths.rs:13; ac2-client/src/bin/ac2/main.rs:763]
+- [-] `CLCache::OnEndDDD` · 004c0610 · legions 004b4aa0 — the data download (DDD) path: no supported server sends it. Pyrealium sends only 0x1003B (end) before the character set and never 0x1003A (begin), 0x10035 (data) or an answer to a missing-DID CCliDatRequestEvent (pyrealium-server crates/pyrealium/src/server.rs); the listeners (gmClient/Turbine::Client/gmDataPatchUI::OnDDDEvent) are already skipped. Recorded in AGENTS.md (DB cache rule)
+- [-] `CLCache::SetRegion` · 004c0690 · legions 004b4b20 — opens cell_<rid>.dat only when the region differs from the current one; every release ships one region (0x0F000000) and cell_1.dat, and Pyrealium CreatePlayer always names region 1 (bootstrap.rs REGION), so it never acts
 
 ### PSmartArray<Trigger>
-- [ ] `PSmartArray<Trigger>::StreamPack` · 004c0a40 · legions 004b4ed0 — needs port: PSmartArray<Trigger>::StreamPack (typed trigger array load; Trigger in ac2-anim behavior/triggers.rs)
+- [x] `PSmartArray<Trigger>::StreamPack` · 004c0a40 · legions 004b4ed0 — audit: covered:  [ac2-anim/src/dbanimator/asset.rs:24,48 Ac2AnimTrigger/Ac2ImpulseTrigger decoded with the animator]
 
 ### Trigger
 - [-] `Trigger::Trigger` · 004c0bc0 · legions 004b5050 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### PSmartArray<ImpulseTrigger>
-- [ ] `PSmartArray<ImpulseTrigger>::StreamPack` · 004c0bf0 · legions 004b5080 — needs port: PSmartArray<ImpulseTrigger>::StreamPack (typed impulse trigger array load)
+- [x] `PSmartArray<ImpulseTrigger>::StreamPack` · 004c0bf0 · legions 004b5080 — audit: covered:  [ac2-anim/src/dbanimator/asset.rs:24,48 Ac2AnimTrigger/Ac2ImpulseTrigger decoded with the animator]
 
 ### ImpulseTrigger
 - [-] `ImpulseTrigger::ImpulseTrigger` · 004c0d70 — skip: constructor/destructor of plain data; Rust struct init and Drop
@@ -330,15 +330,15 @@ Legend and workflow: [README](README.md).
 ### CLCache
 - [-] `CLCache::~CLCache` · 004c0da0 · legions 004b5230 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `CLCache::UseTime` · 004c0f10 — CLCache::UseTime is the idle eviction of the retail DB cache (AGENTS: no DBOCache eviction)
-- [ ] `CLCache::RemovePendingDownload` · 004c10d0 · legions 004b5560 — needs port: CLCache::RemovePendingDownload (pending DDD download bookkeeping)
+- [-] `CLCache::RemovePendingDownload` · 004c10d0 · legions 004b5560 — the data download (DDD) path: no supported server sends it. Pyrealium sends only 0x1003B (end) before the character set and never 0x1003A (begin), 0x10035 (data) or an answer to a missing-DID CCliDatRequestEvent (pyrealium-server crates/pyrealium/src/server.rs); the listeners (gmClient/Turbine::Client/gmDataPatchUI::OnDDDEvent) are already skipped. Recorded in AGENTS.md (DB cache rule)
 - [-] `CLCache::GetDiskController` · 004c1280 · legions 004b5710 — accessor for the DiskController; Rust holds the controller directly
-- [ ] `CLCache::IsDatFileLoaded` · 004c13a0 · legions 004b5800 — needs port (check): implemented as crates/ac2-weenie/src/ddd.rs but uncited; CLCache::IsDatFileLoaded (slot initialized check for interrogation)
+- [x] `CLCache::IsDatFileLoaded` · 004c13a0 · legions 004b5800 — audit: covered: internal.dat (slot 4) is a dev file not opened [ac2-dat/src/dataset.rs:20 DatDataset::open (portal, cell, local, highres); ac2-weenie/src/ddd.rs:3-30 slot order and initialized check]
 
 ### TerrainList
 - [-] `TerrainList::~TerrainList` · 004c1450 · legions 004b58b0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### PSmartArray<CAllIterationList::PTaggedIterationList>
-- [ ] `PSmartArray<CAllIterationList::PTaggedIterationList>::StreamPack` · 004c14b0 · legions 004b5910 — needs port (check): implemented as crates/ac2-dat/src/iteration.rs but uncited; PSmartArray<PTaggedIterationList>::StreamPack (iteration lists from the DAT)
+- [x] `PSmartArray<CAllIterationList::PTaggedIterationList>::StreamPack` · 004c14b0 · legions 004b5910 — ac2-net protocol/dat_event.rs interrogation_response: the count of DAT files, then each u64 id and its CMostlyConsecutiveIntSet (named there)
 
 ### CAllIterationList::PTaggedIterationList
 - [-] `CAllIterationList::PTaggedIterationList::PTaggedIterationList` · 004c1630 · legions 004b5a90 — skip: constructor/destructor of plain data; Rust struct init and Drop
@@ -348,29 +348,29 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<unsigned_long>::operator=` · 004c1680 · legions 0053f8d0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### PSmartArray<CMissingIteration>
-- [ ] `PSmartArray<CMissingIteration>::StreamPack` · 004c16e0 · legions 004b5ae0 — needs port: PSmartArray<CMissingIteration>::StreamPack (missing-iteration list; AGENTS keeps the path for portal pushes)
+- [x] `PSmartArray<CMissingIteration>::StreamPack` · 004c16e0 · legions 004b5ae0 — audit: covered: decoded but not applied (see CLCache::OnBeginDDD) [ac2-net/src/protocol/dat_event.rs:73 MissingIteration decode]
 
 ### CMissingIteration
 - [-] `CMissingIteration::CMissingIteration` · 004c1860 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `CMissingIteration::operator=` · 004c1880 · legions 004b5c80 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### CLCache
-- [ ] `CLCache::Init` · 004c18e0 · legions 004b5ce0 — needs port (check): implemented as crates/ac2-weenie/src/ddd.rs but uncited; CLCache::Init (opens the five DAT slots)
+- [x] `CLCache::Init` · 004c18e0 · legions 004b5ce0 — audit: covered: internal.dat (slot 4) is a dev file not opened [ac2-dat/src/dataset.rs:20 DatDataset::open (portal, cell, local, highres); ac2-weenie/src/ddd.rs:3-30 slot order and initialized check]
 - [-] `CLCache::OnSaveRequestFinished` · 004c1fa0 · legions 004b6330 — skip: DAT writing/saving/packing (tools only) (cache save completion)
 
 ### PHashTable<unsigned_long,MotionValues>
-- [ ] `PHashTable<unsigned_long,MotionValues>::StreamPack` · 004c2130 — needs port (check): implemented as crates/ac2-world/src/ac2_motion_interp.rs but uncited; PHashTable<MotionValues>::StreamPack (typed motion value table load)
+- [x] `PHashTable<unsigned_long,MotionValues>::StreamPack` · 004c2130 — audit: covered:  [ac2-world/src/ac2_motion_interp.rs:90,153,335,374 MotionValues/TerrainList stream order]
 
 ### IntrusiveHashIterator<unsigned_long,HashTableData<unsigned_long,unsigned_long>*>
 - [-] `IntrusiveHashIterator<unsigned_long,HashTableData<unsigned_long,unsigned_long>*>::operator=` · 004c2310 · legions 00504950 — skip: STL/container internal (iterator, tree, comparator); Rust collections
 
 ### CLCache
-- [ ] `CLCache::Init_Internal` · 004c2490 · legions 004b6860 — needs port (check): implemented as crates/ac2-weenie/src/ddd.rs but uncited; CLCache::Init_Internal (opens the five DAT slots)
+- [x] `CLCache::Init_Internal` · 004c2490 · legions 004b6860 — audit: covered: internal.dat (slot 4) is a dev file not opened [ac2-dat/src/dataset.rs:20 DatDataset::open (portal, cell, local, highres); ac2-weenie/src/ddd.rs:3-30 slot order and initialized check]
 - [-] `CLCache::CLCache` · 004c41d0 · legions 004b85a0 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `CLCache::OnBeginDDDRequestFinished` · 004c42a0 · legions 004b8670 — needs port: CLCache::OnBeginDDDRequestFinished (DDD begin completion)
+- [-] `CLCache::OnBeginDDDRequestFinished` · 004c42a0 · legions 004b8670 — the data download (DDD) path: no supported server sends it. Pyrealium sends only 0x1003B (end) before the character set and never 0x1003A (begin), 0x10035 (data) or an answer to a missing-DID CCliDatRequestEvent (pyrealium-server crates/pyrealium/src/server.rs); the listeners (gmClient/Turbine::Client/gmDataPatchUI::OnDDDEvent) are already skipped. Recorded in AGENTS.md (DB cache rule)
 
 ### PHashTable<unsigned_long,TerrainList>
-- [ ] `PHashTable<unsigned_long,TerrainList>::StreamPack` · 004c45d0 · legions 004b89a0 — needs port: PHashTable<TerrainList>::StreamPack (typed terrain list table load)
+- [x] `PHashTable<unsigned_long,TerrainList>::StreamPack` · 004c45d0 · legions 004b89a0 — audit: covered:  [ac2-world/src/ac2_motion_interp.rs:90,153,335,374 MotionValues/TerrainList stream order]
 
 ### PHashTable<unsigned_long,MotionValues>
 - [-] `PHashTable<unsigned_long,MotionValues>::PHashTable<unsigned_long,MotionValues>` · 004c47f0 · legions 004b8bc0 — skip: constructor/destructor of plain data; Rust struct init and Drop
@@ -383,12 +383,12 @@ Legend and workflow: [README](README.md).
 ### CLOCache
 - [-] `CLOCache::CLOCache` · 004c4a10 · legions 004b8de0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
-## `portal/shared/src/enummap/enummapper.cpp.c` (19/47)
+## `portal/shared/src/enummap/enummapper.cpp.c` (21/47)
 
 ### EnumMapper
-- [ ] `EnumMapper::Get` · 00660750 · legions 0060f060 — needs port (check): implemented as crates/ac2-script/src/data/mod.rs (EnumMapper) but uncited; EnumMapper::Get (enum map lookup by DID)
-- [ ] `EnumMapper::GetSubDataIDs` · 00660770 — needs port: EnumMapper::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
-- [ ] `EnumMapper::GetSubObjects` · 00660790 — needs port: EnumMapper::GetSubObjects (sub-object resolution, AGENTS keeps)
+- [x] `EnumMapper::Get` · 00660750 · legions 0060f060 — audit: covered:  [ac2-script/src/data/mod.rs:479 enum_mapper(did); data/enum_map.rs:21]
+- [-] `EnumMapper::GetSubDataIDs` · 00660770 — not needed:  [data-graph prefetch only; m_pDataGraph never set]
+- [x] `EnumMapper::GetSubObjects` · 00660790 — audit: covered:  [ac2-script/src/data/enum_map.rs:10 lookups fall through to the base mapper; glue/enums.rs:72 chain]
 - [-] `EnumMapper::ReleaseSubObjects` · 006607f0 · legions 0060f0c0 — skip: release of a shared ref or buffer; Arc/Drop replaces it
 
 ### EnumMapper::iterator
@@ -419,7 +419,7 @@ Legend and workflow: [README](README.md).
 - [x] `EnumMapper::GetString` · 00660c50 · legions 0060f570 — ac2-script data/glue::enums
 - [x] `EnumMapper::InqString` · 00660d10 · legions 0060f630 — ac2-script data/glue::enums
 - [x] `EnumMapper::GetStringW` · 00660dd0 · legions 0060f6f0 — ac2-script data/glue::enums
-- [ ] `EnumMapper::GetStringByDID` · 00660e40 · legions 0060f760 — needs port (check): implemented as crates/ac2-script/src/glue/enums.rs but uncited; EnumMapper::GetStringByDID (enum name for a DID)
+- [-] `EnumMapper::GetStringByDID` · 00660e40 · legions 0060f760 — not needed:  [only callers BasePropertyDesc::InqPropertyEnum (EnumPropertyValue From/ToFileNode, GetValueAsString: tool/debug) and MasterProperty::LoadFromFile/PEnumMapper::AddEnum (tools, no Legions address)]
 - [x] `EnumMapper::GetLogStringW` · 00660f10 · legions 0060f800 — ac2-script data/glue::enums
 - [-] `EnumMapper::begin` · 00660f70 · legions 0060f860 — skip: STL/container internal (iterator, tree, comparator); Rust collections
 
@@ -466,14 +466,14 @@ Legend and workflow: [README](README.md).
 - [-] `EnumMapper::EnumMapper` · 00662860 · legions 00610c90 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `EnumMapper::~EnumMapper` · 006628e0 · legions 00610d10 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [x] `EnumMapper::StreamPack` · 00662970 · legions 00610da0 — ac2-script data/glue::enums
-- [ ] `EnumMapper::AddMapping` · 00662a30 · legions 00610e60 — needs port: EnumMapper::AddMapping (load of (id, name) mapping pairs)
+- [-] `EnumMapper::AddMapping` · 00662a30 · legions 00610e60 — not needed:  [only callers BasePropertyDesc::InqPropertyEnum (EnumPropertyValue From/ToFileNode, GetValueAsString: tool/debug) and MasterProperty::LoadFromFile/PEnumMapper::AddEnum (tools, no Legions address)]
 - [-] `EnumMapper::Allocate` · 00662af0 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
-- [ ] `EnumMapper::AddEnumMapper` · 00662b20 — needs port: EnumMapper::AddEnumMapper (merge of a parent enum mapper)
+- [-] `EnumMapper::AddEnumMapper` · 00662b20 — not needed:  [only callers BasePropertyDesc::InqPropertyEnum (EnumPropertyValue From/ToFileNode, GetValueAsString: tool/debug) and MasterProperty::LoadFromFile/PEnumMapper::AddEnum (tools, no Legions address)]
 
 ## `portal/shared/src/enummap/penummapper.cpp.c` (0/16)
 
 ### PEnumMapper
-- [ ] `PEnumMapper::SetStartingValue` · 007381d0 · legions 006b3d90 — needs port: PEnumMapper::SetStartingValue (no PEnumMapper port found in crates)
+- [-] `PEnumMapper::SetStartingValue` · 007381d0 · legions 006b3d90 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
 
 ### _STL::less<PEnum>
 - [-] `_STL::less<PEnum>::operator()` · 007381e0 · legions 006b3da0 — skip: STL/container internal (iterator, tree, comparator); Rust collections
@@ -481,24 +481,24 @@ Legend and workflow: [README](README.md).
 ### PEnum
 - [-] `PEnum::Destroy` · 00738230 · legions 006b3df0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `PEnum::operator=` · 00738300 · legions 006b3ec0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [ ] `PEnum::Initialize` · 00738470 · legions 006b4030 — needs port: PEnum::Initialize (no PEnumMapper port found in crates)
+- [-] `PEnum::Initialize` · 00738470 · legions 006b4030 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
 
 ### PEnumMapper
-- [ ] `PEnumMapper::FindEnum` · 007385a0 · legions 006b4160 — needs port: PEnumMapper::FindEnum (no PEnumMapper port found in crates)
+- [-] `PEnumMapper::FindEnum` · 007385a0 · legions 006b4160 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
 
 ### PEnum
 - [-] `PEnum::PEnum` · 00738730 · legions 006b42f0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### PEnumMapper
-- [ ] `PEnumMapper::SetInheritanceDepth` · 007387a0 · legions 006b4360 — needs port: PEnumMapper::SetInheritanceDepth (no PEnumMapper port found in crates)
-- [ ] `PEnumMapper::HaveMapping` · 00738800 · legions 006b43c0 — needs port: PEnumMapper::HaveMapping (no PEnumMapper port found in crates)
-- [ ] `PEnumMapper::NextValidID` · 007389b0 · legions 006b4570 — needs port: PEnumMapper::NextValidID (no PEnumMapper port found in crates)
+- [-] `PEnumMapper::SetInheritanceDepth` · 007387a0 · legions 006b4360 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
+- [-] `PEnumMapper::HaveMapping` · 00738800 · legions 006b43c0 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
+- [-] `PEnumMapper::NextValidID` · 007389b0 · legions 006b4570 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
 - [-] `PEnumMapper::~PEnumMapper` · 00738ee0 · legions 006b4aa0 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `PEnumMapper::Initialize` · 00738f60 · legions 006b4b20 — needs port: PEnumMapper::Initialize (no PEnumMapper port found in crates)
+- [-] `PEnumMapper::Initialize` · 00738f60 · legions 006b4b20 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
 - [-] `PEnumMapper::PEnumMapper` · 00739020 · legions 006b4be0 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `PEnumMapper::AddEnum` · 00739080 · legions 006b4c40 — needs port: PEnumMapper::AddEnum (no PEnumMapper port found in crates)
-- [ ] `PEnumMapper::AddEnum` · 00739320 — needs port: PEnumMapper::AddEnum overload (no PEnumMapper port found in crates)
-- [ ] `PEnumMapper::SortEnums` · 00739400 · legions 006b4f40 — needs port: PEnumMapper::SortEnums (enum value order; no PEnumMapper port found)
+- [-] `PEnumMapper::AddEnum` · 00739080 · legions 006b4c40 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
+- [-] `PEnumMapper::AddEnum` · 00739320 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
+- [-] `PEnumMapper::SortEnums` · 00739400 · legions 006b4f40 — not needed:  [only callers are EmpGen/EmpGenParse and PEnumMapper ctor (enum-map generator tool, catalog [-])]
 
 ## `portal/shared/src/languagespecific/charnames.cpp.c` (0/2)
 
@@ -511,51 +511,51 @@ Legend and workflow: [README](README.md).
 ### CharUtils
 - [x] `CharUtils::IsVowel` · 006bc600 · legions 006515a0 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
-## `portal/shared/src/property/baseproperty.cpp.c` (6/22)
+## `portal/shared/src/property/baseproperty.cpp.c` (11/22)
 
 ### BaseProperty
-- [ ] `BaseProperty::IsReportedToWeenie` · 006b1f50 · legions 0064b1e0 — needs port: BaseProperty::IsReportedToWeenie (reporter flag)
-- [ ] `BaseProperty::IsInquirable` · 006b1f60 · legions 0064b1f0 — needs port: BaseProperty::IsInquirable (inquiry flag)
-- [ ] `BaseProperty::IsDefaultValue` · 006b1f70 · legions 0064b200 — needs port: BaseProperty::IsDefaultValue
-- [~] `BaseProperty::InitToDefaultValue` · 006b1fa0 · legions 0064b230 — fresh value of the type; the desc's default value is not in the packed MasterProperty, so the value class default stands
+- [x] `BaseProperty::IsReportedToWeenie` · 006b1f50 · legions 0064b1e0 — audit: covered:  [ac2-db/src/property.rs:214,220; ac2-physics/src/collide_property.rs:63,68]
+- [x] `BaseProperty::IsInquirable` · 006b1f60 · legions 0064b1f0 — audit: covered:  [ac2-db/src/property.rs:214,220; ac2-physics/src/collide_property.rs:63,68]
+- [-] `BaseProperty::IsDefaultValue` · 006b1f70 · legions 0064b200 — not needed: ac2-physics/src/physics_obj_property.rs:7 comment claiming a gap is wrong; fix the comment [BasePropertyDesc::StreamPack (basepropertydesc.cpp.c:162) does not stream m_defaultValue; only FromFileNode (tool) sets it, so IsDefaultValue is always 0 in the client and "keep every property" ma
+- [x] `BaseProperty::InitToDefaultValue` · 006b1fa0 · legions 0064b230 — audit: covered: default value never loaded from the DAT (m_defaultValue null in client) [ac2-db/src/base_property.rs:485]
 
 ### DiskConBase
 - [-] `DiskConBase::IsExpandable` · 006b2000 · legions 0064b290 — skip: DAT writing/saving/packing (tools only) (DiskConBase::IsExpandable is the DAT growth check)
 
 ### BaseProperty
 - [x] `BaseProperty::SetPropertyType` · 006b2010 · legions 0064b2a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
-- [ ] `BaseProperty::GetSubDataIDs` · 006b2060 · legions 0064b2f0 — needs port: BaseProperty::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
+- [-] `BaseProperty::GetSubDataIDs` · 006b2060 · legions 0064b2f0 — not needed:  [data-graph prefetch / StringDownload (tool) only; catalog policy rows (CharacterSetup::GetSubDataIDs etc.) are [-]; m_pDataGraph never set]
 - [-] `BaseProperty::BaseProperty` · 006b20f0 · legions 0064b380 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `BaseProperty::~BaseProperty` · 006b2110 · legions 0064b3a0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `BaseProperty::operator=` · 006b2130 · legions 0064b3c0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [x] `BaseProperty::SetPropertyName` · 006b2180 · legions 0064b410 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
-- [ ] `BaseProperty::InqPropertyBit` · 006b21e0 · legions 0064b470 — needs port: BaseProperty::InqPropertyBit
+- [x] `BaseProperty::InqPropertyBit` · 006b21e0 · legions 0064b470 — audit: covered:  [ac2-db/src/property.rs:210 ac2_property_desc (data word = bit); :235 ethereal_mask_with; ac2-physics/src/body_profile.rs:36]
 - [x] `BaseProperty::Compare` · 006b2210 · legions 0064b4a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
-- [~] `BaseProperty::StreamPack` · 006b2250 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [x] `BaseProperty::StreamPack` · 006b2250 — audit: covered: pack direction unused by the client [ac2-net/src/protocol/property.rs:3-8 and ac2-db/src/property.rs:509 read_ac2_base_property_array (unpack)]
 - [-] `BaseProperty::BaseProperty` · 006b22c0 · legions 0064b550 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [x] `BaseProperty::SetPropertyNameW` · 006b2310 · legions 0064b5a0 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 - [x] `BaseProperty::InqPropertyNameW` · 006b2380 · legions 0064b610 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 - [x] `BaseProperty::InqPropertyTypeW` · 006b2440 · legions 0064b6d0 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
-- [ ] `BaseProperty::GetOutputString` · 006b2510 · legions 0064b7a0 — not ported: GetOutputString formats "%s = %s" (name, value text), but the value text (GetValueAsString per type, vtable +0x28 in Legions) is not in the Legions decompile for Integer/Float/Color/etc., and the PStringBase::sprintf destination is unresolved; GetProperty alone is bound
+- [-] `BaseProperty::GetOutputString` · 006b2510 · legions 0064b7a0 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 - [-] `BaseProperty::ValueFromFileNode` · 006b2650 — skip: admin/debug text or tool code (no client use in Legions); ValueFromFileNode parses text source files [vtable-checked: not a slot of any located Legions vtable]
 - [-] `BaseProperty::ToFileNode` · 006b26b0 — text source format (admin tools)
 - [-] `BaseProperty::FromFileNode` · 006b2790 — text source format (admin tools)
 
-## `portal/shared/src/property/desc/basepropertydesc.cpp.c` (0/10)
+## `portal/shared/src/property/desc/basepropertydesc.cpp.c` (1/10)
 
 ### BasePropertyDesc
 - [-] `BasePropertyDesc::BasePropertyDesc` · 006b6e70 · legions 0064ed50 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `BasePropertyDesc::~BasePropertyDesc` · 006b6ea0 · legions 0064ed80 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `BasePropertyDesc::operator=` · 006b6ee0 · legions 0064edc0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [ ] `BasePropertyDesc::InqPropertyEnum` · 006b6f40 · legions 0064ee20 — needs port: BasePropertyDesc::InqPropertyEnum
-- [ ] `BasePropertyDesc::InqPropertyEnum` · 006b6f70 — needs port: BasePropertyDesc::InqPropertyEnum overload
-- [ ] `BasePropertyDesc::InitProperty` · 006b6fa0 · legions 0064ee50 — needs port: BasePropertyDesc::InitProperty
-- [ ] `BasePropertyDesc::GetSubDataIDs` · 006b6fc0 · legions 0064ee70 — needs port: BasePropertyDesc::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
+- [-] `BasePropertyDesc::InqPropertyEnum` · 006b6f40 · legions 0064ee20 — not needed:  [callers EnumPropertyValue::FromFileNode/ToFileNode/GetValueAsString: tool/debug]
+- [-] `BasePropertyDesc::InqPropertyEnum` · 006b6f70 — not needed:  [callers EnumPropertyValue::FromFileNode/ToFileNode/GetValueAsString: tool/debug]
+- [-] `BasePropertyDesc::InitProperty` · 006b6fa0 · legions 0064ee50 — not needed:  [only from MasterProperty::InqOptionalProperties <- CPhysicsObj::BuildOptionalProperties (editor tooling, catalog [-]); m_defaultValue is null in the client]
+- [-] `BasePropertyDesc::GetSubDataIDs` · 006b6fc0 · legions 0064ee70 — not needed:  [data-graph prefetch / StringDownload (tool) only; catalog policy rows (CharacterSetup::GetSubDataIDs etc.) are [-]; m_pDataGraph never set]
 - [-] `BasePropertyDesc::BasePropertyDesc` · 006b7030 · legions 0064eee0 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `BasePropertyDesc::StreamPack` · 006b7070 · legions 0064ef20 — needs port: BasePropertyDesc::StreamPack (typed load of property descriptions)
+- [x] `BasePropertyDesc::StreamPack` · 006b7070 · legions 0064ef20 — audit: covered:  [ac2-db/src/property.rs:97 Ac2PropertyTypes::decode_packed (type, group, data, report, required per desc)]
 - [-] `BasePropertyDesc::FromFileNode` · 006b7100 — text source format (admin tools)
 
-## `portal/shared/src/property/masterproperty.cpp.c` (33/130)
+## `portal/shared/src/property/masterproperty.cpp.c` (52/130)
 
 ### BoolPropertyValue
 - [-] `BoolPropertyValue::ToFileNode` · 006b3d50 — text source format (admin tools)
@@ -566,7 +566,7 @@ Legend and workflow: [README](README.md).
 
 ### ColorPropertyValue
 - [-] `ColorPropertyValue::ColorPropertyValue` · 006b3e30 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [~] `ColorPropertyValue::StreamPack` · 006b3e60 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [x] `ColorPropertyValue::StreamPack` · 006b3e60 — audit: covered: pack direction unused by the client [ac2-net/src/protocol/property.rs:3-8 and ac2-db/src/property.rs:509 read_ac2_base_property_array (unpack)]
 - [-] `ColorPropertyValue::FromFileNode` · 006b3e70 — text source format (admin tools)
 - [-] `ColorPropertyValue::ToFileNode` · 006b3e90 — text source format (admin tools)
 - [x] `ColorPropertyValue::InqColor` · 006b3eb0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
@@ -609,10 +609,10 @@ Legend and workflow: [README](README.md).
 - [-] `PFileNode::SetNameAsInt64` · 006b43b0 — skip: admin/debug text or tool code (no client use in Legions); PFileNode::SetNameAsInt64 is the text file node [vtable-checked: not a slot of any located Legions vtable]
 
 ### PackageIDPropertyValue
-- [ ] `PackageIDPropertyValue::HasValidData` · 006b4400 — Legions has it: PackageIDPropertyValue vtable slot 10 at 0x0064cde0 (shifted by two; same size). Was skip
+- [-] `PackageIDPropertyValue::HasValidData` · 006b4400 — never called: the Legions vtable slot is +0x20 (PackageIDPropertyValue vtable 0x009F0A90, slot 8 = 0x0064CDE0); no property code calls +0x20, and the 371 call/jmp [reg+0x20] sites in the Legions exe resolve to other classes (StringInfo, WeenieDesc); the authoring FromFileNode/ToFileNode beside them are absent from Legions
 
 ### BehaviorTracker
-- [ ] `BehaviorTracker::SetAnimationObj` · 006b4410 · legions 0064ce10 — needs port: BehaviorTracker::SetAnimationObj (animation object of the behaviour tracker)
+- [x] `BehaviorTracker::SetAnimationObj` · 006b4410 · legions 0064ce10 — audit: covered:  [ac2-script/src/glue/property_collection.rs:266]
 
 ### PackageIDPropertyValue
 - [x] `PackageIDPropertyValue::Set` · 006b4420 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
@@ -628,13 +628,13 @@ Legend and workflow: [README](README.md).
 - [x] `VectorPropertyValue::Set` · 006b4560 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `VectorPropertyValue::Compare` · 006b4580 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `VectorPropertyValue::Copy` · 006b4600 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [~] `VectorPropertyValue::StreamPack` · 006b4650 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [x] `VectorPropertyValue::StreamPack` · 006b4650 — audit: covered: pack direction unused by the client [ac2-net/src/protocol/property.rs:3-8 and ac2-db/src/property.rs:509 read_ac2_base_property_array (unpack)]
 
 ### WaveformPropertyValue
 - [-] `WaveformPropertyValue::WaveformPropertyValue` · 006b46b0 · legions 0064d070 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### DataFilePropertyValue
-- [ ] `DataFilePropertyValue::HasValidData` · 006b46d0 — Legions has it: DataFilePropertyValue vtable slot 10 at 0x0064d090 (shifted by two; same size). Was skip
+- [-] `DataFilePropertyValue::HasValidData` · 006b46d0 — never called: the Legions vtable slot is +0x20 (PackageIDPropertyValue vtable 0x009F0A90, slot 8 = 0x0064CDE0); no property code calls +0x20, and the 371 call/jmp [reg+0x20] sites in the Legions exe resolve to other classes (StringInfo, WeenieDesc); the authoring FromFileNode/ToFileNode beside them are absent from Legions
 
 ### WaveformPropertyValue
 - [-] `WaveformPropertyValue::FromFileNode` · 006b46e0 — text source format (admin tools)
@@ -642,7 +642,7 @@ Legend and workflow: [README](README.md).
 - [x] `WaveformPropertyValue::InqWaveform` · 006b4730 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [x] `WaveformPropertyValue::SetWaveform` · 006b4750 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [x] `WaveformPropertyValue::Set` · 006b47a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
-- [ ] `WaveformPropertyValue::GetValueAsString` · 006b47c0 — Legions has it: vtable slot 12 of WaveformPropertyValue at 0x0064d130 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `WaveformPropertyValue::GetValueAsString` · 006b47c0 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 - [-] `WaveformPropertyValue::Compare` · 006b47e0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### Waveform
@@ -650,21 +650,21 @@ Legend and workflow: [README](README.md).
 
 ### WaveformPropertyValue
 - [-] `WaveformPropertyValue::Copy` · 006b4950 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [~] `WaveformPropertyValue::StreamPack` · 006b49d0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [x] `WaveformPropertyValue::StreamPack` · 006b49d0 — audit: covered: pack direction unused by the client [ac2-net/src/protocol/property.rs:3-8 and ac2-db/src/property.rs:509 read_ac2_base_property_array (unpack)]
 
 ### PositionPropertyValue
 - [-] `PositionPropertyValue::PositionPropertyValue` · 006b4a20 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `PositionPropertyValue::HasValidData` · 006b4a60 — Legions has the slot (PositionPropertyValue vtable, near slot 8; Legions 0x0064db40 is 32 instructions against admin's 17, so it differs). Was skip
+- [-] `PositionPropertyValue::HasValidData` · 006b4a60 — never called: the Legions vtable slot is +0x20 (PackageIDPropertyValue vtable 0x009F0A90, slot 8 = 0x0064CDE0); no property code calls +0x20, and the 371 call/jmp [reg+0x20] sites in the Legions exe resolve to other classes (StringInfo, WeenieDesc); the authoring FromFileNode/ToFileNode beside them are absent from Legions
 - [-] `PositionPropertyValue::FromFileNode` · 006b4a70 — text source format (admin tools)
 - [-] `PositionPropertyValue::ToFileNode` · 006b4a90 — text source format (admin tools)
 - [x] `PositionPropertyValue::Set` · 006b4ab0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `PositionPropertyValue::Compare` · 006b4ad0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [~] `PositionPropertyValue::StreamPack` · 006b4b80 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [x] `PositionPropertyValue::StreamPack` · 006b4b80 — audit: covered: pack direction unused by the client [ac2-net/src/protocol/property.rs:3-8 and ac2-db/src/property.rs:509 read_ac2_base_property_array (unpack)]
 
 ### MasterProperty
 - [x] `MasterProperty::InqPropertyNameEnum` · 006b4be0 · legions 0064d510 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 - [x] `MasterProperty::InqPropertyNameString` · 006b4c50 · legions 0064d560 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
-- [ ] `MasterProperty::StreamPack` · 006b4cc0 · legions 0064d5b0 — needs port (check): implemented as crates/ac2-db/src/property.rs but uncited; MasterProperty::StreamPack (MasterProperty table load)
+- [x] `MasterProperty::StreamPack` · 006b4cc0 · legions 0064d5b0 — audit: covered:  [ac2-db/src/property.rs:97 Ac2PropertyTypes::decode_packed (type, group, data, report, required per desc)]
 
 ### BoolPropertyValue
 - [-] `BoolPropertyValue::FromFileNode` · 006b4d80 — text source format (admin tools)
@@ -681,12 +681,12 @@ Legend and workflow: [README](README.md).
 ### StringPropertyValue
 - [-] `StringPropertyValue::StringPropertyValue` · 006b4e40 · legions 0064d670 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [x] `StringPropertyValue::Set` · 006b4e70 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
-- [ ] `StringPropertyValue::HasValidData` · 006b4e90 — Legions has it: StringPropertyValue vtable slot 10 at 0x0064d6c0 (shifted by two; same size). Was skip
+- [-] `StringPropertyValue::HasValidData` · 006b4e90 — never called: the Legions vtable slot is +0x20 (PackageIDPropertyValue vtable 0x009F0A90, slot 8 = 0x0064CDE0); no property code calls +0x20, and the 371 call/jmp [reg+0x20] sites in the Legions exe resolve to other classes (StringInfo, WeenieDesc); the authoring FromFileNode/ToFileNode beside them are absent from Legions
 - [-] `StringPropertyValue::Copy` · 006b4eb0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `StringPropertyValue::FromFileNode` · 006b4f00 — text source format (admin tools)
 - [x] `StringPropertyValue::InqString` · 006b4f30 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [x] `StringPropertyValue::SetString` · 006b4f50 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
-- [ ] `StringPropertyValue::GetValueAsString` · 006b4f70 — Legions has it: vtable slot 12 of StringPropertyValue at 0x0064d770 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `StringPropertyValue::GetValueAsString` · 006b4f70 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 - [-] `StringPropertyValue::Compare` · 006b4f90 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### StringInfoPropertyValue
@@ -696,16 +696,16 @@ Legend and workflow: [README](README.md).
 - [x] `StringInfoPropertyValue::InqStringInfo` · 006b50e0 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 - [x] `StringInfoPropertyValue::SetStringInfo` · 006b5100 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 - [x] `StringInfoPropertyValue::Set` · 006b5120 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
-- [ ] `StringInfoPropertyValue::HasValidData` · 006b5140 — Legions has it: StringInfoPropertyValue vtable slot 10 at 0x0064d8e0 (shifted by two; same size). Was skip
-- [~] `StringInfoPropertyValue::StreamPack` · 006b5160 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [-] `StringInfoPropertyValue::HasValidData` · 006b5140 — never called: the Legions vtable slot is +0x20 (PackageIDPropertyValue vtable 0x009F0A90, slot 8 = 0x0064CDE0); no property code calls +0x20, and the 371 call/jmp [reg+0x20] sites in the Legions exe resolve to other classes (StringInfo, WeenieDesc); the authoring FromFileNode/ToFileNode beside them are absent from Legions
+- [x] `StringInfoPropertyValue::StreamPack` · 006b5160 — audit: covered: pack direction unused by the client [ac2-net/src/protocol/property.rs:3-8 and ac2-db/src/property.rs:509 read_ac2_base_property_array (unpack)]
 
 ### (free functions)
-- [ ] `STREAMPACK_PACKOBJ` · 006b5190 · legions 00578ab0 — needs port: STREAMPACK_PACKOBJ (property value object load)
+- [x] `STREAMPACK_PACKOBJ` · 006b5190 · legions 00578ab0 — audit: covered:  [generic PackObj member stream thunk; owners decode in order (ac2-assets/src/ac2_mesh.rs:6, UIScene/LightSourceFX decoders)]
 
 ### StringInfoPropertyValue
 - [x] `StringInfoPropertyValue::Copy` · 006b5200 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
-- [~] `StringInfoPropertyValue::InqStringInfo` · 006b5260 · legions 0064d990 — token kept in StringInfoValue and compared; the 2-argument token-out form has no efun, so only the one-argument slots are bound
-- [~] `StringInfoPropertyValue::SetStringInfo` · 006b5290 — token kept in StringInfoValue and compared; the 2-argument token-out form has no efun, so only the one-argument slots are bound
+- [x] `StringInfoPropertyValue::InqStringInfo` · 006b5260 · legions 0064d990 — audit: covered:  [ac2-db/src/base_property.rs:281,374 (1-argument form; the 2-argument token-out form has no efun)]
+- [x] `StringInfoPropertyValue::SetStringInfo` · 006b5290 — audit: covered:  [ac2-db/src/base_property.rs:281,374 (1-argument form; the 2-argument token-out form has no efun)]
 - [x] `StringInfoPropertyValue::Compare` · 006b52c0 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 
 ### PositionPropertyValue
@@ -714,49 +714,49 @@ Legend and workflow: [README](README.md).
 - [x] `PositionPropertyValue::SetPosition` · 006b54a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 
 ### MasterProperty
-- [~] `MasterProperty::AllocatePropertyValue` · 006b54c0 · legions 0064dbf0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [x] `MasterProperty::AllocatePropertyValue` · 006b54c0 · legions 0064dbf0 — audit: covered:  [ac2-db/src/base_property.rs:167]
 
 ### BoolPropertyValue
-- [ ] `BoolPropertyValue::GetValueAsString` · 006b5680 — Legions has it: vtable slot 12 of BoolPropertyValue at 0x0064ddb0 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `BoolPropertyValue::GetValueAsString` · 006b5680 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ### ColorPropertyValue
-- [ ] `ColorPropertyValue::GetValueAsString` · 006b56b0 — Legions has it: vtable slot 12 of ColorPropertyValue at 0x0064dde0 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `ColorPropertyValue::GetValueAsString` · 006b56b0 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ### FloatPropertyValue
-- [ ] `FloatPropertyValue::GetValueAsString` · 006b56f0 — Legions has it: vtable slot 12 of FloatPropertyValue at 0x0064de20 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `FloatPropertyValue::GetValueAsString` · 006b56f0 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ### IntegerPropertyValue
-- [ ] `IntegerPropertyValue::GetValueAsString` · 006b5720 — Legions has it: vtable slot 12 of IntegerPropertyValue at 0x0064de50 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `IntegerPropertyValue::GetValueAsString` · 006b5720 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ### LongIntegerPropertyValue
-- [ ] `LongIntegerPropertyValue::GetValueAsString` · 006b5740 — Legions has it: vtable slot 12 of LongIntegerPropertyValue at 0x0064de70 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `LongIntegerPropertyValue::GetValueAsString` · 006b5740 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ### StringPropertyValue
 - [-] `StringPropertyValue::ToFileNode` · 006b5770 — text source format (admin tools)
 
 ### StringInfoPropertyValue
-- [ ] `StringInfoPropertyValue::GetValueAsString` · 006b57b0 — Legions has it: vtable slot 12 of StringInfoPropertyValue at 0x0064dea0 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `StringInfoPropertyValue::GetValueAsString` · 006b57b0 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ### VectorPropertyValue
-- [ ] `VectorPropertyValue::GetValueAsString` · 006b5880 — Legions has it: vtable slot 12 of VectorPropertyValue at 0x0064df70 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `VectorPropertyValue::GetValueAsString` · 006b5880 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ### StringPropertyValue
-- [~] `StringPropertyValue::StreamPack` · 006b5950 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [x] `StringPropertyValue::StreamPack` · 006b5950 — audit: covered: pack direction unused by the client [ac2-net/src/protocol/property.rs:3-8 and ac2-db/src/property.rs:509 read_ac2_base_property_array (unpack)]
 
 ### (free functions)
-- [ ] `STREAMPACK_PACKOBJ` · 006b5980 — needs port: STREAMPACK_PACKOBJ (property value object load, second copy)
+- [x] `STREAMPACK_PACKOBJ` · 006b5980 — audit: covered:  [generic PackObj member stream thunk; owners decode in order (ac2-assets/src/ac2_mesh.rs:6, UIScene/LightSourceFX decoders)]
 
 ### MasterProperty
-- [ ] `MasterProperty::InqOptionalPropertiesInternal` · 006b5a30 · legions 0064e0f0 — needs port: MasterProperty::InqOptionalPropertiesInternal
-- [ ] `MasterProperty::GetSubDataIDs` · 006b5af0 — needs port: MasterProperty::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
+- [-] `MasterProperty::InqOptionalPropertiesInternal` · 006b5a30 · legions 0064e0f0 — not needed:  [only from MasterProperty::InqOptionalProperties <- CPhysicsObj::BuildOptionalProperties (editor tooling, catalog [-]); m_defaultValue is null in the client]
+- [-] `MasterProperty::GetSubDataIDs` · 006b5af0 — not needed:  [data-graph prefetch / StringDownload (tool) only; catalog policy rows (CharacterSetup::GetSubDataIDs etc.) are [-]; m_pDataGraph never set]
 
 ### PositionPropertyValue
-- [ ] `PositionPropertyValue::GetValueAsString` · 006b5b60 — Legions has it: vtable slot 12 of PositionPropertyValue at 0x0064e220 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `PositionPropertyValue::GetValueAsString` · 006b5b60 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ### MasterProperty
-- [ ] `MasterProperty::GetPropertyDesc` · 006b5bd0 · legions 0064e2d0 — needs port: MasterProperty::GetPropertyDesc
-- [ ] `MasterProperty::InqPropertyBit` · 006b5c40 — needs port: MasterProperty::InqPropertyBit
-- [ ] `MasterProperty::InqOptionalProperties` · 006b5c70 · legions 0064e340 — needs port: MasterProperty::InqOptionalProperties
+- [x] `MasterProperty::GetPropertyDesc` · 006b5bd0 · legions 0064e2d0 — audit: covered:  [ac2-db/src/property.rs:80,210]
+- [x] `MasterProperty::InqPropertyBit` · 006b5c40 — audit: covered:  [ac2-db/src/property.rs:210 ac2_property_desc (data word = bit); :235 ethereal_mask_with; ac2-physics/src/body_profile.rs:36]
+- [-] `MasterProperty::InqOptionalProperties` · 006b5c70 · legions 0064e340 — not needed:  [only from MasterProperty::InqOptionalProperties <- CPhysicsObj::BuildOptionalProperties (editor tooling, catalog [-]); m_defaultValue is null in the client]
 - [-] `MasterProperty::Destroy` · 006b5ce0 · legions 0064e500 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### HashTable<unsigned_long,BasePropertyDesc>
@@ -764,14 +764,14 @@ Legend and workflow: [README](README.md).
 
 ### MasterProperty
 - [x] `MasterProperty::InqPropertyType` · 006b5f40 — ac2_property_type in crates/ac2-db/src/property.rs cites MasterProperty::InqPropertyType
-- [ ] `MasterProperty::InqPropertyGroup` · 006b5fd0 — needs port: MasterProperty::InqPropertyGroup
-- [ ] `MasterProperty::IsReportedToWeenie` · 006b6060 — needs port: MasterProperty::IsReportedToWeenie
-- [ ] `MasterProperty::IsInquirable` · 006b60f0 — needs port: MasterProperty::IsInquirable
+- [x] `MasterProperty::InqPropertyGroup` · 006b5fd0 — audit: covered:  [ac2-db/src/property_collection.rs:121]
+- [x] `MasterProperty::IsReportedToWeenie` · 006b6060 — audit: covered:  [ac2-db/src/property.rs:214,220]
+- [x] `MasterProperty::IsInquirable` · 006b60f0 — audit: covered:  [ac2-db/src/property.rs:214,220]
 - [-] `MasterProperty::~MasterProperty` · 006b61f0 · legions 0064e860 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `MasterProperty::GetDBOType` · 006b6270 — skip: retail DBO type tag; Rust typed enum in ac2-db db_type.rs
 
 ### PAutoGrowHashTable<unsigned_long,BasePropertyDesc>
-- [ ] `PAutoGrowHashTable<unsigned_long,BasePropertyDesc>::StreamPack` · 006b6280 — needs port: PAutoGrowHashTable<BasePropertyDesc>::StreamPack (typed table load)
+- [x] `PAutoGrowHashTable<unsigned_long,BasePropertyDesc>::StreamPack` · 006b6280 — audit: covered:  [ac2-db/src/property.rs:97 Ac2PropertyTypes::decode_packed (type, group, data, report, required per desc)]
 
 ### MasterProperty
 - [-] `MasterProperty::CopyInto` · 006b6480 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
@@ -784,7 +784,7 @@ Legend and workflow: [README](README.md).
 ### PropertyCollection
 - [-] `PropertyCollection::Destroy` · 006b31b0 · legions 0064c070 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [x] `PropertyCollection::SetOptionalToRequired` · 006b31f0 · legions 0064c0b0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
-- [ ] `PropertyCollection::GetSubDataIDs` · 006b3230 · legions 0064c0f0 — needs port: PropertyCollection::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
+- [-] `PropertyCollection::GetSubDataIDs` · 006b3230 · legions 0064c0f0 — not needed:  [data-graph prefetch / StringDownload (tool) only; catalog policy rows (CharacterSetup::GetSubDataIDs etc.) are [-]; m_pDataGraph never set]
 - [x] `PropertyCollection::GetGroup` · 006b3270 · legions 0064c130 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [x] `PropertyCollection::GetProperty` · 006b32b0 · legions 0064c170 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [x] `PropertyCollection::GetOptionalProperty` · 006b3320 · legions 0064c1e0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
@@ -813,13 +813,13 @@ Legend and workflow: [README](README.md).
 - [x] `PropertyCollection::AddOptionalProperty` · 006b3c20 · legions 0064c790 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [x] `PropertyCollection::UpdateProperty` · 006b3cf0 · legions 0064c860 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 
-## `portal/shared/src/property/propertygroup.cpp.c` (15/25)
+## `portal/shared/src/property/propertygroup.cpp.c` (16/25)
 
 ### PropertyGroup
-- [ ] `PropertyGroup::InqPropertyGroupName` · 006b2890 — needs port: PropertyGroup::InqPropertyGroupName
+- [-] `PropertyGroup::InqPropertyGroupName` · 006b2890 — not needed:  [only caller PropertyCollection::ToFileNode (tool); the W efun is ac2-script/src/glue/property_collection.rs:19]
 - [-] `PropertyGroup::Destroy` · 006b28b0 · legions 0064b8e0 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `PropertyGroup::GetSubDataIDs` · 006b2920 · legions 0064b950 — needs port: PropertyGroup::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
-- [~] `PropertyGroup::StreamPack` · 006b2960 · legions 0064b990 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [-] `PropertyGroup::GetSubDataIDs` · 006b2920 · legions 0064b950 — not needed:  [data-graph prefetch / StringDownload (tool) only; catalog policy rows (CharacterSetup::GetSubDataIDs etc.) are [-]; m_pDataGraph never set]
+- [x] `PropertyGroup::StreamPack` · 006b2960 · legions 0064b990 — audit: covered: pack direction unused by the client [ac2-net/src/protocol/property.rs:3-8 and ac2-db/src/property.rs:509 read_ac2_base_property_array (unpack)]
 - [-] `PropertyGroup::ToFileNode` · 006b29b0 — text source format (admin tools)
 - [x] `PropertyGroup::RemoveProperty` · 006b2a00 · legions 0064b9e0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [x] `PropertyGroup::GetProperty` · 006b2a80 · legions 0064ba60 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
@@ -851,12 +851,12 @@ Legend and workflow: [README](README.md).
 ### DataFilePropertyValue
 - [-] `DataFilePropertyValue::FromFileNode` · 006b66e0 — text source format (admin tools)
 - [-] `DataFilePropertyValue::ToFileNode` · 006b6810 — text source format (admin tools)
-- [ ] `DataFilePropertyValue::GetValueAsString` · 006b6900 — Legions has it: vtable slot 12 of DataFilePropertyValue at 0x0064eb80 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `DataFilePropertyValue::GetValueAsString` · 006b6900 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ## `portal/shared/src/property/value/enumpropertyvalue.cpp.c` (0/3)
 
 ### EnumPropertyValue
-- [ ] `EnumPropertyValue::GetValueAsString` · 006b69f0 — Legions has it: vtable slot 12 of EnumPropertyValue at 0x0064ec70 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `EnumPropertyValue::GetValueAsString` · 006b69f0 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 - [-] `EnumPropertyValue::FromFileNode` · 006b6a10 — text source format (admin tools)
 - [-] `EnumPropertyValue::ToFileNode` · 006b6b00 — text source format (admin tools)
 
@@ -865,7 +865,7 @@ Legend and workflow: [README](README.md).
 ### PackageIDPropertyValue
 - [-] `PackageIDPropertyValue::FromFileNode` · 006b6bf0 — text source format (admin tools)
 - [-] `PackageIDPropertyValue::ToFileNode` · 006b6ce0 — text source format (admin tools)
-- [ ] `PackageIDPropertyValue::GetValueAsString` · 006b6db0 — Legions has it: vtable slot 12 of PackageIDPropertyValue at 0x0064ec90 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
+- [-] `PackageIDPropertyValue::GetValueAsString` · 006b6db0 — not needed: admin property viewer text [GetValueAsString is only reached through GetOutputString <- CollideProperty::GetPropertyOutputStringW <- efun with no Legions wlib call site (catalog [-] row)]
 
 ## `portal/shared/src/stringtable/metalanguage/metalanguage.cpp.c` (7/8)
 
@@ -951,7 +951,7 @@ Legend and workflow: [README](README.md).
 - [x] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20 — ac2-db string_meta_text / string_state (CRT C locale classes)
 - [x] `StringTableMetaLanguage::ApplyMetaTagsToName` · 006573f0 · legions 00605d40 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
-## `portal/shared/src/stringtable/stringinfo.cpp.c` (23/56)
+## `portal/shared/src/stringtable/stringinfo.cpp.c` (39/56)
 
 ### StringInfoData
 - [-] `StringInfoData::operator==` · 00650880 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
@@ -964,7 +964,7 @@ Legend and workflow: [README](README.md).
 - [x] `StringInfo::SetTableEnum` · 00650a50 · legions 005ffc10 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `StringInfo::SetStringIDandTableEnum` · 00650a90 · legions 005ffc50 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::SetStringIDandTableID` · 00650ad0 · legions 005ffc90 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `StringInfo::operator%` · 00650b40 · legions 005ffd00 — needs port: StringInfo::operator% (variable index modulus)
+- [x] `StringInfo::operator%` · 00650b40 · legions 005ffd00 — audit: covered:  [ac2-script/src/glue/hashes.rs:115]
 - [x] `StringInfo::SetTableName` · 00650b90 · legions 005ffd50 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::SetStringIDandTableName` · 00650c50 · legions 005ffdf0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::GetString` · 00650c70 · legions 005ffe10 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
@@ -972,34 +972,34 @@ Legend and workflow: [README](README.md).
 - [x] `StringInfo::InqString` · 00650d00 · legions 005ffea0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [-] `StringInfo::InqStringTableFile` · 00650da0 — skip: admin/debug text or tool code (no client use in Legions) (StringInfo::InqStringTableFile, table file name) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `StringInfo::SetLiteralValue` · 00650e30 · legions 005fffd0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `StringInfo::GetLiteralValue` · 00650ef0 · legions 00600090 — needs port: StringInfo::GetLiteralValue
+- [x] `StringInfo::GetLiteralValue` · 00650ef0 · legions 00600090 — audit: covered:  [ac2-weenie/src/gun/chat_extra.rs:12]
 - [x] `StringInfo::SetVarInTable` · 00651000 · legions 006001a0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [x] `StringInfo::GetLogString` · 00651220 · legions 00600410 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [-] `StringInfo::FromFileNode` · 00651390 · legions 00600580 — text source format (admin tools)
 - [-] `StringInfo::FromFileNode` · 006515c0 · legions 006007b0 — text source format (admin tools)
 - [-] `StringInfo::ToFileNode` · 00651620 — text source format (admin tools)
 - [x] `StringInfo::IsValid` · 00651730 · legions 00600840 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [ ] `StringInfo::GetSubDataIDs` · 00651860 · legions 00600950 — needs port: StringInfo::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
-- [ ] `StringInfo::GetSubPrivateIDs` · 006518f0 · legions 006009e0 — needs port: StringInfo::GetSubPrivateIDs (sub-object resolution)
+- [x] `StringInfo::GetSubDataIDs` · 00651860 · legions 00600950 — audit: covered:  [ac2-script/src/glue/sub_data_ids.rs:19]
+- [-] `StringInfo::GetSubPrivateIDs` · 006518f0 · legions 006009e0 — not needed:  [data-graph prefetch / StringDownload (tool) only; catalog policy rows (CharacterSetup::GetSubDataIDs etc.) are [-]; m_pDataGraph never set]
 - [-] `StringInfo::GetPackSize` · 006519d0 · legions 00600aa0 — skip: DAT writing/saving/packing (tools only) (StringInfo::GetPackSize)
 - [x] `StringInfo::Pack` · 00651b20 · legions 00600bf0
 - [x] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [-] `StringInfo::ClearVars` · 00651fb0 · legions 00601080 — skip: STL/container internal (iterator, tree, comparator); Rust collections (variable list clear; Rust builds a fresh RenderInfo)
 - [x] `StringInfo::Reset` · 00652070 · legions 00601140 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::operator==` · 00652080 · legions 00601150 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [ ] `StringInfo::IsReady` · 00652140 · legions 00601210 — needs port: StringInfo::IsReady
+- [x] `StringInfo::IsReady` · 00652140 · legions 00601210 — audit: covered:  [ac2-ui/src/ui_text.rs:267; ac2-ui/src/item_display.rs:45]
 - [-] `StringInfo::~StringInfo` · 00652150 · legions 00601220 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [x] `StringInfo::AddVar` · 006521d0 · legions 006012a0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `StringInfo::AddVariable_Int` · 006522b0 · legions 00601380 — needs port (check): a helper outside ac2-db does the same (ac2-ui pregame strings / ac2-weenie shell lines); give ac2-db StringInfo the cited method
-- [ ] `StringInfo::AddVariable_FormattedInt` · 00652330 · legions 00601400 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::FormattedInt) but uncited; StringInfo::AddVariable_FormattedInt
-- [ ] `StringInfo::AddVariable_UInt` · 006523c0 · legions 00601490 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::UInt) but uncited; StringInfo::AddVariable_UInt
-- [ ] `StringInfo::AddVariable_FormattedUInt` · 00652440 · legions 00601510 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::FormattedUInt) but uncited; StringInfo::AddVariable_FormattedUInt
-- [ ] `StringInfo::AddVariable_LInt` · 006524d0 · legions 006015a0 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::LInt) but uncited; StringInfo::AddVariable_LInt
-- [ ] `StringInfo::AddVariable_FormattedLInt` · 00652550 · legions 00601620 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::FormattedLInt) but uncited; StringInfo::AddVariable_FormattedLInt
-- [ ] `StringInfo::AddVariable_ULInt` · 006525e0 · legions 006016b0 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::ULInt) but uncited; StringInfo::AddVariable_ULInt
-- [ ] `StringInfo::AddVariable_FormattedULInt` · 00652660 · legions 00601730 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::FormattedULInt) but uncited; StringInfo::AddVariable_FormattedULInt
-- [ ] `StringInfo::AddVariable_Float` · 006526f0 · legions 006017c0 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::Float) but uncited; StringInfo::AddVariable_Float
-- [ ] `StringInfo::AddVariable_FormattedFloat` · 00652780 · legions 00601850 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::FormattedFloat) but uncited; StringInfo::AddVariable_FormattedFloat
+- [x] `StringInfo::AddVariable_Int` · 006522b0 · legions 00601380 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_FormattedInt` · 00652330 · legions 00601400 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_UInt` · 006523c0 · legions 00601490 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_FormattedUInt` · 00652440 · legions 00601510 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_LInt` · 006524d0 · legions 006015a0 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_FormattedLInt` · 00652550 · legions 00601620 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_ULInt` · 006525e0 · legions 006016b0 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_FormattedULInt` · 00652660 · legions 00601730 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_Float` · 006526f0 · legions 006017c0 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
+- [x] `StringInfo::AddVariable_FormattedFloat` · 00652780 · legions 00601850 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
 - [-] `StringInfo::CopyVariables` · 00652820 · legions 006018f0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq) (CopyVariables)
 - [-] `StringInfo::StringInfo` · 00652930 · legions 00601a00 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `StringInfo::operator=` · 00652980 · legions 00601a50 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
@@ -1011,11 +1011,11 @@ Legend and workflow: [README](README.md).
 - [-] `StringInfo::StringInfo` · 00652a80 · legions 00601b50 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [x] `StringInfo::AddVariable_StringID` · 00652ac0 · legions 00601b90 — crates/ac2-db/src/string_info.rs RenderVar::string_id cites StringInfo::AddVariable_StringID
 - [x] `StringInfo::AddVariable_StringIDandTableEnum` · 00652b50 · legions 00601c20 — crates/ac2-db/src/string_info.rs RenderVar::string_id cites AddVariable_StringIDandTableEnum (table DID arg)
-- [ ] `StringInfo::AddVariable_StringInfo` · 00652bf0 · legions 00601cc0 — needs port (check): a helper outside ac2-db does the same (ac2-ui pregame strings / ac2-weenie shell lines); give ac2-db StringInfo the cited method
+- [x] `StringInfo::AddVariable_StringInfo` · 00652bf0 · legions 00601cc0 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
 - [x] `StringInfo::AddVariable_String` · 00652c70 · legions 00601d40 — crates/ac2-db/src/string_info.rs RenderVar::String cites AddVariable_String(text), the wide overload
-- [ ] `StringInfo::AsyncGetString` · 00652d10 · legions 00601de0 — needs port: StringInfo::AsyncGetString (string fetch through the cache)
+- [-] `StringInfo::AsyncGetString` · 00652d10 · legions 00601de0 — replaced by design:  [text is loaded on workers by the string-table loaders (ac2-db/src/string_table.rs:188); AGENTS.md DB object cache exception]
 - [x] `StringInfo::UnPack` · 00652db0 · legions 00601e80 — ac2-script reference/native unpack
-- [ ] `StringInfo::AddVariable_String` · 00653190 · legions 00602260 — needs port (check): implemented as crates/ac2-db/src/string_info.rs (RenderVar::String) but uncited; StringInfo::AddVariable_String narrow overload (char to wide, then the wide overload)
+- [x] `StringInfo::AddVariable_String` · 00653190 · legions 00602260 — audit: covered:  [ac2-db/src/string_info.rs:42-100 RenderVar variants (Int, FormattedInt, UInt, ..., Float, FormattedFloat, Info, String); ac2-ui/src/pregame/strings.rs:134; ac2-weenie/src/chat.rs:47]
 
 ## `portal/shared/src/stringtable/stringinfodata.cpp.c` (0/18)
 
@@ -1063,24 +1063,24 @@ Legend and workflow: [README](README.md).
 ### SID_FormattedLInt
 - [-] `SID_FormattedLInt::operator==` · 00656640 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
-## `portal/shared/src/stringtable/stringstate.cpp.c` (19/30)
+## `portal/shared/src/stringtable/stringstate.cpp.c` (23/30)
 
 ### StringStateInfo
 - [x] `StringStateInfo::GetNumDecDigits` · 00653200 · legions 006022d0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [x] `StringStateInfo::GetLeadingZero` · 00653220 · legions 006022f0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [x] `StringStateInfo::GetBase` · 00653240 · legions 00602310 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
-- [ ] `StringStateInfo::GetTopGoreLevel` · 00653260 · legions 00602330 — needs port (check): implemented as crates/ac2-db/src/string_state.rs but uncited; StringStateInfo::GetTopGoreLevel
-- [ ] `StringStateInfo::GetTopBloodLevel` · 006532a0 · legions 00602370 — needs port (check): implemented as crates/ac2-db/src/string_state.rs but uncited; StringStateInfo::GetTopBloodLevel
+- [x] `StringStateInfo::GetTopGoreLevel` · 00653260 · legions 00602330 — audit: covered:  [ac2-smartbox/src/fx_prefs.rs:10; ac2-client/src/client_prefs.rs:109; ac2-db/src/string_state.rs settings[]]
+- [x] `StringStateInfo::GetTopBloodLevel` · 006532a0 · legions 00602370 — audit: covered:  [ac2-smartbox/src/fx_prefs.rs:10; ac2-client/src/client_prefs.rs:109; ac2-db/src/string_state.rs settings[]]
 - [x] `StringStateInfo::GetGroupingSize` · 006532e0 · legions 006023b0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [x] `StringStateInfo::IsNumberSingular` · 00653300 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
-- [ ] `StringStateInfo::InqIMEAppearance` · 00653370 · legions 00602440 — needs port (check): implemented as crates/ac2-db/src/string_state.rs but uncited; StringStateInfo::InqIMEAppearance
+- [-] `StringStateInfo::InqIMEAppearance` · 00653370 · legions 00602440 — not needed:  [sole caller CIme::SetAppearanceToDefault is [-] (IME)]
 - [x] `StringStateInfo::Startup` · 00653430 · legions 00602500 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
-- [ ] `StringStateInfo::SetTopGoreLevelOverride` · 00653480 · legions 00602550 — needs port (check): implemented as crates/ac2-db/src/string_state.rs but uncited; StringStateInfo::SetTopGoreLevelOverride
-- [ ] `StringStateInfo::SetTopBloodColorOverride` · 00653490 · legions 00602560 — needs port (check): implemented as crates/ac2-db/src/string_state.rs but uncited; StringStateInfo::SetTopBloodColorOverride
+- [x] `StringStateInfo::SetTopGoreLevelOverride` · 00653480 · legions 00602550 — ac2-db string_state.rs TopLevelOverrides (set_max_gore / set_green_blood, top_levels = GetTopGoreLevel/GetTopBloodLevel); ac2 cmdline -maxgore / -greenblood -> ClientPrefs::load_with; tests the_command_line_overrides_the_top_gore_and_blood_levels, the_command_line_gore_and_blood_overrides_become_the_fx_defaults
+- [x] `StringStateInfo::SetTopBloodColorOverride` · 00653490 · legions 00602560 — ac2-db string_state.rs TopLevelOverrides (set_max_gore / set_green_blood, top_levels = GetTopGoreLevel/GetTopBloodLevel); ac2 cmdline -maxgore / -greenblood -> ClientPrefs::load_with; tests the_command_line_overrides_the_top_gore_and_blood_levels, the_command_line_gore_and_blood_overrides_become_the_fx_defaults
 
 ### StringState
 - [x] `StringState::GetPackSize` · 006534a0 · legions 00602570 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
-- [ ] `StringState::Pack` · 006534d0 · legions 006025a0 — needs port: StringState::Pack (string state record; pack direction, unverified)
+- [-] `StringState::Pack` · 006534d0 · legions 006025a0 — not needed:  [pack direction (recursive self call); the client only reads StringState (ac2-db/src/string_state.rs:105)]
 - [x] `StringState::UnPack` · 00653510 · legions 006025e0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 
 ### StringStateInfo
@@ -1090,7 +1090,7 @@ Legend and workflow: [README](README.md).
 - [x] `StringState::StringState` · 00653570 · legions 00602640 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [x] `StringState::GetDBOType` · 00653650 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [-] `StringState::GetPackSize` · 00653670 — inline copy of 006534a0
-- [ ] `StringState::Pack` · 00653680 — needs port: StringState::Pack overload (string state record; pack direction, unverified)
+- [-] `StringState::Pack` · 00653680 — not needed:  [pack direction (recursive self call); the client only reads StringState (ac2-db/src/string_state.rs:105)]
 - [x] `StringState::UnPack` · 00653690 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [-] `StringState::~StringState` · 006536a0 · legions 00602770 — Rust ownership
 
@@ -1122,7 +1122,7 @@ Legend and workflow: [README](README.md).
 - [-] `StringTableString::~StringTableString` · 00654470 · legions 00603540 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### StringTable
-- [ ] `StringTable::GetSubDataIDs` · 006544d0 — needs port: StringTable::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
+- [-] `StringTable::GetSubDataIDs` · 006544d0 — not needed:  [data-graph prefetch / StringDownload (tool) only; catalog policy rows (CharacterSetup::GetSubDataIDs etc.) are [-]; m_pDataGraph never set]
 - [-] `StringTable::Destroy` · 00654540 · legions 00603610 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### StringTableString
@@ -1173,21 +1173,21 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/taboo/tabootable.cpp.c` (1/13)
 
 ### TabooTable
-- [ ] `TabooTable::CreateCheckString` · 0065a5c0 · legions 00608f30 — needs port: TabooTable::CreateCheckString (chat filter)
-- [ ] `TabooTable::StringMatchesFilter` · 0065a650 · legions 00608fc0 — needs port: TabooTable::StringMatchesFilter (chat filter)
+- [-] `TabooTable::CreateCheckString` · 0065a5c0 · legions 00608f30 — only reached from the efuns gTabooTableAdaptor::CheckCharactersW / CheckCensorsW, which the 7230 wlib never calls (efun_coverage AC2_DUMP_REFERENCED on dataset-7230: of the adaptor only FormatStringForAudienceW, bound); no taboo table record is in the 7160/7230 DATs
+- [-] `TabooTable::StringMatchesFilter` · 0065a650 · legions 00608fc0 — only reached from the efuns gTabooTableAdaptor::CheckCharactersW / CheckCensorsW, which the 7230 wlib never calls (efun_coverage AC2_DUMP_REFERENCED on dataset-7230: of the adaptor only FormatStringForAudienceW, bound); no taboo table record is in the 7160/7230 DATs
 - [-] `TabooTable::Pack` · 0065a6f0 — skip: DAT writing/saving/packing (tools only) (TabooTable::Pack)
-- [ ] `TabooTable::UnPack` · 0065a750 · legions 006090c0 — needs port: TabooTable::UnPack (taboo table load)
-- [ ] `TabooTable::CheckCharacters` · 0065a790 · legions 00609100 — needs port: TabooTable::CheckCharacters (chat filter)
+- [-] `TabooTable::UnPack` · 0065a750 · legions 006090c0 — only reached from the efuns gTabooTableAdaptor::CheckCharactersW / CheckCensorsW, which the 7230 wlib never calls (efun_coverage AC2_DUMP_REFERENCED on dataset-7230: of the adaptor only FormatStringForAudienceW, bound); no taboo table record is in the 7160/7230 DATs
+- [-] `TabooTable::CheckCharacters` · 0065a790 · legions 00609100 — only reached from the efuns gTabooTableAdaptor::CheckCharactersW / CheckCensorsW, which the 7230 wlib never calls (efun_coverage AC2_DUMP_REFERENCED on dataset-7230: of the adaptor only FormatStringForAudienceW, bound); no taboo table record is in the 7160/7230 DATs
 - [x] `TabooTable::FormatStringForAudience` · 0065a920 · legions 00609290 — ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj
 
 ### PList<PStringBase<unsigned_short>_>
 - [-] `PList<PStringBase<unsigned_short>_>::operator=` · 0065aab0 · legions 00609420 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### TabooTable
-- [ ] `TabooTable::CheckCensors` · 0065aaf0 · legions 00609460 — needs port: TabooTable::CheckCensors (chat censor)
+- [-] `TabooTable::CheckCensors` · 0065aaf0 · legions 00609460 — only reached from the efuns gTabooTableAdaptor::CheckCharactersW / CheckCensorsW, which the 7230 wlib never calls (efun_coverage AC2_DUMP_REFERENCED on dataset-7230: of the adaptor only FormatStringForAudienceW, bound); no taboo table record is in the 7160/7230 DATs
 
 ### PHashTable<unsigned_long,PList<PStringBase<unsigned_short>_>_>
-- [ ] `PHashTable<unsigned_long,PList<PStringBase<unsigned_short>_>_>::StreamPack` · 0065ad60 · legions 006096d0 — needs port: PHashTable<PList<PStringBase<unsigned_short>>>::StreamPack (taboo table load)
+- [-] `PHashTable<unsigned_long,PList<PStringBase<unsigned_short>_>_>::StreamPack` · 0065ad60 · legions 006096d0 — only reached from the efuns gTabooTableAdaptor::CheckCharactersW / CheckCensorsW, which the 7230 wlib never calls (efun_coverage AC2_DUMP_REFERENCED on dataset-7230: of the adaptor only FormatStringForAudienceW, bound); no taboo table record is in the 7160/7230 DATs
 - [-] `PHashTable<unsigned_long,PList<PStringBase<unsigned_short>_>_>::~PHashTable<unsigned_long,PList<PStringBase<unsigned_short>_>_>` · 0065af50 · legions 006098c0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### TabooTable
@@ -1198,6 +1198,6 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/taboo/tabootableadaptor.cpp.c` (1/3)
 
 ### TabooTableAdaptor
-- [ ] `TabooTableAdaptor::CheckCharactersW` · 0065b090 · legions 00609a00 — needs port: TabooTableAdaptor::CheckCharactersW
-- [ ] `TabooTableAdaptor::CheckCensorsW` · 0065b100 · legions 00609a50 — needs port: TabooTableAdaptor::CheckCensorsW
+- [-] `TabooTableAdaptor::CheckCharactersW` · 0065b090 · legions 00609a00 — only reached from the efuns gTabooTableAdaptor::CheckCharactersW / CheckCensorsW, which the 7230 wlib never calls (efun_coverage AC2_DUMP_REFERENCED on dataset-7230: of the adaptor only FormatStringForAudienceW, bound); no taboo table record is in the 7160/7230 DATs
+- [-] `TabooTableAdaptor::CheckCensorsW` · 0065b100 · legions 00609a50 — only reached from the efuns gTabooTableAdaptor::CheckCharactersW / CheckCensorsW, which the 7230 wlib never calls (efun_coverage AC2_DUMP_REFERENCED on dataset-7230: of the adaptor only FormatStringForAudienceW, bound); no taboo table record is in the 7160/7230 DATs
 - [x] `TabooTableAdaptor::FormatStringForAudienceW` · 0065b170 · legions 00609aa0 — ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj

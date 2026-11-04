@@ -50,6 +50,19 @@ pub(crate) struct Args {
     pub gun: ac2_weenie::gun::GunOptions,
     /// `Turbine::Client`'s `tchat` / `tchatdll` (`Client+0xB0` / `+0xB4`).
     pub chat: ac2_weenie::gun::TurbineClientOptions,
+    /// `maxgore <fun|none|low|normal>` and `greenblood` (`Turbine::Client::EvaluateCommandLineArg`:
+    /// `StringStateInfo::SetTopGoreLevelOverride` / `SetTopBloodColorOverride`).
+    pub top_levels: ac2_db::TopLevelOverrides,
+    /// `ff`, `sb`, `sw`, `lb` and `nolb`: the `Preferences::SetBool` each makes
+    /// (`EvaluateCommandLineArg`: section 0x40000002 keys 0x4000000D, 0x40000008, 0x4000000C set;
+    /// section 0x40000004 key 0x40000014 set by `lb`, cleared by `nolb`), in order.
+    pub pref_bools: Vec<(u32, u32, bool)>,
+    /// `imeon` (`Client+0x68`, type 0x11 with 1): `CIme::Init`'s enable, which the preference
+    /// (0x40000010, 0x40000077) also turns on.
+    pub ime_on: bool,
+    /// `outport <1-65535>` (`Client+0x54`): the local port the game connection sends from
+    /// (`ConnectionOptions::dwPort`); `None` takes the system's.
+    pub out_port: Option<u16>,
 }
 
 impl Args {
@@ -167,6 +180,10 @@ fn parse_from(
         intro: false,
         gun: ac2_weenie::gun::GunOptions::default(),
         chat: ac2_weenie::gun::TurbineClientOptions::default(),
+        top_levels: ac2_db::TopLevelOverrides::default(),
+        pref_bools: Vec::new(),
+        ime_on: false,
+        out_port: None,
     };
     let mut it = tokens.into_iter().peekable();
     while let Some(token) = it.next() {
@@ -182,6 +199,58 @@ fn parse_from(
         }
         if name == "intro" {
             args.intro = true;
+            continue;
+        }
+        // `Turbine::Client::BuildCommandLineArgs` (Legions 0x006A0DB0) and
+        // `EvaluateCommandLineArg` (0x006A1EB0).
+        match name.as_str() {
+            // Flags whose evaluation does nothing in the release build: `ls`, `refreshrate`,
+            // `regserver`, and `fullscreen` (it sets `Client+0x28`, which `Device::Init`
+            // replaces with the `FullScreen` preference).
+            "ls" | "refreshrate" | "regserver" | "fullscreen" => continue,
+            // Options with a value that nothing reads: `farview`, `frill`, `dropmip`.
+            "farview" | "frill" | "dropmip" => {
+                it.next().ok_or(format!("{token} needs a value"))?;
+                continue;
+            }
+            "ff" | "sb" | "sw" => {
+                let key = match name.as_str() {
+                    "ff" => 0x4000_000D,
+                    "sb" => 0x4000_0008,
+                    _ => 0x4000_000C,
+                };
+                args.pref_bools.push((0x4000_0002, key, true));
+                continue;
+            }
+            "lb" | "nolb" => {
+                args.pref_bools
+                    .push((0x4000_0004, 0x4000_0014, name == "lb"));
+                continue;
+            }
+            "imeon" => {
+                args.ime_on = true;
+                continue;
+            }
+            "outport" => {
+                // Type 0x22 (`strtol`), then `Cli port must be between 1 and 65535`.
+                let value = it.next().ok_or(format!("{token} needs a value"))?;
+                let port = ac2_net::parse_c_number(&value)
+                    .filter(|&n| (1..=0xFFFF).contains(&n))
+                    .ok_or("Cli port must be between 1 and 65535")?;
+                args.out_port = Some(port as u16);
+                continue;
+            }
+            _ => {}
+        }
+        if name == "greenblood" {
+            args.top_levels.set_green_blood();
+            continue;
+        }
+        if name == "maxgore" {
+            let value = it.next().ok_or(format!("{token} needs a value"))?;
+            args.top_levels
+                .set_max_gore(&value)
+                .map_err(|e| format!("--maxgore: {e}"))?;
             continue;
         }
         if name == "glsticket" {
@@ -268,6 +337,45 @@ mod tests {
 
     fn parse(line: &str) -> Result<super::Args, String> {
         parse_with(line, Err(GlsTicketError::Missing))
+    }
+
+    /// `Turbine::Client::BuildCommandLineArgs` / `EvaluateCommandLineArg`: the render switches
+    /// set their preferences, `imeon` turns the input method on, `outport` is checked, and the
+    /// options the release build ignores are accepted (with their value where they take one).
+    #[test]
+    fn the_device_and_network_options_follow_retail() {
+        let args = parse("-ff /sb -sw -lb -nolb -imeon -outport 0x1F90").unwrap();
+        assert_eq!(
+            args.pref_bools,
+            [
+                (0x4000_0002, 0x4000_000D, true),
+                (0x4000_0002, 0x4000_0008, true),
+                (0x4000_0002, 0x4000_000C, true),
+                (0x4000_0004, 0x4000_0014, true),
+                (0x4000_0004, 0x4000_0014, false),
+            ]
+        );
+        assert!(args.ime_on);
+        assert_eq!(args.out_port, Some(0x1F90));
+        let args = parse("-farview 12 -frill 1 -dropmip 2 -ls -refreshrate -fullscreen -regserver")
+            .unwrap();
+        assert!(args.pref_bools.is_empty() && !args.ime_on && args.out_port.is_none());
+        for bad in ["-outport 0", "-outport 70000", "-outport x"] {
+            let error = parse(bad).err().expect("refused");
+            assert!(error.contains("between 1 and 65535"), "{error}");
+        }
+        assert!(parse("-farview").is_err(), "farview takes a value");
+    }
+
+    #[test]
+    fn maxgore_and_greenblood_set_the_top_level_overrides() {
+        let args = parse("--account A").unwrap();
+        assert_eq!(args.top_levels, ac2_db::TopLevelOverrides::default());
+        let args = parse("-maxgore Low /greenblood").unwrap();
+        assert_eq!((args.top_levels.gore, args.top_levels.blood), (3, 1));
+        let error = parse("-maxgore gory").err().expect("refused");
+        assert!(error.contains("gore level must be one of these"), "{error}");
+        assert!(parse("-maxgore").is_err(), "the level is required");
     }
 
     #[test]

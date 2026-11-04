@@ -5,6 +5,9 @@
 mod cell;
 #[cfg(test)]
 mod cell_light_tests;
+mod cell_sun;
+#[cfg(test)]
+mod cell_sun_tests;
 mod degrade;
 #[cfg(test)]
 mod fx_bone_tests;
@@ -25,8 +28,9 @@ mod water;
 pub use ac2_assets::{drawn_groups, resolve_drawn_groups, total_visual_desc, DrawnGroup};
 pub use cell::{
     bake_cell_colors, bake_static_colors, light_animated_lights, load_cell_geometry,
-    load_cell_model, CellLighting,
+    load_cell_model, load_cell_model_with_sun, CellLighting,
 };
+pub use cell_sun::{CellSun, SunPass};
 pub use degrade::{
     degrade_level, degrade_scale, mesh_degrade_factor, object_lod, part_array_lod, undegraded_lod,
     DegradeLists, DegradeOptions, DrawDetail, ObjectLod, PartDegrades, HIGH_DETAIL,
@@ -45,8 +49,8 @@ pub use pixel_shader::{
     parse_pixel_shader, PixelProgram, PsInstruction, PsOp, PsRegister, PsSource, PsSourceModifier,
 };
 pub use point_lights::{
-    object_point_lights, object_point_lights_in, static_point_light, static_point_light_at,
-    LightContext, PointLight, SceneLight, SunTerms, MAX_POINT_LIGHTS,
+    object_point_lights, object_point_lights_in, particle_static_lights_in, static_point_light,
+    static_point_light_at, LightContext, PointLight, SceneLight, SunTerms, MAX_POINT_LIGHTS,
 };
 pub use skeleton::{blend_vertex, GroupPose, ObjectSkeleton, SkeletonGroup};
 pub use water::load_water_model;

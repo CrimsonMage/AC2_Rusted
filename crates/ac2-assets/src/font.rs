@@ -181,7 +181,9 @@ impl ResourcePackedDecode for Ac2Font {
     }
 }
 
-/// The font `did`: portal `Font` below 0x42001000, local `FontLocal` above.
+/// `FontMapper::GetFontByDataID`: the font `did`, portal `Font` below 0x42001000, local
+/// `FontLocal` above (`MasterDBMap::DivineType`); the store's one `Arc` per DID stands in for the
+/// mapper's list of loaded fonts.
 pub fn load_ac2_font(
     store: &ResourceStore,
     did: DataId,

@@ -100,6 +100,7 @@ fn the_lifecycle_ifuns_run_on_the_player_script_when_the_vm_owns_them() {
     let mut out = Vec::new();
     for function in [
         HANDLE_ENTER_WORLD,
+        PRELOAD_WSL_SINGLETONS,
         HANDLE_LEAVE_WORLD,
         HANDLE_POST_LEAVE_WORLD,
     ] {
@@ -178,4 +179,41 @@ fn the_other_wrappers_end_cleanly_on_the_player_script() {
         .inq_history_item(INQ_PREV_RETELL_HISTORY_ITEM)
         .is_ok());
     assert!(client.inq_history_item(INQ_NEXT_REPLY_HISTORY_ITEM).is_ok());
+}
+
+/// `ShellCmdTable::GetCmdHelpText` / `GetAllCmdHelpText` through `CWInterface::DoHelpInterp`:
+/// once the script registered its commands, `/help emote` runs the emote help function in single
+/// mode (usage and description), and `/help` every script help word in list mode, each
+/// `"  name -- text"` in name order after the list label.
+#[test]
+fn help_texts_come_from_the_scripts_help_functions() {
+    use ac2_script::host::port::ScriptPort;
+    use ac2_weenie::SessionEvent;
+    let Some((mut client, _server)) = logged_in() else {
+        return;
+    };
+    assert!(client.register_commands().is_ok());
+    let literal = |events: &[SessionEvent], n: usize| match &events[n] {
+        SessionEvent::Notice(ac2_weenie::GameplayNotice::DisplayStringInfo { kind, text }) => {
+            (*kind, text.literal.clone())
+        }
+        other => panic!("{other:?}"),
+    };
+    let one = client.display_help("Emote");
+    assert_eq!(
+        literal(&one, 0),
+        (
+            8,
+            Some("usage: /emote <text>\ncauses you to emote the specified text\n".into())
+        )
+    );
+    let all = client.display_help("");
+    let (kind, text) = literal(&all, 1);
+    assert_eq!(kind, 8);
+    let text = text.expect("the list");
+    assert!(text.starts_with("  ? -- usage: /help <cmd_name>\n  a -- usage: /a <message> \n"));
+    assert!(text.ends_with("  yell -- Usage: /cr <message>\n"));
+    // A word no script registered help for.
+    let unknown = client.display_help("nosuchcommand");
+    assert_eq!(literal(&unknown, 0).0, 1);
 }

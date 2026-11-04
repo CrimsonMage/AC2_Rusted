@@ -65,6 +65,11 @@ impl<N: NameTable> PrefsFile<N> {
         self.cache.inq_bool(&self.names, section, key)
     }
 
+    /// `Preferences::SetBool` for the session.
+    pub fn set_bool(&mut self, section: u32, key: u32, value: bool) {
+        self.cache.set_bool(section, key, value);
+    }
+
     /// `PreferenceBank::Save`: every preference is written into the file image, and the image is
     /// written to the path on a worker thread (the caller does not wait for the disk).
     pub fn save(&mut self) -> JoinHandle<io::Result<()>> {
@@ -81,11 +86,22 @@ impl<N: NameTable> PrefsFile<N> {
         (file_section, file_key): (&str, &str),
         value: u32,
     ) -> JoinHandle<io::Result<()>> {
+        self.set_uint_in_file((section, key), (file_section, file_key), value);
+        self.write_file()
+    }
+
+    /// [`Self::save_uint_now`] without the write: the value is set for the session and put into
+    /// the file image, which the next save writes.
+    pub fn set_uint_in_file(
+        &mut self,
+        (section, key): (u32, u32),
+        (file_section, file_key): (&str, &str),
+        value: u32,
+    ) {
         self.cache.set_uint32(section, key, value);
         let text = value.to_string();
         self.bank.write_file_value(file_section, file_key, &text);
         self.cache.write_file_value(file_section, file_key, &text);
-        self.write_file()
     }
 
     /// The file image, written to the path on a worker thread.

@@ -293,6 +293,18 @@ impl Client {
         if self.request_motion_desc(event) {
             return;
         }
+        // `CWRepository::SetWeenieDesc` -> `gmCWInterface::HandleSetWeenieDesc` as the object is
+        // made: its description sets or clears the physics object's no-draw.
+        if let SessionEvent::ObjectAdded(id) = event {
+            let no_draw = self
+                .session
+                .objects()
+                .get(*id)
+                .and_then(|o| o.qualities.set_weenie_desc_no_draw());
+            if let Some(no_draw) = no_draw {
+                self.set_no_draw(*id, no_draw);
+            }
+        }
         // `CPhysicsObj::RecvEvt_InitializeMissile`.
         if let SessionEvent::ObjectAction {
             object,

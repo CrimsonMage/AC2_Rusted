@@ -31,6 +31,11 @@ pub mod lifecycle_ifun {
     /// `CWInterface::HandleCharacterSessionEnd` ->
     /// `gCWInterface::CallIFun_HandleCharacterSessionEnd`.
     pub const HANDLE_CHARACTER_SESSION_END: u32 = 0x007F_001D;
+    /// `CWInterface::PreloadWSLSingletons` (Legions 0x00512B50) ->
+    /// `gCWInterface::CallIFun_PreloadWSLSingletons` (Legions 0x004B14F0): the player's script
+    /// warms its singletons, called by `SmartBox::RecvNotice_CreatePlayerObject` (Legions
+    /// 0x005441A9, the player's weenie object's slot +0xC8) as the player object is made.
+    pub const PRELOAD_WSL_SINGLETONS: u32 = 0x007F_005C;
 }
 
 /// The script lifecycle, on any [`ScriptPort`] (the client implements the port).
@@ -102,6 +107,11 @@ pub trait ScriptLifecycle: ScriptPort {
         }
         // `CWInterface::HandleEnterWorld`: the object is in the world as its process starts.
         self.lifecycle_ifun(id, lifecycle_ifun::HANDLE_ENTER_WORLD, &mut events);
+        // `SmartBox::RecvNotice_CreatePlayerObject`: the player's object enters the world, then
+        // its weenie object preloads the script singletons.
+        if Some(id) == player {
+            self.lifecycle_ifun(id, lifecycle_ifun::PRELOAD_WSL_SINGLETONS, &mut events);
+        }
         self.release_held(&mut events);
         self.push_produced(events);
     }

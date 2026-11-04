@@ -52,6 +52,7 @@ pub(crate) struct DatHeader {
     pub raw_type: u32,
     pub subset: u32,
     pub root_block: i32,
+    /// `master_map_id_m` (`DiskController::GetMasterMapDID`, Legions 0x004B3F60).
     pub master_map_did: u32,
     pub engine_pack_version: i32,
     pub game_pack_version: i32,

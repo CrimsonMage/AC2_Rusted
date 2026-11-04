@@ -1,9 +1,9 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 42 done, 7 partial, 67 to do, 391 skipped.
+507 retail functions: 74 done, 0 partial, 0 to do, 433 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/database/asynccache.cpp.c` (1/48)
+## `portal/shared/src/database/asynccache.cpp.c` (3/48)
 
 ### AsyncCache::CAsyncRequest
 - [-] `AsyncCache::CAsyncRequest::AdoptDBObj` · 006d0900 · legions 0065a650 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
@@ -16,7 +16,7 @@ Legend and workflow: [README](README.md).
 - [-] `AsyncCache::AddObjToDBOCache` · 006d0a40 · legions 0065a790 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 
 ### DBCache
-- [ ] `DBCache::GetIfInMemory` · 006d0a60 · legions 0065a7b0 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
+- [x] `DBCache::GetIfInMemory` · 006d0a60 · legions 0065a7b0 — covered by the AGENTS.md cache rule: ac2-db ResourceStore::load_cached_packed hands back the one shared Arc of a resident DID (the in-memory hit; Arc replaces m_numLinks), and the vtable 0x24 sub-object load (GetSubObjects) is each decoder resolving its dependent DIDs on first fetch (e.g. ac2-assets ac2_material_instance.rs, ac2-script data/enum_map.rs)
 
 ### AsyncCache
 - [-] `AsyncCache::GetFreeObj` · 006d0a90 · legions 0065a7e0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
@@ -44,10 +44,10 @@ Legend and workflow: [README](README.md).
 ### AsyncCache::CAsyncGetRequest
 - [-] `AsyncCache::CAsyncGetRequest::ReleaseDBObj` · 006d0d00 · legions 0065aa20 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::CAsyncGetRequest::~CAsyncGetRequest` · 006d0d50 · legions 0065aa70 — C++ destructor or operator (Rust Drop / value semantics)
-- [ ] `AsyncCache::CAsyncGetRequest::bAllDependanciesDone` · 006d0e20 · legions 0065ab40 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
+- [-] `AsyncCache::CAsyncGetRequest::bAllDependanciesDone` · 006d0e20 · legions 0065ab40 — replaced by design:  [ac2-db/src/preparation_queue.rs:275 InFlightGetRegistry (in-flight dedupe), :335 PreparationDependencyFanIn; ac2-db/src/loader_pool.rs:1 worker gets; AGENTS.md DB object cache exception]
 
 ### AsyncCache
-- [ ] `AsyncCache::OnAsyncGetFinished` · 006d0e30 · legions 0065ab50 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
+- [-] `AsyncCache::OnAsyncGetFinished` · 006d0e30 · legions 0065ab50 — replaced by design:  [ac2-db/src/preparation_queue.rs:275 InFlightGetRegistry (in-flight dedupe), :335 PreparationDependencyFanIn; ac2-db/src/loader_pool.rs:1 worker gets; AGENTS.md DB object cache exception]
 - [-] `AsyncCache::BlockingLoadInto` · 006d0ec0 · legions 0065abe0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 
 ### AsyncCache::CAsyncGetRequest
@@ -61,7 +61,7 @@ Legend and workflow: [README](README.md).
 - [-] `AsyncCache::CCallbackHandler::~CCallbackHandler` · 006d1090 · legions 0065adb0 — C++ destructor or operator (Rust Drop / value semantics)
 
 ### AsyncCache
-- [~] `AsyncCache::UseTime` · 006d1140 · legions 0065ae60 — ac2-db typed cache trims on the inserting worker; the finished-request pump is the client's time-budgeted loader drain (LOAD_BUDGET)
+- [x] `AsyncCache::UseTime` · 006d1140 · legions 0065ae60 — audit: covered: AGENTS.md item 2 [ac2-client/src/client.rs:557 db_cache(): time-budgeted drain of the loader channel (LOAD_BUDGET, ac2-client/src/bin/ac2/main.rs:64); ac2-db/src/loader_pool.rs:102 try_next]
 - [-] `AsyncCache::AreOnDisk` · 006d11d0 · legions 0065aef0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::FlushPendingRequests` · 006d1470 · legions 0065b140 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 
@@ -69,29 +69,29 @@ Legend and workflow: [README](README.md).
 - [-] `AsyncCache::CAsyncRequest::AddCallback` · 006d15e0 · legions 0065b2b0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 
 ### AsyncCache
-- [ ] `AsyncCache::FormGetRequest` · 006d1630 · legions 0065b300 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
+- [-] `AsyncCache::FormGetRequest` · 006d1630 · legions 0065b300 — replaced by design:  [ac2-db/src/preparation_queue.rs:275 InFlightGetRegistry (in-flight dedupe), :335 PreparationDependencyFanIn; ac2-db/src/loader_pool.rs:1 worker gets; AGENTS.md DB object cache exception]
 - [-] `AsyncCache::OnSaveRequestFinished` · 006d16d0 · legions 0065b3a0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::UnhashPendingGet` · 006d1770 · legions 0065b440 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::ReleaseContext` · 006d1830 · legions 0065b500 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::NotifyCallback` · 006d18b0 · legions 0065b580 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::BlockingGet` · 006d19d0 · legions 0065b6a0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
-- [ ] `AsyncCache::OnAsyncGetFromOtherSourcesFailed` · 006d1ab0 · legions 0065b780 — needs port: cite-only; failed get from other sources completes with an error; ac2-db typed cache failure events likely cover it, verify and cite (ac2-net opcode.rs:44 cites the name)
+- [-] `AsyncCache::OnAsyncGetFromOtherSourcesFailed` · 006d1ab0 · legions 0065b780 — not needed: the failure answer to a missing-DID request (CCliDatRequestEvent 0x10034, the AsyncCache other-sources path). The client never asks the server for a missing DID (a missing DID fails the load), and the Pyrealium server does not handle DAT_REQUEST (pyrealium-server, checked 2026-11-03: only its vendored ac2-net encodes it), so no failure can arrive; revisit with the AGENTS.md open question on server-pushed portal objects
 
 ### AsyncCache::CCallbackHandler
 - [-] `AsyncCache::CCallbackHandler::AddTopLevelRequest` · 006d1af0 · legions 0065b7c0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 
 ### AsyncCache
-- [ ] `AsyncCache::AddToAsyncGet` · 006d1b50 · legions 0065b820 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
+- [-] `AsyncCache::AddToAsyncGet` · 006d1b50 · legions 0065b820 — replaced by design:  [ac2-db/src/preparation_queue.rs:275 InFlightGetRegistry (in-flight dedupe), :335 PreparationDependencyFanIn; ac2-db/src/loader_pool.rs:1 worker gets; AGENTS.md DB object cache exception]
 - [-] `AsyncCache::AllocateCallback` · 006d1d20 · legions 0065ba40 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
-- [ ] `AsyncCache::AsyncGet` · 006d1de0 · legions 0065bb00 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
-- [ ] `AsyncCache::AsyncGet` · 006d1e90 · legions 0065bbb0 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
+- [-] `AsyncCache::AsyncGet` · 006d1de0 · legions 0065bb00 — replaced by design:  [ac2-db/src/preparation_queue.rs:275 InFlightGetRegistry (in-flight dedupe), :335 PreparationDependencyFanIn; ac2-db/src/loader_pool.rs:1 worker gets; AGENTS.md DB object cache exception]
+- [-] `AsyncCache::AsyncGet` · 006d1e90 · legions 0065bbb0 — replaced by design:  [ac2-db/src/preparation_queue.rs:275 InFlightGetRegistry (in-flight dedupe), :335 PreparationDependencyFanIn; ac2-db/src/loader_pool.rs:1 worker gets; AGENTS.md DB object cache exception]
 - [-] `AsyncCache::AsyncPurge` · 006d2030 · legions 0065bd50 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::AsyncPurge` · 006d2120 · legions 0065be40 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::AsyncSave` · 006d22b0 · legions 0065bfd0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::HashAndEnqueue` · 006d23a0 · legions 0065c0c0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 - [-] `AsyncCache::OnGetRequestFinished` · 006d2410 · legions 0065c130 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 
-## `portal/shared/src/database/clidatevents.cpp.c` (9/12)
+## `portal/shared/src/database/clidatevents.cpp.c` (10/12)
 
 ### CCliDatEvent
 - [x] `CCliDatEvent::CCliDatEvent` · 006da360 · legions 006637a0
@@ -118,7 +118,7 @@ Legend and workflow: [README](README.md).
 - [x] `CCliDatEndDDDEvent::CreateForSend` · 006da680 · legions 00663ac0
 
 ### (free functions)
-- [ ] `StreamIDs` · 006da6d0 · legions 00663b10 — needs port: cite-only; QualifiedDataID list stream for CliDatDataEvent; ac2-net protocol/dat_event.rs reads id sets, verify and cite
+- [x] `StreamIDs` · 006da6d0 · legions 00663b10 — covered: ac2-net protocol/dat_event.rs ids() (count, then the ids, for MissingIteration download/purge); the DivineType qualification on unpack is not kept, as the ids stay with their DAT file
 
 ### CMissingIteration
 - [x] `CMissingIteration::StreamPack` · 006da7b0
@@ -141,35 +141,35 @@ Legend and workflow: [README](README.md).
 ### DatFileData
 - [-] `DatFileData::DatFileData` · 006d99c0 · legions 00662d40 — constructor (Rust struct init)
 - [-] `DatFileData::Allocate` · 006d9a20 — DBObj class factory (Allocate/GetDBOType); Rust decodes into typed structs
-- [ ] `DatFileData::UnPack` · 006d9a30 — needs port: DatFileData payload decode (wraps IntMap::UnPack of the groove map); verify whether any shipped DAT record uses it and cite
+- [-] `DatFileData::UnPack` · 006d9a30 — not needed: admin-only [IntMap::UnPack only called by DatFileData::UnPack, which has no Legions address and no callers]
 
 ### IntMap
-- [ ] `IntMap::UnPack` · 006d9a50 · legions 00662dd0 — needs port: IntMap payload decode (int key to GrooveInfo map) for DatFileData; ac2-dat archive/cursor/collections.rs does generic collections, verify and cite
+- [-] `IntMap::UnPack` · 006d9a50 · legions 00662dd0 — not needed: admin-only [IntMap::UnPack only called by DatFileData::UnPack, which has no Legions address and no callers]
 
 ### GrooveInfo
 - [-] `GrooveInfo::GrooveInfo` · 006d9b30 · legions 00662f60 — C++ constructor/destructor (Rust struct init or Drop)
 
-## `portal/shared/src/database/dbcache.cpp.c` (6/30)
+## `portal/shared/src/database/dbcache.cpp.c` (12/30)
 
 ### DBCache
 - [-] `DBCache::ResetCache` · 006cfa10 · legions 00659790 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBCache::SetMasterMapDID` · 006cfa20 · legions 006597a0 — trivial accessor or setter; the value is a field of the Rust struct (master map DID is a setter; ac2-script/src/data/db_types.rs holds the DID ranges)
-- [ ] `DBCache::Get` · 006cfa30 · legions 006597b0 — needs port (check): only cited from ac2-audio; cite in the ac2-db typed load path or port
+- [x] `DBCache::Get` · 006cfa30 · legions 006597b0 — audit: covered:  [ac2-db/src/store/mod.rs:294,567 typed loads by DID; ac2-script/src/data/mod.rs:470 enum_did through the master EnumIdMap]
 - [x] `DBCache::GetDIDFromEnumStatic` · 006cfa60 · legions 006597e0 — enum/group to DID lookup; cited in ac2-script/src/glue/enums.rs:39
 - [x] `DBCache::GetDIDFromEnum` · 006cfa80 · legions 00659800 — ac2-script data/glue::enums
-- [ ] `DBCache::GetFromEnum` · 006cfb60 · legions 006598b0 — needs port: cite-only; enum and group to DID (non-static); ac2-script/src/data/enum_map.rs and DBObj::GetByEnum cover it, verify and cite
-- [ ] `DBCache::GetCurrentRegion` · 006cfbb0 · legions 00659900 — needs port: cite-only; current region for DID lookups, check against ac2-world region state
+- [x] `DBCache::GetFromEnum` · 006cfb60 · legions 006598b0 — covered: ac2-assets ac2_appearance.rs ac2_enum_did (group EnumIDMap from 0x28000000, then the value) followed by the typed load; ac2-script data/mod.rs enum_did for the scripts; doc names it
+- [-] `DBCache::GetCurrentRegion` · 006cfbb0 · legions 00659900 — not needed: only caller CLCache::SetRegion, which reopens cell_<rid>.dat when the region changes; every DAT set (7160, 7230, 0930, eor2017) ships cell_1.dat only, so the region is always 1 and ac2-dat opens cell_1.dat (entry.rs)
 - [x] `DBCache::IsRunTime` · 006cfbd0 · legions 00659920 — run-time client cache flag; cited in ac2-script/src/glue/enums.rs:28
 - [x] `DBCache::IsClient` · 006cfbf0 · legions 00659940 — client flag; cited with IsRunTime in ac2-script/src/glue/enums.rs:28
 - [x] `DBCache::IsServer` · 006cfc10 · legions 00659960 — server flag; cited with IsRunTime in ac2-script/src/glue/enums.rs:28
 - [-] `DBCache::SetRegion` · 006cfc30 · legions 00659980 — trivial accessor or setter; the value is a field of the Rust struct
 - [-] `DBCache::ReloadObject` · 006cfc40 · legions 00659990 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
-- [ ] `DBCache::AddToDataGraph` · 006cfcf0 · legions 00659a40 — needs port: verify whether AddToDataGraph matters outside tools (AGENTS open question); record finding in AGENTS
-- [~] `DBCache::SetLocalLanguage` · 006cfdc0 · legions 00659b10 — the local DAT choice at mount (ac2_dat local_dat_for_language); no live switch, and the id path is not ported
+- [-] `DBCache::AddToDataGraph` · 006cfcf0 · legions 00659a40 — not needed: answers the AGENTS.md AddToDataGraph open question; record in AGENTS [DBCache::m_pDataGraph is only ever written 0 (dbcache.cpp.c:1087,1190 admin; Legions only the destructor), so AddToDataGraph at dbcache.cpp.c:219 never acts]
+- [x] `DBCache::SetLocalLanguage` · 006cfdc0 · legions 00659b10 — audit: covered: no live switch after mount [ac2-dat/src/paths.rs:13 local_dat_for_language; ac2-client/src/bin/ac2/main.rs:763]
 - [x] `DBCache::GetLocalLanguage` · 006cfde0 — local DAT language id; cited in ac2-weenie/src/session.rs:64
-- [ ] `DBCache::Init` · 006cfec0 · legions 00659c20 — needs port: cite-only; cache init (DAT open per language, master map, budgets); behaviour spread over ac2-dat dataset.rs open and ac2-db typed cache
-- [~] `DBCache::UseTime` · 006cfff0 · legions 00659d40 — ac2-db typed cache trims on the inserting worker; the finished-request pump is the client's time-budgeted loader drain (LOAD_BUDGET)
-- [ ] `DBCache::UnloadCellData` · 006d0050 · legions 00659da0 — needs port: verify cell data unload on landblock leave is covered by ac2-world unload (AGENTS: free on last drop); cell eviction behaviour unverified
+- [x] `DBCache::Init` · 006cfec0 · legions 00659c20 — covered: ac2-dat dataset.rs DatDataset::open (mounts portal/cell/local and high-res) + ac2-db ResourceStore::new; MasterDBMap init is the per-type decoders; ProjectSettings registry paths replaced by the AC2_DAT_DIR / config path; doc names it
+- [x] `DBCache::UseTime` · 006cfff0 · legions 00659d40 — audit: covered: AGENTS.md item 2 [ac2-client/src/client.rs:557 db_cache(): time-budgeted drain of the loader channel (LOAD_BUDGET, ac2-client/src/bin/ac2/main.rs:64); ac2-db/src/loader_pool.rs:102 try_next]
+- [-] `DBCache::UnloadCellData` · 006d0050 · legions 00659da0 — replaced by design:  [AGENTS.md DB object cache exception: free on last drop, no retention; cell unload is ac2-world landblock unload]
 - [-] `DBCache::AskForLastWords` · 006d00e0 · legions 00659e30 — shutdown write-back of cached objects (their last-words save to DAT); client writes nothing (AGENTS)
 - [-] `DBCache::FlushFreeObjects` · 006d0140 · legions 00659ee0 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBCache::GetDBOCache` · 006d01f0 · legions 00659f40 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
@@ -182,7 +182,7 @@ Legend and workflow: [README](README.md).
 ### DBCache
 - [-] `DBCache::~DBCache` · 006d04d0 · legions 0065a180 — C++ destructor or operator (Rust Drop / value semantics)
 - [-] `DBCache::KeepFreeObjects` · 006d0500 · legions 0065a1b0 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
-- [ ] `DBCache::GetIfInMemory` · 006d05a0 · legions 0065a250 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
+- [x] `DBCache::GetIfInMemory` · 006d05a0 · legions 0065a250 — covered by the AGENTS.md cache rule: ac2-db ResourceStore::load_cached_packed hands back the one shared Arc of a resident DID (the in-memory hit; Arc replaces m_numLinks), and the vtable 0x24 sub-object load (GetSubObjects) is each decoder resolving its dependent DIDs on first fetch (e.g. ac2-assets ac2_material_instance.rs, ac2-script data/enum_map.rs)
 - [-] `DBCache::GetDBOCache` · 006d05e0 · legions 0065a290 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 
 ### AsyncCache
@@ -191,10 +191,10 @@ Legend and workflow: [README](README.md).
 ### DBCache
 - [-] `DBCache::DBCache` · 006d08a0 · legions 0065a5f0 — constructor (Rust struct init)
 
-## `portal/shared/src/database/dbcategories.cpp.c` (0/14)
+## `portal/shared/src/database/dbcategories.cpp.c` (1/14)
 
 ### DBCategories
-- [ ] `DBCategories::FillDataGraph` · 006d8bc0 — needs port: verify whether AddToDataGraph matters outside tools (AGENTS open question); record finding in AGENTS
+- [-] `DBCategories::FillDataGraph` · 006d8bc0 — not needed: answers the AGENTS.md AddToDataGraph open question; record in AGENTS [DBCache::m_pDataGraph is only ever written 0 (dbcache.cpp.c:1087,1190 admin; Legions only the destructor), so AddToDataGraph at dbcache.cpp.c:219 never acts]
 
 ### ParseHelper<EmpGenParse>::ParseHandler
 - [-] `ParseHelper<EmpGenParse>::ParseHandler::ParseHandler` · 006d8c30 — constructor (Rust struct init)
@@ -210,7 +210,7 @@ Legend and workflow: [README](README.md).
 - [-] `DBCategories::ParseEMPsNode` · 006d9130 — admin-only tooling (text source, preprocess, EMP or format authoring)
 
 ### PHashTable<CaseInsensitiveStringBase<PStringBase<char>_>,unsigned_long>
-- [ ] `PHashTable<CaseInsensitiveStringBase<PStringBase<char>_>,unsigned_long>::StreamPack` · 006d9480 · legions 00662740 — needs port: cite-only; PHashTable StreamPack decode (string-keyed hash table in DAT payloads); ac2-script/src/data/enum_map.rs decodes the tables inline under EnumIDMap::StreamPack, verify and cite
+- [x] `PHashTable<CaseInsensitiveStringBase<PStringBase<char>_>,unsigned_long>::StreamPack` · 006d9480 · legions 00662740 — audit: covered:  [ac2-script/src/data/enum_map.rs:54-66 EnumIDMap::StreamPack PHashTables]
 
 ### IntrusiveHashData<CaseInsensitiveStringBase<PStringBase<char>_>,HashTableData<CaseInsensitiveStringBase<PStringBase<char>_>,unsigned_long>_*>
 - [-] `IntrusiveHashData<CaseInsensitiveStringBase<PStringBase<char>_>,HashTableData<CaseInsensitiveStringBase<PStringBase<char>_>,unsigned_long>_*>::IntrusiveHashData<CaseInsensitiveStringBase<PStringBase<char>_>,HashTableData<CaseInsensitiveStringBase<PStringBase<char>_>,unsigned_long>_*>` · 006d96e0 · legions 00662ab0 — constructor (Rust struct init)
@@ -223,20 +223,20 @@ Legend and workflow: [README](README.md).
 - [-] `DBCategories::FromFileNode` · 006d9830 — text source format (admin tools)
 - [-] `DBCategories::Allocate` · 006d9900 — DBObj class factory (Allocate/GetDBOType); Rust decodes into typed structs
 
-## `portal/shared/src/database/dbobj.cpp.c` (3/21)
+## `portal/shared/src/database/dbobj.cpp.c` (4/21)
 
 ### CWBookKeeper
 - [-] `CWBookKeeper::SetBookie` · 006d7690 · legions 006613b0 — trivial accessor or setter; the value is a field of the Rust struct (book keeper pointer wiring of the weenie)
 
 ### DBObj
-- [ ] `DBObj::AddToDataGraph` · 006d76a0 · legions 006613c0 — needs port: verify whether AddToDataGraph matters outside tools (AGENTS open question); record finding in AGENTS
+- [-] `DBObj::AddToDataGraph` · 006d76a0 · legions 006613c0 — not needed: answers the AGENTS.md AddToDataGraph open question; record in AGENTS [DBCache::m_pDataGraph is only ever written 0 (dbcache.cpp.c:1087,1190 admin; Legions only the destructor), so AddToDataGraph at dbcache.cpp.c:219 never acts]
 - [-] `DBObj::AddRef` · 006d76b0 · legions 006613d0 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBObj::Release` · 006d76e0 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBObj::ReloadFromDisk` · 006d7710 · legions 00661430 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBObj::SaveToDisk` · 006d7740 · legions 00661460 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DBObj::GetPackSize` · 006d7780 · legions 006614a0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DBObj::Pack_Type` · 006d77b0 · legions 006614d0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [~] `DBObj::UnPack_Type` · 006d7830 · legions 00661550 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `DBObj::UnPack_Type` · 006d7830 · legions 00661550 — audit: covered:  [embedded-DID check in the decoders (ac2-audio/src/data.rs:65, ac2-smartbox/src/camera_fx.rs:77, ac2-anim/src/fxscript.rs:4); ac2-net protocol qualities]
 - [x] `DBObj::Get` · 006d7890 · legions 006615b0 — DID get of a typed DBObj; cited in ac2-script/src/vm/mod.rs and ac2-world/src/region/detail_map.rs
 - [-] `DBObj::GetDBOCache` · 006d78b0 · legions 006615d0 — DBObj class factory (Allocate/GetDBOType); Rust decodes into typed structs
 
@@ -252,9 +252,9 @@ Legend and workflow: [README](README.md).
 - [-] `DBObj::~DBObj` · 006d7a10 · legions 00661720 — C++ constructor/destructor (Rust struct init or Drop)
 - [-] `DBObj::SaveToFile` · 006d7a60 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DBObj::LoadFromFile` · 006d7b20 — text source loader, admin build only
-- [ ] `DBObj::FillDataGraph` · 006d7bf0 — needs port: verify whether AddToDataGraph matters outside tools (AGENTS open question); record finding in AGENTS
+- [-] `DBObj::FillDataGraph` · 006d7bf0 — not needed: answers the AGENTS.md AddToDataGraph open question; record in AGENTS [DBCache::m_pDataGraph is only ever written 0 (dbcache.cpp.c:1087,1190 admin; Legions only the destructor), so AddToDataGraph at dbcache.cpp.c:219 never acts]
 
-## `portal/shared/src/database/dbocache.cpp.c` (0/21)
+## `portal/shared/src/database/dbocache.cpp.c` (1/21)
 
 ### DBOCache
 - [-] `DBOCache::UseTime` · 006d9b40 · legions 00662f70 — ac2-db typed cache: free on last drop with a free-byte budget replaces DBOCache's free pool and 30 s idle aging (AGENTS.md exception)
@@ -267,7 +267,7 @@ Legend and workflow: [README](README.md).
 - [-] `DBOCache::GetFreeObj` · 006d9ce0 · legions 00663120 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 
 ### SetPositionStruct
-- [ ] `SetPositionStruct::SetFlags` · 006d9d20 · legions 00663160 — needs port: cite-only; SetPositionStruct flag set behind efun gSetPositionStruct::CallEFun_SetFlags (ac2-script glue efun_names.txt); verify the bit op and cite
+- [-] `SetPositionStruct::SetFlags` · 006d9d20 · legions 00663160 — not needed:  [plain field setter (this->flags = x); siblings AddFlags/RemoveFlags are catalog [-]]
 
 ### DBOCache
 - [-] `DBOCache::FlushFreeObjects` · 006d9d30 · legions 00663170 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
@@ -276,19 +276,19 @@ Legend and workflow: [README](README.md).
 - [-] `DBOCache::RemoveObj_Internal` · 006d9e70 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBOCache::DestroyObj` · 006d9eb0 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBOCache::RemoveObj` · 006d9f00 · legions 00663340 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
-- [ ] `DBOCache::GetIfInMemory` · 006d9f70 · legions 006633b0 — needs port: sub-object resolution, load dependent DIDs on first fetch (AGENTS item 1); verify ac2-db dependency plan and cite
+- [x] `DBOCache::GetIfInMemory` · 006d9f70 · legions 006633b0 — covered by the AGENTS.md cache rule: ac2-db ResourceStore::load_cached_packed hands back the one shared Arc of a resident DID (the in-memory hit; Arc replaces m_numLinks), and the vtable 0x24 sub-object load (GetSubObjects) is each decoder resolving its dependent DIDs on first fetch (e.g. ac2-assets ac2_material_instance.rs, ac2-script data/enum_map.rs)
 - [-] `DBOCache::GetIfUsing` · 006da000 · legions 00663440 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBOCache::Release` · 006da060 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 - [-] `DBOCache::~DBOCache` · 006da170 · legions 006635b0 — C++ destructor or operator (Rust Drop / value semantics)
 - [-] `DBOCache::DBOCache` · 006da240 · legions 00663680 — constructor (Rust struct init)
 - [-] `DBOCache::AddObj_Internal` · 006da2e0 — retail DB cache internals (freelist, pool, idle eviction, reload); AGENTS says do not reproduce
 
-## `portal/shared/src/database/enuidmap.cpp.c` (4/15)
+## `portal/shared/src/database/enuidmap.cpp.c` (6/15)
 
 ### EnumIDMap
 - [x] `EnumIDMap::StreamPack` · 006d80b0 · legions 00661c30 — ac2-script data/glue::enums
 - [x] `EnumIDMap::NameToEnum` · 006d8150 · legions 00661cd0 — ac2-script data/glue::enums
-- [ ] `EnumIDMap::GetSubDataIDs` · 006d8280 · legions 00661e00 — needs port: sub-object resolution, an enum map's dependent data DIDs (AGENTS item 1 family); verify and cite
+- [-] `EnumIDMap::GetSubDataIDs` · 006d8280 · legions 00661e00 — not needed:  [data-graph prefetch only (see catalog rows for CharacterSetup::GetSubDataIDs); m_pDataGraph is never set]
 
 ### SmartArray<PEnum>
 - [-] `SmartArray<PEnum>::operator=` · 006d8380 · legions 00661f00 — STL/container template internals (Rust std collections)
@@ -297,47 +297,47 @@ Legend and workflow: [README](README.md).
 - [x] `EnumIDMap::EnumToDID` · 006d83f0 · legions 00661f70 — ac2-script data/glue::enums
 - [x] `EnumIDMap::GetName` · 006d8450 · legions 00661fd0 — ac2-script data/glue::enums
 - [-] `EnumIDMap::Destroy` · 006d8490 · legions 00662010 — DBObj class factory (Allocate/GetDBOType); Rust decodes into typed structs
-- [ ] `EnumIDMap::GetAllEnumVals` · 006d84c0 · legions 00662040 — needs port: cite-only; enumerate enum values and names; ac2-script/src/data/enum_map.rs has GetName and EnumToDID, verify the list form and cite
+- [x] `EnumIDMap::GetAllEnumVals` · 006d84c0 · legions 00662040 — audit: covered:  [ac2-script/src/glue/enums.rs:194]
 - [-] `EnumIDMap::EnumIDMap` · 006d85f0 · legions 00662170 — constructor (Rust struct init)
 - [-] `EnumIDMap::GetDBOType` · 006d86b0 — DBObj class factory (Allocate/GetDBOType); Rust decodes into typed structs
 - [-] `EnumIDMap::~EnumIDMap` · 006d86c0 · legions 00662240 — C++ destructor or operator (Rust Drop / value semantics)
-- [ ] `EnumIDMap::GetAllEnumNames` · 006d8800 · legions 00662380 — needs port: cite-only; enumerate enum values and names; ac2-script/src/data/enum_map.rs has GetName and EnumToDID, verify the list form and cite
+- [x] `EnumIDMap::GetAllEnumNames` · 006d8800 · legions 00662380 — audit: covered:  [ac2-script/src/glue/enums.rs:216]
 - [-] `EnumIDMap::AddEmp` · 006d8920 — admin-only tooling (text source, preprocess, EMP or format authoring)
 - [-] `EnumIDMap::Allocate` · 006d8b20 — DBObj class factory (Allocate/GetDBOType); Rust decodes into typed structs
 - [-] `EnumIDMap::LoadFromFile` · 006d8b50 — text source loader, admin build only
 
-## `portal/shared/src/database/masterdbmap.cpp.c` (0/4)
+## `portal/shared/src/database/masterdbmap.cpp.c` (3/4)
 
 ### MasterDBMap
-- [ ] `MasterDBMap::DivineType_Internal` · 006d2530 · legions 0065c250 — needs port: cite-only; DB type of a DID by registered ranges; ac2-script/src/data/db_types.rs DivineType does it, cite the _Internal
+- [x] `MasterDBMap::DivineType_Internal` · 006d2530 · legions 0065c250 — audit: covered: static table instead of runtime registration [ac2-script/src/data/db_types.rs:1-78 RANGES table + db_type() (generated from the registry)]
 
 ### DBTypeDef
 - [-] `DBTypeDef::DBTypeDef` · 006d2b70 · legions 0065c890 — constructor (Rust struct init)
 
 ### MasterDBMap
-- [ ] `MasterDBMap::DivineType_Internal` · 006d2c10 · legions 0065c930 — needs port: cite-only; DB type of a DID by registered ranges; ac2-script/src/data/db_types.rs DivineType does it, cite the _Internal
-- [ ] `MasterDBMap::InitDBTypeDef_Internal` · 006d4640 · legions 0065e360 — needs port: cite-only; registers the DBTypeDef DID ranges; ac2-script/src/data/db_types.rs holds the table, verify and cite
+- [x] `MasterDBMap::DivineType_Internal` · 006d2c10 · legions 0065c930 — audit: covered: static table instead of runtime registration [ac2-script/src/data/db_types.rs:1-78 RANGES table + db_type() (generated from the registry)]
+- [x] `MasterDBMap::InitDBTypeDef_Internal` · 006d4640 · legions 0065e360 — audit: covered: static table instead of runtime registration [ac2-script/src/data/db_types.rs:1-78 RANGES table + db_type() (generated from the registry)]
 
-## `portal/shared/src/database/masterdbmapmain.cpp.c` (1/19)
+## `portal/shared/src/database/masterdbmapmain.cpp.c` (5/19)
 
 ### MasterDBMap
-- [ ] `MasterDBMap::Init` · 006d6f80 · legions 00660ca0 — needs port: cite-only; master map init (type defs from the DAT); verify against ac2-script/src/data/db_types.rs and cite
+- [x] `MasterDBMap::Init` · 006d6f80 · legions 00660ca0 — audit: covered:  [ac2-script/src/data/db_types.rs:1-78 (type ranges static); master map DID ac2-script/src/data/mod.rs:50]
 - [-] `MasterDBMap::Cleanup` · 006d6fa0 · legions 00660cc0 — teardown of the master map (Rust statics/Drop)
-- [ ] `MasterDBMap::DivineCellType` · 006d6fc0 · legions 00660ce0 — needs port: cell DB type classification by DID; not located in Rust, verify against ac2-world cell DIDs
-- [~] `MasterDBMap::DivineType` · 006d7020 · legions 00660d40 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
-- [~] `MasterDBMap::DivineType` · 006d7040 · legions 00660d60 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+- [-] `MasterDBMap::DivineCellType` · 006d6fc0 · legions 00660ce0 — not needed: only caller StreamIDs, whose ids the port keeps per DAT file without a qualified type (ac2-net dat_event.rs ids)
+- [x] `MasterDBMap::DivineType` · 006d7020 · legions 00660d40 — audit: covered: FileArray name table has no data in Legions DATs [ac2-script/src/data/db_types.rs:78]
+- [x] `MasterDBMap::DivineType` · 006d7040 · legions 00660d60 — audit: covered: FileArray name table has no data in Legions DATs [ac2-script/src/data/db_types.rs:78]
 - [-] `MasterDBMap::SetGameDataDir` · 006d70a0 · legions 00660dc0 — trivial accessor or setter; the value is a field of the Rust struct (data directory setup; ac2-dat paths.rs resolves the shipped DAT)
 - [-] `MasterDBMap::SetEngineDataDir` · 006d70e0 · legions 00660e00 — trivial accessor or setter; the value is a field of the Rust struct (data directory setup; ac2-dat paths.rs resolves the shipped DAT)
-- [ ] `MasterDBMap::GetDBTypeDef` · 006d71e0 · legions 00660f00 — needs port: cite-only; DBTypeDef lookup by type; ac2-script/src/data/db_types.rs, verify and cite
+- [x] `MasterDBMap::GetDBTypeDef` · 006d71e0 · legions 00660f00 — audit: covered: static table instead of runtime registration [ac2-script/src/data/db_types.rs:1-78 RANGES table + db_type() (generated from the registry)]
 - [-] `MasterDBMap::HasFile` · 006d7260 · legions 00660f80 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
 - [x] `MasterDBMap::GetBaseDID` · 006d7280 · legions 00660fa0 — base DID of a DB type; cited in ac2-script/src/wstate.rs:19
-- [ ] `MasterDBMap::GetPackVer` · 006d7290 — needs port: verify whether DAT pack version gates the reader; no version check found in ac2-dat
+- [-] `MasterDBMap::GetPackVer` · 006d7290 — not needed:  [sole caller FileArrayFiller::ProcessMapping (tool, no Legions address)]
 - [-] `MasterDBMap::GetGameDataDir` · 006d72b0 · legions 00660fd0 — trivial accessor or setter; the value is a field of the Rust struct (data directory setup; ac2-dat paths.rs resolves the shipped DAT)
 - [-] `MasterDBMap::GetEngineDataDir` · 006d72f0 · legions 00661010 — trivial accessor or setter; the value is a field of the Rust struct (data directory setup; ac2-dat paths.rs resolves the shipped DAT)
-- [ ] `MasterDBMap::IsPortalType` · 006d7330 · legions 00661050 — needs port: cite-only; DB type class predicates; ac2-db/src/db_type.rs classifies DIDs, verify each predicate and cite
-- [ ] `MasterDBMap::IsCellType` · 006d7350 · legions 00661070 — needs port: cite-only; DB type class predicates; ac2-db/src/db_type.rs classifies DIDs, verify each predicate and cite
-- [ ] `MasterDBMap::IsLocalType` · 006d7370 · legions 00661090 — needs port: cite-only; DB type class predicates; ac2-db/src/db_type.rs classifies DIDs, verify each predicate and cite
-- [ ] `MasterDBMap::IsCategorized` · 006d7390 · legions 006610b0 — needs port: cite-only; DB type class predicates; ac2-db/src/db_type.rs classifies DIDs, verify each predicate and cite
+- [-] `MasterDBMap::IsPortalType` · 006d7330 · legions 00661050 — not needed: callers CLCache::GetDiskController (skip: Rust holds the controller per DatFileKind) only; loaders pick DatFileKind per DID range directly
+- [-] `MasterDBMap::IsCellType` · 006d7350 · legions 00661070 — not needed: callers CLCache::GetDiskController (skip), DBCache::AddToDataGraph (tool path, AGENTS.md open question) and DBCache::UnloadCellData (cache eviction, excluded by the AGENTS.md cache rule)
+- [-] `MasterDBMap::IsLocalType` · 006d7370 · legions 00661090 — not needed: only caller CLCache::GetDiskController (skip: Rust holds the controller per DatFileKind)
+- [-] `MasterDBMap::IsCategorized` · 006d7390 · legions 006610b0 — not needed:  [callers DBObj::GetPackSize/Pack_Type are [-]; UnPack_Type decoders know their own layout]
 - [-] `MasterDBMap::GetFreelistDef` · 006d73b0 · legions 006610d0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `MasterDBMap::VerifyDirectory` · 006d73d0 · legions 006610f0 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
 
@@ -353,7 +353,7 @@ Legend and workflow: [README](README.md).
 - [x] `QualifiedDataIDArray::AddToEnd` · 006d7fe0 · legions 00661b60 — ac2-script glue::enums::add_data_id
 - [x] `QualifiedDataIDArray::AddToEnd` · 006d8040 · legions 00661bc0 — DID set add of a non-zero DID; cited in ac2-script/src/glue/enums.rs:280
 
-## `portal/shared/src/database/threadedcache.cpp.c` (0/16)
+## `portal/shared/src/database/threadedcache.cpp.c` (1/16)
 
 ### DBCache
 - [-] `DBCache::SetShutdown` · 006cf490 · legions 006590b0 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
@@ -371,7 +371,7 @@ Legend and workflow: [README](README.md).
 - [-] `LFQueue<AsyncCache::CCallbackHandler_*>::Consume` · 006cf600 · legions 00659220 — retail async request machinery; ac2-db typed cache (in-flight get registry, Arc sharing, worker lanes) replaces it (AGENTS)
 
 ### ThreadedCache
-- [ ] `ThreadedCache::UseTime` · 006cf6d0 · legions 006592f0 — needs port: main-thread drain of finished async requests (AGENTS item 2); verify the scene pump covers it and cite
+- [x] `ThreadedCache::UseTime` · 006cf6d0 · legions 006592f0 — audit: covered: AGENTS.md item 2 [ac2-client/src/client.rs:557 db_cache(): time-budgeted drain of the loader channel (LOAD_BUDGET, ac2-client/src/bin/ac2/main.rs:64); ac2-db/src/loader_pool.rs:102 try_next]
 - [-] `ThreadedCache::ThreadedCache` · 006cf750 · legions 006594d0 — constructor (Rust struct init)
 
 ### DIDName_Dat
@@ -420,7 +420,7 @@ Legend and workflow: [README](README.md).
 - [-] `DatIDStamp::pack_size` · 0060d150 · legions 005cdf20 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DatIDStamp::GetPackSize` · 0060d1c0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DatIDStamp::Pack` · 0060d1d0 · legions 005cdfa0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `DatIDStamp::UnPack` · 0060d230 — needs port: cite-only; DAT id stamp read from the header; entry.rs DatIdStamp and btree.rs parse the stamp, verify and cite
+- [-] `DatIDStamp::UnPack` · 0060d230 — not needed: the text form of a DAT id stamp (PString then FromString) has no direct caller and nothing the client sends or reads carries it; the binary header stamp is ac2-dat btree.rs DatIdStamp
 
 ## `portal/shared/src/diskcon/blkalloc.cpp.c` (1/14)
 
@@ -440,13 +440,13 @@ Legend and workflow: [README](README.md).
 - [-] `CLBlockAllocator::OpenDataFile` · 0064edd0 · legions 005fe100 — opens the DAT for writing; the reader opens read-only (ac2-dat file_btree_runtime.rs open)
 - [-] `CLBlockAllocator::Update` · 0064ee50 · legions 005fe180 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 
-## `portal/shared/src/diskcon/btree.cpp.c` (5/44)
+## `portal/shared/src/diskcon/btree.cpp.c` (9/44)
 
 ### BTEntry
 - [-] `BTEntry::`default_constructor_closure'` · 0064c6f0 — C++ constructor/destructor (Rust struct init or Drop)
 
 ### BTree
-- [ ] `BTree::HasEntry` · 0064c700 · legions 005fba30 — needs port: cite-only; B-tree lookup (DID presence, node find, min/max); file_btree_runtime.rs find_in_node and DatDataset::contains do it, verify each and cite
+- [x] `BTree::HasEntry` · 0064c700 · legions 005fba30 — audit: covered:  [ac2-dat/src/file_btree_runtime.rs:97,134,278 find_file_entry/find_in_node; ac2-dat/src/dataset.rs:72 contains]
 - [-] `BTree::ExtractEntryShift` · 0064c780 · legions 005fbab0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::RemoveLeast` · 0064c820 · legions 005fbb50 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::AddMost` · 0064c8c0 · legions 005fbbf0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
@@ -463,28 +463,28 @@ Legend and workflow: [README](README.md).
 - [x] `BTree::LoadTree` · 0064cbb0 · legions 005fbe90 — root read at open; ac2-dat/src/file_btree_runtime.rs open (cited in tests/file_btree_profile.rs:19)
 - [-] `BTree::UpdateNode` · 0064ccf0 · legions 005fbfd0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::SaveDataToFile` · 0064cd50 · legions 005fc080 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `BTree::FindNode` · 0064ce30 · legions 005fc160 — needs port: cite-only; B-tree lookup (DID presence, node find, min/max); file_btree_runtime.rs find_in_node and DatDataset::contains do it, verify each and cite
+- [x] `BTree::FindNode` · 0064ce30 · legions 005fc160 — audit: covered:  [ac2-dat/src/file_btree_runtime.rs:97,134,278 find_file_entry/find_in_node; ac2-dat/src/dataset.rs:72 contains]
 - [-] `BTree::AllocateEmptyNode` · 0064cfc0 · legions 005fc2f0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::SplitNodeExec` · 0064d030 · legions 005fc360 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::InsertEntryExec` · 0064d230 · legions 005fc560 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::UpdateObjectExec` · 0064d370 · legions 005fc6a0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::MergeNodesExec` · 0064d450 · legions 005fc780 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::MergeNodesTrans` · 0064d6a0 · legions 005fc9d0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `BTree::FindMin` · 0064d730 · legions 005fca60 — needs port: cite-only; B-tree lookup (DID presence, node find, min/max); file_btree_runtime.rs find_in_node and DatDataset::contains do it, verify each and cite
-- [ ] `BTree::FindMax` · 0064d760 · legions 005fca90 — needs port: cite-only; B-tree lookup (DID presence, node find, min/max); file_btree_runtime.rs find_in_node and DatDataset::contains do it, verify each and cite
+- [-] `BTree::FindMin` · 0064d730 · legions 005fca60 — not needed:  [sole caller BTree::Delete ([-], write path); range walk is file_btree_runtime.rs:243]
+- [-] `BTree::FindMax` · 0064d760 · legions 005fca90 — not needed:  [sole caller BTree::Delete ([-], write path); range walk is file_btree_runtime.rs:243]
 - [-] `BTree::DeleteLeafExec` · 0064d7a0 · legions 005fcad0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::DeleteLeafTrans` · 0064d850 · legions 005fcb80 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::DeleteInternalExec` · 0064d8d0 · legions 005fcc00 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::RotateEntryExec` · 0064d9e0 · legions 005fcd10 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::RecoverTransaction` · 0064db80 · legions 005fceb0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `BTree::Search` · 0064dc60 · legions 005fcf90 — needs port: cite-only; B-tree lookup (DID presence, node find, min/max); file_btree_runtime.rs find_in_node and DatDataset::contains do it, verify each and cite
+- [x] `BTree::Search` · 0064dc60 · legions 005fcf90 — audit: covered:  [ac2-dat/src/file_btree_runtime.rs:97,134,278 find_file_entry/find_in_node; ac2-dat/src/dataset.rs:72 contains]
 - [-] `BTree::SplitNodeTrans` · 0064dce0 · legions 005fd010 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::InsertEntryTrans` · 0064dd70 · legions 005fd0a0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::Update_Data_Trans` · 0064de00 · legions 005fd130 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::DescendToAdd` · 0064dea0 · legions 005fd1d0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::DeleteInternalTrans` · 0064dfc0 · legions 005fd2f0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `BTree::RotateEntryTrans` · 0064e040 · legions 005fd370 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `BTree::Lookup` · 0064e0d0 · legions 005fd400 — needs port: cite-only; B-tree lookup (DID presence, node find, min/max); file_btree_runtime.rs find_in_node and DatDataset::contains do it, verify each and cite
+- [x] `BTree::Lookup` · 0064e0d0 · legions 005fd400 — audit: covered:  [ac2-dat/src/file_btree_runtime.rs:97,134,278 find_file_entry/find_in_node; ac2-dat/src/dataset.rs:72 contains]
 - [-] `BTree::DescendToDelete` · 0064e100 · legions 005fd430 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [x] `BTree::Build_Id_List` · 0064e280 · legions 005fd5b0 — ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 - [x] `BTree::Build_Id_List` · 0064e380 · legions 005fd6b0 — ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
@@ -494,21 +494,21 @@ Legend and workflow: [README](README.md).
 - [x] `BTree::Get_Id_List_Range` · 0064e660 · legions 005fd990 — ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 - [-] `BTree::Try_Delete_Oldest` · 0064e6a0 · legions 005fd9d0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 
-## `portal/shared/src/diskcon/diskcon.cpp.c` (0/19)
+## `portal/shared/src/diskcon/diskcon.cpp.c` (6/19)
 
 ### DiskFileInfo_t
 - [-] `DiskFileInfo_t::ClearData` · 0064b700 · legions 005faa30 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 
 ### DiskConBase
-- [ ] `DiskConBase::GetDatIDStamp` · 0064b740 · legions 005faa70 — needs port: cite-only; DAT metadata read (stamp, size, presence) covered by ac2-dat DatFileMeta/DatEntryMeta and DatDataset::contains, verify and cite
+- [x] `DiskConBase::GetDatIDStamp` · 0064b740 · legions 005faa70 — covered: the base returns a default stamp; the file header stamp is ac2-dat btree.rs DatIdStamp (DatFileMeta)
 
 ### DiskController
 - [-] `DiskController::Close` · 0064b780 · legions 005faab0 — close of the DAT handle (Rust Drop)
 - [-] `DiskController::CheckRoom` · 0064b7d0 · legions 005fab00 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `DiskController::GetDatestamp` · 0064b830 · legions 005fab60 — needs port: cite-only; DAT metadata read (stamp, size, presence) covered by ac2-dat DatFileMeta/DatEntryMeta and DatDataset::contains, verify and cite
-- [ ] `DiskController::GetDataSize` · 0064b860 · legions 005fab90 — needs port: cite-only; DAT metadata read (stamp, size, presence) covered by ac2-dat DatFileMeta/DatEntryMeta and DatDataset::contains, verify and cite
-- [ ] `DiskController::LoadData` · 0064b890 · legions 005fabc0 — needs port: cite-only; record read wrapper of LoadDataEx (ac2-dat file.rs read_record is cited under LoadDataEx); verify and cite
-- [ ] `DiskController::IsMember` · 0064b940 · legions 005fac70 — needs port: cite-only; DAT metadata read (stamp, size, presence) covered by ac2-dat DatFileMeta/DatEntryMeta and DatDataset::contains, verify and cite
+- [x] `DiskController::GetDatestamp` · 0064b830 · legions 005fab60 — covered: ac2-dat dataset.rs entry() date_stamp (0 where absent); doc names it
+- [x] `DiskController::GetDataSize` · 0064b860 · legions 005fab90 — covered: ac2-dat dataset.rs entry() packed_len (-1 where absent is None); doc names it
+- [x] `DiskController::LoadData` · 0064b890 · legions 005fabc0 — audit: covered:  [ac2-dat/src/file.rs:83 read_record (DiskController::LoadDataEx)]
+- [x] `DiskController::IsMember` · 0064b940 · legions 005fac70 — covered: ac2-dat dataset.rs contains() (and entry() for the ObjectInfo); doc names it
 - [-] `DiskController::DeleteData` · 0064b980 · legions 005facb0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DiskController::SetMasterMapDID` · 0064b9c0 · legions 005facf0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DiskController::SetDatIDStamp` · 0064ba00 · legions 005fad30 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
@@ -519,7 +519,7 @@ Legend and workflow: [README](README.md).
 ### DiskController
 - [-] `DiskController::SaveData` · 0064ba80 · legions 005fadb0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DiskController::DeleteDataByMask` · 0064bb10 · legions 005fae40 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [~] `DiskController::LoadIterationList` · 0064bc00 · legions 005faf30 — history read via ac2-dat read_packed(0xFFFF0001) + ac2-net read_int_set in ac2-weenie::dat_iterations
+- [x] `DiskController::LoadIterationList` · 0064bc00 · legions 005faf30 — audit: covered:  [ac2-dat/src/file.rs:155; ac2-weenie/src/ddd.rs:7]
 - [-] `DiskController::SaveIterationList` · 0064bc80 · legions 005fafb0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `DiskController::DiskController` · 0064bd10 · legions 005fb040 — C++ constructor/destructor (Rust struct init or Drop)
 - [-] `DiskController::~DiskController` · 0064bd70 · legions 005fb0a0 — C++ constructor/destructor (Rust struct init or Drop)
@@ -612,7 +612,7 @@ Legend and workflow: [README](README.md).
 
 ### DBFile2IDTable
 - [-] `DBFile2IDTable::Pack` · 0066d690 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `DBFile2IDTable::UnPack` · 0066d910 — needs port: cite-only; file-name to DID table decode that FileArray::GetDID uses; verify the decoder and cite
+- [-] `DBFile2IDTable::UnPack` · 0066d910 — not needed:  [FileArray name/DID tables (READONLY_DIDName) are not in Legions or 7230 DATs (no such records in dat_index); name lookups answer none (ac2-script glue/enums.rs:245,266)]
 
 ## `portal/shared/src/filedb/didnamedat.cpp.c` (0/17)
 
@@ -699,16 +699,16 @@ Legend and workflow: [README](README.md).
 - [-] `FileArrayFiller::ProcessMapping` · 0066c450 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
 
 ### FileArray
-- [ ] `FileArray::ReadIDs` · 0066c4d0 · legions 00616d90 — needs port: cite-only; reads the id tables (DBFile2IDTable) from the DAT; same gap as DBFile2IDTable::UnPack
+- [-] `FileArray::ReadIDs` · 0066c4d0 · legions 00616d90 — not needed:  [FileArray name/DID tables (READONLY_DIDName) are not in Legions or 7230 DATs (no such records in dat_index); name lookups answer none (ac2-script glue/enums.rs:245,266)]
 - [-] `FileArray::WriteMasterIDs` · 0066c570 · legions 00616e30 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `FileArray::Cleanup` · 0066c5d0 · legions 00616e90 — C++ constructor/destructor (Rust struct init or Drop)
 - [-] `FileArray::VerifyDBOTypes` · 0066c630 · legions 00616ef0 — admin-only tooling (text source, preprocess, EMP or format authoring)
 - [-] `FileArray::GenerateDescription` · 0066c820 · legions 006170e0 — admin-only tooling (text source, preprocess, EMP or format authoring)
-- [ ] `FileArray::RegisterDBType` · 0066c8c0 · legions 00617180 — needs port: cite-only; DB type registration for FileArray (DBTypeDef ranges); ac2-script/src/data/db_types.rs, verify and cite
+- [-] `FileArray::RegisterDBType` · 0066c8c0 · legions 00617180 — not needed:  [FileArray name/DID tables (READONLY_DIDName) are not in Legions or 7230 DATs (no such records in dat_index); name lookups answer none (ac2-script glue/enums.rs:245,266)]
 - [-] `FileArray::GetAbsoluteFilePath` · 0066ca40 · legions 00617300 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
 - [-] `FileArray::GetAbsoluteFilePathForDummies` · 0066cb40 · legions 00617400 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
 - [x] `FileArray::GetFileName` · 0066cb80 · legions 00617440 — DID to data file name; cited in ac2-script/src/vm/mod.rs:162
-- [ ] `FileArray::GetFileNameForDummies` · 0066cc70 · legions 00617530 — needs port: cite-only; ANSI DID to file name; W variant cited in ac2-script glue enums.rs:260, verify and cite
+- [-] `FileArray::GetFileNameForDummies` · 0066cc70 · legions 00617530 — not needed:  [FileArray has no data in Legions/7230; callers are tool FromFileNode/ToFileNode code; the W efun forms are bound at ac2-script/src/glue/enums.rs:245,266]
 - [x] `FileArray::GetFileNameForDummiesW` · 0066ccb0 · legions 00617570 — DID to wide file name; cited in ac2-script/src/glue/enums.rs:260
 - [-] `FileArray::GetAbsoluteFilePath` · 0066cd20 · legions 006175e0 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
 
@@ -718,12 +718,12 @@ Legend and workflow: [README](README.md).
 ### FileArray
 - [x] `FileArray::GetDID` · 0066ce60 · legions 00617720 — name/enum to DID; cited in ac2-script/src/vm/mod.rs:147
 - [x] `FileArray::GetDIDW` · 0066d050 · legions 00617910 — wide name to DID; cited in ac2-script/src/glue/enums.rs:250
-- [ ] `FileArray::GetDIDForDummies` · 0066d0a0 · legions 00617960 — needs port: cite-only; ANSI name to DID with type; the W variant is cited in ac2-script glue enums.rs:239, verify and cite
+- [-] `FileArray::GetDIDForDummies` · 0066d0a0 · legions 00617960 — not needed:  [FileArray has no data in Legions/7230; callers are tool FromFileNode/ToFileNode code; the W efun forms are bound at ac2-script/src/glue/enums.rs:245,266]
 - [x] `FileArray::GetDIDForDummiesW` · 0066d150 · legions 00617a10 — wide name to DID with type; cited in ac2-script/src/glue/enums.rs:239
-- [ ] `FileArray::GetPhysicsObjectDID` · 0066d1a0 — needs port: physics object DID lookup by name/type; not located in Rust, verify against ac2-physics
+- [-] `FileArray::GetPhysicsObjectDID` · 0066d1a0 — not needed:  [callers SceneEntity::GetSubObject and SkyObject::LoadGfx have no Legions address]
 - [-] `FileArray::GetFilePathForDummies` · 0066d260 · legions 00617a60 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
 - [-] `FileArray::AddIDTableStorage` · 0066d280 · legions 00617a80 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
-- [ ] `FileArray::Init` · 0066d2e0 · legions 00617ae0 — needs port: cite-only; FileArray init loads the master and DAT id tables (DBFile2IDTable); verify against ac2-script data name lookup and cite
+- [-] `FileArray::Init` · 0066d2e0 · legions 00617ae0 — not needed:  [FileArray name/DID tables (READONLY_DIDName) are not in Legions or 7230 DATs (no such records in dat_index); name lookups answer none (ac2-script glue/enums.rs:245,266)]
 
 ## `portal/shared/src/filedb/filefinder.cpp.c` (0/17)
 
@@ -750,7 +750,7 @@ Legend and workflow: [README](README.md).
 
 ### PHashTable<PStringBase<char>,PStringBase<char>_>
 - [-] `PHashTable<PStringBase<char>,PStringBase<char>_>::PHashTable<PStringBase<char>,PStringBase<char>_>` · 00672020 · legions 0061c5e0 — constructor (Rust struct init)
-- [ ] `PHashTable<PStringBase<char>,PStringBase<char>_>::StreamPack` · 00672060 · legions 0061c620 — needs port: cite-only; PHashTable StreamPack decode (string-keyed hash table in DAT payloads); ac2-script/src/data/enum_map.rs decodes the tables inline under EnumIDMap::StreamPack, verify and cite
+- [-] `PHashTable<PStringBase<char>,PStringBase<char>_>::StreamPack` · 00672060 · legions 0061c620 — not needed:  [only used by FilePathCache (portal/shared/src/filedb/filepathcache.cpp.c:280, tool path cache)]
 
 ### FilePathCache
 - [-] `FilePathCache::InitFileFinder` · 00672360 · legions 0061c920 — loose-file/directory registry; the client reads only the shipped DATs (AGENTS)
@@ -766,15 +766,15 @@ Legend and workflow: [README](README.md).
 - [-] `FileFormatGrabber::GetFileFormat` · 006662e0 · legions 00613a90 — admin-only tooling (text source, preprocess, EMP or format authoring)
 
 ### PFileNode
-- [ ] `PFileNode::SetNameAsInt32` · 006662f0 · legions 00613aa0 — needs port: cite-only; PFileNode name setters behind efun gPFileNode::CallEFun_SetNameAsInt32 (ac2-script glue); verify whether WSL scripts reach them
-- [ ] `PFileNode::SetName` · 00666340 · legions 00613af0 — needs port: cite-only; PFileNode name setter behind WSL efuns (ac2-script glue efun_names.txt); verify
+- [-] `PFileNode::SetNameAsInt32` · 006662f0 · legions 00613aa0 — not needed:  [callers FileTemplate (text/binary authoring), DIDName_Dat, IntegerPropertyValue::ToFileNode: all tools; efun_coverage.rs lists gPFileNode as authoring/tooling]
+- [-] `PFileNode::SetName` · 00666340 · legions 00613af0 — not needed:  [callers FileTemplate (text/binary authoring), DIDName_Dat, IntegerPropertyValue::ToFileNode: all tools; efun_coverage.rs lists gPFileNode as authoring/tooling]
 
 ### FileFormat
 - [-] `FileFormat::IsBinary` · 00666390 · legions 00613b40 — admin-only tooling (text source, preprocess, EMP or format authoring)
 
 ### PFileNode
-- [ ] `PFileNode::GetNameAsCellID` · 00666480 — needs port: cite-only; PFileNode name getter as cell id; verify against WSL efuns
-- [ ] `PFileNode::GetNameAsHex` · 00666540 — needs port: cite-only; PFileNode name getter as hex; verify against WSL efuns
+- [-] `PFileNode::GetNameAsCellID` · 00666480 — not needed:  [callers FileTemplate (text/binary authoring), DIDName_Dat, IntegerPropertyValue::ToFileNode: all tools; efun_coverage.rs lists gPFileNode as authoring/tooling]
+- [-] `PFileNode::GetNameAsHex` · 00666540 — not needed:  [callers FileTemplate (text/binary authoring), DIDName_Dat, IntegerPropertyValue::ToFileNode: all tools; efun_coverage.rs lists gPFileNode as authoring/tooling]
 
 ### TemplateInstance
 - [-] `TemplateInstance::TemplateInstance` · 00666600 — C++ constructor/destructor (Rust struct init or Drop)
@@ -791,7 +791,7 @@ Legend and workflow: [README](README.md).
 - [-] `FileTemplate::SubNodesMatchTemplates` · 00666c70 — text-template matching for the pack path (write side)
 
 ### (free functions)
-- [ ] `is_keyword` · 00666dc0 — needs port: cite-only; keyword check behind gPFileNode::CallEFun_IsKeywordW (ac2-script glue)
+- [-] `is_keyword` · 00666dc0 — not needed:  [callers FileTemplate (text/binary authoring), DIDName_Dat, IntegerPropertyValue::ToFileNode: all tools; efun_coverage.rs lists gPFileNode as authoring/tooling]
 
 ### FileTemplate
 - [-] `FileTemplate::MakeFileNode` · 00667010 — text-template node building for the pack path (write side)
@@ -804,13 +804,13 @@ Legend and workflow: [README](README.md).
 - [-] `FileTemplate::BinarySize` · 00667580 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `FileTemplate::PackBinary_Internal` · 00667620 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `FileTemplate::PackBinary_SubNodes` · 006678d0 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `FileTemplate::UnPackBinary_Internal` · 006679c0 · legions 00613cd0 — needs port: FileTemplate binary node decode (UnPackBinary); needed with FileFormat::LoadBinary if shipped DATs hold FileFormat records
-- [ ] `FileTemplate::UnPackBinary_SubNodes` · 00667c40 · legions 00613f50 — needs port: FileTemplate binary sub-node decode (UnPackBinary); needed with FileFormat::LoadBinary
+- [-] `FileTemplate::UnPackBinary_Internal` · 006679c0 · legions 00613cd0 — not needed:  [no DB_TYPE_FILEFORMAT (0x27xxxxxx portal) record exists in 7160, 7230 or eor2017 (dat_index); caller FileFormat::LoadFile is [-]]
+- [-] `FileTemplate::UnPackBinary_SubNodes` · 00667c40 · legions 00613f50 — not needed:  [no DB_TYPE_FILEFORMAT (0x27xxxxxx portal) record exists in 7160, 7230 or eor2017 (dat_index); caller FileFormat::LoadFile is [-]]
 - [-] `FileTemplate::PackBinary` · 00667d10 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 
 ### FileFormat
 - [-] `FileFormat::SaveBinary` · 00667d70 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
-- [ ] `FileFormat::LoadBinary` · 00667ea0 · legions 00614020 — needs port: FileFormat binary load (DB_TYPE_FILEFORMAT records, FileTemplate::UnPackBinary); verify whether shipped DATs hold FileFormat records, decode if so
+- [-] `FileFormat::LoadBinary` · 00667ea0 · legions 00614020 — not needed:  [no DB_TYPE_FILEFORMAT (0x27xxxxxx portal) record exists in 7160, 7230 or eor2017 (dat_index); caller FileFormat::LoadFile is [-]]
 - [-] `FileFormat::SaveBinary` · 00668420 — DAT write, transaction or patch path; the client only reads the shipped DATs (AGENTS)
 - [-] `FileFormat::LoadFile` · 00668450 · legions 00614220 — admin-only tooling (text source, preprocess, EMP or format authoring)
 

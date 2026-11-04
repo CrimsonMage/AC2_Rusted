@@ -57,7 +57,61 @@ impl GmRaceSexInfo {
     }
 }
 
-/// `gmKeyframe::StreamPack`.
+/// `DamageTextBlob::StreamPack` (native 0x97, Legions 0x005CA6F0): the text, its colour
+/// (`RGBAColor::StreamPack`: one `D3DCOLOR` word), its duration and scale.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DamageTextBlob {
+    pub text: String,
+    /// ARGB.
+    pub color: u32,
+    pub duration: f32,
+    pub scale: f32,
+}
+
+impl DamageTextBlob {
+    pub(super) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+        Ok(Self {
+            text: r.wide_string()?,
+            color: r.u32()?,
+            duration: r.f32()?,
+            scale: r.f32()?,
+        })
+    }
+
+    pub(super) fn write(&self, w: &mut Writer) {
+        w.wide_string(&self.text)
+            .u32(self.color)
+            .f32(self.duration)
+            .f32(self.scale);
+    }
+}
+
+/// `TurbineUserStatus::StreamPack` (native 0xAF, Legions 0x005C5760): a GUN user's name,
+/// location and mode.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TurbineUserStatus {
+    pub name: String,
+    pub location: String,
+    pub mode: u32,
+}
+
+impl TurbineUserStatus {
+    pub(super) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+        Ok(Self {
+            name: r.wide_string()?,
+            location: r.wide_string()?,
+            mode: r.u32()?,
+        })
+    }
+
+    pub(super) fn write(&self, w: &mut Writer) {
+        w.wide_string(&self.name)
+            .wide_string(&self.location)
+            .u32(self.mode);
+    }
+}
+
+/// `gmKeyframe::StreamPack` (native 0x9F, Legions 0x005CB750).
 #[derive(Debug, Clone, PartialEq)]
 pub struct GmKeyframe {
     pub scene_id: u32,
@@ -72,7 +126,7 @@ pub struct GmKeyframe {
 }
 
 impl GmKeyframe {
-    fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+    pub(super) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
         Ok(Self {
             scene_id: r.u32()?,
             frame_num: r.u32()?,
@@ -86,7 +140,7 @@ impl GmKeyframe {
         })
     }
 
-    fn write(&self, w: &mut Writer) {
+    pub(super) fn write(&self, w: &mut Writer) {
         w.u32(self.scene_id)
             .u32(self.frame_num)
             .f64(self.duration)

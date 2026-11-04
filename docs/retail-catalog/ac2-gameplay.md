@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 227 done, 30 partial, 29 to do, 213 skipped.
+499 retail functions: 264 done, 0 partial, 0 to do, 235 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -24,10 +24,10 @@ Legend and workflow: [README](README.md).
 - [x] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060ca40 · legions 005cd840 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 - [x] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060caf0 · legions 005cd8f0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
-## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (35/57)
+## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (36/57)
 
 ### PFileNode
-- [ ] `PFileNode::MakeSubNodeAsBool` · 005fe6a0 · legions 005bf180 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
+- [-] `PFileNode::MakeSubNodeAsBool` · 005fe6a0 · legions 005bf180 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
 
 ### GameplayOptionsProfile
 - [x] `GameplayOptionsProfile::SetShortcutHeight` · 005fe700 · legions 005bf1e0 — ac2-script glue::options / examination (Legions layout and efun switch)
@@ -42,33 +42,33 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<ShortcutInfo>::operator=` · 005fe7d0 · legions 005bf2b0 — assignment or comparison of plain data (operator=, ==, <)
 
 ### PFileNode
-- [ ] `PFileNode::MakeSubNode` · 005fe840 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
+- [-] `PFileNode::MakeSubNode` · 005fe840 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
 
 ### GameplayOptionsProfile
 - [x] `GameplayOptionsProfile::SetShortcutArray` · 005fe860 · legions 005bf320 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::InqShortcutArray` · 005fe890 · legions 005bf350 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `GameplayOptionsProfile::ShortcutsFromFileNode` · 005fe8c0 · legions 005bf380 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::DamageTextToFileNode` · 005fe920 · legions 005bf3e0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::DamageTextFromFileNode` · 005fe9e0 · legions 005bf4a0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::UISaveLocationsToFileNode` · 005fec10 · legions 005bf6d0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::UISaveLocationsFromFileNode` · 005fec30 · legions 005bf6f0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::FilterSettingsToFileNode` · 005fec90 · legions 005bf750 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::FilterSettingsFromFileNode` · 005fecb0 · legions 005bf770 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::AutoTargetToFileNode` · 005fed10 · legions 005bf7d0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::AutoTargetFromFileNode` · 005fed30 · legions 005bf7f0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
-- [ ] `GameplayOptionsProfile::ConfirmationSettingsFromFileNode` · 005fed90 · legions 005bf850 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
+- [-] `GameplayOptionsProfile::ShortcutsFromFileNode` · 005fe8c0 · legions 005bf380 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::DamageTextToFileNode` · 005fe920 · legions 005bf3e0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::DamageTextFromFileNode` · 005fe9e0 · legions 005bf4a0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::UISaveLocationsToFileNode` · 005fec10 · legions 005bf6d0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::UISaveLocationsFromFileNode` · 005fec30 · legions 005bf6f0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::FilterSettingsToFileNode` · 005fec90 · legions 005bf750 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::FilterSettingsFromFileNode` · 005fecb0 · legions 005bf770 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::AutoTargetToFileNode` · 005fed10 · legions 005bf7d0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::AutoTargetFromFileNode` · 005fed30 · legions 005bf7f0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
+- [-] `GameplayOptionsProfile::ConfirmationSettingsFromFileNode` · 005fed90 · legions 005bf850 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
 - [x] `GameplayOptionsProfile::GetPackBitfield` · 005fedf0 · legions 005bf8b0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::InqShortcut` · 005feec0 · legions 005bf990 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `GameplayOptionsProfile::AliasesToFileNode` · 005feef0 · legions 005bf9c0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
+- [-] `GameplayOptionsProfile::AliasesToFileNode` · 005feef0 · legions 005bf9c0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
 - [x] `GameplayOptionsProfile::BuildAliasList` · 005ff090 · legions 005bfbc0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::InitShortcutArray` · 005ff140 · legions 005bfc70 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::GetFilter` · 005ff1e0 · legions 005bfd10 — ac2-ui chat.rs / chat_window.rs
 - [x] `GameplayOptionsProfile::GetChatFontSize` · 005ff220 · legions 005bfda0 — ac2-ui chat.rs / chat_window.rs
 - [x] `GameplayOptionsProfile::GetChatFontColor` · 005ff270 — ac2-ui chat.rs / chat_window.rs
 - [x] `GameplayOptionsProfile::GetChatPopupFlag` · 005ff2c0 · legions 005bfdf0 — ac2-ui chat.rs / chat_window.rs
-- [~] `GameplayOptionsProfile::InqWindowOpacity` · 005ff310 · legions 005bfe90 — ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
+- [x] `GameplayOptionsProfile::InqWindowOpacity` · 005ff310 · legions 005bfe90 — audit: covered: opacities read from the profile; catalog note stale [crates/ac2-ui/src/chat.rs:58]
 - [-] `GameplayOptionsProfile::ToFileNode` · 005ff330 · legions 005bfeb0 — text source format (admin tools)
-- [ ] `GameplayOptionsProfile::Export` · 005ff400 · legions 005bff80 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
+- [-] `GameplayOptionsProfile::Export` · 005ff400 · legions 005bff80 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
 - [x] `GameplayOptionsProfile::InqAlias` · 005ff630 · legions 005c01b0 — ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
 - [x] `GameplayOptionsProfile::FlushAliasTable` · 005ff6e0 · legions 005c0260 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::RemoveAlias` · 005ff6f0 · legions 005c0270 — ac2-script glue::options / examination (Legions layout and efun switch)
@@ -89,11 +89,11 @@ Legend and workflow: [README](README.md).
 - [x] `GameplayOptionsProfile::SetAliasTable` · 005ffd00 · legions 005c0b10 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::InqAliasTable` · 005ffd10 · legions 005c0b20 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::AddFilter` · 005ffd30 · legions 005c0b40 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `GameplayOptionsProfile::AliasesFromFileNode` · 005ffd90 · legions 005c0ba0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
+- [-] `GameplayOptionsProfile::AliasesFromFileNode` · 005ffd90 · legions 005c0ba0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
 - [x] `GameplayOptionsProfile::StreamPack` · 006000b0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [-] `GameplayOptionsProfile::operator=` · 006004f0 · legions 005c1360 — assignment or comparison of plain data (operator=, ==, <)
 - [-] `GameplayOptionsProfile::FromFileNode` · 006005c0 · legions 005c1440 — text source format (admin tools)
-- [ ] `GameplayOptionsProfile::Import` · 00600870 · legions 005c16f0 — needs port: options profile FileNode export/import (retail text options file; no Rust counterpart)
+- [-] `GameplayOptionsProfile::Import` · 00600870 · legions 005c16f0 — not needed: only reached by gGameplayOptionsProfile::Export/Import (authoring/tooling efuns the efun_coverage list excludes); client saves options as the packed profile [crates/ac2-script/src/host/tests/efun_coverage.rs:28-35]
 - [x] `GameplayOptionsProfile::GameplayOptionsProfile` · 006009e0 · legions 005c1860 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::GameplayOptionsProfile` · 00600b40 · legions 005c19e0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
@@ -188,7 +188,7 @@ Legend and workflow: [README](README.md).
 - [x] `DamageTextBlob::Clear` · 006098d0 · legions 005ca5e0 — ac2-weenie/src/ui_data.rs DamageText::default (DamageTextBlob::Clear)
 - [-] `DamageTextBlob::DamageTextBlob` · 00609950 · legions 005ca660 — constructor of plain data
 - [-] `DamageTextBlob::DamageTextBlob` · 006099b0 · legions 005ca6c0 — constructor of plain data
-- [ ] `DamageTextBlob::StreamPack` · 006099e0 · legions 005ca6f0 — needs port (check): damage-text blob wire, implemented as ac2-net/src/protocol/native/options.rs damage_text but uncited
+- [-] `DamageTextBlob::StreamPack` · 006099e0 · legions 005ca6f0 — replaced by design: blob is NativeObject::DamageText passed script->UI in process; never packed (no callers) [crates/ac2-script/src/native/mod.rs:295]
 
 ## `ac2/shared/src/effectdisplay/effectuinode.cpp.c` (10/10)
 
@@ -312,10 +312,10 @@ Legend and workflow: [README](README.md).
 - [-] `gmActInfo::operator=` · 0060be40 · legions 005ccb90 — assignment or comparison of plain data (operator=, ==, <)
 - [-] `gmActInfo::gmActInfo` · 0060be90 · legions 005ccbe0 — constructor of plain data
 
-## `ac2/shared/src/quest/gmkeyframe.cpp.c` (11/23)
+## `ac2/shared/src/quest/gmkeyframe.cpp.c` (15/23)
 
 ### gmKeyframe
-- [ ] `gmKeyframe::GetSubDataIDs` · 0060a350 · legions 005cb060 — needs port: sub-object DID list for DBO prefetch (gmKeyframe::GetSubDataIDs)
+- [x] `gmKeyframe::GetSubDataIDs` · 0060a350 · legions 005cb060 — audit: covered:  [crates/ac2-script/src/glue/sub_data_ids.rs:11,61]
 - [x] `gmKeyframe::HasVideoTrack` · 0060a3a0 · legions 005cb0b0 — ac2-weenie/src/story.rs Keyframe::has_video/has_audio/has_voice/has_subtitle/has_duration
 - [x] `gmKeyframe::HasAudioTrack` · 0060a3b0 · legions 005cb0c0 — ac2-weenie/src/story.rs Keyframe::has_video/has_audio/has_voice/has_subtitle/has_duration
 - [x] `gmKeyframe::HasVoiceTrack` · 0060a3c0 · legions 005cb0d0 — ac2-weenie/src/story.rs Keyframe::has_video/has_audio/has_voice/has_subtitle/has_duration
@@ -326,10 +326,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmKeyframe::SetVoiceTrack` · 0060a420 · legions 005cb130 — ac2-script/src/glue/story.rs set_track / set_subtitle (SetVideoTrack, SetAudioTrack, SetVoiceTrack, SetSubtitle)
 - [x] `gmKeyframe::SetSubtitle` · 0060a430 · legions 005cb140 — ac2-script/src/glue/story.rs set_track / set_subtitle (SetVideoTrack, SetAudioTrack, SetVoiceTrack, SetSubtitle)
 - [-] `gmKeyframe::operator=` · 0060a450 · legions 005cb160 — assignment or comparison of plain data (operator=, ==, <)
-- [ ] `gmKeyframe::SetVideoTrackByName` · 0060a4e0 · legions 005cb1f0 — needs port: file-name track setters, unbound in ac2-script glue/story.rs (SetVideoTrackByName, AudioTrackByName, VoiceTrackByName, SetMovieTrack)
-- [ ] `gmKeyframe::SetAudioTrackByName` · 0060a530 · legions 005cb240 — needs port: file-name track setters, unbound in ac2-script glue/story.rs (SetVideoTrackByName, AudioTrackByName, VoiceTrackByName, SetMovieTrack)
-- [ ] `gmKeyframe::SetVoiceTrackByName` · 0060a580 · legions 005cb290 — needs port: file-name track setters, unbound in ac2-script glue/story.rs (SetVideoTrackByName, AudioTrackByName, VoiceTrackByName, SetMovieTrack)
-- [ ] `gmKeyframe::SetMovieTrack` · 0060a5d0 · legions 005cb2e0 — needs port: file-name track setters, unbound in ac2-script glue/story.rs (SetVideoTrackByName, AudioTrackByName, VoiceTrackByName, SetMovieTrack)
+- [x] `gmKeyframe::SetVideoTrackByName` · 0060a4e0 · legions 005cb1f0 — audit: covered: efuns 0x9F0009/0C/0F bound; catalog note and story.rs:10 header stale [crates/ac2-script/src/glue/story.rs:56-65,233]
+- [x] `gmKeyframe::SetAudioTrackByName` · 0060a530 · legions 005cb240 — audit: covered: efuns 0x9F0009/0C/0F bound; catalog note and story.rs:10 header stale [crates/ac2-script/src/glue/story.rs:56-65,233]
+- [x] `gmKeyframe::SetVoiceTrackByName` · 0060a580 · legions 005cb290 — audit: covered: efuns 0x9F0009/0C/0F bound; catalog note and story.rs:10 header stale [crates/ac2-script/src/glue/story.rs:56-65,233]
+- [-] `gmKeyframe::SetMovieTrack` · 0060a5d0 · legions 005cb2e0 — not needed: efun has no call site in the Legions wlib [docs/retail-catalog/ac2-gameplay.md ggmKeyframe::CallEFun_SetMovieTrack]
 - [-] `gmKeyframe::gmKeyframe` · 0060a620 · legions 005cb330 — constructor of plain data
 - [-] `gmKeyframe::Clear` · 0060a660 · legions 005cb370 — teardown or reset of plain data
 - [-] `gmKeyframe::ClearForHackers` · 0060a6a0 · legions 005cb3b0 — debug efun, deliberately unbound in ac2-script glue/story.rs (ClearForHackers)
@@ -382,7 +382,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmQuestInfoList::operator=` · 0060b8a0 · legions 005cc5f0 — assignment or comparison of plain data (operator=, ==, <)
 - [-] `gmQuestInfoList::gmQuestInfoList` · 0060b8c0 · legions 005cc610 — constructor of plain data
 
-## `ac2/shared/src/quest/gmsceneinfo.cpp.c` (6/18)
+## `ac2/shared/src/quest/gmsceneinfo.cpp.c` (7/18)
 
 ### gmSceneInfo
 - [x] `gmSceneInfo::SetIDByName` · 00609a50 — ac2-script/src/glue/story.rs set_id_by_name (gmSceneInfo::SetIDByName)
@@ -390,7 +390,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmSceneInfo::Begin` · 00609b70 · legions 005ca880 — container iterator over a scene's keyframe list; Rust Vec is iterated directly
 - [-] `gmSceneInfo::End` · 00609b90 · legions 005ca8a0 — container iterator over a scene's keyframe list; Rust Vec is iterated directly
 - [-] `gmSceneInfo::ClearForHackers` · 00609bb0 · legions 005ca8c0 — debug efun, deliberately unbound in ac2-script glue/story.rs (ClearForHackers)
-- [ ] `gmSceneInfo::GetSubDataIDs` · 00609bd0 · legions 005ca8e0 — needs port: sub-object DID list for DBO prefetch (gmSceneInfo::GetSubDataIDs)
+- [x] `gmSceneInfo::GetSubDataIDs` · 00609bd0 · legions 005ca8e0 — audit: covered:  [crates/ac2-script/src/glue/sub_data_ids.rs:11,61]
 - [x] `gmSceneInfo::AddKeyframe` · 00609c00 · legions 005ca910 — ac2-script/src/glue/story.rs Set and AddKeyframe (gmSceneInfo::Set, AddKeyframe)
 - [-] `gmSceneInfo::Clear` · 00609ca0 · legions 005ca9b0 — teardown or reset of plain data
 
@@ -537,7 +537,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/gameplay/character/characteridentity.cpp.c` (1/4)
 
 ### Preference
-- [ ] `Preference::SetHelpText` · 006db020 · legions 00664490 — needs port: options preference help text (Preference::SetHelpText)
+- [-] `Preference::SetHelpText` · 006db020 · legions 00664490 — not needed: mStringHelp is only copied/compared in prefs (preference.cpp.c), never read to show text
 
 ### CharacterIdentity
 - [-] `CharacterIdentity::CharacterIdentity` · 006db030 · legions 006644a0 — constructor of plain data
@@ -568,7 +568,7 @@ Legend and workflow: [README](README.md).
 - [x] `CharacterSet::AddIdentity` · 006db7a0 · legions 00664c30 — ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 - [x] `CharacterSet::StreamPack` · 006db7f0
 
-## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (3/66)
+## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (11/66)
 
 ### PackObj
 - [-] `PackObj::VERIFY_ADDR` · 00516990 · legions 005049c0 — retail buffer-overrun assert; Rust slice reads are bounds-checked
@@ -584,7 +584,7 @@ Legend and workflow: [README](README.md).
 - [-] `CBaseQualities::~CBaseQualities` · 00516cf0 · legions 00504d20 — destructor of plain data
 - [x] `CBaseQualities::GetPackHeader` · 00516d10 · legions 00504d40 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 - [-] `CBaseQualities::GetPackSize` · 00516df0 · legions 00504e20 — pack size pre-pass; Rust encodes into its own buffer
-- [~] `CBaseQualities::Pack` · 00516f80 — ac2-net Qualities::to_bytes: header, DID, weenie desc and tables in UnPack order; empty tables skipped; PHashTable bucket index written as 0 (retail IntrusiveHashTable index and order not kept)
+- [x] `CBaseQualities::Pack` · 00516f80 — audit: covered:  [crates/ac2-net/src/protocol/qualities.rs:94]
 - [-] `CBaseQualities::GetIntTableIterator` · 00517170 · legions 00505230 — retail hash-table iteration plumbing; Rust maps are iterated directly
 - [-] `CBaseQualities::GetLongIntTableIterator` · 005171c0 · legions 00505280 — retail hash-table iteration plumbing; Rust maps are iterated directly
 - [-] `CBaseQualities::GetBoolTableIterator` · 00517210 · legions 005052d0 — retail hash-table iteration plumbing; Rust maps are iterated directly
@@ -605,7 +605,7 @@ Legend and workflow: [README](README.md).
 - [-] `CBaseQualities::GetInstanceIDTableEnd` · 005175e0 · legions 005056a0 — retail hash-table iteration plumbing; Rust maps are iterated directly
 - [-] `CBaseQualities::GetPositionTableEnd` · 00517610 · legions 005056d0 — retail hash-table iteration plumbing; Rust maps are iterated directly
 - [-] `CBaseQualities::GetStringInfoTableEnd` · 00517640 · legions 00505700 — retail hash-table iteration plumbing; Rust maps are iterated directly
-- [ ] `CBaseQualities::GetSubDataIDs` · 00517670 — needs port: sub-object DID list for DBO prefetch (CBaseQualities::GetSubDataIDs)
+- [-] `CBaseQualities::GetSubDataIDs` · 00517670 — replaced by design: prefetch list of DIDs held in quality tables; consumers read DIDs on demand (DB cache rule) [AGENTS.md:20-37]
 
 ### HashTable<unsigned_long,long>
 - [-] `HashTable<unsigned_long,long>::~HashTable<unsigned_long,long>` · 00517790 · legions 00505850 — destructor of plain data
@@ -626,12 +626,12 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,long>
 - [-] `PHashTable<unsigned_long,long>::PHashTable<unsigned_long,long>` · 00517f10 · legions 005060c0 — constructor of plain data
 - [-] `PHashTable<unsigned_long,long>::PHashTable<unsigned_long,long>` · 00517f90 · legions 00506140 — constructor of plain data
-- [~] `PHashTable<unsigned_long,long>::StreamPack` · 00517fd0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `PHashTable<unsigned_long,long>::StreamPack` · 00517fd0 — audit: covered: unpack side done; client never packs qualities (no callers) [crates/ac2-net/src/protocol/qualities.rs:1]
 
 ### PHashTable<unsigned_long,__int64>
 - [-] `PHashTable<unsigned_long,__int64>::PHashTable<unsigned_long,__int64>` · 00518190 · legions 00506340 — constructor of plain data
 - [-] `PHashTable<unsigned_long,__int64>::PHashTable<unsigned_long,__int64>` · 00518210 · legions 005063c0 — constructor of plain data
-- [~] `PHashTable<unsigned_long,__int64>::StreamPack` · 00518250 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `PHashTable<unsigned_long,__int64>::StreamPack` · 00518250 — audit: covered: unpack side done; client never packs qualities (no callers) [crates/ac2-net/src/protocol/qualities.rs:1]
 
 ### PHashTable<unsigned_long,int>
 - [-] `PHashTable<unsigned_long,int>::PHashTable<unsigned_long,int>` · 00518440 · legions 005065f0 — constructor of plain data
@@ -643,12 +643,12 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,double>
 - [-] `PHashTable<unsigned_long,double>::PHashTable<unsigned_long,double>` · 005184e0 · legions 00506690 — constructor of plain data
 - [-] `PHashTable<unsigned_long,double>::PHashTable<unsigned_long,double>` · 00518560 · legions 00506710 — constructor of plain data
-- [~] `PHashTable<unsigned_long,double>::StreamPack` · 005185a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `PHashTable<unsigned_long,double>::StreamPack` · 005185a0 — audit: covered: unpack side done; client never packs qualities (no callers) [crates/ac2-net/src/protocol/qualities.rs:1]
 
 ### PHashTable<unsigned_long,PStringBase<char>_>
 - [-] `PHashTable<unsigned_long,PStringBase<char>_>::PHashTable<unsigned_long,PStringBase<char>_>` · 00518760 · legions 00506910 — constructor of plain data
 - [-] `PHashTable<unsigned_long,PStringBase<char>_>::PHashTable<unsigned_long,PStringBase<char>_>` · 005187a0 · legions 00506950 — constructor of plain data
-- [~] `PHashTable<unsigned_long,PStringBase<char>_>::StreamPack` · 005187e0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `PHashTable<unsigned_long,PStringBase<char>_>::StreamPack` · 005187e0 — audit: covered: unpack side done; client never packs qualities (no callers) [crates/ac2-net/src/protocol/qualities.rs:1]
 
 ### PHashTable<unsigned_long,unsigned_long>
 - [-] `PHashTable<unsigned_long,unsigned_long>::PHashTable<unsigned_long,unsigned_long>` · 005189d0 · legions 00506b80 — constructor of plain data
@@ -660,22 +660,22 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,Position>
 - [-] `PHashTable<unsigned_long,Position>::PHashTable<unsigned_long,Position>` · 00518a70 · legions 00506c20 — constructor of plain data
 - [-] `PHashTable<unsigned_long,Position>::PHashTable<unsigned_long,Position>` · 00518af0 · legions 00506ca0 — constructor of plain data
-- [~] `PHashTable<unsigned_long,Position>::StreamPack` · 00518b30 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `PHashTable<unsigned_long,Position>::StreamPack` · 00518b30 — audit: covered: unpack side done; client never packs qualities (no callers) [crates/ac2-net/src/protocol/qualities.rs:1]
 
 ### PHashTable<unsigned_long,StringInfo>
 - [-] `PHashTable<unsigned_long,StringInfo>::PHashTable<unsigned_long,StringInfo>` · 00518d00 · legions 00506eb0 — constructor of plain data
 - [-] `PHashTable<unsigned_long,StringInfo>::PHashTable<unsigned_long,StringInfo>` · 00518d80 · legions 00506f30 — constructor of plain data
-- [~] `PHashTable<unsigned_long,StringInfo>::StreamPack` · 00518dc0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `PHashTable<unsigned_long,StringInfo>::StreamPack` · 00518dc0 — audit: covered: unpack side done; client never packs qualities (no callers) [crates/ac2-net/src/protocol/qualities.rs:1]
 
 ### CBaseQualities
 - [-] `CBaseQualities::CopyTables` · 00518fd0 · legions 00507180 — copy of plain data (Clone)
-- [~] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0 — audit: covered:  [crates/ac2-net/src/protocol/qualities.rs:1]
 - [-] `CBaseQualities::operator=` · 00519840 · legions 005079f0 — assignment or comparison of plain data (operator=, ==, <)
 
-## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (33/69)
+## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (55/69)
 
 ### CBaseQualities
-- [ ] `CBaseQualities::InqWeenieDescription` · 00519880 — needs port: weenie description from qualities (CBaseQualities::InqWeenieDescription, SetWeenieDesc)
+- [x] `CBaseQualities::InqWeenieDescription` · 00519880 — audit: covered: WeenieQualities.weenie holds the description [crates/ac2-weenie/src/qualities.rs:18,54]
 - [-] `CBaseQualities::AllocateWeenieDesc` · 005198a0 · legions 00507a50 — retail DBO or table allocation; Rust owns values directly
 - [-] `CBaseQualities::CopyWeenieDesc` · 005198d0 · legions 00507a80 — copy of plain data (Clone)
 - [x] `CBaseQualities::TruncateInt` · 00519930 · legions 00507ae0 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
@@ -685,37 +685,37 @@ Legend and workflow: [README](README.md).
 - [x] `CBaseQualities::SetWeenieDesc` · 00519ac0 · legions 00507c70 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 - [-] `CBaseQualities::DumpWeenieDesc` · 00519af0 · legions 00507ca0 — admin dump/verify debug helper
 - [x] `CBaseQualities::RemoveInt` · 00519ba0 · legions 00507d50 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::InqInt` · 00519c10 · legions 00507dc0 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
-- [~] `CBaseQualities::RemoveLongInt` · 00519c70 · legions 00507e20 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::InqLongInt` · 00519ce0 · legions 00507e90 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+- [x] `CBaseQualities::InqInt` · 00519c10 · legions 00507dc0 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
+- [x] `CBaseQualities::RemoveLongInt` · 00519c70 · legions 00507e20 — audit: covered: description field cleared and defaults step present; catalog note stale [crates/ac2-weenie/src/qualities.rs:369; crates/ac2-script/src/host/tests.rs:527]
+- [x] `CBaseQualities::InqLongInt` · 00519ce0 · legions 00507e90 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
 - [x] `CBaseQualities::RemoveBool` · 00519d50 · legions 00507f00 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::InqBool` · 00519dc0 · legions 00507f70 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+- [x] `CBaseQualities::InqBool` · 00519dc0 · legions 00507f70 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
 - [x] `CBaseQualities::RemoveFloat` · 00519e20 · legions 00507fd0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::InqFloat` · 00519e90 · legions 00508040 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
-- [~] `CBaseQualities::RemoveTimestamp` · 00519ef0 · legions 005080a0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::InqTimestamp` · 00519f70 · legions 00508120 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+- [x] `CBaseQualities::InqFloat` · 00519e90 · legions 00508040 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
+- [x] `CBaseQualities::RemoveTimestamp` · 00519ef0 · legions 005080a0 — audit: covered: description field cleared and defaults step present; catalog note stale [crates/ac2-weenie/src/qualities.rs:369; crates/ac2-script/src/host/tests.rs:527]
+- [x] `CBaseQualities::InqTimestamp` · 00519f70 · legions 00508120 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
 - [x] `CBaseQualities::RemoveDataID` · 00519fe0 · legions 00508190 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::InqDataID` · 0051a050 · legions 00508200 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+- [x] `CBaseQualities::InqDataID` · 0051a050 · legions 00508200 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
 - [x] `CBaseQualities::RemoveInstanceID` · 0051a0b0 · legions 00508260 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::InqInstanceID` · 0051a130 · legions 005082e0 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
-- [~] `CBaseQualities::InqString` · 0051a1a0 · legions 00508350 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
-- [~] `CBaseQualities::InqStringW` · 0051a210 · legions 005083c0 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
-- [~] `CBaseQualities::InqPosition` · 0051a2d0 · legions 00508480 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+- [x] `CBaseQualities::InqInstanceID` · 0051a130 · legions 005082e0 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
+- [x] `CBaseQualities::InqString` · 0051a1a0 · legions 00508350 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
+- [x] `CBaseQualities::InqStringW` · 0051a210 · legions 005083c0 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
+- [x] `CBaseQualities::InqPosition` · 0051a2d0 · legions 00508480 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
 - [x] `CBaseQualities::RemoveStringInfo` · 0051a340 · legions 005084f0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::InqStringInfo` · 0051a3c0 · legions 00508570 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
-- [~] `CBaseQualities::RemovePackageID` · 0051a430 · legions 005085e0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::InqPackageID` · 0051a4a0 · legions 00508650 — WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+- [x] `CBaseQualities::InqStringInfo` · 0051a3c0 · legions 00508570 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
+- [x] `CBaseQualities::RemovePackageID` · 0051a430 · legions 005085e0 — audit: covered: description field cleared and defaults step present; catalog note stale [crates/ac2-weenie/src/qualities.rs:369; crates/ac2-script/src/host/tests.rs:527]
+- [x] `CBaseQualities::InqPackageID` · 0051a4a0 · legions 00508650 — audit: covered: inq_* plus class defaults (class_defaults.rs test) [crates/ac2-weenie/src/qualities.rs:277-337; crates/ac2-script/src/glue/repository.rs:204-259]
 - [x] `CBaseQualities::RemoveInt` · 0051a650 · legions 005087a0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::RemoveLongInt` · 0051a670 · legions 005087c0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveLongInt` · 0051a670 · legions 005087c0 — audit: covered: description field cleared and defaults step present; catalog note stale [crates/ac2-weenie/src/qualities.rs:369; crates/ac2-script/src/host/tests.rs:527]
 - [x] `CBaseQualities::RemoveBool` · 0051a690 · legions 005087e0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [x] `CBaseQualities::RemoveFloat` · 0051a6b0 · legions 00508800 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::RemoveTimestamp` · 0051a6d0 · legions 00508820 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveTimestamp` · 0051a6d0 · legions 00508820 — audit: covered: description field cleared and defaults step present; catalog note stale [crates/ac2-weenie/src/qualities.rs:369; crates/ac2-script/src/host/tests.rs:527]
 - [x] `CBaseQualities::RemoveDataID` · 0051a6f0 · legions 00508840 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [x] `CBaseQualities::RemoveInstanceID` · 0051a710 · legions 00508860 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::RemoveString` · 0051a730 · legions 00508880 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemovePosition` · 0051a7c0 · legions 00508910 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveString` · 0051a730 · legions 00508880 — audit: covered: description field cleared and defaults step present; catalog note stale [crates/ac2-weenie/src/qualities.rs:369; crates/ac2-script/src/host/tests.rs:527]
+- [x] `CBaseQualities::RemovePosition` · 0051a7c0 · legions 00508910 — audit: covered: description field cleared and defaults step present; catalog note stale [crates/ac2-weenie/src/qualities.rs:369; crates/ac2-script/src/host/tests.rs:527]
 - [x] `CBaseQualities::RemoveStringInfo` · 0051a8b0 · legions 00508a00 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `CBaseQualities::RemovePackageID` · 0051a8f0 · legions 00508a40 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemovePackageID` · 0051a8f0 · legions 00508a40 — audit: covered: description field cleared and defaults step present; catalog note stale [crates/ac2-weenie/src/qualities.rs:369; crates/ac2-script/src/host/tests.rs:527]
 - [-] `CBaseQualities::AllocateIntTable` · 0051a910 · legions 00508a60 — retail DBO or table allocation; Rust owns values directly
 - [-] `CBaseQualities::AllocateLongIntTable` · 0051a970 · legions 00508ac0 — retail DBO or table allocation; Rust owns values directly
 - [-] `CBaseQualities::AllocateBoolTable` · 0051a9d0 · legions 00508b20 — retail DBO or table allocation; Rust owns values directly
@@ -743,7 +743,7 @@ Legend and workflow: [README](README.md).
 - [x] `CBaseQualities::SetString` · 0051b6c0 · legions 00509810 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 - [x] `CBaseQualities::SetPosition` · 0051b740 · legions 00509890 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 - [x] `CBaseQualities::SetStringInfo` · 0051b7c0 · legions 00509910 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
-- [ ] `CBaseQualities::SetPackageID` · 0051b840 · legions 00509990 — needs port (check): implemented as ac2-weenie/src/qualities.rs package_ids but uncited (CBaseQualities::SetPackageID)
+- [x] `CBaseQualities::SetPackageID` · 0051b840 · legions 00509990 — audit: covered: package_ids table [crates/ac2-weenie/src/qualities.rs:31,93]
 
 ## `portal/shared/src/gameplay/qualities/physobjprofile.cpp.c` (0/1)
 
@@ -754,8 +754,8 @@ Legend and workflow: [README](README.md).
 
 ### QualityFilter
 - [-] `QualityFilter::GetPackSize` · 006db860 — pack size pre-pass; Rust encodes into its own buffer
-- [ ] `QualityFilter::Pack` · 006db890 · legions 00664d40 — needs port: QualityFilter wire (no Rust counterpart)
-- [ ] `QualityFilter::UnPack` · 006db8d0 — needs port: QualityFilter wire (no Rust counterpart)
+- [-] `QualityFilter::Pack` · 006db890 · legions 00664d40 — not needed: server-side DBObj (.wqf) used when packing qualities; no client caller or efun [crates/ac2-script/src/glue/efun_names.txt (no QualityFilter efun)]
+- [-] `QualityFilter::UnPack` · 006db8d0 — not needed: server-side DBObj (.wqf) used when packing qualities; no client caller or efun [crates/ac2-script/src/glue/efun_names.txt (no QualityFilter efun)]
 - [-] `QualityFilter::~QualityFilter` · 006db940 · legions 00664df0 — destructor of plain data
 - [-] `QualityFilter::GetDBOType` · 006db9a0 — DBO type constant
 - [-] `QualityFilter::QualityFilter` · 006db9d0 · legions 00664e80 — constructor of plain data
@@ -768,7 +768,7 @@ Legend and workflow: [README](README.md).
 - [-] `UILocationData::UILocationData` · 006da940 · legions 00663d80 — constructor of plain data
 - [-] `UILocationData::UILocationData` · 006da970 · legions 00663db0 — constructor of plain data
 
-## `portal/shared/src/gameplay/uisavelocations.cpp.c` (5/8)
+## `portal/shared/src/gameplay/uisavelocations.cpp.c` (6/8)
 
 ### HashTable<unsigned_long,UILocationData>
 - [-] `HashTable<unsigned_long,UILocationData>::operator=` · 006daa70 · legions 00663ee0 — assignment or comparison of plain data (operator=, ==, <)
@@ -783,5 +783,5 @@ Legend and workflow: [README](README.md).
 
 ### UISaveLocations
 - [x] `UISaveLocations::UISaveLocations` · 006daf40 · legions 006643b0 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [~] `UISaveLocations::operator=` · 006daf80 · legions 006643f0 — ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
+- [x] `UISaveLocations::operator=` · 006daf80 · legions 006643f0 — audit: covered:  [crates/ac2-script/src/native/options.rs:503]
 - [x] `UISaveLocations::UISaveLocations` · 006dafd0 · legions 00664440 — ac2-script glue::options / examination (Legions layout and efun switch)

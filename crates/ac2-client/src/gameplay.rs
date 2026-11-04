@@ -659,43 +659,41 @@ impl Client {
                 | Command::SetContainerOpen { .. }
                 | Command::LootAll(_)
                 | Command::TransmuteAll(_) => self.inventory_command(command),
+                // The trade window's calls: each runs its IFun on the player's script
+                // (`ggmCWInterface::CallIFun_*`), whose `WM_Trade` stub sends the request; without
+                // the VM, the session's stand-in sends what the stub does.
                 Command::OpenTrade(other) => {
-                    self.session.open_trade(*other);
-                    Vec::new()
+                    let other = *other;
+                    let args = [IFunArg::Long(other)];
+                    self.trade_ifun(crate::scripts::IFUN_OPEN_TRADE, &args, |s| {
+                        s.open_trade(other)
+                    })
                 }
                 Command::CloseTrade => {
-                    self.session.close_trade();
-                    Vec::new()
+                    self.trade_ifun(crate::scripts::IFUN_CLOSE_TRADE, &[], |s| s.close_trade())
                 }
                 Command::AcceptTrade => {
-                    // `gmCWInterface::AcceptTrade`: its IFun on the player's script, whose
-                    // stub packs the accepting instance; else the session's stand-in.
-                    if self.scripts_own(crate::scripts::IFUN_ACCEPT_TRADE) {
-                        let mut out = Vec::new();
-                        if let Err(e) =
-                            self.ifun_into(crate::scripts::IFUN_ACCEPT_TRADE, &[], &mut out)
-                        {
-                            if let Some(scripts) = self.scripts.as_mut() {
-                                scripts.problems.push(e);
-                            }
-                        }
-                        out
-                    } else {
-                        self.session.accept_trade();
-                        Vec::new()
-                    }
+                    // `gmCWInterface::AcceptTrade`: its stub packs the accepting instance.
+                    self.trade_ifun(crate::scripts::IFUN_ACCEPT_TRADE, &[], |s| s.accept_trade())
                 }
                 Command::DeclineTrade => {
-                    self.session.decline_trade();
-                    Vec::new()
+                    self.trade_ifun(crate::scripts::IFUN_DECLINE_TRADE, &[], |s| {
+                        s.decline_trade()
+                    })
                 }
                 Command::OfferItemForTrade { item, amount } => {
-                    self.session.offer_item_for_trade(*item, *amount);
-                    Vec::new()
+                    let (item, amount) = (*item, *amount);
+                    let args = [IFunArg::Long(item), IFunArg::Int(amount)];
+                    self.trade_ifun(crate::scripts::IFUN_OFFER_ITEM_FOR_TRADE, &args, |s| {
+                        s.offer_item_for_trade(item, amount)
+                    })
                 }
                 Command::RevokeItemFromTrade(item) => {
-                    self.session.revoke_item_from_trade(*item);
-                    Vec::new()
+                    let item = *item;
+                    let args = [IFunArg::Long(item)];
+                    self.trade_ifun(crate::scripts::IFUN_REVOKE_ITEM_FROM_TRADE, &args, |s| {
+                        s.revoke_item_from_trade(item)
+                    })
                 }
                 Command::EnterStore(store) => self.store_ifun(
                     crate::scripts::IFUN_REQUEST_ENTER_STORE,
@@ -771,19 +769,28 @@ impl Client {
                     quantity,
                     from_slot,
                     from_container,
-                } => money(self.session.drag_to_money_bag(
-                    *item,
-                    *quantity,
-                    *from_slot,
-                    *from_container,
-                )),
+                } => self.money_ifun(
+                    crate::scripts::IFUN_DRAG_TO_MONEY_BAG,
+                    &[
+                        IFunArg::Long(*item),
+                        IFunArg::Int(*quantity),
+                        IFunArg::Int(*from_slot as u32),
+                        IFunArg::Long(*from_container),
+                    ],
+                    |s| s.drag_to_money_bag(*item, *quantity, *from_slot, *from_container),
+                ),
                 Command::DragFromMoneyBag {
                     quantity,
                     to_slot,
                     to_container,
-                } => money(
-                    self.session
-                        .drag_from_money_bag(*quantity, *to_slot, *to_container),
+                } => self.money_ifun(
+                    crate::scripts::IFUN_DRAG_FROM_MONEY_BAG,
+                    &[
+                        IFunArg::Int(*quantity),
+                        IFunArg::Int(*to_slot as u32),
+                        IFunArg::Long(*to_container),
+                    ],
+                    |s| s.drag_from_money_bag(*quantity, *to_slot, *to_container),
                 ),
                 Command::SetShortcut { index, shortcut } => refused(
                     self.session
@@ -794,16 +801,6 @@ impl Client {
             });
         }
         events
-    }
-
-    /// `VisualDesc::GetTotalIconDesc` of object `id`'s local description: the layers of its
-    /// visual's DAT chain with the local layers on top (empty until the loader read the chain).
-    fn total_icon_layers(&self, id: u64, local: &ac2_physics::Appearance) -> Vec<(u32, u32, u32)> {
-        let parent = ac2_physics::Appearance {
-            icon: self.total_icons.get(&id).cloned().unwrap_or_default(),
-            ..ac2_physics::Appearance::default()
-        };
-        local.total_icon_layers(Some(&parent))
     }
 
     /// The inventory for [`crate::ClientFrame::inventory`].
@@ -851,7 +848,7 @@ impl Client {
             items.push(ItemFrame {
                 id,
                 name: stats.display_name(stats.quantity as u32, tables),
-                icon_layers: self.total_icon_layers(id, &object.appearance),
+                icon_layers: self.item_icon_layers(id),
                 stats,
             });
         }
@@ -950,6 +947,35 @@ fn refused(result: Result<(), String>) -> Vec<SessionEvent> {
 impl Client {
     /// A store call: its IFun on the player's script, whose stubs send the request. The store has
     /// no session stand-in, so without the VM the call does nothing.
+    /// A trade window call: `function` on the player's script when it owns it, else
+    /// `stand_in` on the session.
+    fn trade_ifun(
+        &mut self,
+        function: u32,
+        args: &[IFunArg],
+        stand_in: impl FnOnce(&mut ac2_weenie::OnlineSession),
+    ) -> Vec<SessionEvent> {
+        if !self.scripts_own(function) {
+            stand_in(&mut self.session);
+            return Vec::new();
+        }
+        self.store_ifun(function, args)
+    }
+
+    /// A money bag drag: its IFun on the player's script when it owns it (the script checks the
+    /// drag, ghosts the bag and sends the request), else the session's stand-in.
+    fn money_ifun(
+        &mut self,
+        function: u32,
+        args: &[IFunArg],
+        stand_in: impl FnOnce(&mut ac2_weenie::OnlineSession) -> Result<Vec<SessionEvent>, u32>,
+    ) -> Vec<SessionEvent> {
+        if !self.scripts_own(function) {
+            return money(stand_in(&mut self.session));
+        }
+        self.store_ifun(function, args)
+    }
+
     pub(crate) fn store_ifun(&mut self, function: u32, args: &[IFunArg]) -> Vec<SessionEvent> {
         let mut out = Vec::new();
         if self.scripts_own(function) {

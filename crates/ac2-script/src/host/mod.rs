@@ -128,7 +128,8 @@ pub struct ScriptHost {
 }
 
 impl ScriptHost {
-    /// A VM over `program` with the pure glue and the host glue bound.
+    /// A VM over `program` with the pure glue and the host glue bound (`CWAllocator::Init` ->
+    /// `Init_Internal`: the resolver, the efun dispatcher, the native factory and the `VM`).
     pub fn new(program: Arc<Program>, data: Box<dyn ScriptData>) -> Self {
         let efuns = host_efuns();
         Self {

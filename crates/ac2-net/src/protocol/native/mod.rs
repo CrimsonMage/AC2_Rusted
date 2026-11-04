@@ -6,8 +6,9 @@
 //!
 //! Every native type the Legions `WState`s hold is here, with those the gameplay messages
 //! carry; the adaptors (`AllegianceDataAdaptor`, `AllegianceProfileAdaptor`, `FellowAdaptor`,
-//! `FellowshipAdaptor`) pack nothing. Other types (the iterators, `Frame`, `Plane`, ...) are
-//! refused as unsupported.
+//! `FellowshipAdaptor`) pack nothing. `gmCNativeFactory::UnPackNativeObject` (Legions 0x00467E10)
+//! reads every gm type with its own `UnPack`; all of them are here. Other engine types (the
+//! iterators, `Frame`, `Plane`, ...) are refused as unsupported.
 
 mod act;
 mod containers;
@@ -22,7 +23,10 @@ pub use containers::{HashKey, ScriptHash, ScriptList};
 pub use examination::{
     ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue, SelectionInfo,
 };
-pub use gm::{EffectUiNode, GmKeyframe, GmRaceSexInfo, GmSceneInfo, SkillUiNode};
+pub use gm::{
+    DamageTextBlob, EffectUiNode, GmKeyframe, GmRaceSexInfo, GmSceneInfo, SkillUiNode,
+    TurbineUserStatus,
+};
 pub use options::{GameplayOptionsProfile, ShortcutInfo, UiLocation, UiSaveLocations, WordTable};
 pub use quest::GmQuestInfo;
 pub use structs::{MissileParameters, RandomSelectionTable, SelectionElement};
@@ -85,6 +89,10 @@ pub mod ntype {
     pub const SHORTCUT_INFO: u32 = 0xAC;
     pub const SKILL_UI_NODE: u32 = 0xAE;
     pub const EFFECT_UI_NODE: u32 = 0x98;
+    pub const DAMAGE_TEXT_BLOB: u32 = 0x97;
+    pub const GM_CHAR_GEN_RESULT: u32 = 0x9E;
+    pub const GM_KEYFRAME: u32 = 0x9F;
+    pub const TURBINE_USER_STATUS: u32 = 0xAF;
 }
 
 /// One native object.
@@ -124,6 +132,14 @@ pub enum NativeObject {
     GmActInfo(Box<GmActInfo>),
     /// `List<gmActInfo>`, in list order.
     GmActInfoList(Vec<GmActInfo>),
+    /// `DamageTextBlob`.
+    DamageTextBlob(Box<DamageTextBlob>),
+    /// `gmCharGenResult` (`gmCharGenResult::UnPack`).
+    GmCharGenResult(Box<crate::protocol::char_gen::CharGenResult>),
+    /// `gmKeyframe`.
+    GmKeyframe(Box<GmKeyframe>),
+    /// `TurbineUserStatus`.
+    TurbineUserStatus(Box<TurbineUserStatus>),
     /// A type that packs no data (the allegiance and fellowship adaptors): its type id.
     Empty(u32),
     /// A native kept as its packed bytes (`VisualDesc`: an item's appearance in the inventory
@@ -162,6 +178,10 @@ impl NativeObject {
             Self::GmQuestInfoList(_) => ntype::GM_QUEST_INFO_LIST,
             Self::GmActInfo(_) => ntype::GM_ACT_INFO,
             Self::GmActInfoList(_) => ntype::GM_ACT_INFO_LIST,
+            Self::DamageTextBlob(_) => ntype::DAMAGE_TEXT_BLOB,
+            Self::GmCharGenResult(_) => ntype::GM_CHAR_GEN_RESULT,
+            Self::GmKeyframe(_) => ntype::GM_KEYFRAME,
+            Self::TurbineUserStatus(_) => ntype::TURBINE_USER_STATUS,
             Self::Empty(native_type) | Self::Raw { native_type, .. } => *native_type,
         }
     }
@@ -198,6 +218,14 @@ impl NativeObject {
             ntype::GM_QUEST_INFO_LIST => Self::GmQuestInfoList(GmQuestInfo::read_list(r)?),
             ntype::GM_ACT_INFO => Self::GmActInfo(Box::new(GmActInfo::read(r)?)),
             ntype::GM_ACT_INFO_LIST => Self::GmActInfoList(GmActInfo::read_list(r)?),
+            ntype::DAMAGE_TEXT_BLOB => Self::DamageTextBlob(Box::new(DamageTextBlob::read(r)?)),
+            ntype::GM_CHAR_GEN_RESULT => {
+                Self::GmCharGenResult(Box::new(crate::protocol::char_gen::CharGenResult::read(r)?))
+            }
+            ntype::GM_KEYFRAME => Self::GmKeyframe(Box::new(GmKeyframe::read(r)?)),
+            ntype::TURBINE_USER_STATUS => {
+                Self::TurbineUserStatus(Box::new(TurbineUserStatus::read(r)?))
+            }
             ntype::ALLEGIANCE_DATA_ADAPTOR
             | ntype::ALLEGIANCE_PROFILE_ADAPTOR
             | ntype::FELLOW_ADAPTOR
@@ -249,6 +277,10 @@ impl NativeObject {
             Self::GmQuestInfoList(list) => GmQuestInfo::write_list(list, w),
             Self::GmActInfo(act) => act.write(w),
             Self::GmActInfoList(list) => GmActInfo::write_list(list, w),
+            Self::DamageTextBlob(blob) => blob.write(w),
+            Self::GmCharGenResult(result) => result.write(w),
+            Self::GmKeyframe(keyframe) => keyframe.write(w),
+            Self::TurbineUserStatus(status) => status.write(w),
             Self::Empty(_) => {}
             Self::Raw { bytes, .. } => w.bytes.extend_from_slice(bytes),
         }
@@ -314,6 +346,38 @@ mod tests {
             NativeObject::BehaviorParams(Box::new(params)),
             NativeObject::Empty(ntype::FELLOWSHIP_ADAPTOR),
             NativeObject::WString("Birch".into()),
+            NativeObject::DamageTextBlob(Box::new(DamageTextBlob {
+                text: "17".into(),
+                color: 0xFFFF_2000,
+                duration: 1.5,
+                scale: 1.1,
+            })),
+            NativeObject::TurbineUserStatus(Box::new(TurbineUserStatus {
+                name: "Ana".into(),
+                location: "Dereth".into(),
+                mode: 2,
+            })),
+            NativeObject::GmKeyframe(Box::new(GmKeyframe {
+                scene_id: 3,
+                frame_num: 1,
+                duration: 2.5,
+                video_fragment: 4,
+                audio_fragment: 5,
+                voice_fragment: 6,
+                text_fragment: StringInfo::default(),
+                movie_fragment_filename: "intro".into(),
+                defined_tracks: 7,
+            })),
+            NativeObject::GmCharGenResult(Box::new(crate::protocol::char_gen::CharGenResult {
+                name: "Birch".into(),
+                entity_did: 0x4700_0001,
+                start_area: 1,
+                race: 2,
+                sex: 3,
+                class: 4,
+                implement: 5,
+                physical: vec![(0x10, 0.5)],
+            })),
         ] {
             let mut w = Writer::new();
             object.write(&mut w);

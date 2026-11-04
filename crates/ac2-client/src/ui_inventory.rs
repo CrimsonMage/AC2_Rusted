@@ -67,8 +67,18 @@ impl InventorySource for ClientPlayer<'_> {
         (found.items.to_vec(), 0, size)
     }
 
+    /// `gmCWInterface::GetMaxContainerSize` (Legions 0x00451970) asks the player's own process
+    /// (`ggmCWInterface::CallIFun_GetMaxContainerSize`, IFun `0xB4001D`, which takes no
+    /// container): `gmEntity` reads int 280 through the effects (the DATs carry
+    /// `eff_setplayermaxcontainersizeapr03`). So the player's answer is the script's; without
+    /// the VM, or for another container, the quality as the frame carries it.
     fn max_container_size(&self, container: u64) -> u32 {
         let inventory = &self.frame.inventory;
+        if inventory.pack.id == container {
+            if let Ok(size) = self.client.borrow_mut().container_capacity(container) {
+                return size;
+            }
+        }
         let capacity = if inventory.pack.id == container {
             inventory.pack.capacity
         } else {

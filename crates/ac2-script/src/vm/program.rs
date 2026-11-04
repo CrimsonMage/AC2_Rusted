@@ -154,7 +154,8 @@ pub struct Program {
 }
 
 impl Program {
-    /// `Resolver::ProcessByteStream`.
+    /// `Resolver::ProcessByteStream`, with its `BuildReverseMap` (admin 0x0052DC80): the id to name
+    /// map is [`Self::package_names`], searched either way.
     pub fn from_stream(stream: &ByteStream) -> Self {
         let mut program = Self {
             code: stream

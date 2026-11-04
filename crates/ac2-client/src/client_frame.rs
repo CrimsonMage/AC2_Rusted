@@ -38,6 +38,7 @@ impl Client {
                         .unwrap_or_default(),
                 ),
                 hidden: self.avatar_hidden(),
+                hidden_mesh_types: self.first_person_hidden_mesh_types(),
                 anim_scale: body.physics.draw_scale(),
                 child_scale: body.physics.child_scale(),
             })
@@ -62,6 +63,8 @@ impl Client {
             radar: self.radar_frame(),
             markers: self.radar.markers.clone(),
             fx_looks: self.fx_objects.looks(),
+            no_draw: self.no_draw_objects(),
+            hit_chances: self.hit_chance_frame(),
         }
     }
 

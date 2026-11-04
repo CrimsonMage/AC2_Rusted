@@ -113,6 +113,9 @@ impl Logon {
     /// account, then the crypto blob and the extra-data blob (`CGrowBuffer::StreamPack`: u32
     /// length and bytes). `NetAuthenticator::SetCryptoKey` sets flag bit 0 with the exported
     /// session key; bit 1 (`SetAdminAccountOverride`, admin builds only) is never set.
+    /// The two blobs are `STREAMPACK_STREAMPACKOBJ` (admin 0x004C50C0, Legions 0x004B94A0), which
+    /// is `CGrowBuffer::StreamPack`; `StreamPackObj::GetPackSize` (admin 0x004C5050) measured the
+    /// packed size with a dry-run pack, which is the returned vector's length here.
     fn authenticator(&self) -> Vec<u8> {
         let blob = self.crypto.as_ref().map_or(&[][..], |c| &c.blob[..]);
         let mut out = Vec::new();

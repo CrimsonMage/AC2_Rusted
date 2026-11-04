@@ -17,8 +17,12 @@ use ac2_math::{Frame, Quat, Vec3};
 use super::loader::{BlockKey, ParticleSource};
 use super::ObjectPlacement;
 use crate::particles::{
-    CameraBasis, NearbyRepulsor, ParticleGeometry, ParticleSystem, RepulsorSpec, Repulsors,
+    CameraBasis, NearbyRepulsor, ParticleGeometry, ParticleLight, ParticleSystem, RepulsorSpec,
+    Repulsors,
 };
+
+/// `SceneTool::GetLightsForPosition` for a lit system: the lights at a position, inside or out.
+pub(super) type LightsAt<'a> = &'a dyn Fn(Vec3, bool) -> Vec<ParticleLight>;
 use crate::Camera;
 
 /// One material's particles of the frame, in world space.
@@ -78,6 +82,8 @@ struct PlacedObject {
     frame: Frame,
     scale: Vec3,
     particle_scale: f32,
+    /// The object stands in an interior cell.
+    indoor: bool,
     root: Vec<Ac2Transform>,
     named: Vec<(u32, Ac2Transform)>,
 }
@@ -260,14 +266,16 @@ impl SceneParticles {
         let systems = sources
             .iter()
             .map(|entry| {
-                ParticleSystem::new(
+                let mut system = ParticleSystem::new(
                     entry.desc.clone(),
                     entry.source.world_frame,
                     entry.source.object_scale,
                     entry.source.particle_scale,
                     entry.source.seed,
                     now,
-                )
+                );
+                system.set_indoor(entry.source.indoor);
+                system
             })
             .collect();
         self.systems.insert(key, systems);
@@ -359,6 +367,7 @@ impl SceneParticles {
                     frame: p.frame,
                     scale: p.scale,
                     particle_scale: p.particle_scale,
+                    indoor: p.cell & 0xFFFF >= 0x100,
                     root: p.bones.clone(),
                     named: p.named_bones.clone(),
                 },
@@ -395,7 +404,7 @@ impl SceneParticles {
     }
 
     /// Thinks the systems within their fade distance of `camera` and fills their particles.
-    pub(super) fn frame(&mut self, camera: &Camera) -> Vec<ParticleBatch> {
+    pub(super) fn frame(&mut self, camera: &Camera, lights: LightsAt<'_>) -> Vec<ParticleBatch> {
         let Some(basis) = CameraBasis::look_at(camera.eye, camera.target) else {
             return Vec::new();
         };
@@ -412,7 +421,7 @@ impl SceneParticles {
                     system,
                     camera,
                     &basis,
-                    (now, &nearby, fog),
+                    (now, &nearby, fog, lights),
                     &mut batches,
                     &mut alive,
                 );
@@ -442,12 +451,13 @@ impl SceneParticles {
                     continue;
                 };
                 system.place(frame, placed.scale, placed.particle_scale);
+                system.set_indoor(placed.indoor);
             }
             draw(
                 system,
                 camera,
                 &basis,
-                (now, &nearby, fog),
+                (now, &nearby, fog, lights),
                 &mut batches,
                 &mut alive,
             );
@@ -470,7 +480,7 @@ fn draw(
     system: &mut ParticleSystem,
     camera: &Camera,
     basis: &CameraBasis,
-    (now, repulsors, fog): (f64, &[NearbyRepulsor], bool),
+    (now, repulsors, fog, lights): (f64, &[NearbyRepulsor], bool, LightsAt<'_>),
     batches: &mut Vec<ParticleBatch>,
     alive: &mut usize,
 ) {
@@ -500,7 +510,13 @@ fn draw(
             batches.len() - 1
         }
     };
-    system.fill(basis, now, fade, &mut batches[index].geometry);
+    // `ParticleSystem::FillVertexBuffer` asks for the lights only for a lit system.
+    let lights = if system.particle_lighting() {
+        lights(system.position(), system.indoor())
+    } else {
+        Vec::new()
+    };
+    system.fill(basis, now, fade, &lights, &mut batches[index].geometry);
 }
 
 #[cfg(test)]

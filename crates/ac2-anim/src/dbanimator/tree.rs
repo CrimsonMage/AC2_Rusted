@@ -8,6 +8,7 @@ use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId};
 
+use super::angle::{Ac2AngleAnimator, Ac2BoneAngleMod};
 use super::asset::Ac2AnimAsset;
 use super::interpolator::{read_interpolator_ids, Ac2Interpolator, Ac2Random};
 use super::look::{animate_look, LOOK_PERIOD};
@@ -18,6 +19,9 @@ const ANIM_ASSET: u32 = 0x4000_0001;
 const ANIM_CUBE: u32 = 0x4000_0002;
 const AM_HUMAN: u32 = 0x4000_0003;
 const AM_LOOK: u32 = 0x4000_0005;
+const AM_ANGLE: u32 = 0x4000_000A;
+/// The most `BoneAngleMod`s an `AMAngle` is read with.
+const MAX_ANGLE_BONES: usize = 64;
 const AM_RANDOM: u32 = 0x4000_0007;
 const AM_SWITCH: u32 = 0x4000_0008;
 const MAX_DEPTH: usize = 12;
@@ -61,8 +65,9 @@ pub enum Ac2DbAnimator {
     Look,
     /// `AMRandom`: an `AnimInterpolator` that ramps to a random animator at random intervals.
     Random(Ac2Random),
-    /// An animator this port does not evaluate (`AMAngle`, `AxisCube`): no pose,
-    /// period 0.
+    /// `AMAngle`: tilts listed bones to the ground the body stands on.
+    Angle(Arc<Ac2AngleAnimator>),
+    /// An animator this port does not evaluate (`AxisCube`): no pose, period 0.
     Other,
 }
 
@@ -92,7 +97,8 @@ impl Ac2DbAnimator {
                 .switch_target(ctx, tracker)
                 .map_or(0.0, |child| child.period(ctx, tracker)),
             Self::Random(random) => random.interp.period(ctx, tracker),
-            Self::Look => LOOK_PERIOD,
+            // `AMAngle::GetPeriod` is the folded `AMLook::GetPeriod`.
+            Self::Look | Self::Angle(_) => LOOK_PERIOD,
             Self::Other => 0.0,
         }
     }
@@ -150,6 +156,7 @@ impl Ac2DbAnimator {
                 random.animate(ctx, tracker, weight, ctime, out, out_weights, roots)
             }
             Self::Look => animate_look(&*ctx, weight, out),
+            Self::Angle(angle) => angle.animate(ctx, weight, out),
             Self::Other => {}
         }
     }
@@ -426,6 +433,7 @@ impl Loader<'_> {
                 })
             }
             AnimatorRecord::Look => Ac2DbAnimator::Look,
+            AnimatorRecord::Angle(angle) => Ac2DbAnimator::Angle(Arc::clone(angle)),
             AnimatorRecord::Other => Ac2DbAnimator::Other,
         };
         let node = Some(Arc::new(node));
@@ -454,6 +462,8 @@ enum AnimatorRecord {
         overrides: Vec<(u32, DataId)>,
     },
     Look,
+    /// `AMAngle::StreamPack`.
+    Angle(Arc<Ac2AngleAnimator>),
     /// `AMRandom::StreamPack`: the interpolator (slider, animator ids), then the rest.
     Random {
         interp_slider: u32,
@@ -506,6 +516,34 @@ impl ResourcePackedDecode for AnimatorRecord {
                 }
             }
             AM_LOOK => Self::Look,
+            AM_ANGLE => {
+                // `PList<BoneAngleMod>::UnPack`: a count, then each mod's bone, x and y.
+                let count = cursor.read_u32_count()?;
+                if count > MAX_ANGLE_BONES || count * 12 > cursor.remaining() {
+                    return Err(malformed("angle bone count"));
+                }
+                let bones = (0..count)
+                    .map(|_| {
+                        Ok(Ac2BoneAngleMod {
+                            bone: cursor.read_u32()?,
+                            x: cursor.read_f32()?,
+                            y: cursor.read_f32()?,
+                        })
+                    })
+                    .collect::<ResourceResult<Vec<_>>>()?;
+                // `mMaxX`, `mMinX`, `mMaxY`, `mMinY` in stream order.
+                let max_x = cursor.read_f32()?;
+                let min_x = cursor.read_f32()?;
+                let max_y = cursor.read_f32()?;
+                let min_y = cursor.read_f32()?;
+                Self::Angle(Arc::new(Ac2AngleAnimator {
+                    bones,
+                    min_x,
+                    max_x,
+                    min_y,
+                    max_y,
+                }))
+            }
             AM_RANDOM => {
                 let (interp_slider, ids) = read_interpolator_ids(&mut cursor).map_err(malformed)?;
                 // `mFrequency`, `mRampTime`, `mSlider`, `mVariation` in stream order.

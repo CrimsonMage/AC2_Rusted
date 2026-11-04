@@ -89,6 +89,7 @@ impl ObjectRenderer {
                 batches,
                 degrades: part.degrades.clone(),
                 weighted: part.skin.is_some(),
+                mesh_type: part.mesh_type,
                 streamed: false,
             });
         }
@@ -188,6 +189,46 @@ impl ObjectRenderer {
             .iter()
             .map(|v| Vec3::from_array(v.position).length())
             .fold(0.0, f32::max);
+    }
+
+    /// Rewrites the vertices of `model`'s first part in place, keeping its indices and draw
+    /// ranges: an interior cell whose vertex colours the sun lit again
+    /// (`CEnvCell::UpdateDynamicLights`). `vertices` must be the part's own, in order.
+    pub fn set_vertices(
+        &mut self,
+        gpu: &Gpu,
+        model: &mut GpuObjectModel,
+        vertices: &[ObjectVertex],
+    ) {
+        let Some(part) = model.parts.first_mut() else {
+            return;
+        };
+        self.scratch_vertices.clear();
+        self.scratch_vertices
+            .extend(vertices.iter().map(|v| GpuVertex {
+                position: v.position,
+                normal: v.normal,
+                color: v.color,
+                uvs: v.uvs,
+                tangents: v.tangents,
+                bones: [0; 4],
+                weights: [0.0; 4],
+            }));
+        let vertex_bytes: &[u8] = bytemuck::cast_slice(&self.scratch_vertices);
+        // The upload's buffer lacks `COPY_DST`; the first rewrite replaces it with one that has.
+        if !part.vertices.usage().contains(wgpu::BufferUsages::COPY_DST)
+            || vertex_bytes.len() as u64 > part.vertices.size()
+        {
+            part.vertices = stream_buffer(
+                &gpu.device,
+                "ac2 cell vertices",
+                wgpu::BufferUsages::VERTEX,
+                vertex_bytes.len() as u64,
+            );
+        }
+        if !vertex_bytes.is_empty() {
+            gpu.queue.write_buffer(&part.vertices, 0, vertex_bytes);
+        }
     }
 
     /// The module index for a pass's pixel shader, translating and compiling it on first use.

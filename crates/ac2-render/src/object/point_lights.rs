@@ -8,6 +8,8 @@
 use ac2_math::Vec3;
 use ac2_world::{Ac2LightKind, Ac2StaticLight};
 
+use crate::particles::ParticleLight;
+
 /// `CacheStaticLights` stops once six lights are cached.
 const MAX_CACHED_LIGHTS: usize = 6;
 /// `VSLightState m_aPtLights[4]`.
@@ -83,6 +85,56 @@ pub fn object_point_lights_in<'a>(
     indoor: bool,
     context: LightContext,
 ) -> Vec<PointLight> {
+    cache_static_lights(scene, position, radius, indoor, context)
+        .into_iter()
+        .take(MAX_POINT_LIGHTS)
+        .map(|(_, light)| fill_render_light(light, context))
+        .collect()
+}
+
+/// `SceneTool::CacheStaticLights` for `FillVerts::GetLighting` (`GetLightsForPosition` with
+/// radius 0): the same pick, each light with its `GetWeight` as the particles read it.
+pub fn particle_static_lights_in<'a>(
+    scene: impl Iterator<Item = &'a SceneLight>,
+    position: Vec3,
+    indoor: bool,
+    context: LightContext,
+) -> Vec<(f32, ParticleLight)> {
+    cache_static_lights(scene, position, 0.0, indoor, context)
+        .into_iter()
+        .map(|(weight, scene)| {
+            let light = &scene.light;
+            let diffuse = match light.kind {
+                // `LightSource::GetDiffuse` of a sunlight-type light is the sun's `m_cAmbient`,
+                // which nothing sets (black).
+                Ac2LightKind::Sunlight => [0.0; 3],
+                _ => light.color.map(|c| c * light.intensity_at(context.time)),
+            };
+            let range = match light.kind {
+                Ac2LightKind::Directional => None,
+                _ => Some(light.range_at(context.time)),
+            };
+            (
+                weight,
+                ParticleLight {
+                    origin: scene.origin,
+                    diffuse,
+                    range,
+                },
+            )
+        })
+        .collect()
+}
+
+/// `SceneTool::CacheStaticLights`: the lights of the list on the object's side of the
+/// indoor/outdoor divide, heaviest first, in range, at most six, with their weights.
+fn cache_static_lights<'a>(
+    scene: impl Iterator<Item = &'a SceneLight>,
+    position: Vec3,
+    radius: f32,
+    indoor: bool,
+    context: LightContext,
+) -> Vec<(f32, &'a SceneLight)> {
     let mut candidates: Vec<(f32, f32, &SceneLight)> = scene
         .filter(|light| match light.light.kind {
             Ac2LightKind::Point => true,
@@ -102,8 +154,7 @@ pub fn object_point_lights_in<'a>(
             light.indoor == indoor && *distance < max_range(&light.light) + radius
         })
         .take(MAX_CACHED_LIGHTS)
-        .take(MAX_POINT_LIGHTS)
-        .map(|(_, _, light)| fill_render_light(light, context))
+        .map(|(weight, _, light)| (weight, light))
         .collect()
 }
 

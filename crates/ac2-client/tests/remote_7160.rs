@@ -240,3 +240,68 @@ fn an_object_lost_in_a_far_block_comes_back_when_the_block_becomes_resident() {
     }
     assert!(!client.session().is_to_be_destroyed(NPC));
 }
+
+/// A creature the server walks across the human start room as Pyrealium's pursuit does (ten
+/// positions 0.55 m apart every 100 ms with no motion, from the Banderling Thrasher's spot north
+/// of the start to beside the player, at the body's resting height) reaches the server's position
+/// as the client draws it: the body catches on the dais edge and `InterpolationManager::Blip`
+/// places it (`pyrealium_live_awareness` saw the same live).
+#[test]
+fn a_creature_walked_by_the_server_across_the_start_room_reaches_its_position() {
+    const START_CELL: u32 = 0x0299_0109;
+    const THRASHER: u64 = 0x8000_0000_0000_0062;
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ac2_db::ResourceStore::new(dataset));
+    let world = ac2_client::DatWorld::new(store).unwrap();
+    let (mut client, server) = entered_with(
+        Spawn {
+            cell: START_CELL,
+            origin: [59.06, 240.2, -44.6],
+            rotation: [1.0, 0.0, 0.0, 0.0],
+        },
+        std::sync::Arc::new(world),
+    );
+    let from = [59.06f32, 248.2, -44.22];
+    let to = [59.06f32, 242.7, -44.937];
+    server.borrow_mut().send_event(&create_object_bytes(&ObjectSpawn {
+        id: THRASHER,
+        instance: 3,
+        visual: 0x1F00_0075,
+        cell: START_CELL,
+        origin: from,
+        rotation: [1.0, 0.0, 0.0, 0.0],
+        stamps: [10, 1, 1, 0],
+        name: "Thrasher",
+    }));
+    frames(&mut client, &server, 30);
+    let steps = 10;
+    for i in 1..=steps {
+        let t = i as f32 / steps as f32;
+        let at = [from[0], from[1] + (to[1] - from[1]) * t, from[2] + (to[2] - from[2]) * t];
+        let now = client.session().cur_time();
+        server.borrow_mut().send_event(&position_bytes(&ObjectPosition {
+            id: THRASHER,
+            instance: 3,
+            time: now,
+            cell: START_CELL,
+            origin: at,
+            heading_and_motion: u32::from(heading_to_u8(180.0)) << 24 | 0x007f_7f7f,
+            flags: 4,
+            stamps: [10 + i as u16, 1, 1],
+            velocity: None,
+        }));
+        frames(&mut client, &server, 6);
+        let drawn = object(&client.frame(), THRASHER).map(|o| o.origin);
+        eprintln!("step {i}: server {at:?} drawn {drawn:?}");
+    }
+    frames(&mut client, &server, 180);
+    let drawn = object(&client.frame(), THRASHER).unwrap();
+    eprintln!("after: drawn {:?}", drawn.origin);
+    assert!(
+        (drawn.origin[0] - to[0]).hypot(drawn.origin[1] - to[1]) < 0.6,
+        "the creature stands where the server put it: {:?}",
+        drawn.origin
+    );
+}

@@ -355,6 +355,25 @@ impl Playback {
         self.cut = self.cut.min(at.max(self.elapsed));
     }
 
+    /// The seconds from now to the segment's next `boundary` (a segment cued on this one, the
+    /// primary, starts there): a grid, beat or measure of its clock, its next marker (`None` when
+    /// none is left), or the end of its pass. `Immediate` is now.
+    pub(super) fn until(&self, boundary: Boundary) -> Option<f64> {
+        let at = match boundary {
+            Boundary::Grid => self.next_unit(ClockBoundary::Grid),
+            Boundary::Beat => self.next_unit(ClockBoundary::Beat),
+            Boundary::Measure => self.next_unit(ClockBoundary::Measure),
+            Boundary::Marker => self
+                .markers
+                .iter()
+                .copied()
+                .find(|&m| m >= self.elapsed - EPS)?,
+            Boundary::End => self.pass_end(),
+            Boundary::Immediate => self.elapsed,
+        };
+        Some((at.min(self.cut) - self.elapsed).max(0.0))
+    }
+
     /// The first `unit` boundary of the segment's clock at or after now, in seconds from the start.
     fn next_unit(&self, unit: ClockBoundary) -> f64 {
         let tick = self.clock.tick_at(self.elapsed).ceil() as i32;

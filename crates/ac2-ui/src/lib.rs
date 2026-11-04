@@ -222,6 +222,7 @@ mod story_view;
 #[cfg(test)]
 mod story_view_tests;
 pub use story_view::{subtitle_text, StoryView};
+pub mod automation_ui;
 mod book_rows;
 pub mod chat_text;
 pub mod guide_arrow;
@@ -273,6 +274,7 @@ pub use text_edit::TextPress;
 pub mod ac1_buttons;
 pub mod damage_text_pref;
 mod default_cursor;
+pub mod hit_chance_pref;
 pub mod hud_style;
 mod inventory_resize;
 mod modern_all_view;

@@ -13,6 +13,7 @@ use crate::sink::{millibels, Boundary, SinkCommand, SoundSink};
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(super) struct QueuedWave {
     pub(super) primary: bool,
+    pub(super) start: Boundary,
     pub(super) stop: Boundary,
     pub(super) started: bool,
 }

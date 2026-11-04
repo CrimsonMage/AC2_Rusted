@@ -14,8 +14,12 @@ const MAX_VERTICES: u32 = 0xFFFE;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FrillSettings {
-    /// `FrillRender::m_current_lscape_radius`, in landscape cells. Game script sets it; the
-    /// constructor default is 1.
+    /// `FrillRender::EnableFrillObjects`: off, `FrillRender::Render` draws no frills.
+    /// `SmartBox::InitPreferences` turns them off at `LandscapeFrillDistance` 0.
+    pub enabled: bool,
+    /// `FrillRender::m_current_lscape_radius`, in landscape cells (`FrillRender::SetOutsideRadius`,
+    /// which `SmartBox::InitPreferences` calls with 1 for `LandscapeFrillDistance` 1 and 2, 2 for
+    /// 3); the default is 1.
     pub lscape_radius: u32,
     /// `LandscapeFrillDistance` preference 1: the radius shrinks to 0.65.
     pub short_distance: bool,
@@ -29,6 +33,7 @@ pub struct FrillSettings {
 impl Default for FrillSettings {
     fn default() -> Self {
         Self {
+            enabled: true,
             lscape_radius: 1,
             short_distance: false,
             square_length: 20.0,
@@ -76,7 +81,9 @@ pub fn grass_copy(origin: Vec3, copy: u32) -> GrassCopy {
 /// One frill a landscape cell holds.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FrillCandidate {
-    /// World transform of the frill.
+    /// World transform of the frill (`FrillRenderType::AddPos`: the frame with its scale; the
+    /// shadow colour `AddPos` takes from `LScapeRender::CalculateShadowColor` is the frill's
+    /// landscape shadow, `terrain/shadow.rs` and the object shader's `landscape_shadow`).
     pub world: Mat4,
     /// Index and vertex counts of its mesh's first triangle list.
     pub indices: u32,

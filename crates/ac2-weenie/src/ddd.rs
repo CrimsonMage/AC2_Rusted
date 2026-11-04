@@ -1,6 +1,7 @@
 //! The iteration lists `CLCache::OnServerInterrogation` answers a DAT interrogation with.
 //!
-//! `CLCache::Init` opens five DAT slots in a fixed order: portal, the `local_<language>` DAT,
+//! `CLCache::Init` (and `CLCache::Init_Internal`, which `gmCLCache::Init_Internal`, Legions
+//! 0x00401870, only forwards to) opens five DAT slots in a fixed order: portal, the `local_<language>` DAT,
 //! the region's cell DAT, `highres.dat` and `internal.dat`. For each slot that opened
 //! (`DiskConBase::initialized_fm`), the response lists `DiskConBase::GetDatFileID` (the header's
 //! data set in the high word, its subset in the low) with the iteration set

@@ -17,6 +17,8 @@ pub struct DatDataset {
 }
 
 impl DatDataset {
+    /// Mounts the DAT files (`DBCache::Init`'s game data directory, then `CLCache` opening each
+    /// file's `DiskController`); the portal, cell and local files, and the high-res one on request.
     pub fn open(options: DatOpenOptions) -> DatResult<Arc<Self>> {
         let mut file_kinds = vec![DatFileKind::Portal, DatFileKind::Cell, DatFileKind::Local];
         if options.high_res_enabled {
@@ -69,10 +71,14 @@ impl DatDataset {
         Ok(Arc::new(Self { files }))
     }
 
+    /// `DiskController::IsMember`: whether the file's B-tree holds `did`.
     pub fn contains(&self, kind: DatFileKind, did: u32) -> bool {
         self.file(kind).is_some_and(|file| file.contains(did))
     }
 
+    /// The B-tree entry of `did` (`BTree::Lookup`): its size (`DiskController::GetDataSize`,
+    /// `packed_len`) and date (`DiskController::GetDatestamp`, `date_stamp`), or `None` where
+    /// retail answered -1 and 0.
     pub fn entry(&self, kind: DatFileKind, did: u32) -> Option<DatEntryMeta> {
         self.file(kind).and_then(|file| file.entry(did))
     }

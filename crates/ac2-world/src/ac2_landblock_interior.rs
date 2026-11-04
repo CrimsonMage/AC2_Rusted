@@ -31,6 +31,8 @@ pub struct Ac2LandBlockInterior {
     pub ambient: Option<[f32; 3]>,
     pub fog_type: Option<u32>,
     pub fog_color: Option<[f32; 3]>,
+    /// The alpha of `m_InteriorFogColor` (the property's colour word, `ARGB`), when authored.
+    pub fog_alpha: Option<f32>,
     pub fog_near: Option<f32>,
     pub fog_far: Option<f32>,
     pub outside_stab_cells: Arc<[CellId]>,
@@ -103,6 +105,7 @@ fn decode(cursor: &mut ArchiveCursor<'_>, did: u32) -> Result<Ac2LandBlockInteri
         ambient: None,
         fog_type: None,
         fog_color: None,
+        fog_alpha: None,
         fog_near: None,
         fog_far: None,
         outside_stab_cells: Arc::from([]),
@@ -116,7 +119,10 @@ fn decode(cursor: &mut ArchiveCursor<'_>, did: u32) -> Result<Ac2LandBlockInteri
         match property.name {
             PROPERTY_AMBIENT => interior.ambient = property.word().map(color),
             PROPERTY_FOG_TYPE => interior.fog_type = property.word(),
-            PROPERTY_FOG_COLOR => interior.fog_color = property.word().map(color),
+            PROPERTY_FOG_COLOR => {
+                interior.fog_color = property.word().map(color);
+                interior.fog_alpha = property.word().map(|argb| (argb >> 24) as f32 / 255.0);
+            }
             PROPERTY_FOG_NEAR => interior.fog_near = property.float_at(0),
             PROPERTY_FOG_FAR => interior.fog_far = property.float_at(0),
             _ => {}

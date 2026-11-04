@@ -56,6 +56,8 @@ pub(crate) struct HudView {
     pub(crate) sounds: Vec<u32>,
     /// The Tracker and its file work (`hud_tracker`).
     pub(crate) tracker: crate::hud_tracker::TrackerHost,
+    /// The automatic tools' settings file and window (`hud_automation`).
+    pub(crate) automation: crate::hud_automation::AutomationPanel,
 }
 
 impl HudView {

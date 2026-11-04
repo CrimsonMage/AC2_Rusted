@@ -31,6 +31,7 @@ fn library() -> Option<MusicLibrary> {
 fn cue(library: &MusicLibrary, handle: u32, kind: SegmentKind) -> SegmentInfo {
     let music = Arc::new(library.closure(library.record(TOWN_CUE).expect("the cue")));
     SegmentInfo {
+        start: crate::sink::Boundary::Immediate,
         kind,
         handle,
         bands: performance_bands(&music).into(),

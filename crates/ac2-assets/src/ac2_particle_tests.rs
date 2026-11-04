@@ -553,3 +553,40 @@ fn decal_fx_nodes_decode_from_real_fx_tables() {
         }
     }
 }
+
+/// `ParticleSystem::FillVertexBuffer` lights a system's particles when the first layer of its
+/// material's template has `m_bUseParticleLighting`: the smoke and dust templates do.
+#[test]
+fn particle_lit_systems_are_the_ones_whose_template_asks_for_it() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let mut templates = BTreeSet::new();
+    let mut lit = 0;
+    for did in portal_ids(&dataset, 0x3900_0000) {
+        let mut desc = (*load::<Ac2ParticleSystemDesc>(&store, did)).clone();
+        desc.resolve_particle_lighting(&store);
+        if desc.particle_lighting {
+            lit += 1;
+            let instance = load::<crate::ac2_material::Ac2MaterialInstance>(
+                &store,
+                desc.material.unwrap().raw(),
+            );
+            templates.insert(instance.material.raw());
+        }
+    }
+    assert_eq!(lit, ac2_dat::test_support::pinned(121, 121, /*0930*/ 111));
+    assert_eq!(
+        templates.into_iter().collect::<Vec<_>>(),
+        [0x2B00_0073, 0x2B00_009C, 0x2B00_009D]
+    );
+    // The world's rain, ripples, water bubbles and the portal clouds are not lit.
+    for value in [0x4000_0010, 0x4000_0011, 0x4000_0012, 0x4000_0015] {
+        let did = crate::ac2_enum_did(&store, 0x4000_0002, value)
+            .expect("enum mapper")
+            .expect("enum names a system");
+        let mut desc = (*load::<Ac2ParticleSystemDesc>(&store, did.raw())).clone();
+        desc.resolve_particle_lighting(&store);
+        assert!(!desc.particle_lighting, "{value:08X}");
+    }
+}

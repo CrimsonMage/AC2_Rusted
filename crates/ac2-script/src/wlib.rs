@@ -78,7 +78,10 @@ impl ResourcePackedDecode for WLib {
     }
 }
 
-/// The library `did` from portal.dat (decoded on a worker thread by the store).
+/// The library `did` from portal.dat (decoded on a worker thread by the store):
+/// `DBResolver::Init` (Legions 0x0064F830, the `WLib` record of type 0x4000004F, then
+/// `Resolver::ProcessByteStream`, [`crate::vm::Program::from_stream`]); dropping it is
+/// `DBResolver::Clear`.
 pub fn load_wlib(
     store: &ResourceStore,
     did: DataId,

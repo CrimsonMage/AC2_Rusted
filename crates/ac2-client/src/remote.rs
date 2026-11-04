@@ -60,11 +60,14 @@ fn describer(session: &OnlineSession) -> impl Fn(&mut PhysicsBody, u64) + '_ {
     move |body, id| {
         if let Some(object) = session.objects().get(id) {
             body.set_description_physics(&object.physics);
-            // `CWPhysicsObject::InitPhysics`: the weenie's `Scale` quality (0x12A, 1.0 when it has
-            // none) goes to the body as `CWRepository::BuildPhysObjProfile`'s `_scale` and
-            // `CPhysicsObj::ApplyPhysObjProfile`'s `SetScale(float)`. (The profile's state bits
-            // and placement frame are not applied yet.)
-            body.set_uniform_scale(object.qualities.inq_float(0x12A).unwrap_or(1.0));
+            // `CWPhysicsObject::InitPhysics`, once the qualities answer as retail's did when the
+            // object was made (with its class defaults); otherwise when the defaults land
+            // (`Client::init_physics`). Until then only the scale.
+            if object.qualities.defaults.is_some() {
+                init_physics(body, &object.qualities);
+            } else {
+                body.set_uniform_scale(object.qualities.inq_float(0x12A).unwrap_or(1.0));
+            }
             crate::motion::describe(
                 body,
                 object.mode.unwrap_or(0),
@@ -73,6 +76,21 @@ fn describer(session: &OnlineSession) -> impl Fn(&mut PhysicsBody, u64) + '_ {
             );
         }
     }
+}
+
+/// `CWPhysicsObject::InitPhysics` (Legions 0x00514C80): `CWRepository::BuildPhysObjProfile`
+/// applied by `CPhysicsObj::ApplyPhysObjProfile` (the state bits, the placement frame, the
+/// scale), then `set_mobile(CWeenieObject::IsMobile)`. The collision report a change of the
+/// report-collisions bit makes is dropped: a body being made has no contact to report.
+pub(crate) fn init_physics(body: &mut PhysicsBody, qualities: &ac2_weenie::WeenieQualities) {
+    let (state, placement, scale) = qualities.phys_obj_profile();
+    let profile = ac2_physics::PhysObjProfile {
+        state,
+        placement,
+        scale,
+    };
+    let _ = body.apply_phys_obj_profile(&profile, &ac2_physics::ContactMaterials::default());
+    body.set_mobile(qualities.is_mobile());
 }
 
 /// Applies the destroy queue changes a residency call made, in order.

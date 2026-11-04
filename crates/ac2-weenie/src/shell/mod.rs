@@ -14,7 +14,7 @@ mod lines;
 
 use std::collections::HashMap;
 
-pub use handlers::{ChatState, ShellAction, Speaker};
+pub use handlers::{ChatState, ScriptHelp, ShellAction, Speaker};
 pub use history::ChatHistory;
 pub(crate) use lines::room_refused;
 pub use lines::SQUELCH_WORDS;
@@ -158,7 +158,9 @@ fn trim<'a>(text: &'a str, pre: bool, post: bool, filter: &[char]) -> &'a str {
 }
 
 impl ChatCommands {
-    /// No commands yet; `default_command` is `ID_DefaultCommand`'s text.
+    /// No commands yet (`ShellCmdTable::ShellCmdTable`, `CPlayerShellCmdTable::
+    /// CPlayerShellCmdTable`: empty command and help tables); `default_command` is
+    /// `ID_DefaultCommand`'s text.
     pub fn new(default_command: &str) -> Self {
         Self {
             default_command: default_command.to_owned(),
@@ -167,11 +169,12 @@ impl ChatCommands {
     }
 
     /// `CWInterface::AddShellCmd`: each name in `names` (split on `;:,`, lowercased, trimmed)
-    /// runs `handler`; a name registered before keeps its first handler.
+    /// runs `handler`; `ShellCmdTable::AddCmdHandler` (Legions 0x005D1D30) keeps a name
+    /// registered before with its first handler and refuses a name holding a space.
     pub fn register(&mut self, names: &str, handler: u32, expandable: bool) {
         for name in names.split([';', ':', ',']) {
             let name = lower(trim(name, true, true, &WHITESPACE));
-            if !name.is_empty() {
+            if !name.is_empty() && !name.contains(' ') {
                 self.commands.entry(name).or_insert((handler, expandable));
             }
         }
@@ -199,6 +202,9 @@ impl ChatCommands {
         }
     }
 
+    /// A handler's usage text: the port's form of `ShellCmdTable::AddHelpHandler` (Legions
+    /// 0x005D1E70), which keyed a help function by command name (the first wins, a name with a
+    /// space refused); every name of a handler shares its text here.
     pub fn set_help(&mut self, handler: u32, text: String) {
         self.help.insert(handler, text);
     }
@@ -233,23 +239,32 @@ impl ChatCommands {
             .find_map(|(names, emote)| is_word_in(names, word).then_some(*emote))
     }
 
-    /// `ShellCmdTable::GetCmdHelpText`: the usage text of the command `cmd` (lowercased), or
-    /// `None` when no help handler is registered for it (`UnknownCmd_ShellHelpStatus`). Only the
-    /// handlers the port runs natively have one here; the script's own `AddShellHelp` functions
-    /// would need a nested VM call.
+    /// `ShellCmdTable::GetCmdHelpText` for a native handler: the usage text of the command `cmd`
+    /// (lowercased), or `None` when the native shell has no help for it. A script's
+    /// `AddShellHelp` word is answered by [`ScriptHelp`] (`CWInterface::DoHelpInterp` on the VM).
     pub fn cmd_help(&self, cmd: &str) -> Option<String> {
         let (handler, _) = self.commands.get(&lower(cmd))?;
         self.help.get(handler).cloned()
     }
 
-    /// `ShellCmdTable::GetAllCmdHelpText`: every command's help text, in the name order of the
-    /// AVL it sorts them into; a command with no text is left out.
-    pub fn all_cmd_help(&self) -> String {
-        let mut names: Vec<&String> = self.commands.keys().collect();
-        names.sort();
-        names
+    /// `ShellCmdTable::GetAllCmdHelpText` (Legions 0x005D1080): every help entry that answers
+    /// `Success` in list mode, each formatted `"  %s -- %s"` (name, text; the format at Legions
+    /// 0x009EB834) into an AVL keyed by the decrypted name, then appended in name order with
+    /// nothing between. `script` is the script entries' list-mode texts (failures left out); a
+    /// word the native shell has help for keeps the native text (`AddHelpHandler` adds only a
+    /// word not yet in `helpHash`).
+    pub fn all_cmd_help(&self, script: &[(String, String)]) -> String {
+        let mut entries: std::collections::BTreeMap<String, String> = self
+            .commands
+            .keys()
+            .filter_map(|name| Some((name.clone(), self.cmd_help(name)?)))
+            .collect();
+        for (name, text) in script {
+            entries.entry(lower(name)).or_insert_with(|| text.clone());
+        }
+        entries
             .into_iter()
-            .filter_map(|name| self.cmd_help(name))
+            .map(|(name, text)| format!("  {name} -- {text}"))
             .collect()
     }
 
@@ -261,7 +276,7 @@ impl ChatCommands {
 
 /// `CPlayerShell::ExpandableText`: the command after the first `/` (up to a space) decides;
 /// a line with no `/` may be an alias, an empty command may not.
-fn expandable_text(text: &str, commands: &ChatCommands) -> bool {
+pub(crate) fn expandable_text(text: &str, commands: &ChatCommands) -> bool {
     let Some(at) = text.find('/') else {
         return true;
     };
@@ -270,29 +285,56 @@ fn expandable_text(text: &str, commands: &ChatCommands) -> bool {
     !cmd.is_empty() && commands.expandable(cmd)
 }
 
-/// `CWInterface::ProcessText`'s alias step (`gmCWInterface::HandleAlias` through
-/// `GameplayOptionsProfile::InqAlias`): follow the whole line through the alias table until a
-/// line repeats.
-pub(crate) fn expand_aliases(
-    line: &str,
-    aliases: &[(String, String)],
-    commands: &ChatCommands,
+/// `gmCWInterface::ExpandText` (Legions 0x00454A60): every token of a `;` followed by letters
+/// and digits (`iswalnum`) is replaced in place by what `HandleAlias` makes of it, the token
+/// with its `;` being the alias (`/alias` refuses one without it: "You must prepend the alias
+/// with a semicolon!"). `inq_alias` is `CallIFun_InqAlias` on the player's script
+/// (`GameplayOptionsProfile::InqAlias`).
+pub fn expand_text(text: &str, inq_alias: &mut dyn FnMut(&str) -> Option<String>) -> String {
+    expand_into(text, inq_alias, &mut Vec::new())
+}
+
+fn expand_into(
+    text: &str,
+    inq_alias: &mut dyn FnMut(&str) -> Option<String>,
+    expanded: &mut Vec<String>,
 ) -> String {
-    if !expandable_text(line, commands) {
-        return line.to_owned();
-    }
-    let mut seen: Vec<&str> = Vec::new();
-    let mut current = line;
-    loop {
-        if seen.contains(&current) {
-            return current.to_owned();
+    // `CWInterface::ExpandText`: the result starts as the text.
+    let mut out: Vec<char> = text.chars().collect();
+    let mut from = 0;
+    while let Some(start) = (from..out.len()).find(|&i| out[i] == ';') {
+        let mut end = start + 1;
+        while end < out.len() && out[end].is_alphanumeric() {
+            end += 1;
         }
-        seen.push(current);
-        current = aliases
-            .iter()
-            .find(|(alias, _)| alias == current)
-            .map_or(current, |(_, text)| text.as_str());
+        if end - start == 1 {
+            from = end;
+            continue;
+        }
+        let token: String = out[start..end].iter().collect();
+        let replacement: Vec<char> = handle_alias(&token, inq_alias, expanded).chars().collect();
+        from = start + replacement.len();
+        out.splice(start..end, replacement);
     }
+    out.into_iter().collect()
+}
+
+/// `gmCWInterface::HandleAlias` (Legions 0x004546F0): an alias already being expanded stays as
+/// it is (a loop); otherwise its text (or the alias itself, without one) is expanded again with
+/// the alias on the list.
+fn handle_alias(
+    alias: &str,
+    inq_alias: &mut dyn FnMut(&str) -> Option<String>,
+    expanded: &mut Vec<String>,
+) -> String {
+    if expanded.iter().any(|a| a == alias) {
+        return alias.to_owned();
+    }
+    expanded.push(alias.to_owned());
+    let text = inq_alias(alias).unwrap_or_else(|| alias.to_owned());
+    let out = expand_into(&text, inq_alias, expanded);
+    expanded.pop();
+    out
 }
 
 /// What `ShellCmdTable::ProcessCommand` made of a line (`ShellCmdStatus`).

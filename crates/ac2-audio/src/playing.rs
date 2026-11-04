@@ -322,6 +322,7 @@ impl PlayingSound {
         sound.three_d = terms.three_d;
         sound.queued_wave = Some(QueuedWave {
             primary: terms.track == Track::ForcePrimary,
+            start: start_boundary(info),
             stop: stop_boundary(info),
             started: false,
         });
@@ -411,6 +412,29 @@ impl PlayingSound {
     /// `SetVolume`.
     pub fn set_volume(&mut self, sink: &mut dyn SoundSink, device: &DeviceState, volume: f32) {
         self.set_volume_internal(sink, device, volume, 0.0, false);
+    }
+
+    /// `DirectXPlayingSound::SetFrequency` (admin 0x005A6920, Legions 0x00573080; the playing
+    /// sound's slot +0x40): only a wave sound's buffer (`AudioPath_MonoSound` /
+    /// `AudioPath_3DSound`) takes it, true otherwise; false without a buffer or for a negative
+    /// value; a value within 0.0002 of `m_fFrequencyModulate` is not sent; else the buffer's
+    /// rate becomes `frequency * m_fBaseFrequency` (`_ftol`).
+    pub fn set_frequency(&mut self, sink: &mut dyn SoundSink, frequency: f32) -> bool {
+        if !matches!(self.source, VoiceSource::Wave(_)) || self.is_queued_wave() {
+            return true;
+        }
+        if !self.has_voice || frequency < 0.0 {
+            return false;
+        }
+        if (f64::from(self.frequency) - f64::from(frequency)).abs() < 0.0002 {
+            return true;
+        }
+        self.frequency = frequency;
+        sink.send(SinkCommand::Frequency {
+            voice: self.handle,
+            frequency: self.rate(),
+        });
+        true
     }
 
     fn rate(&self) -> u32 {
@@ -515,6 +539,15 @@ impl PlayingSound {
         // `SegmentEnd`), so the voice stays until then.
         if boundary == Boundary::Immediate || !matches!(self.source, VoiceSource::Music { .. }) {
             self.on_segment_ended(sink);
+        }
+    }
+
+    /// The boundary the music queue starts this voice's segment at (`m_startTiming`, from its
+    /// `MusicInfo`); immediate for a plain wave.
+    pub fn start_timing(&self) -> Boundary {
+        match &self.source {
+            VoiceSource::Music { start, .. } => *start,
+            VoiceSource::Wave(_) => self.queued_wave.map_or(Boundary::Immediate, |q| q.start),
         }
     }
 

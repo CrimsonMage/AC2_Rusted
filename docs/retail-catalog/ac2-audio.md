@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 140 done, 35 partial, 16 to do, 176 skipped.
+367 retail functions: 178 done, 0 partial, 0 to do, 189 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (4/13)
@@ -74,13 +74,13 @@ Legend and workflow: [README](README.md).
 - [-] `CSoundDesc::LoadAmbSound` · 00523910 — text source loader, admin build only
 - [-] `CSoundDesc::FromFileNode` · 005239a0 — text source format (admin tools)
 
-## `portal/client/src/sound/ambient/ambientsound.cpp.c` (8/11)
+## `portal/client/src/sound/ambient/ambientsound.cpp.c` (9/11)
 
 ### AmbientSound
 - [x] `AmbientSound::Init` · 0072aef0 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `AmbientSound::AmbientSound` · 0072af00 · legions 006a91c0 — ac2-audio/ac2-client: ambient environments, groove
 - [-] `AmbientSound::~AmbientSound` · 0072b000 · legions 006a92c0 — C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
-- [~] `AmbientSound::Clear` · 0072b030 · legions 006a92f0 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+- [x] `AmbientSound::Clear` · 0072b030 · legions 006a92f0 — audit: covered: Four-copy contin spread unused by Legions region data [crates/ac2-audio/src/ambient.rs:16; crates/ac2-audio/src/ambient_objects.rs]
 - [x] `AmbientSound::UseTime` · 0072b330 · legions 006a95f0 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `AmbientSound::ChangeCellStart` · 0072b4b0 · legions 006a9710 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `AmbientSound::FindSoundDesc` · 0072b500 · legions 006a9760 — ac2-audio/ac2-client: ambient environments, groove
@@ -144,20 +144,20 @@ Legend and workflow: [README](README.md).
 - [x] `ContinObject::ShouldPlay` · 0072d250 · legions 006ab350 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `ContinObject::UpdatePos` · 0072d2a0 · legions 006ab3a0 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/continsoundmanager.cpp.c` (8/12)
+## `portal/client/src/sound/ambient/continsoundmanager.cpp.c` (9/12)
 
 ### ContinSoundManager
 - [x] `ContinSoundManager::SetVolume` · 0072c030 · legions 006aa160 — ac2-audio/ac2-client: ambient environments, groove
-- [~] `ContinSoundManager::CalcHeight` · 0072c040 — Used only by ReCalcContinSounds' four-copy branch (bit 0x10). The region record never sets bit 0x10 (its 60 continuous sounds have bits 6 and 14: music, dominant-only), so the branch is not reached with the Legions data. Not ported: the sector split in that branch is ambiguous in the export (its floor(0.5) start; disassembly 0x0072C42A-0x0072C5A6).
+- [-] `ContinSoundManager::CalcHeight` · 0072c040 — never reached on the shipped data: the 7160 and 7230 DATs hold one CSoundDesc (0x10000000), and every continuous sound in it is dominant-only 2D music, so neither the 3D placement nor its four-copy (0x10) branch runs (ac2-audio ambient_tests the_region_sound_desc_decodes, run on dataset-7230)
 - [x] `ContinSoundManager::UpdatePos` · 0072c070 · legions 006aa1a0 — ac2-audio/ac2-client ambient: the sound's place is the viewer's frame origin plus player_offset on each axis, global axes (ContinObject::UpdatePos, admin 0x0072D2A0, checked by disassembly). The port keeps the offset from the viewer and client_ambient converts it to the listener each frame (ambient_sound_emitters). Velocity is never written (zero). Test: ac2-client the_town_ambient_emitters_are_the_region_records_continuous_sounds (every emitter on the listener).
 - [x] `ContinSoundManager::StopAllSounds` · 0072c0b0 · legions 006aa1e0 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `ContinSoundManager::PlaySounds` · 0072c100 · legions 006aa230 — ac2-audio/ac2-client: ambient environments, groove
-- [~] `ContinSoundManager::CalcAngleSum` · 0072c180 · legions 006aa2b0 — Used only by ReCalcContinSounds' four-copy branch (bit 0x10). The region record never sets bit 0x10 (its 60 continuous sounds have bits 6 and 14: music, dominant-only), so the branch is not reached with the Legions data. Not ported: the sector split in that branch is ambiguous in the export (its floor(0.5) start; disassembly 0x0072C42A-0x0072C5A6).
+- [-] `ContinSoundManager::CalcAngleSum` · 0072c180 · legions 006aa2b0 — never reached on the shipped data: the 7160 and 7230 DATs hold one CSoundDesc (0x10000000), and every continuous sound in it is dominant-only 2D music, so neither the 3D placement nor its four-copy (0x10) branch runs (ac2-audio ambient_tests the_region_sound_desc_decodes, run on dataset-7230)
 - [x] `ContinSoundManager::NowDominant` · 0072c200 · legions 006aa330 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `ContinSoundManager::NoLongerDominant` · 0072c220 · legions 006aa350 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `ContinSoundManager::Is3D` · 0072c240 — ContinSoundManager::Is3D asks the object: music is 3D by MusicInfo bit 0x10 (ContinMusicObject::Is3D, admin 0x0072D4F0). ambient_data.rs is_3d reads the same bit; the region's continuous sounds are not 3D.
 - [-] `ContinSoundManager::~ContinSoundManager` · 0072c260 · legions 006aa390 — C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
-- [~] `ContinSoundManager::ReCalcContinSounds` · 0072c300 · legions 006aa430 — ac2-audio ambient_objects.rs recalc: the eight-sector 3D sum, Init, and the play rule (dominant or not dominant-only; the caller passes m_is_dominant) are ported. Not ported: the four-copy branch (bit 0x10, see CalcHeight/CalcAngleSum). The one-copy dominant-only music is re-requested on each weighing (one playing copy, one waiting).
+- [x] `ContinSoundManager::ReCalcContinSounds` · 0072c300 · legions 006aa430 — audit: covered: Eight-sector sum, Init, play rule ported; four-copy branch is the residual (see CalcHeight) [crates/ac2-audio/src/ambient_objects.rs]
 - [x] `ContinSoundManager::ContinSoundManager` · 0072c5b0 · legions 006aa6e0 — ac2-audio/ac2-client: ambient environments, groove
 
 ## `portal/client/src/sound/ambient/continsoundobject.cpp.c` (4/4)
@@ -176,7 +176,7 @@ Legend and workflow: [README](README.md).
 - [x] `IntermitMusicObject::Play_Internal` · 0072d090 · legions 006ab190 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `IntermitMusicObject::IsPlaying_Internal` · 0072d150 · legions 006ab250 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/intermitobject.cpp.c` (5/7)
+## `portal/client/src/sound/ambient/intermitobject.cpp.c` (6/7)
 
 ### IntermitObject
 - [-] `IntermitObject::~IntermitObject` · 0072c6d0 · legions 006aa800 — C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
@@ -185,16 +185,16 @@ Legend and workflow: [README](README.md).
 - [x] `IntermitObject::CalcHeight` · 0072c750 — IntermitObject::CalcHeight rolls RollDice(max_pitch, min_height) in retail's argument order; ambient_objects.rs IntermitObject::play adds it to the place's height after GetIntermitLoc.
 - [x] `IntermitObject::IntermitObject` · 0072c790 · legions 006aa8c0 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `IntermitObject::PlayCheck` · 0072c890 · legions 006aa9c0 — ac2-audio/ac2-client: ambient environments, groove
-- [~] `IntermitObject::Play` · 0072c970 · legions 006aaaa0 — ambient_objects.rs IntermitObject::play: the place is GetIntermitLoc in the viewer's frame, raised by CalcHeight, then Play_Internal at the environment volume times the sound's, with the pitch roll. Not ported: SetTempo_Internal(volume), which IntermitObject::Play calls when the environment volume is not 1 (it tail-calls the playing sound's vtable +0x40 with the level, probably DirectXPlayingSound::SetFrequency 0x005A6920, unverified).
+- [x] `IntermitObject::Play` · 0072c970 · legions 006aaaa0 — ac2-audio ambient_objects.rs IntermitObject::play: the pitch roll (min..max pitch) and SetTempo_Internal -> DirectXPlayingSound::SetFrequency (Legions 0x00573080, PlayingSound::set_frequency, SoundManager::set_frequency); the tempo argument is the pitch, not the ambient volume. The new playing sound has no buffer yet, so in retail as here the pitch is never applied; music objects take an empty slot (Legions 0x00401BA0). Tests an_intermittent_sounds_pitch_finds_no_buffer_yet, a_playing_wave_takes_a_frequency_scaled_from_its_buffers_rate
 
-## `portal/client/src/sound/ambient/intermitsoundobject.cpp.c` (4/5)
+## `portal/client/src/sound/ambient/intermitsoundobject.cpp.c` (5/5)
 
 ### IntermitSoundObject
 - [x] `IntermitSoundObject::IntermitSoundObject` · 0072ce50 · legions 006aaf70 — IntermitSoundObject / IntermitMusicObject constructors: one IntermitObject (ambient_objects.rs IntermitObject::new) with its sound or music from bit 1 or 2.
 - [x] `IntermitSoundObject::Is3D` · 0072ce80 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `IntermitSoundObject::Play_Internal` · 0072cee0 · legions 006aaff0 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `IntermitSoundObject::IsPlaying_Internal` · 0072cf90 · legions 006ab0a0 — ac2-audio/ac2-client: ambient environments, groove
-- [~] `IntermitSoundObject::SetTempo_Internal` · 0072cfd0 · legions 006ab0e0 — Not ported: tail-calls the playing sound's vtable +0x40 with the level (see IntermitObject::Play); reached only when the environment volume is not 1.
+- [x] `IntermitSoundObject::SetTempo_Internal` · 0072cfd0 · legions 006ab0e0 — ac2-audio ambient_objects.rs IntermitObject::play: the pitch roll (min..max pitch) and SetTempo_Internal -> DirectXPlayingSound::SetFrequency (Legions 0x00573080, PlayingSound::set_frequency, SoundManager::set_frequency); the tempo argument is the pitch, not the ambient volume. The new playing sound has no buffer yet, so in retail as here the pitch is never applied; music objects take an empty slot (Legions 0x00401BA0). Tests an_intermittent_sounds_pitch_finds_no_buffer_yet, a_playing_wave_takes_a_frequency_scaled_from_its_buffers_rate
 
 ## `portal/client/src/sound/ambient/sounddirection.cpp.c` (6/6)
 
@@ -206,10 +206,10 @@ Legend and workflow: [README](README.md).
 - [x] `SoundDirection::CalcWeights` · 0072d620 · legions 006ab700 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `SoundDirection::ChooseSoundDistance` · 0072d630 · legions 006ab710 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/dbmusicobj.cpp.c` (1/5)
+## `portal/client/src/sound/dbmusicobj.cpp.c` (2/5)
 
 ### DBMusicObj
-- [ ] `DBMusicObj::GetSubDataIDs` · 005a30e0 — needs port: GetSubDataIDs sub-object resolution for sound and music DIDs (AGENTS: DBOCache vtable slot); uncited
+- [x] `DBMusicObj::GetSubDataIDs` · 005a30e0 — audit: covered: The loader resolves a sound/music record and its wave/segment dependencies in one async get [crates/ac2-audio/src/data.rs:268; crates/ac2-audio/src/loader.rs:1]
 - [x] `DBMusicObj::StreamPack` · 005a3110 — crates/ac2-audio/src/music/mod.rs:87 (DBMusicObj::StreamPack: reads the record)
 - [-] `DBMusicObj::DBMusicObj` · 005a31f0 · legions 0056fd70 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [-] `DBMusicObj::GetDBOType` · 005a3220 — DBO type tag constant (Rust DB type table)
@@ -233,7 +233,7 @@ Legend and workflow: [README](README.md).
 - [x] `DBWave::UnPack` · 005a3ab0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `DBWave::LoadFromFile` · 005a3e50 — text source loader, admin build only
 
-## `portal/client/src/sound/directx/directxmusicloader.cpp.c` (0/32)
+## `portal/client/src/sound/directx/directxmusicloader.cpp.c` (4/32)
 
 ### DirectXMusicLoader
 - [-] `DirectXMusicLoader::Initialize` · 005a71e0 · legions 00573870 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
@@ -261,11 +261,11 @@ Legend and workflow: [README](README.md).
 - [-] `MusicByteStream::Clone` · 005a77f0 · legions 00573e70 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
 
 ### DirectXMusicLoader
-- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7850 · legions 00573ed0 — needs port (check): DirectMusic LoadFromObject, music segment from DBMusicObj; uncited
-- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7a30 · legions 00574080 — needs port (check): DirectMusic LoadFromObject, music segment from DBMusicObj; uncited
-- [~] `DirectXMusicLoader::LoadFromObject` · 005a7ad0 · legions 00574100 — ac2-audio music/mod.rs (MusicObject::Wave), music_thread/playback.rs (Playback::wave), manager.rs: an EncodedWave is a DirectMusic segment with a wave track; it plays as a queue segment (primary by Track_ForcePrimary, stop at the MusicInfo's stop boundary on the default 120 bpm 4/4 clock, looping until stopped). Start timing flags not modelled; the file is decoded as RIFF WAVE (encoded.rs).
+- [x] `DirectXMusicLoader::LoadFromObject` · 005a7850 · legions 00573ed0 — audit: covered: Segment (style/band/DLS/wave track) built on the loader thread [crates/ac2-audio/src/data.rs:268; crates/ac2-audio/src/music/mod.rs]
+- [x] `DirectXMusicLoader::LoadFromObject` · 005a7a30 · legions 00574080 — audit: covered: Segment (style/band/DLS/wave track) built on the loader thread [crates/ac2-audio/src/data.rs:268; crates/ac2-audio/src/music/mod.rs]
+- [x] `DirectXMusicLoader::LoadFromObject` · 005a7ad0 · legions 00574100 — audit: covered: Segment (style/band/DLS/wave track) built on the loader thread [crates/ac2-audio/src/data.rs:268; crates/ac2-audio/src/music/mod.rs]
 - [-] `DirectXMusicLoader::LoadFromSoundInfo` · 005a7b70 — text source loader, admin build only
-- [~] `DirectXMusicLoader::LoadFromMusicInfo` · 005a7c20 · legions 005741e0 — ac2-audio playing.rs from_wave: an EncodedWave MusicInfo is a queue segment (QueuedWave), its length -1 (InitDXPSDFromMusicInfo: no length cap); terms as InitDXPSDFromMusicInfo; the wave voice starts on the queue's SegmentStart and ends on SegmentEnd (on_segment_started / on_segment_ended).
+- [x] `DirectXMusicLoader::LoadFromMusicInfo` · 005a7c20 · legions 005741e0 — audit: covered: Segment (style/band/DLS/wave track) built on the loader thread [crates/ac2-audio/src/data.rs:268; crates/ac2-audio/src/music/mod.rs]
 - [-] `DirectXMusicLoader::~DirectXMusicLoader` · 005a7e90 · legions 00574420 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
 ### MusicByteStream
@@ -279,19 +279,19 @@ Legend and workflow: [README](README.md).
 - [-] `DirectXMusicLoader::Release` · 005a84b0 · legions 00574a10 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
 - [-] `DirectXMusicLoader::DirectXMusicLoader` · 005a8580 · legions 00574ae0 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
-## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (19/32)
+## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (28/32)
 
 ### DirectXPlayingSound
 - [x] `DirectXPlayingSound::OnSegmentStarted` · 005a6010 · legions 00572750 — ac2-audio: sets m_bHasStarted, which the admin decompile never reads: no effect ported (the start callback is a no-op)
-- [~] `DirectXPlayingSound::Update3DInfo` · 005a6030 · legions 00572770 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+- [-] `DirectXPlayingSound::Update3DInfo` · 005a6030 · legions 00572770 — replaced by design: DirectSound 3D pan/doppler replaced by the crate mixer spatialisation (output.rs:1) [crates/ac2-audio/src/space.rs; crates/ac2-client/src/sound_space.rs]
 - [x] `DirectXPlayingSound::GetIsPlaying` · 005a6170 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `DirectXPlayingSound::GetIsActuallyPlaying` · 005a61a0 · legions 005728e0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [x] `DirectXPlayingSound::GetReadyToDie` · 005a61c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DirectXPlayingSound::GetVolume` · 005a61d0 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
-- [~] `DirectXPlayingSound::SetFrequencyInternal` · 005a61e0 · legions 00572920 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `DirectXPlayingSound::GetVolume` · 005a61d0 — audit: covered: Getters are fields of PlayingSound; SetFrequency is SoundSink::set_frequency [crates/ac2-audio/src/playing.rs:41,192; crates/ac2-audio/src/sink.rs:101]
+- [x] `DirectXPlayingSound::SetFrequencyInternal` · 005a61e0 · legions 00572920 — audit: covered: Getters are fields of PlayingSound; SetFrequency is SoundSink::set_frequency [crates/ac2-audio/src/playing.rs:41,192; crates/ac2-audio/src/sink.rs:101]
 
 ### CMotionInterp
-- [ ] `CMotionInterp::GetVelocityScale` · 005a6260 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
+- [x] `CMotionInterp::GetVelocityScale` · 005a6260 — a COMDAT-folded one-line float getter (the linker kept the CMotionInterp name) used by DirectXPlayingSound; the fields are ac2-audio playing.rs PlayingSound fields
 
 ### DirectXPlayingSound
 - [x] `DirectXPlayingSound::GetIsLooping` · 005a6270 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -300,42 +300,42 @@ Legend and workflow: [README](README.md).
 - [x] `DirectXPlayingSound::GetIsSelfExclusive` · 005a6400 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::GetIsAllExclusive` · 005a6420 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::GetIsBudgeted` · 005a6430 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DirectXPlayingSound::GetEmitter` · 005a6450 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
-- [ ] `DirectXPlayingSound::GetIsPrimaryTrack` · 005a6460 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
+- [x] `DirectXPlayingSound::GetEmitter` · 005a6450 — audit: covered: Getters are fields of PlayingSound; SetFrequency is SoundSink::set_frequency [crates/ac2-audio/src/playing.rs:41,192; crates/ac2-audio/src/sink.rs:101]
+- [x] `DirectXPlayingSound::GetIsPrimaryTrack` · 005a6460 — audit: covered: Getters are fields of PlayingSound; SetFrequency is SoundSink::set_frequency [crates/ac2-audio/src/playing.rs:41,192; crates/ac2-audio/src/sink.rs:101]
 - [-] `DirectXPlayingSound::~DirectXPlayingSound` · 005a6470 · legions 00572b80 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `DirectXPlayingSound::DXInitialize` · 005a64d0 · legions 00572be0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::OnSegmentEnded` · 005a6600 · legions 00572d10 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::UpdatePosition` · 005a6640 · legions 00572d50 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `DirectXPlayingSound::SetVolumeInternal` · 005a6790 · legions 00572ea0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DirectXPlayingSound::SetFrequency` · 005a6920 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
+- [x] `DirectXPlayingSound::SetFrequency` · 005a6920 — audit: covered: Getters are fields of PlayingSound; SetFrequency is SoundSink::set_frequency [crates/ac2-audio/src/playing.rs:41,192; crates/ac2-audio/src/sink.rs:101]
 - [-] `DirectXPlayingSound::GetAudioPathAndBuffers` · 005a69b0 · legions 00573110 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
-- [~] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [~] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — ac2-audio: the stop timing's flags are the queue's boundary (sink Boundary: Grid 0x800, Beat 0x1000, Measure 0x2000, Marker 0x1000000, End 0x800000, Immediate 0); a forced stop (manager stop_sounds_for_emitter) is immediate: queue Stop(handle, 0) and the voice cut (playing.rs stop_at, the mixer's StopMusic). Not modelled: the disabled-device and KeepAlive branches (the voice ends at once when disabled), and a segment's play-out with no queue segment.
+- [x] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0 — audit: covered: Residuals: disabled-device/KeepAlive branches and the m_fSoundLength end branch of UseTime; one backend, wave voices end at their data end [crates/ac2-audio/src/playing.rs:424,523,588,664]
+- [x] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — audit: covered: Residuals: disabled-device/KeepAlive branches and the m_fSoundLength end branch of UseTime; one backend, wave voices end at their data end [crates/ac2-audio/src/playing.rs:424,523,588,664]
 - [x] `DirectXPlayingSound::SetVolume` · 005a6ee0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `DirectXPlayingSound::RecalculateVolume` · 005a6f00 · legions 00573590 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — ac2-audio manager.rs flush: a queue segment the queue still holds when its sound goes ready-to-die (the fade end) is stopped with Boundary::Immediate, as UseTime's Stop(handle, 0) (flags 0): a current primary's pass plays out (its loop is cleared), a secondary ends now. PlayingSound::use_time length cap is -1 for MusicInfo sounds (no cap). The length-end branch (m_fSoundLength) is not modelled.
+- [x] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — audit: covered: Residuals: disabled-device/KeepAlive branches and the m_fSoundLength end branch of UseTime; one backend, wave voices end at their data end [crates/ac2-audio/src/playing.rs:424,523,588,664]
 - [x] `DirectXPlayingSound::Play` · 005a70a0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::Stop` · 005a70b0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::OnDeviceStateChanged` · 005a7180 · legions 00573810 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
-## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (5/34)
+## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (10/34)
 
 ### DirectXSoundDevice
 - [-] `DirectXSoundDevice::SetSoundFeatures` · 005a3e70 · legions 00570640 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [x] `DirectXSoundDevice::OnSegmentStart` · 005a3eb0 — ac2-audio: music queue events reach the playing sounds (OnSegmentEnded), then each sound's UseTime; DirectXSoundDevice::OnSegmentStart/UseTime
 - [x] `DirectXSoundDevice::OnSegmentEnded` · 005a3ee0 — ac2-audio: music queue events reach the playing sounds (OnSegmentEnded), then each sound's UseTime; DirectXSoundDevice::OnSegmentStart/UseTime
-- [~] `DirectXSoundDevice::SetGrooveLevel` · 005a3f10 · legions 005706e0 — ac2-audio: the level is passed to MusicThread::set_groove_level as one byte (GUID_PerfMasterGrooveLevel); the device enable gate is not modelled
+- [x] `DirectXSoundDevice::SetGrooveLevel` · 005a3f10 · legions 005706e0 — ac2-audio manager.rs send_groove: nothing while the device is disabled, only a level other than m_nCurrentGroove (initially -100000) is sent. Test the_groove_reaches_the_device_once_per_level_and_not_while_disabled
 
 ### DirectXSoundInstance
-- [~] `DirectXSoundInstance::Initialize` · 005a3f70 · legions 00570740 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [~] `DirectXSoundInstance::Initialize` · 005a3ff0 · legions 005707c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [-] `DirectXSoundInstance::Initialize` · 005a3f70 · legions 00570740 — replaced by design: cpal output replaces the DirectSound device; instance/voice creation is PlayingSound::new/from_music/from_wave (playing.rs:192,247,294) [crates/ac2-audio/src/output.rs:1]
+- [-] `DirectXSoundInstance::Initialize` · 005a3ff0 · legions 005707c0 — replaced by design: cpal output replaces the DirectSound device; instance/voice creation is PlayingSound::new/from_music/from_wave (playing.rs:192,247,294) [crates/ac2-audio/src/output.rs:1]
 - [x] `DirectXSoundInstance::InitDXPSDFromMusicInfo` · 005a4070 · legions 00570840 — ac2-audio/ac2-client: ambient environments, groove
-- [ ] `DirectXSoundInstance::GetDataID` · 005a4270 · legions 00570a40 — needs port (check): playing sound lookup by handle and instance data id; uncited
+- [x] `DirectXSoundInstance::GetDataID` · 005a4270 · legions 00570a40 — audit: covered:  [crates/ac2-audio/src/playing.rs:149; crates/ac2-audio/src/manager.rs:629-664]
 
 ### DirectXSoundDevice
-- [~] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60 — audit: covered:  [crates/ac2-audio/src/manager.rs:670]
+- [x] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10 — audit: covered: Catalog note "no listener/3D" is stale [crates/ac2-audio/src/manager.rs:417]
 - [x] `DirectXSoundDevice::UseTime` · 005a45c0 · legions 00570d90 — ac2-audio: music queue events reach the playing sounds (OnSegmentEnded), then each sound's UseTime; DirectXSoundDevice::OnSegmentStart/UseTime
 - [-] `DirectXSoundDevice::RemovePlayingSound` · 005a4600 · legions 00570dd0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [-] `DirectXSoundDevice::RemoveSoundInstance` · 005a4650 · legions 00570e20 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
@@ -349,7 +349,7 @@ Legend and workflow: [README](README.md).
 
 ### DirectXSoundInstance
 - [x] `DirectXSoundInstance::InitDXPSDFromSoundInfo` · 005a4990 · legions 00571160 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `DirectXSoundInstance::CreatePlayingSound` · 005a4ae0 · legions 00571290 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [-] `DirectXSoundInstance::CreatePlayingSound` · 005a4ae0 · legions 00571290 — replaced by design: cpal output replaces the DirectSound device; instance/voice creation is PlayingSound::new/from_music/from_wave (playing.rs:192,247,294) [crates/ac2-audio/src/output.rs:1]
 
 ### DirectXSoundDevice
 - [-] `DirectXSoundDevice::AddPlayingSound` · 005a4ba0 · legions 00571350 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
@@ -362,40 +362,40 @@ Legend and workflow: [README](README.md).
 - [-] `DirectXSoundDevice::CreateInstance` · 005a4cb0 · legions 00571460 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [-] `DirectXSoundDevice::CreateInstance` · 005a4d10 · legions 005714c0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [-] `DirectXSoundDevice::DestroyDevice` · 005a4e10 · legions 005715c0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
-- [~] `DirectXSoundDevice::CreateDevice` · 005a5160 · legions 00571910 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [~] `DirectXSoundDevice::Enable` · 005a52a0 · legions 00571a50 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [-] `DirectXSoundDevice::CreateDevice` · 005a5160 · legions 00571910 — replaced by design: cpal output replaces the DirectSound device; instance/voice creation is PlayingSound::new/from_music/from_wave (playing.rs:192,247,294) [crates/ac2-audio/src/output.rs:1]
+- [x] `DirectXSoundDevice::Enable` · 005a52a0 · legions 00571a50 — audit: covered: enable/on_device_state_changed [crates/ac2-audio/src/playing.rs:622]
 - [-] `DirectXSoundDevice::Shutdown` · 005a53c0 · legions 00571b70 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [-] `DirectXSoundDevice::ReserveAudioPath` · 005a5430 · legions 00571be0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
-- [~] `DirectXSoundDevice::Initialize` · 005a5500 · legions 00571cb0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [-] `DirectXSoundDevice::Initialize` · 005a5500 · legions 00571cb0 — replaced by design: cpal output replaces the DirectSound device; instance/voice creation is PlayingSound::new/from_music/from_wave (playing.rs:192,247,294) [crates/ac2-audio/src/output.rs:1]
 - [-] `DirectXSoundDevice::CreateAudioPaths` · 005a55a0 · legions 00571d50 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [-] `DirectXSoundDevice::FreeAudioPath` · 005a5860 · legions 00571fa0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [-] `DirectXSoundDevice::DirectXSoundDevice` · 005a58d0 · legions 00572010 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [-] `DirectXSoundDevice::OnDDDComplete` · 005a59f0 · legions 00572130 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 
 ### SoundDeviceFactory
-- [~] `SoundDeviceFactory::CreateDevice` · 005a5a80 · legions 005721c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [-] `SoundDeviceFactory::CreateDevice` · 005a5a80 · legions 005721c0 — replaced by design: cpal output replaces the DirectSound device; instance/voice creation is PlayingSound::new/from_music/from_wave (playing.rs:192,247,294) [crates/ac2-audio/src/output.rs:1]
 
-## `portal/client/src/sound/directx/dxmusicmessagethread.cpp.c` (9/16)
+## `portal/client/src/sound/directx/dxmusicmessagethread.cpp.c` (14/16)
 
 ### DXMusicMessageThread::find_if_SegmentState
 - [-] `DXMusicMessageThread::find_if_SegmentState::find_if_SegmentState` · 005a85b0 · legions 00574b10 — COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
 
 ### DXMusicMessageThread
 - [-] `DXMusicMessageThread::ReleaseSegmentInfo` · 005a85d0 · legions 00574b30 — COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
-- [~] `DXMusicMessageThread::PlayInternal` · 005a8600 · legions 00574b60 — ac2-audio music_thread: PlayInternal = PlaySegmentEx(segment, pAfter); the timing flags and audio path are not modelled (a secondary starts at once)
-- [~] `DXMusicMessageThread::SetHandler` · 005a87d0 · legions 00574d30 — ac2-audio music_thread: no DirectMusic performance object; attached at MusicThread::new, detached at shutdown; the handler is passed to use_time
+- [x] `DXMusicMessageThread::PlayInternal` · 005a8600 · legions 00574b60 — A secondary waits for its start boundary on the primary playing: DirectXPlayingSound::PlayInternal gives dwFlags SECONDARY with SEGMENTEND 0x800000 / GRID 0x800 / BEAT 0x1000 / MARKER 0x1000000 / MEASURE 0x2000 (Legions 0x0057332E switch), PlaySegmentEx start time 0; resolved per the DMUS_SEGF_FLAGS / Segment Timing docs (next grid/beat/measure of the primary clock, its next marker, its end; at once with no primary or no marker left, TIMESIG_ALWAYS not passed); start notice at the boundary; a stop before it drops it. Not modelled: latency time, a control secondary time signature, the audio path Activate check. Tests music_thread::start_boundary_tests.
+- [x] `DXMusicMessageThread::SetHandler` · 005a87d0 · legions 00574d30 — ac2-audio music_thread/mod.rs: SetHandler (new/attach, shutdown), on_music_stopping (queued primary, looping primary again, else released) and the Startup notification switch folded into MusicThread::use_time, each naming its retail function
 - [x] `DXMusicMessageThread::GetAssociatedSoundHandle` · 005a8950 · legions 00574eb0 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::IsPlaying` · 005a8a10 · legions 00574f70 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::AssociateSoundHandle` · 005a8ac0 · legions 00574ff0 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::PlayQueuedPrimarySegment` · 005a8b70 · legions 00575100 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-- [~] `DXMusicMessageThread::OnMusicStopping` · 005a8cb0 · legions 00575240 — ac2-audio music_thread/mod.rs on_music_stopping: retail's queue (next_info, replace, abort) as in retail. Port addition: a primary a script started (Segment.play with AtFinish, DMUS_SEGF_QUEUE) waits in the performance's own queue ahead of next_info (scripted_primaries); DirectMusic keeps it there, not in the AC2 decompile.
+- [x] `DXMusicMessageThread::OnMusicStopping` · 005a8cb0 · legions 00575240 — ac2-audio music_thread/mod.rs: SetHandler (new/attach, shutdown), on_music_stopping (queued primary, looping primary again, else released) and the Startup notification switch folded into MusicThread::use_time, each naming its retail function
 - [x] `DXMusicMessageThread::~DXMusicMessageThread` · 005a8dd0 · legions 00575410 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::UseTime` · 005a8ef0 · legions 00575530 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::DXMusicMessageThread` · 005a90c0 · legions 00575700 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-- [~] `DXMusicMessageThread::Startup` · 005a9170 — ac2-audio music_thread: Startup's notification loop runs inside MusicThread::use_time (no thread, no 100 ms wait; the WAIT_TIMEOUT watchdog is kept)
+- [x] `DXMusicMessageThread::Startup` · 005a9170 — ac2-audio music_thread/mod.rs: SetHandler (new/attach, shutdown), on_music_stopping (queued primary, looping primary again, else released) and the Startup notification switch folded into MusicThread::use_time, each naming its retail function
 - [x] `DXMusicMessageThread::QueuePrimaryInternal` · 005a93b0 · legions 005759f0 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread/mod.rs stop(): the current primary's stop only clears its loop (m_bLoopPrimary = 0; dwStopFlags unread; Legions 00575b80 the same), so its pass plays out to its end (playback.rs end_pass_after_stop). A secondary's stop is StopEx(state, 0, dwStopFlags): flags 0 ends it now (MusicThread::stop); a boundary flag ends it at the next grid, beat, measure, marker or segment end (playback.rs stop_at, pass_end, next_unit; the clock and marker track of the segment).
-- [~] `DXMusicMessageThread::Play` · 005a96f0 · legions 00575d30 — ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
+- [x] `DXMusicMessageThread::Play` · 005a96f0 · legions 00575d30 — A secondary waits for its start boundary on the primary playing: DirectXPlayingSound::PlayInternal gives dwFlags SECONDARY with SEGMENTEND 0x800000 / GRID 0x800 / BEAT 0x1000 / MARKER 0x1000000 / MEASURE 0x2000 (Legions 0x0057332E switch), PlaySegmentEx start time 0; resolved per the DMUS_SEGF_FLAGS / Segment Timing docs (next grid/beat/measure of the primary clock, its next marker, its end; at once with no primary or no marker left, TIMESIG_ALWAYS not passed); start notice at the boundary; a stop before it drops it. Not modelled: latency time, a control secondary time signature, the audio path Activate check. Tests music_thread::start_boundary_tests.
 
 ## `portal/client/src/sound/directx/envinfo_win32.cpp.c` (0/61)
 
@@ -484,10 +484,10 @@ Legend and workflow: [README](README.md).
 
 ### WaveFileStreamUtilities
 - [-] `WaveFileStreamUtilities::WriteWaveHeaderChunk` · 005a5b70 · legions 005722b0 — DAT authoring: WAV to encoded, header writer, pack, compress (admin tooling; client reads the DAT)
-- [ ] `WaveFileStreamUtilities::ReadChunk` · 005a5c40 · legions 00572380 — needs port (check): WAV RIFF load and chunk read; uncited
+- [-] `WaveFileStreamUtilities::ReadChunk` · 005a5c40 · legions 00572380 — not needed: WaveFile::Load is admin-only (no Legions address) and the only ReadChunk caller; DBWave samples are decoded into Pcm by the DAT loader (data.rs:268)
 
 ### WaveFile
-- [ ] `WaveFile::Load` · 005a5db0 — needs port (check): WAV RIFF load and chunk read; uncited
+- [-] `WaveFile::Load` · 005a5db0 — not needed: WaveFile::Load is admin-only (no Legions address) and the only ReadChunk caller; DBWave samples are decoded into Pcm by the DAT loader (data.rs:268)
 
 ## `portal/client/src/sound/encodedwave.cpp.c` (1/6)
 
@@ -506,10 +506,10 @@ Legend and workflow: [README](README.md).
 - [-] `EnvInfo::~EnvInfo` · 005a3530 · legions 00570030 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]
 - [-] `EnvInfo::Allocator` · 005a3540 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: Legions EnvInfo slot is the default stub 0x00401b00]
 
-## `portal/client/src/sound/soundmanager.cpp.c` (15/25)
+## `portal/client/src/sound/soundmanager.cpp.c` (23/25)
 
 ### SoundManager
-- [~] `SoundManager::Initialize` · 005a1000 · legions 0056dcd0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `SoundManager::Initialize` · 005a1000 · legions 0056dcd0 — audit: covered: Catalog note "prefs not linked to PreferenceBank" is stale [crates/ac2-audio/src/prefs.rs:1,137; crates/ac2-audio/src/manager.rs:33,735; crates/ac2-client/src/client_audio.rs:264; crates/ac2-client/src/client_prefs.rs:232]
 - [-] `SoundManager::OnDDDComplete` · 005a10d0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 
 ### PlaySoundData
@@ -519,49 +519,49 @@ Legend and workflow: [README](README.md).
 - [-] `SoundManager::DebugPrintPlayingSounds` · 005a1190 — debug print of playing sounds
 - [x] `SoundManager::SetGrooveLevel` · 005a11a0 · legions 0056de60 — ac2-audio: SetGrooveLevel/TweakGrooveLevel forward level+offset to MusicThread::set_groove_level (StylePerformance groove) and the sink
 - [x] `SoundManager::TweakGrooveLevel` · 005a11d0 — ac2-audio: SetGrooveLevel/TweakGrooveLevel forward level+offset to MusicThread::set_groove_level (StylePerformance groove) and the sink
-- [~] `SoundManager::InitPrefs` · 005a1210 · legions 0056de90 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `SoundManager::InitPrefs` · 005a1210 · legions 0056de90 — audit: covered: Catalog note "prefs not linked to PreferenceBank" is stale [crates/ac2-audio/src/prefs.rs:1,137; crates/ac2-audio/src/manager.rs:33,735; crates/ac2-client/src/client_audio.rs:264; crates/ac2-client/src/client_prefs.rs:232]
 - [x] `SoundManager::AllocateSounds` · 005a1720 · legions 0056e3e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::CheckSoundBudget` · 005a1830 · legions 0056e4d0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::StopSounds` · 005a1a70 · legions 0056e690 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::StopSoundsForEmitter` · 005a1ba0 · legions 0056e7c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::HasSoundFinished` · 005a1ca0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::StopSoundRequest` · 005a1d10 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `SoundManager::HandleChangeInternal` · 005a1d90 · legions 0056e9b0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [~] `SoundManager::HandleApply` · 005a1fe0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [~] `SoundManager::HandleChange` · 005a2120 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [ ] `SoundManager::GetPlayingSoundFromHandle` · 005a2230 — needs port (check): playing sound lookup by handle and instance data id; uncited
+- [x] `SoundManager::HandleChangeInternal` · 005a1d90 · legions 0056e9b0 — audit: covered: Catalog note "prefs not linked to PreferenceBank" is stale [crates/ac2-audio/src/prefs.rs:1,137; crates/ac2-audio/src/manager.rs:33,735; crates/ac2-client/src/client_audio.rs:264; crates/ac2-client/src/client_prefs.rs:232]
+- [x] `SoundManager::HandleApply` · 005a1fe0 — audit: covered: Catalog note "prefs not linked to PreferenceBank" is stale [crates/ac2-audio/src/prefs.rs:1,137; crates/ac2-audio/src/manager.rs:33,735; crates/ac2-client/src/client_audio.rs:264; crates/ac2-client/src/client_prefs.rs:232]
+- [x] `SoundManager::HandleChange` · 005a2120 — audit: covered: Catalog note "prefs not linked to PreferenceBank" is stale [crates/ac2-audio/src/prefs.rs:1,137; crates/ac2-audio/src/manager.rs:33,735; crates/ac2-client/src/client_audio.rs:264; crates/ac2-client/src/client_prefs.rs:232]
+- [x] `SoundManager::GetPlayingSoundFromHandle` · 005a2230 — audit: covered:  [crates/ac2-audio/src/playing.rs:149; crates/ac2-audio/src/manager.rs:629-664]
 - [x] `SoundManager::SoundManager` · 005a2680 · legions 0056f370 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::FlushSounds` · 005a27d0 · legions 0056f4c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::AddSoundInstance` · 005a28d0 · legions 0056f5c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::Shutdown` · 005a29f0 · legions 0056f6e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `SoundManager::UseTime` · 005a2b00 · legions 0056f7f0 — ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; after the voices, the queue's notes go to the mixer's synthesizers (MusicClock + Note); no listener/3D or emitter muting
-- [~] `SoundManager::PlayInternal` · 005a2c50 · legions 0056f8f0 — ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; no listener/3D or emitter muting
+- [x] `SoundManager::UseTime` · 005a2b00 · legions 0056f7f0 — audit: covered: Listener/3D and emitter handling exist (UpdateListener, stop_sounds_for_emitter) [crates/ac2-audio/src/manager.rs:417; crates/ac2-audio/src/sound_space.rs]
+- [x] `SoundManager::PlayInternal` · 005a2c50 · legions 0056f8f0 — audit: covered: Listener/3D and emitter handling exist (UpdateListener, stop_sounds_for_emitter) [crates/ac2-audio/src/manager.rs:417; crates/ac2-audio/src/sound_space.rs]
 - [x] `SoundManager::OnContextFinished` · 005a3050 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::Play` · 005a30c0 · legions 0056fc40 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
-## `portal/shared/src/sound/musicinfo.cpp.c` (4/10)
+## `portal/shared/src/sound/musicinfo.cpp.c` (5/10)
 
 ### MusicInfo
 - [x] `MusicInfo::MusicInfo` · 006b8a70 · legions 0064fa30 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `MusicInfo::GetDBOType` · 006b8aa0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `MusicInfo::GetSubDataIDs` · 006b8ab0 — needs port: GetSubDataIDs sub-object resolution for sound and music DIDs (AGENTS: DBOCache vtable slot); uncited
+- [x] `MusicInfo::GetSubDataIDs` · 006b8ab0 — audit: covered: The loader resolves a sound/music record and its wave/segment dependencies in one async get [crates/ac2-audio/src/data.rs:268; crates/ac2-audio/src/loader.rs:1]
 - [-] `MusicInfo::CopyInto` · 006b8ad0 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `MusicInfo::TestBitMask` · 006b8b00 · legions 0064fac0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `MusicInfo::Allocate` · 006b8b10 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `MusicInfo::StreamPack` · 006b8b20 · legions 0064fae0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `MusicInfo::ToFileNode` · 006b8c00 — text source format (admin tools)
-- [ ] `MusicInfo::ParseFlags` · 006b8fb0 — needs port (check): implemented as crates/ac2-audio/src/data.rs flags and test() but uncited
+- [-] `MusicInfo::ParseFlags` · 006b8fb0 — not needed: Only caller is FromFileNode (admin tool text parser); DAT flag bits are tested via data.rs flags [crates/ac2-audio/src/data.rs:26]
 - [-] `MusicInfo::FromFileNode` · 006b9300 — text source format (admin tools)
 
-## `portal/shared/src/sound/soundinfo.cpp.c` (3/9)
+## `portal/shared/src/sound/soundinfo.cpp.c` (4/9)
 
 ### SoundInfo
 - [x] `SoundInfo::SoundInfo` · 006b8090 · legions 0064f890 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundInfo::GetDBOType` · 006b80d0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `SoundInfo::GetSubDataIDs` · 006b80e0 — needs port: GetSubDataIDs sub-object resolution for sound and music DIDs (AGENTS: DBOCache vtable slot); uncited
+- [x] `SoundInfo::GetSubDataIDs` · 006b80e0 — audit: covered: The loader resolves a sound/music record and its wave/segment dependencies in one async get [crates/ac2-audio/src/data.rs:268; crates/ac2-audio/src/loader.rs:1]
 - [-] `SoundInfo::CopyInto` · 006b8100 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [-] `SoundInfo::Allocate` · 006b8130 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `SoundInfo::StreamPack` · 006b8140 · legions 0064f940 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `SoundInfo::ToFileNode` · 006b8230 — text source format (admin tools)
-- [ ] `SoundInfo::ParseFlags` · 006b84d0 — needs port (check): implemented as crates/ac2-audio/src/data.rs flags and test() but uncited
+- [-] `SoundInfo::ParseFlags` · 006b84d0 — not needed: Only caller is FromFileNode (admin tool text parser); DAT flag bits are tested via data.rs flags [crates/ac2-audio/src/data.rs:26]
 - [-] `SoundInfo::FromFileNode` · 006b8670 — text source format (admin tools)

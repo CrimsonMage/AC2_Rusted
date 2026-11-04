@@ -110,6 +110,7 @@ mod tests {
             child_poses: Vec::new(),
             appearance: Arc::default(),
             hidden: false,
+            hidden_mesh_types: Vec::new(),
             anim_scale: [1.0; 4],
             child_scale: 1.0,
         };

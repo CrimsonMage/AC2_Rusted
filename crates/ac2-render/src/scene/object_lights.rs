@@ -14,6 +14,12 @@ use ac2_math::{Frame, Vec3};
 use super::entity_lights::EntityLight;
 use super::{BlockKey, ObjectPlacement};
 use crate::object::{PointLight, MAX_POINT_LIGHTS};
+use crate::particles::ParticleLight;
+
+/// `LightSource::m_Type` of a directional light (`0x40000002`) and of a sunlight-type light
+/// (`0x40000003`).
+const LIGHT_DIRECTIONAL: u32 = 0x4000_0002;
+const LIGHT_SUNLIGHT: u32 = 0x4000_0003;
 
 /// `LightSource::FillRenderLight`'s smallest range.
 const MIN_RANGE: f32 = 0.0002;
@@ -148,33 +154,10 @@ impl ObjectLights {
         radius: f32,
         indoor: bool,
     ) -> Vec<PointLight> {
-        let reaches = |light: &Ac2FxLight, point: &PointLight| {
-            // `LightSource::RefreshMaxRange`: the range waveform's upper bound.
-            let reach = light.source.range_wave.upper_bound().unwrap_or(0.0);
-            let distance = point.origin.distance(position);
-            (distance < reach + radius).then(|| weight(point, distance))
-        };
-        let placed = self.lights.iter().filter_map(|fx| {
-            let frame = self.frames.get(&fx.emitter)?;
-            if self.indoor.get(&fx.emitter) != Some(&indoor) {
-                return None;
-            }
-            let opacity = light_opacity(&fx.light, now - fx.created)?;
-            let origin = frame.local_to_global_point(fx.light.offset);
-            let point = fill(&fx.light.source, origin, opacity, now);
-            Some((reaches(&fx.light, &point)?, point))
-        });
-        // The entities stand outdoors (`CLandBlock` objects).
-        let entities = self
-            .entities
-            .iter()
-            .filter(|_| !indoor && self.entities_lit)
-            .filter_map(|fx| {
-                let opacity = light_opacity(&fx.light, now - fx.created)?;
-                let point = fill(&fx.light.source, fx.origin, opacity, now);
-                Some((reaches(&fx.light, &point)?, point))
-            });
-        let mut candidates: Vec<(f32, PointLight)> = placed.chain(entities).collect();
+        let mut candidates: Vec<(f32, PointLight)> = self
+            .in_range(now, position, radius, indoor)
+            .map(|(weight, point, _)| (weight, point))
+            .collect();
         // `_STL::sort` with `GetWeight`: heaviest first.
         candidates.sort_by(|a, b| b.0.total_cmp(&a.0));
         candidates
@@ -182,6 +165,80 @@ impl ObjectLights {
             .take(MAX_POINT_LIGHTS)
             .map(|(_, point)| point)
             .collect()
+    }
+
+    /// `SceneTool::AddDynamicLights` for `FillVerts::GetLighting` (radius 0): the lights in range
+    /// on the focus's side with their `GetWeight`, as the particles read them: `GetDiffuse` times
+    /// the diffuse intensity now, without the light's fade (`CalculateAttenuation` does not read
+    /// `m_fOpacity`).
+    pub(super) fn particle_lights(
+        &self,
+        now: f64,
+        position: Vec3,
+        indoor: bool,
+    ) -> Vec<(f32, ParticleLight)> {
+        self.in_range(now, position, 0.0, indoor)
+            .map(|(weight, point, source)| {
+                let intensity = source.intensity_at(now);
+                let (diffuse, range) = match source.kind {
+                    // A directional light is not attenuated.
+                    LIGHT_DIRECTIONAL => (source.diffuse.map(|c| c * intensity), None),
+                    // `GetDiffuse` of a sunlight-type light is the sun's (black) ambient.
+                    LIGHT_SUNLIGHT => ([0.0; 3], Some(source.range_at(now))),
+                    _ => (
+                        source.diffuse.map(|c| c * intensity),
+                        Some(source.range_at(now)),
+                    ),
+                };
+                (
+                    weight,
+                    ParticleLight {
+                        origin: point.origin,
+                        diffuse,
+                        range,
+                    },
+                )
+            })
+            .collect()
+    }
+
+    /// The placed lights on `indoor`'s side within reach of an object at `position` with bounding
+    /// radius `radius` (`distance < max range + radius`), each with its `GetWeight`, its render
+    /// light and its source.
+    fn in_range(
+        &self,
+        now: f64,
+        position: Vec3,
+        radius: f32,
+        indoor: bool,
+    ) -> impl Iterator<Item = (f32, PointLight, &Ac2LightSource)> + '_ {
+        let reaches = move |light: &Ac2FxLight, point: &PointLight| {
+            // `LightSource::RefreshMaxRange`: the range waveform's upper bound.
+            let reach = light.source.range_wave.upper_bound().unwrap_or(0.0);
+            let distance = point.origin.distance(position);
+            (distance < reach + radius).then(|| weight(point, distance))
+        };
+        let placed = self.lights.iter().filter_map(move |fx| {
+            let frame = self.frames.get(&fx.emitter)?;
+            if self.indoor.get(&fx.emitter) != Some(&indoor) {
+                return None;
+            }
+            let opacity = light_opacity(&fx.light, now - fx.created)?;
+            let origin = frame.local_to_global_point(fx.light.offset);
+            let point = fill(&fx.light.source, origin, opacity, now);
+            Some((reaches(&fx.light, &point)?, point, &fx.light.source))
+        });
+        // The entities stand outdoors (`CLandBlock` objects).
+        let entities = self
+            .entities
+            .iter()
+            .filter(move |_| !indoor && self.entities_lit)
+            .filter_map(move |fx| {
+                let opacity = light_opacity(&fx.light, now - fx.created)?;
+                let point = fill(&fx.light.source, fx.origin, opacity, now);
+                Some((reaches(&fx.light, &point)?, point, &fx.light.source))
+            });
+        placed.chain(entities)
     }
 
     /// Every placed point light at `now` (`SceneTool::m_aDynamicLights` of the frame).

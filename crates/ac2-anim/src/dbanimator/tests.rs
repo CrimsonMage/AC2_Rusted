@@ -419,3 +419,25 @@ fn an_asset_adds_each_reached_trigger_once() {
     assert_eq!(out.effects, vec![effect(9, 0.0, 1.0)]);
     assert_eq!(out.hooks, vec![hook]);
 }
+
+/// The human body's anim key 0x8000001B (the always-on behaviour 0x40000010 of behaviour table
+/// 0x44000001) is `av_angle.amod`, an `AMAngle` over seven bones with tilts limited to 0.35.
+#[test]
+fn the_human_bodys_angle_animator_decodes() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ac2_db::ResourceStore::new(Arc::clone(&dataset));
+    let animator = load_ac2_db_animator(&store, ac2_core::DataId::new(0x0300_0014), 0x8000_001B)
+        .expect("animator decodes")
+        .expect("the key is mapped");
+    let Ac2DbAnimator::Angle(angle) = &*animator else {
+        panic!("{animator:?}");
+    };
+    assert_eq!(angle.bones.len(), 7);
+    assert_eq!(angle.bones[0].bone, 0x8100_000E);
+    assert_eq!(
+        (angle.min_x, angle.max_x, angle.min_y, angle.max_y),
+        (-0.35, 0.35, -0.35, 0.35)
+    );
+}

@@ -382,8 +382,19 @@ fn a_display_change_waits_for_its_verification_and_only_a_yes_applies_it() {
         !applied.keys.contains(&FULL_SCREEN),
         "the display waits for the answer"
     );
-    assert!(applied.save.is_none(), "nothing is saved while it is asked");
-    assert!(!path.exists());
+    // The page's save waits for the answer; `Render::HandleApply`'s `SaveOverallGraphicsQuality`
+    // writes its one line at once, as retail's `WritePrivateProfileStringA` did.
+    applied
+        .save
+        .expect("only the quality level is written while it is asked")
+        .join()
+        .expect("the writer thread")
+        .expect("written");
+    let text = String::from_utf8(std::fs::read(&path).expect("written")).expect("ASCII");
+    assert!(
+        text.trim_end().ends_with("OverallGraphicsQuality=0") && text.lines().count() == 2,
+        "{text}"
+    );
 
     // The question is a timed dialog: it counts down and, run out, answers no.
     let roots = hud.tree.roots().len();

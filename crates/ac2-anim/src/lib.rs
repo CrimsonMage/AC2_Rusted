@@ -33,9 +33,10 @@ pub use behavior_table::{
 };
 pub use blend::blend_transform;
 pub use dbanimator::{
-    load_ac2_db_animator, Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AnimatorContext,
-    Ac2AssetBone, Ac2BoneTransform, Ac2Compositor, Ac2CubeSlider, Ac2DbAnimator, Ac2ImpulseTrigger,
-    Ac2Interpolator, Ac2PoseInput, Ac2Random, Ac2TrackTriggers, Ac2TrackerState, Ac2WeenieHook,
+    load_ac2_db_animator, Ac2AngleAnimator, Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger,
+    Ac2AnimatorContext, Ac2AssetBone, Ac2BoneAngleMod, Ac2BoneTransform, Ac2Compositor,
+    Ac2CubeSlider, Ac2DbAnimator, Ac2ImpulseTrigger, Ac2Interpolator, Ac2PoseInput, Ac2Random,
+    Ac2TrackTriggers, Ac2TrackerState, Ac2WeenieHook,
 };
 pub use fx_scripts::{load_fx_scripts, FxScripts};
 pub use fxscript::{load_ac2_fx_script, Ac2FxScript, FX_SCRIPT_PREFIX};

@@ -17,11 +17,15 @@
 # pyrealium_live_combat). PYREALIUM_LIVE_EACH=1 runs each test of the target on a server of its own (the
 # quests file's default: its tests use up the start room's one-lifetime creatures).
 #
-# Needs AC2_DAT_DIR (the 7230 DATs) and what scripts/pyrealium-server.sh needs: an installed Pyrealium
-# server (PYREALIUM_BIN) and a PostgreSQL server for it (PYREALIUM_POSTGRES).
+# Needs AC2_DAT_DIR (the 7230 DATs) and a Pyrealium checkout (PYREALIUM_DIR, default ../pyrealium-server),
+# whose scripts/test-server.sh writes the server's settings (SQLite, one database file per state
+# directory) and runs its executable (PYREALIUM_BIN, default that checkout's target/release/pyrealium).
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
 : "${AC2_DAT_DIR:?set AC2_DAT_DIR to the 7230 DATs}"
+pyrealium_dir=$(cd "${PYREALIUM_DIR:-$root/../pyrealium-server}" && pwd)
+pyrealium_bin=${PYREALIUM_BIN:-$pyrealium_dir/target/release/pyrealium}
+[ -x "$pyrealium_dir/scripts/test-server.sh" ] || { echo "no scripts/test-server.sh in $pyrealium_dir: set PYREALIUM_DIR" >&2; exit 1; }
 scratch=$(mktemp -d "${TMPDIR:-/tmp}/pyrealium-live.XXXXXX")
 port=${PYREALIUM_LIVE_PORT:-19600}
 export PYREALIUM_TEST_CORPSE_LOOT=${PYREALIUM_TEST_CORPSE_LOOT:-1}
@@ -34,6 +38,13 @@ case ${PYREALIUM_LIVE_TEST:-} in
   # The missile file casts Flame Bolt at a Banderling Thrasher (entity 0x470007a4) placed at the
   # west end of the start room (cell 0x02990109), which the test backs the character away from;
   # the vault's own creatures stand behind walls or are protected.
+  # The awareness file stands the new character at the start and watches a Banderling Thrasher at the
+  # room's north side (8 m away, on the floor of the start cell) notice it and close in (Pyrealium's
+  # perception scan and pursuit).
+  pyrealium_live_awareness*)
+    printf '8140000000030062\t470007a4\t1f000075\t02990109\t59.06\t248.2\t-44.22\t1\t0\t0\t0\t-\t-\n' > "$scratch/extra-world.tsv"
+    export PYREALIUM_EXTRA_WORLD="$scratch/extra-world.tsv"
+    ;;
   pyrealium_live_skills_missile*)
     PYREALIUM_LIVE_SERVER_ARGS="--training-kit true ${PYREALIUM_LIVE_SERVER_ARGS:-}"
     export PYREALIUM_LIVE_TRAINING_KIT=1
@@ -146,22 +157,20 @@ stop() {
   kill "$server" 2>/dev/null || true
   wait "$server" 2>/dev/null || true
   echo "server log: $state/server.log"
-  # Each server had a database of its own (named for its state directory); the server drops it.
-  "${PYREALIUM_BIN:-pyrealium}" db drop --config "$state/pyrealium.toml" > /dev/null 2>&1 || true
+  # Each server had a database file of its own in its state directory; the server drops it.
+  "$pyrealium_bin" db drop --config "$state/pyrealium.toml" > /dev/null 2>&1 || true
   server=
 }
 trap stop EXIT
 start() {
   state=$(mktemp -d "$scratch/server.XXXXXX")
   export PYREALIUM_STATE=$state
-  PYREALIUM_DB_NAME=pyrealium_live_$(basename "$state" | tr 'A-Z.' 'a-z_')
-  export PYREALIUM_DB_NAME
   # The live tests play the training kit's authored world (the start-room Idols, lifestone, mentor,
   # training portals): `pyrealium-server.sh` strips it by default for the user's server, so keep it
   # unless a test opts out with PYREALIUM_TRAINING_WORLD=0.
   export PYREALIUM_TRAINING_WORLD=${PYREALIUM_TRAINING_WORLD:-1}
   # shellcheck disable=SC2086 # PYREALIUM_LIVE_SERVER_ARGS is a list of options
-  "$root/scripts/pyrealium-server.sh" --account livetest ${PYREALIUM_LIVE_SERVER_ARGS---training-kit true} > "$state/server.log" 2>&1 &
+  PYREALIUM_BIN=$pyrealium_bin "$pyrealium_dir/scripts/test-server.sh" --account livetest ${PYREALIUM_LIVE_SERVER_ARGS---training-kit true} > "$state/server.log" 2>&1 &
   server=$!
   for _ in $(seq 1 600); do
     grep -q '^Listening on' "$state/server.log" 2>/dev/null && return 0

@@ -29,6 +29,9 @@ pub struct Ac2ParticleSource {
     pub particle_scale: f32,
     /// Stable per-source identity for deterministic emission randomness.
     pub seed: u32,
+    /// The entity stands in an interior cell (an env cell's static entity): the side of the
+    /// indoor/outdoor divide whose lights light its particles (`SceneTool::GetLightsForPosition`).
+    pub indoor: bool,
 }
 
 /// The startup particle systems of one AC2 landblock's entities: the landscape's placed entities
@@ -46,6 +49,7 @@ pub fn ac2_block_particle_sources(
         world,
         &markers,
         block_cell_id.raw(),
+        false,
         &mut visuals,
         &mut sources,
     )?;
@@ -55,17 +59,26 @@ pub fn ac2_block_particle_sources(
                 continue;
             };
             let markers = world.env_cell_markers(&cell);
-            marker_sources(world, &markers, mix(id.raw()), &mut visuals, &mut sources)?;
+            marker_sources(
+                world,
+                &markers,
+                mix(id.raw()),
+                true,
+                &mut visuals,
+                &mut sources,
+            )?;
         }
     }
     Ok(Arc::from(sources))
 }
 
-/// The startup systems of `markers`, seeded from `base` (the block or the env cell).
+/// The startup systems of `markers`, seeded from `base` (the block or the env cell), standing
+/// inside (`indoor`, an env cell's entities) or outside.
 fn marker_sources(
     world: &Ac2WorldSource,
     markers: &[crate::Ac2OutdoorEntityMarker],
     base: u32,
+    indoor: bool,
     visuals: &mut HashMap<DataId, Option<Arc<Ac2VisualParticles>>>,
     sources: &mut Vec<Ac2ParticleSource>,
 ) -> ResourceResult<()> {
@@ -103,6 +116,7 @@ fn marker_sources(
                 object_scale: marker.scale(),
                 particle_scale: particles.particle_scale,
                 seed,
+                indoor,
             });
         }
     }

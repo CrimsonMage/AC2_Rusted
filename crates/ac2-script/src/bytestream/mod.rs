@@ -134,7 +134,9 @@ impl ByteStream {
         r.finish("section body not fully read")
     }
 
-    /// `RuntimeByteStream::ValidateVersion`: a `$wcc` entry must say compiler version 13.
+    /// `RuntimeByteStream::ValidateVersion` (admin 0x006ECB60), reached at load through
+    /// `VM::ValidateVersion` (admin 0x006DBEC0, the native factory's slot +0x30): a `$wcc` entry
+    /// must say compiler version 13.
     fn validate_versions(&self) -> UnpackResult<()> {
         for (name, value) in &self.versions {
             if name.as_slice() == b"$wcc" && value.as_slice() != b"13" {

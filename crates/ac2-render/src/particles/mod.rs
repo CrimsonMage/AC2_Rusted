@@ -11,17 +11,22 @@
 //! Repulsors (`ParticleRepulsor`, controller 3) push the particles of repulse emitters
 //! ([`repulsor`]): a system's [`ParticleSystem::think_with`] is given the ones placed this frame.
 //!
+//! A system whose material asks for particle lighting colours its particles by the lights around
+//! it ([`lighting`], `FillVerts::GetLighting`).
+//!
 //! Not modelled: emission by distance travelled (`EmitDistanceParticles`: a placed system never
-//! moves), particle lighting (`GetLighting`: particles draw unlit) and shared systems (each
-//! source runs its own).
+//! moves) and shared systems (each source runs its own).
 
 mod controllers;
 mod emitter;
 mod fill;
 mod keyframes;
+mod lighting;
 #[cfg(test)]
 mod repulse_tests;
 pub mod repulsor;
+#[cfg(test)]
+mod rotation_tests;
 #[cfg(test)]
 mod tests;
 
@@ -32,6 +37,7 @@ use ac2_core::{DataId, Random};
 use ac2_math::{Frame, Vec3};
 
 pub use fill::{CameraBasis, ParticleGeometry};
+pub use lighting::ParticleLight;
 pub use repulsor::{NearbyRepulsor, ParticleRepulsor, RepulsorSpec, Repulsors};
 
 use emitter::Emitter;
@@ -86,11 +92,16 @@ pub struct ParticleSystem {
     /// `m_tTimeWaitingToDie`: when every emitter first stopped discharging.
     ready_since: Option<f64>,
     rng: Random,
+    /// The first render position's cell is an interior one (`m_position.objcell_id`): the side
+    /// of the indoor/outdoor divide whose lights a lit system takes.
+    indoor: bool,
 }
 
 impl ParticleSystem {
-    /// `ParticleSystem::Create` and `Start` at client time `now`: the emitters are built and
-    /// start `FastForwardTime` seconds ago, so the system opens already running.
+    /// `ParticleSystem::ParticleSystem` (with `Begin`'s defaults: unit scales, not disabled,
+    /// fading), `Create` and `Start` at client time `now`: the emitters are built
+    /// (`ParticleEmitter::Initialize`) and start `FastForwardTime` seconds ago, so the system
+    /// opens already running.
     pub fn new(
         desc: Arc<Ac2ParticleSystemDesc>,
         frame: Frame,
@@ -116,6 +127,7 @@ impl ParticleSystem {
             placed: false,
             ready_since: None,
             rng: seeded(seed),
+            indoor: false,
         };
         let starts: Vec<f64> = system
             .desc
@@ -194,7 +206,9 @@ impl ParticleSystem {
         }
     }
 
-    /// `ParticleSystem::Queue`: places the system at `frame` for an object of `object_scale` (the
+    /// `ParticleSystem::Queue` (and each emitter's `ParticleEmitter::SetPosition`, whose
+    /// last-discharge positions only feed the distance emission this port leaves out): places
+    /// the system at `frame` for an object of `object_scale` (the
     /// entity scale) and `particle_scale` (`GetParticleScale`), before it thinks and fills.
     pub fn place(&mut self, frame: Frame, object_scale: Vec3, particle_scale: f32) {
         self.frame = frame;
@@ -295,9 +309,40 @@ impl ParticleSystem {
         Some(1.0)
     }
 
+    /// Where `SceneTool::GetLightsForPosition` looks for the lights of a lit system: its first
+    /// render position (`m_aRenderPositions[0]`).
+    pub fn position(&self) -> Vec3 {
+        self.frame.origin
+    }
+
+    /// Sets whether the system stands in an interior cell.
+    pub fn set_indoor(&mut self, indoor: bool) {
+        self.indoor = indoor;
+    }
+
+    /// Whether the system stands in an interior cell.
+    pub fn indoor(&self) -> bool {
+        self.indoor
+    }
+
+    /// Whether the system's particles are lit (`Ac2ParticleSystemDesc::particle_lighting`).
+    pub fn particle_lighting(&self) -> bool {
+        self.desc.particle_lighting
+    }
+
     /// `ParticleSystem::FillVertexBuffer` and `RenderAtPosition`'s placement: appends the
     /// system's quads and triangles, in world space, scaled by `alpha`, for a camera at `basis`.
-    pub fn fill(&self, basis: &CameraBasis, now: f64, alpha: f32, out: &mut ParticleGeometry) {
+    /// A lit system's particles take `lights` (`GetLightsForPosition` at [`Self::position`]);
+    /// an unlit one ignores them. Retail fills the emitters of four-corner particles first, then
+    /// those of triangles, and draws the two runs in that order.
+    pub fn fill(
+        &self,
+        basis: &CameraBasis,
+        now: f64,
+        alpha: f32,
+        lights: &[ParticleLight],
+        out: &mut ParticleGeometry,
+    ) {
         let object_scale = self.object_scale;
         let particle_scale = if self.desc.scale_type == 2 {
             object_scale * self.particle_scale
@@ -307,19 +352,21 @@ impl ParticleSystem {
         // The scale `RenderAtPosition` hands the fill: the entity scale, times the visual's
         // particle scale for scale type 2.
         let scale = particle_scale;
-        for emitter in &self.emitters {
-            emitter.fill(
-                &self.desc,
-                &fill::FillContext {
-                    basis,
-                    now,
-                    alpha,
-                    scale,
-                    system_start: self.start_time,
-                    placement: (!self.desc.world_space).then_some(self.frame.origin),
-                },
-                out,
-            );
+        let context = fill::FillContext {
+            basis,
+            now,
+            alpha,
+            scale,
+            system_start: self.start_time,
+            placement: (!self.desc.world_space).then_some(self.frame.origin),
+            lights: self.desc.particle_lighting.then_some(lights),
+        };
+        for corners in [4, 3] {
+            for emitter in &self.emitters {
+                if self.desc.emitters[emitter.index].particle_shape == corners {
+                    emitter.fill(&self.desc, &context, out);
+                }
+            }
         }
     }
 }

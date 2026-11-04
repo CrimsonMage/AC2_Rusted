@@ -14,6 +14,7 @@ mod base_property;
 #[cfg(test)]
 mod base_property_tests;
 mod body_decode;
+mod char_names;
 mod db_type;
 mod ddd;
 mod decode;
@@ -62,6 +63,10 @@ pub use body_decode::{ResourceBodyDecode, ResourceDbObjBody, ResourceDbObjDecode
 pub use db_type::ResourceTypeId;
 pub use property_collection::{PropertyCollection, PropertyGroup};
 
+pub use char_names::{
+    is_character_valid, is_character_valid_for_transitions, name_input_filter, name_language,
+    set_name_language, DEFAULT_NAME_LANGUAGE,
+};
 pub use ddd::{ResourceDddApplyOutcome, ResourceDddInvalidation};
 pub use deferred_work::spawn_deferred_on;
 pub use deferred_work::{spawn_deferred, DeferredResult};
@@ -113,8 +118,8 @@ pub use string_meta_text::{
 };
 pub use string_state::{
     female_meta_letters, is_number_singular, load_string_state, male_meta_letters,
-    treasure_meta_letters, StringState, STRING_STATE_ENUM, STRING_STATE_ENUM_GROUP,
-    STRING_STATE_FIRST, STRING_STATE_LAST,
+    treasure_meta_letters, StringState, TopLevelOverrides, STRING_STATE_ENUM,
+    STRING_STATE_ENUM_GROUP, STRING_STATE_FIRST, STRING_STATE_LAST,
 };
 pub use string_table::{
     load_string_table, read_wide_pstring, StringTable, StringTableString, STRING_TABLE_FIRST,

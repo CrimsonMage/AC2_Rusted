@@ -239,6 +239,8 @@ fn the_tooltip_preferences_register_from_the_dat_names() {
             ac2_ui::hud_style::CLASSIC_HUD,
             ac2_ui::ui_scale_pref::UI_SCALE,
             ac2_ui::damage_text_pref::DAMAGE_TEXT_SIZE,
+            ac2_ui::hit_chance_pref::SHOW_HIT_CHANCE,
+            ac2_ui::hit_chance_pref::EXAMINE_NEARBY,
         ]
     );
     assert_eq!(ac2_ui::tooltip_prefs::values(bank), (0.25, true));
@@ -324,6 +326,26 @@ fn the_fx_channel_preferences_register_and_reach_the_channel_table() {
     let _ = std::fs::remove_dir_all(path.parent().unwrap());
 }
 
+/// `maxgore` / `greenblood` (`StringStateInfo::SetTopGoreLevelOverride`,
+/// `SetTopBloodColorOverride`): the overrides are the gore amount's and the gore hue's defaults
+/// in place of the language's `StringState` levels.
+#[test]
+fn the_command_line_gore_and_blood_overrides_become_the_fx_defaults() {
+    use ac2_smartbox::fx_prefs::{GORE_AMOUNT, GORE_HUE};
+    let Some(store) = store() else {
+        return;
+    };
+    let path = temp_file("fx_overrides.ini");
+    let mut overrides = ac2_db::TopLevelOverrides::default();
+    overrides.set_max_gore("low").expect("low");
+    overrides.set_green_blood();
+    let prefs = ClientPrefs::load_with(path.clone(), Arc::clone(&store), overrides).expect("load");
+    let default = |key| prefs.bank().find(key).map(|p| p.default.clone());
+    assert_eq!(default(GORE_AMOUNT), Some(Value::Int(3)));
+    assert_eq!(default(GORE_HUE), Some(Value::Int(1)));
+    let _ = std::fs::remove_dir_all(path.parent().unwrap());
+}
+
 /// The UI scale (`UiScale`, a client-only key): registered at 1x, a choice written under its own
 /// name as a number (Fill is 0) and read back.
 #[test]
@@ -388,4 +410,40 @@ fn the_damage_text_size_saves_under_its_client_name_and_reads_back() {
         assert_eq!(damage_text_size(back.bank()), expected);
     }
     let _ = std::fs::remove_dir_all(path.parent().expect("a directory"));
+}
+
+/// `Turbine::Client::GetLanguage`'s `EnumMapper::GetEnum(0x4000002A, name)`: the language names
+/// (the local DATs' suffixes) are the ids `gmCharNameCharacterValidator`'s `LanguageLetters` rows
+/// and `gmClient::Init`'s Korean check use.
+#[test]
+fn the_language_names_map_to_the_name_validators_ids() {
+    use ac2_prefs::NameTable;
+    let Some(store) = store() else {
+        return;
+    };
+    let names = DatNames::new(&store);
+    let id = |name| names.enum_label(0x4000_002A, name);
+    assert_eq!(id("English"), Some(ac2_db::DEFAULT_NAME_LANGUAGE));
+    assert_eq!(id("Francais"), Some(0x8100_0001));
+    assert_eq!(id("Deutsch"), Some(0x8100_0003));
+    assert_eq!(id("Korean"), Some(0x8100_0005));
+    assert_eq!(id("Japanese"), Some(0x8100_0004));
+    assert_eq!(id("Chinese"), Some(0x4100_0001));
+}
+
+/// `CBaseMesh::DrawMesh`'s first-person check names its mesh types in mapper `0x4000000F`: the
+/// DAT has all four (head, beard, crest, totem), each a different type.
+#[test]
+fn the_first_person_player_hides_four_named_mesh_types() {
+    let Some(store) = store() else {
+        return;
+    };
+    let path = temp_file("mesh_types.ini");
+    let prefs = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    let mut types = prefs.head_mesh_types().to_vec();
+    assert_eq!(types.len(), 4, "{types:08X?}");
+    types.sort_unstable();
+    types.dedup();
+    assert_eq!(types.len(), 4, "four different types");
+    let _ = std::fs::remove_dir_all(path.parent().unwrap());
 }

@@ -303,7 +303,11 @@ impl Worker {
                     ))
                     .ok()
                     .flatten()
-                    .map(|desc| Arc::new((*desc).clone()))
+                    .map(|desc| {
+                        let mut desc = (*desc).clone();
+                        desc.resolve_particle_lighting(&store);
+                        Arc::new(desc)
+                    })
                     .filter(|desc| desc.material.is_some() && !desc.emitters.is_empty());
                 self.particle_descs.insert(did, desc.clone());
                 desc

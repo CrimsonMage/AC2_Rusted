@@ -65,6 +65,8 @@ pub enum TrackerRequest {
     /// Reload the pattern list from its file.
     Reload,
     RemovePattern(usize),
+    /// Open or close the automatic tools' settings window (the HUD's own, `automation_ui`).
+    Tools,
     /// Pick a match: select it and point the arrow at it.
     Select(u64),
     Dismiss(u64),
@@ -82,14 +84,16 @@ enum Button {
     Exact,
     AddSelected,
     Reload,
+    Tools,
 }
 
 impl Button {
-    const ALL: [Button; 4] = [
+    const ALL: [Button; 5] = [
         Button::Add,
         Button::Exact,
         Button::AddSelected,
         Button::Reload,
+        Button::Tools,
     ];
 
     fn label(self) -> &'static str {
@@ -98,6 +102,7 @@ impl Button {
             Button::Exact => "Exact",
             Button::AddSelected => "Add selected",
             Button::Reload => "Reload",
+            Button::Tools => "Tools",
         }
     }
 }
@@ -243,6 +248,7 @@ impl TrackerUi {
             (Button::Exact, (right - 58, 40, 58)),
             (Button::AddSelected, (left, 66, 120)),
             (Button::Reload, (left + 126, 66, 80)),
+            (Button::Tools, (right - 80, 66, 80)),
         ];
         for (button, at) in place {
             let id = format!("TrackerAction{}", button as u32);
@@ -259,7 +265,7 @@ impl TrackerUi {
             tree.resize_to(bottom, WINDOW.0, 30);
             tree.set_int(bottom, NINE_SLICE, FRAME_BORDER);
         }
-        debug_assert!(Button::ALL.len() == 4);
+        debug_assert!(Button::ALL.len() == 5);
         self.book = Some(book);
     }
 
@@ -440,6 +446,7 @@ impl TrackerUi {
             }),
             Button::AddSelected => Some(TrackerRequest::AddSelected),
             Button::Reload => Some(TrackerRequest::Reload),
+            Button::Tools => Some(TrackerRequest::Tools),
         }
     }
 

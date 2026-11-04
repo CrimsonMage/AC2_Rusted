@@ -89,6 +89,30 @@ pub fn unpad_rgba(bytes: &[u8], width: u32, height: u32, padded_row: usize, bgra
     out
 }
 
+/// The texture a screenshot's world is drawn into (`SmartBox::RenderScreenshot` draws the world
+/// alone): the window's size and format, readable by [`read_surface`].
+pub fn capture_target(
+    gpu: &Gpu,
+    format: wgpu::TextureFormat,
+    width: u32,
+    height: u32,
+) -> wgpu::Texture {
+    gpu.device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("ac2 screenshot world"),
+        size: wgpu::Extent3d {
+            width,
+            height,
+            depth_or_array_layers: 1,
+        },
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format,
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
+        view_formats: &[],
+    })
+}
+
 /// Whether `format` is one of the 8-bit colour layouts the read-back understands, and whether it
 /// is BGRA.
 fn layout(format: wgpu::TextureFormat) -> Option<bool> {

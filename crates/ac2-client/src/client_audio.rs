@@ -497,6 +497,7 @@ impl Client {
     pub(crate) fn animation_sounds(&mut self, step: f32, now: f64) {
         self.start_startup_fx(now);
         self.refresh_part_trees();
+        self.refresh_item_icons();
         // The player's events come first: its latent script physics finish on them.
         let player_taken = self.player.as_mut().filter(|p| p.in_world).and_then(|p| {
             let (id, visual) = (p.id, p.visual);

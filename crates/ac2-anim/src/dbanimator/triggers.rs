@@ -116,7 +116,7 @@ impl Ac2DbAnimator {
                 }
             }
             Self::Random(random) => random.interp.triggers(ctx, tracker, ctime, out),
-            Self::Look | Self::Other => {}
+            Self::Look | Self::Angle(_) | Self::Other => {}
         }
     }
 }

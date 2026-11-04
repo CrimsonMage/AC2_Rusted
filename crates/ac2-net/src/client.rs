@@ -42,10 +42,16 @@ pub struct UdpTransport {
 impl UdpTransport {
     /// Binds a local socket of `server`'s address family.
     pub fn bind(server: SocketAddr) -> Result<Self, NetError> {
+        Self::bind_port(server, 0)
+    }
+
+    /// [`Self::bind`] on local `port` (`ConnectionOptions::dwPort`, the client's `outport`); 0
+    /// takes one the system picks.
+    pub fn bind_port(server: SocketAddr, port: u16) -> Result<Self, NetError> {
         let local: SocketAddr = if server.is_ipv4() {
-            "0.0.0.0:0".parse().expect("valid address")
+            SocketAddr::from(([0, 0, 0, 0], port))
         } else {
-            "[::]:0".parse().expect("valid address")
+            SocketAddr::from(([0u16; 8], port))
         };
         let socket = UdpSocket::bind(local)?;
         socket.set_nonblocking(true)?;

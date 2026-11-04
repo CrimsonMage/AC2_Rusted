@@ -34,6 +34,41 @@ pub fn render_with_scenes(
     world: Option<&SceneRenderer>,
     portal: Option<&dyn Fn(&mut wgpu::RenderPass<'_>)>,
 ) {
+    render_capturing(
+        gpu,
+        presenter,
+        (color, depth, None),
+        scale,
+        clear,
+        overlay,
+        layer_roots,
+        scenes,
+        world,
+        portal,
+    );
+}
+
+/// [`render_with_scenes`], and, given a `capture` target (a texture of the window's size and
+/// format), the world and the portal space alone through the tone map into it as well, before
+/// any UI or viewport scene draws: `SmartBox::RenderScreenshot` (Legions 0x00543580) draws the
+/// world alone for the screenshot, so the shot has no HUD.
+#[allow(clippy::too_many_arguments)]
+pub fn render_capturing(
+    gpu: &Gpu,
+    presenter: &ScenePresenter,
+    (color, depth, capture): (
+        &wgpu::TextureView,
+        &wgpu::TextureView,
+        Option<&wgpu::TextureView>,
+    ),
+    scale: &UiScale,
+    clear: [f32; 3],
+    overlay: &UiOverlay,
+    layer_roots: &[usize],
+    scenes: &[&UiScenes],
+    world: Option<&SceneRenderer>,
+    portal: Option<&dyn Fn(&mut wgpu::RenderPass<'_>)>,
+) {
     let mut views: Vec<(usize, usize, SceneViewport)> = scenes
         .iter()
         .enumerate()
@@ -74,6 +109,10 @@ pub fn render_with_scenes(
         // Bloom and eye adaptation over the world and portal alone, before any viewport scene
         // draws in.
         presenter.post_chain(gpu, &mut encoder, hdr);
+        if let Some(capture) = capture {
+            let mut pass = begin_pass(gpu, &mut encoder, capture, depth, Some(clear));
+            presenter.draw_world(&mut pass, hdr);
+        }
     }
     let mut pass_clear = Some(clear);
     let mut head = true;

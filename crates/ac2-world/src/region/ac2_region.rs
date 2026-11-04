@@ -22,7 +22,9 @@ const INFO_LIST_COUNT: usize = 11;
 const MAX_ITEMS: usize = 4096;
 
 /// Builds the active region from an AC2 dataset: the first `CRegionDesc` sky entry, its days
-/// in authored order with their sky objects, and its `GameTime`.
+/// in authored order with their sky objects, and its `GameTime` (`CRegionDesc::SetGameTime`:
+/// the current sky info's game time; its default-constructed fallback is never reached, as every
+/// dataset's region has one).
 pub(crate) fn load_ac2_region(store: &ResourceStore) -> ResourceResult<Option<RegionDesc>> {
     let Some(region) = load::<Ac2RegionRecord>(store, AC2_REGION_DID)? else {
         return Ok(None);

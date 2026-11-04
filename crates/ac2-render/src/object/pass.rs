@@ -205,6 +205,9 @@ pub fn layer_pass_forced(
         .take(MAX_STAGES)
         .enumerate()
         .map(|(index, stage)| StagePass {
+            // `RenderDeviceD3D::SetupState` binds the frame buffer (`m_SpecialTexture` 1) or the
+            // distortion map (2) to such a stage; no drawn material has one
+            // (`the_special_texture_stages_are_never_drawn`), so it stays unbound here.
             texture: (stage.special_texture == 0)
                 .then_some(stage.texture)
                 .flatten(),

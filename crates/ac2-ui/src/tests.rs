@@ -158,6 +158,19 @@ fn run_lock_toggles_and_forward_turns_it_off() {
 }
 
 #[test]
+fn a_teleport_turns_the_run_lock_off_and_leaves_held_keys() {
+    // `SmartBox::HandleTeleport` -> `ActionInterpreter::TurnOffRunLock` (Legions 0x00475380).
+    let mut c = controls();
+    key(&mut c, W, true, 0.0);
+    key(&mut c, R, true, 1.0);
+    key(&mut c, R, false, 1.1);
+    assert_eq!(c.interpreter.current().len(), 2);
+    c.turn_off_run_lock();
+    let held: Vec<_> = c.interpreter.current().iter().map(|a| a.action).collect();
+    assert_eq!(held, vec![FORWARD]);
+}
+
+#[test]
 fn the_wheel_zooms_for_one_frame_and_taps_double() {
     let mut c = controls();
     c.event(InputEvent::Wheel { delta: 240 }, 0, 0.0);

@@ -189,12 +189,12 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     // windows, the hidden fields of gmStackUI and gmExternalContainerUI, gmOverviewMapUI's
     // hidden OverviewMap, gmMiniFellowUI's hidden FellowMiniPanel, gmPetUI's hidden PetPanel and
     // gmStoryUI's hidden background and two story fields, the help window (a second `Book`
-    // made as a root), the Tracker window (a third), the floating arrow with its label and the
-    // guide window (a fourth `Book`). The spew box is not a root: it sits in the status bar's
-    // tree.
+    // made as a root), the Tracker window (a third), the automatic tools' window (a fourth), the
+    // floating arrow with its label and the guide window (a fifth `Book`). The spew box is not a
+    // root: it sits in the status bar's tree.
     assert_eq!(
         tree.roots().len(),
-        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 1 + 3 + 1 + 1 + 2 + 1
+        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 1 + 3 + 1 + 1 + 1 + 2 + 1
     );
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");

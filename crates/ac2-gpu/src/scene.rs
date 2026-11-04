@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use ac2_core::DataId;
 use ac2_math::{Mat4, Vec3};
 use ac2_render::frustum::{Frustum, Relation};
-use ac2_render::object::{ObjectEnvironment, PointLight};
+use ac2_render::object::{ObjectEnvironment, ObjectVertex, PointLight};
 use ac2_render::prefs::ObjectShadows;
 use ac2_render::scene::{
     BlockKey, CloudShadow, Images, Loaded, SceneFrame, SceneObject, SceneUpdate,
@@ -43,6 +43,8 @@ struct GpuInteriors {
     /// The env cell each of `cells` and `objects` is in or stands in.
     cell_ids: Vec<u32>,
     object_cells: Vec<u32>,
+    /// The vertices of the cells a sun pass can light again, by their index in `cells`.
+    sun_vertices: HashMap<usize, Vec<ObjectVertex>>,
 }
 
 /// The scene's GPU resources.
@@ -50,6 +52,8 @@ pub struct SceneRenderer {
     pub terrain: TerrainRenderer,
     objects: ObjectRenderer,
     fog_quad: ScreenQuad,
+    /// `WorldRender::Render`'s interior fog-cull quad ([`SceneFrame::interior_fog`]).
+    interior_fog_quad: ScreenQuad,
     /// The sky under the DAT sky objects.
     sky: SkyRenderer,
     /// The sky lights' lens flares and the light coronas over the world.
@@ -235,6 +239,7 @@ impl SceneRenderer {
             viewport: false,
             objects,
             fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
+            interior_fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
             sky: SkyRenderer::new(gpu, HDR_FORMAT),
             flares: LensFlares::new(gpu, HDR_FORMAT),
             water: WaterReflection::new(gpu),
@@ -281,10 +286,17 @@ impl SceneRenderer {
                         .water
                         .map(|model| self.objects.upload(gpu, &model, &mut load));
                     let interiors = block.interiors.map(|interiors| {
+                        let mut sun_vertices = HashMap::new();
                         let cells = interiors
                             .cells
                             .into_iter()
-                            .map(|(model, lights)| {
+                            .enumerate()
+                            .map(|(index, (model, lights))| {
+                                if interiors.suns.get(index).is_some_and(Option::is_some) {
+                                    if let Some(part) = model.parts.first() {
+                                        sun_vertices.insert(index, part.vertices.to_vec());
+                                    }
+                                }
                                 (self.objects.upload(gpu, &model, &mut load), lights)
                             })
                             .collect();
@@ -294,6 +306,7 @@ impl SceneRenderer {
                             objects: interiors.objects,
                             cell_ids: interiors.cell_ids,
                             object_cells: interiors.object_cells,
+                            sun_vertices,
                         }
                     });
                     self.blocks.insert(
@@ -365,6 +378,26 @@ impl SceneRenderer {
         objects: Vec<SceneObject>,
     ) {
         self.frame = frame;
+        // `CEnvCell::UpdateDynamicLights`: the cells the sun lit again take their new colours.
+        for update in std::mem::take(&mut self.frame.cell_colors) {
+            let Some(interiors) = self
+                .blocks
+                .get_mut(&update.block)
+                .and_then(|block| block.interiors.as_mut())
+            else {
+                continue;
+            };
+            let (Some(vertices), Some((model, _))) = (
+                interiors.sun_vertices.get_mut(&update.cell),
+                interiors.cells.get_mut(update.cell),
+            ) else {
+                continue;
+            };
+            for (vertex, color) in vertices.iter_mut().zip(&update.colors) {
+                vertex.color = *color;
+            }
+            self.objects.set_vertices(gpu, model, vertices);
+        }
         // A non-zero jitter means the temporal resolve runs, so the draws write motion vectors.
         let motion = self.jitter != [0.0; 2];
         let last = std::mem::replace(&mut self.frame_objects, objects);
@@ -391,6 +424,12 @@ impl SceneRenderer {
         }
         self.refresh_shadow_map(gpu);
         self.draw_sun_shadows(gpu, camera, aspect);
+        if let Some([r, g, b, a]) = self.frame.interior_fog {
+            // The authored interior fog colour, decoded for the linear scene, at its own alpha.
+            let linear = [r, g, b].map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));
+            self.interior_fog_quad
+                .set_color(&gpu.queue, [linear[0], linear[1], linear[2], a]);
+        }
         if let Some([r, g, b, a]) = self.frame.sky.fog_quad {
             // The authored fog colour, decoded for the linear scene; its alpha is `fog_sky`.
             let linear = [r, g, b].map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));
@@ -631,6 +670,10 @@ impl SceneRenderer {
             self.frame_objects.as_slice(),
             &self.previous_objects,
         );
+        // `WorldRender::Render`: the interior fog-cull quad first, over the cleared target.
+        if frame.interior_fog.is_some() {
+            self.interior_fog_quad.draw(pass);
+        }
         // The sky under `LScapeSky`'s objects, only where there is a landscape sky (not in a
         // dungeon or a UI viewport's scene, which clear to black).
         if landscape_sky(&frame.sky) {
@@ -865,6 +908,7 @@ fn world_instances<'a>(
                         point_lights: &o.point_lights,
                         detail: o.detail,
                         previous: previous.of(o.key),
+                        hidden_mesh_types: &o.hidden_mesh_types,
                         ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
                     })
                 }),
@@ -947,6 +991,7 @@ fn interior_instances<'a>(
                         point_lights: &o.point_lights,
                         detail: o.detail,
                         previous: previous.of(o.key),
+                        hidden_mesh_types: &o.hidden_mesh_types,
                         ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
                     })
                 });

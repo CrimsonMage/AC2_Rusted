@@ -1,20 +1,20 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 146 done, 23 partial, 52 to do, 41 skipped.
+262 retail functions: 183 done, 0 partial, 0 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
+## `portal/client/src/objects/cbookkeep.cpp.c` (14/22)
 
 ### CBookKeep
 - [-] `CBookKeep::CBookKeep` · 004d9b70 · legions 004cc5e0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 - [x] `CBookKeep::HandleOrderedBlob` · 004d9c00 · legions 004cc670
-- [ ] `CBookKeep::ChangeCell` · 004d9c50 · legions 004cc6c0 — needs port (check): bookie cell change / creation / parent / destruction; ac2-weenie world.rs has enter, leave and lost-cell bookkeeping but no citation here
+- [-] `CBookKeep::ChangeCell` · 004d9c50 · legions 004cc6c0 — replaced by design: book-keeper pointer glue; the object table entry carries cell, parent and weenie state [crates/ac2-smartbox/src/remotes.rs:402-415; crates/ac2-weenie/src/world.rs:222]
 - [x] `CBookKeep::GotoLostCell` · 004d9c80 · legions 004cc6f0
 - [x] `CBookKeep::RemoveFromLostCell` · 004d9ce0 · legions 004cc750
-- [ ] `CBookKeep::HandleCreation` · 004d9d10 · legions 004cc780 — needs port (check): bookie cell change / creation / parent / destruction; ac2-weenie world.rs has enter, leave and lost-cell bookkeeping but no citation here
-- [~] `CBookKeep::HandleDestruction` · 004d9d50 · legions 004cc7c0 — the pending deletion only
+- [-] `CBookKeep::HandleCreation` · 004d9d10 · legions 004cc780 — replaced by design: book-keeper pointer glue; the object table entry carries cell, parent and weenie state [crates/ac2-smartbox/src/remotes.rs:402-415; crates/ac2-weenie/src/world.rs:222]
+- [x] `CBookKeep::HandleDestruction` · 004d9d50 · legions 004cc7c0 — audit: covered: destroyed flag, physics and script HandleDestruction [crates/ac2-weenie/src/world.rs:393; crates/ac2-client/src/client.rs:797]
 - [x] `CBookKeep::ReEnterVisibility` · 004d9d80 · legions 004cc7f0
-- [ ] `CBookKeep::HasParent` · 004d9da0 · legions 004cc810 — needs port (check): bookie cell change / creation / parent / destruction; ac2-weenie world.rs has enter, leave and lost-cell bookkeeping but no citation here
+- [-] `CBookKeep::HasParent` · 004d9da0 · legions 004cc810 — replaced by design: book-keeper pointer glue; the object table entry carries cell, parent and weenie state [crates/ac2-smartbox/src/remotes.rs:402-415; crates/ac2-weenie/src/world.rs:222]
 - [-] `CBookKeep::SyncPointers` · 004d9dc0 · legions 004cc830 — raw back-pointer maintenance or notice-handler teardown; Rust keeps ids and drops owners
 - [-] `CBookKeep::~CBookKeep` · 004d9e20 · legions 004cc890 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 - [x] `CBookKeep::FlushVisualOrderedEvents` · 004d9e90 · legions 004cc900
@@ -26,7 +26,7 @@ Legend and workflow: [README](README.md).
 - [x] `CBookKeep::RemoveObjectToBeDestroyed` · 004da060 · legions 004ccad0
 - [x] `CBookKeep::HandleEnterWorld` · 004da0f0 · legions 004ccb60
 - [x] `CBookKeep::HandleLeaveWorld` · 004da120 · legions 004ccb90
-- [~] `CBookKeep::ObjectBeingDestructed` · 004da150 · legions 004ccbc0 — CBookKeep::ObjectBeingDestructed (004da150): the destroyed object's children are queued for destruction in ac2-weenie world.rs destroy_object_internal (add_object_to_be_destroyed, 25 s). Not modelled: the physobj child detach (vtable 0x3f4) and parent teardown (0x160). CWInterface::ObjectBeingDestructed (0052e3f0) also purges ClientTriggerScheduler events, the ac2-client row ClientTriggerScheduler::PurgeEventsForInterface, not ported
+- [x] `CBookKeep::ObjectBeingDestructed` · 004da150 · legions 004ccbc0 — audit: covered: children queued; physobj detach is implicit in object removal [crates/ac2-weenie/src/world.rs:222]
 - [x] `CBookKeep::HandleVisualOrderedBlob` · 004da200 · legions 004ccc70
 
 ## `portal/client/src/objects/clostcell.cpp.c` (2/4)
@@ -37,19 +37,19 @@ Legend and workflow: [README](README.md).
 - [x] `CLostCell::RemoveObject` · 004da260 · legions 004cccc0
 - [x] `CLostCell::AddObject` · 004da2a0 · legions 004ccd00
 
-## `portal/client/src/objects/cobjmaint.cpp.c` (22/65)
+## `portal/client/src/objects/cobjmaint.cpp.c` (39/65)
 
 ### CObjectMaint
 - [x] `CObjectMaint::CreatePhysicsObj` · 004d4fb0 · legions 004c7930 — crates/ac2-weenie/src/appearance.rs:4 (CObjectMaint::CreatePhysicsObj applies the create's delta)
 - [x] `CObjectMaint::GetWeenieObject` · 004d5000 · legions 004c7980 — crates/ac2-script/src/host/interface.rs:299 (CObjectMaint::GetWeenieObject, undefined when none)
 - [x] `CObjectMaint::GetPlayerID` · 004d5030 · legions 004c79b0 — crates/ac2-script/src/host/glue.rs:161 (CObjectMaint::GetPlayerID: the player's id for the efun)
-- [ ] `CObjectMaint::RecvNotice_SetPlayerID` · 004d5060 — needs port (check): player id / player weenie lookup and PhysicsDesc position; uncited
+- [x] `CObjectMaint::RecvNotice_SetPlayerID` · 004d5060 — audit: covered:  [crates/ac2-weenie/src/world.rs:418]
 
 ### _STL::less<InstanceID>
 - [-] `_STL::less<InstanceID>::operator()` · 004d50b0 · legions 004c7a30 — STL less/map/rb-tree/deque internals (Rust std replaces)
 
 ### CObjectMaint
-- [ ] `CObjectMaint::GetPlayerWeenieObject` · 004d50e0 · legions 004c7a60 — needs port (check): player id / player weenie lookup and PhysicsDesc position; uncited
+- [x] `CObjectMaint::GetPlayerWeenieObject` · 004d50e0 · legions 004c7a60 — audit: covered:  [crates/ac2-script/src/host/glue.rs:174]
 - [x] `CObjectMaint::GetPlayerWeenieObjectReference` · 004d5130 · legions 004c7ab0 — crates/ac2-script/src/host/glue.rs:171 (CObjectMaint::GetPlayerWeenieObjectReference: the player's script instance)
 
 ### DBObjGrabber<VisualDesc>
@@ -63,31 +63,31 @@ Legend and workflow: [README](README.md).
 - [x] `FXScalarAndTarget::StreamPack` · 004d5720 · legions 004c81d0
 
 ### PhysicsDesc
-- [ ] `PhysicsDesc::get_position` · 004d5770 · legions 004c8220 — needs port (check): player id / player weenie lookup and PhysicsDesc position; uncited
+- [-] `PhysicsDesc::get_position` · 004d5770 · legions 004c8220 — replaced by design: struct field [crates/ac2-net/src/protocol/physics.rs:240]
 
 ### CObjectMaint
-- [~] `CObjectMaint::UpdateObject` · 004d57b0 · legions 004c8260 — SyncPositionSimple(pos, 1) for the same instance
+- [x] `CObjectMaint::UpdateObject` · 004d57b0 · legions 004c8260 — audit: covered:  [crates/ac2-weenie/src/world.rs:561]
 
 ### PriorityHash<InstanceID,double>
-- [ ] `PriorityHash<InstanceID,double>::remove_min` · 004d5920 · legions 004c83d0 — needs port (check): PriorityHash remove_min / remove (destruction queue); ac2-weenie destruction.rs has take_due but no citation
+- [x] `PriorityHash<InstanceID,double>::remove_min` · 004d5920 · legions 004c83d0 — audit: covered:  [crates/ac2-weenie/src/destruction.rs:16-50]
 - [-] `PriorityHash<InstanceID,double>::bubble_up_or_down` · 004d59a0 · legions 004c8450 — PriorityHash heap sift internals (Rust ordered structure in ac2-weenie destruction.rs)
 
 ### CPhysicsObj
 - [x] `CPhysicsObj::is_newer` · 004d5a90 · legions 004c8540
 
 ### CObjectMaint
-- [ ] `CObjectMaint::ClearCreationTable` · 004d5ae0 · legions 004c8590 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [-] `CObjectMaint::ClearCreationTable` · 004d5ae0 · legions 004c8590 — replaced by design: creation is immediate; events for not-yet-created objects wait in world.rs [crates/ac2-smartbox/src/remotes.rs:753; crates/ac2-weenie/src/world.rs:231]
 - [-] `CObjectMaint::UnRegisterAllNoticeHandlers` · 004d5b70 · legions 004c8620 — raw back-pointer maintenance or notice-handler teardown; Rust keeps ids and drops owners
-- [ ] `CObjectMaint::IsObjectBeingCreated` · 004d5be0 · legions 004c8690 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [-] `CObjectMaint::IsObjectBeingCreated` · 004d5be0 · legions 004c8690 — replaced by design: creation is immediate; events for not-yet-created objects wait in world.rs [crates/ac2-smartbox/src/remotes.rs:753; crates/ac2-weenie/src/world.rs:231]
 
 ### PriorityHash<InstanceID,double>
-- [ ] `PriorityHash<InstanceID,double>::remove` · 004d5c60 · legions 004c8770 — needs port (check): PriorityHash remove_min / remove (destruction queue); ac2-weenie destruction.rs has take_due but no citation
+- [x] `PriorityHash<InstanceID,double>::remove` · 004d5c60 · legions 004c8770 — audit: covered:  [crates/ac2-weenie/src/destruction.rs:16-50]
 
 ### CObjectMaint
 - [x] `CObjectMaint::RemoveObjectToBeDestroyed` · 004d5da0 · legions 004c8860
-- [~] `CObjectMaint::ReleaseObjCell` · 004d5dd0 · legions 004c8890 — for every cell of a released block: objects in the world, unless held, leave visibility
-- [ ] `CObjectMaint::FlushLostCellTable` · 004d5ec0 · legions 004c8980 — needs port (check): player id / player weenie lookup and PhysicsDesc position; uncited
-- [ ] `CObjectMaint::OnContextFinished` · 004d61d0 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [x] `CObjectMaint::ReleaseObjCell` · 004d5dd0 · legions 004c8890 — audit: covered:  [crates/ac2-smartbox/src/remote_residency.rs:92]
+- [-] `CObjectMaint::FlushLostCellTable` · 004d5ec0 · legions 004c8980 — replaced by design: world reset on LeftWorld clears the tables [crates/ac2-client/src/client.rs:986-993]
+- [-] `CObjectMaint::OnContextFinished` · 004d61d0 — replaced by design: creation is immediate; events for not-yet-created objects wait in world.rs [crates/ac2-smartbox/src/remotes.rs:753; crates/ac2-weenie/src/world.rs:231]
 - [x] `CObjectMaint::InitObjCell` · 004d6210 · legions 004c8cd0 — ac2-client remote.rs, for every cell of a block made resident
 - [-] `CObjectMaint::DumpToString` · 004d6280 · legions 004c8d40 — CObjectMaint::DumpToString: debug dump
 
@@ -95,11 +95,11 @@ Legend and workflow: [README](README.md).
 - [-] `BehaviorParams::operator=` · 004d6970 · legions 004c93e0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 
 ### CObjectMaint
-- [ ] `CObjectMaint::AddObject` · 004d6dc0 · legions 004c9830 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
-- [ ] `CObjectMaint::GetObjectA` · 004d6df0 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [x] `CObjectMaint::AddObject` · 004d6dc0 · legions 004c9830 — audit: covered: ObjectTable [crates/ac2-weenie/src/objects.rs; crates/ac2-smartbox/src/remotes.rs:753]
+- [x] `CObjectMaint::GetObjectA` · 004d6df0 — audit: covered: ObjectTable [crates/ac2-weenie/src/objects.rs; crates/ac2-smartbox/src/remotes.rs:753]
 - [x] `CObjectMaint::GetLostCell` · 004d6e20 · legions 004c9890 — ac2-client remote.rs
 - [x] `CObjectMaint::RemoveFromLostCell` · 004d6ea0 · legions 004c9910 — ac2-client remote.rs
-- [ ] `CObjectMaint::CreateDummyObject` · 004d6f10 · legions 004c9980 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [-] `CObjectMaint::CreateDummyObject` · 004d6f10 · legions 004c9980 — replaced by design: only caller is CameraManager::SetupCameraDummyObjects; Rust camera has no dummy objects [crates/ac2-smartbox/src/camera_rig.rs]
 
 ### PriorityHash<InstanceID,double>
 - [x] `PriorityHash<InstanceID,double>::insert` · 004d7340 · legions 004c9db0 — crates/ac2-weenie/src/destruction.rs:21 (PriorityHash::insert: a second insert replaces its time)
@@ -108,12 +108,12 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<BehaviorParams>::operator=` · 004d7450 · legions 004c9ec0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 
 ### CObjectMaint
-- [ ] `CObjectMaint::CreateObject` · 004d75a0 · legions 004ca010 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
-- [~] `CObjectMaint::AddObjectToBeDestroyed` · 004d76d0 · legions 004ca140 — 25 s; no temporary ids (0.25 s)
+- [x] `CObjectMaint::CreateObject` · 004d75a0 · legions 004ca010 — audit: covered: ObjectTable [crates/ac2-weenie/src/objects.rs; crates/ac2-smartbox/src/remotes.rs:753]
+- [x] `CObjectMaint::AddObjectToBeDestroyed` · 004d76d0 · legions 004ca140 — audit: covered:  [crates/ac2-weenie/src/destruction.rs:10]
 - [x] `CObjectMaint::DestroyObject` · 004d7730 · legions 004ca1a0
 - [x] `CObjectMaint::FadeAndDestroyObject` · 004d7770 · legions 004ca1e0 — ac2-weenie World::fade_and_destroy_object (pending deletion at cur_time + destruction, only for an object in the table) with the fade slider in ac2-smartbox missile_follow.rs; a story missile (the client's temporary object) is queued the same way by Stories::destroy_at (ac2-client client_story_missiles.rs); FX objects keep their own FxObjects::fade_and_destroy (0.5, 3.0)
 - [x] `CObjectMaint::GotoLostCell` · 004d77e0 · legions 004ca250 — ac2-client remote.rs (lost-cell table)
-- [~] `CObjectMaint::InitializeTemporaryObject` · 004d7840 · legions 004ca2b0 — story missiles: ac2-client client_story_missiles.rs destroys one MISSILE_TIMEOUT_TIME after it is made (m_temporaryObjectDestructionQueue); FX objects keep their FX lifetimes
+- [x] `CObjectMaint::InitializeTemporaryObject` · 004d7840 · legions 004ca2b0 — audit: covered:  [crates/ac2-smartbox/src/remotes.rs:66; crates/ac2-smartbox/src/temporary_ids.rs:1; crates/ac2-client/src/client_story_missiles.rs:24]
 - [x] `CObjectMaint::AllocateTemporaryID` · 004d7c10 · legions 004ca680 — ac2-smartbox temporary_ids.rs TemporaryIds (m_used_temporary_ids): the lowest unused id from IIDUtils::CreateTemporary(0), none past VerifyTemporary or when an object has it; Remotes::allocate_temporary_id / removed frees it. FX objects and story missiles take theirs from it
 
 ### _STL::_Rb_tree<unsigned_long,_STL::pair<unsigned_long_const_,SliderData>,_STL::_Select1st<_STL::pair<unsigned_long_const_,SliderData>_>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,SliderData>_>_>
@@ -132,20 +132,20 @@ Legend and workflow: [README](README.md).
 - [-] `PhysicsDesc::operator=` · 004d80e0 · legions 004cab50 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 
 ### CObjectMaint
-- [~] `CObjectMaint::CreateTemporaryObject` · 004d8310 · legions 004cad80 — ac2-smartbox remotes.rs allocate_temporary_id + create_local: FX objects and story missiles; a temporary object with no appearance draws its entity's visual (ac2-client view.rs, ac2-assets resolve_drawn_groups); a never-made FX object's id is freed. The object is made when its body loads, not at once
-- [ ] `CObjectMaint::DestroyEventQueue` · 004d8400 · legions 004cae70 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
-- [ ] `CObjectMaint::StartEntityCreation` · 004d84a0 · legions 004caf10 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
-- [~] `CObjectMaint::DestroyObjectInternal` · 004d86f0 · legions 004cb160 — table, both queues and the event queue; no weenie or physics teardown hooks
+- [x] `CObjectMaint::CreateTemporaryObject` · 004d8310 · legions 004cad80 — audit: covered:  [crates/ac2-smartbox/src/remotes.rs:66; crates/ac2-smartbox/src/temporary_ids.rs:1; crates/ac2-client/src/client_story_missiles.rs:24]
+- [-] `CObjectMaint::DestroyEventQueue` · 004d8400 · legions 004cae70 — replaced by design: creation is immediate; events for not-yet-created objects wait in world.rs [crates/ac2-smartbox/src/remotes.rs:753; crates/ac2-weenie/src/world.rs:231]
+- [-] `CObjectMaint::StartEntityCreation` · 004d84a0 · legions 004caf10 — replaced by design: creation is immediate; events for not-yet-created objects wait in world.rs [crates/ac2-smartbox/src/remotes.rs:753; crates/ac2-weenie/src/world.rs:231]
+- [x] `CObjectMaint::DestroyObjectInternal` · 004d86f0 · legions 004cb160 — audit: covered: script teardown via lifecycle HandleDestruction (client.rs:797) [crates/ac2-smartbox/src/remotes.rs:439; crates/ac2-weenie/src/world.rs:393]
 - [x] `CObjectMaint::HandlePendingDeletion` · 004d87b0 · legions 004cb220
 - [x] `CObjectMaint::FlushEventQueueForBookie` · 004d8820 · legions 004cb290
-- [ ] `CObjectMaint::FlushObjectTable` · 004d8940 · legions 004cb3b0 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
-- [ ] `CObjectMaint::DestroyEventQueues` · 004d8a00 · legions 004cb470 — needs port (check): CObjectMaint::DestroyEventQueues (event queue teardown); uncited
-- [~] `CObjectMaint::FinishEntityCreation` · 004d8a40 · legions 004cb4b0 — ac2-client: the physics object once its Setup loads on a loader thread, then SyncPositionSimple(pos, 1); the table entry is created on receipt
-- [ ] `CObjectMaint::DestroyObjects` · 004d8c00 · legions 004cb670 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [-] `CObjectMaint::FlushObjectTable` · 004d8940 · legions 004cb3b0 — replaced by design: world reset on LeftWorld clears the tables [crates/ac2-client/src/client.rs:986-993]
+- [-] `CObjectMaint::DestroyEventQueues` · 004d8a00 · legions 004cb470 — replaced by design: creation is immediate; events for not-yet-created objects wait in world.rs [crates/ac2-smartbox/src/remotes.rs:753; crates/ac2-weenie/src/world.rs:231]
+- [x] `CObjectMaint::FinishEntityCreation` · 004d8a40 · legions 004cb4b0 — audit: covered:  [crates/ac2-weenie/src/session.rs:654]
+- [-] `CObjectMaint::DestroyObjects` · 004d8c00 · legions 004cb670 — replaced by design: world reset on LeftWorld clears the tables [crates/ac2-client/src/client.rs:986-993]
 - [-] `CObjectMaint::CObjectMaint` · 004d8de0 · legions 004cb850 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 - [-] `CObjectMaint::~CObjectMaint` · 004d8f30 · legions 004cb9a0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [~] `CObjectMaint::FinishEntityCreation` · 004d9150 · legions 004cbbc0 — ac2-client: the physics object once its Setup loads on a loader thread, then SyncPositionSimple(pos, 1); the table entry is created on receipt
-- [~] `CObjectMaint::UseTime` · 004d9480 · legions 004cbef0 — destruction queue to pending deletions, the event-queue timeouts, HandlePendingDeletion; creation is not deferred to it (no temporary objects)
+- [x] `CObjectMaint::FinishEntityCreation` · 004d9150 · legions 004cbbc0 — audit: covered:  [crates/ac2-weenie/src/session.rs:654]
+- [x] `CObjectMaint::UseTime` · 004d9480 · legions 004cbef0 — audit: covered:  [crates/ac2-weenie/src/session.rs:437]
 
 ### _STL::map<InstanceID,ObjectEventQueue,_STL::less<InstanceID>,_STL::allocator<_STL::pair<InstanceID_const_,ObjectEventQueue>_>_>
 - [-] `_STL::map<InstanceID,ObjectEventQueue,_STL::less<InstanceID>,_STL::allocator<_STL::pair<InstanceID_const_,ObjectEventQueue>_>_>::operator[]` · 004d9770 · legions 004cc1e0 — STL less/map/rb-tree/deque internals (Rust std replaces)
@@ -153,7 +153,7 @@ Legend and workflow: [README](README.md).
 ### CObjectMaint
 - [x] `CObjectMaint::QueueEventForBookie` · 004d98b0 · legions 004cc320
 - [x] `CObjectMaint::GetObjectOrQueueEvent` · 004d98e0 · legions 004cc350
-- [~] `CObjectMaint::RecvEvt_CreateObject` · 004d99c0 · legions 004cc430 — creation is immediate (no async entity loading); parent/stamp/update rules kept
+- [x] `CObjectMaint::RecvEvt_CreateObject` · 004d99c0 · legions 004cc430 — audit: covered:  [crates/ac2-smartbox/src/remotes.rs:753]
 - [x] `CObjectMaint::RecvEvt_DestroyObject` · 004d9b00 · legions 004cc570 — ac2-weenie World: a pending deletion at cur_time
 
 ## `portal/client/src/objects/visualorderingqueue.cpp.c` (7/7)
@@ -272,106 +272,106 @@ Legend and workflow: [README](README.md).
 - [x] `TargetingModule::InternalCalcViewerPos` · 00579910 · legions 00549270 — ac2-smartbox targeting.rs: no-parent, parent-and-target and parent-alone branches, bone types, camera dummies; the player's head turns to the target (LookAt 0x4F8, take_look_at, applied by ac2-client update_camera); positions are the drawn ones the client hands over (see GetPosition)
 - [x] `TargetingModule::CalcViewerPos` · 0057a320 · legions 00549c80 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 
-## `portal/client/src/smartbox/smartbox.cpp.c` (9/30)
+## `portal/client/src/smartbox/smartbox.cpp.c` (18/30)
 
 ### Position
 - [-] `Position::operator!=` · 005734b0 · legions 005434b0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 
 ### SmartBox
 - [-] `SmartBox::RefreshGraphicsResources` · 005734f0 — D3D device resources and render targets (ac2-gpu / wgpu replaces)
-- [ ] `SmartBox::GetDisplayWidth` · 00573510 · legions 00543510 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
-- [ ] `SmartBox::GetDisplayHeight` · 00573530 · legions 00543530 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
+- [-] `SmartBox::GetDisplayWidth` · 00573510 · legions 00543510 — replaced by design: window size and visibility belong to the Rust window and app mode [AGENTS.md:42; ARCHITECTURE.md (ac2-client window)]
+- [-] `SmartBox::GetDisplayHeight` · 00573530 · legions 00543530 — replaced by design: window size and visibility belong to the Rust window and app mode [AGENTS.md:42; ARCHITECTURE.md (ac2-client window)]
 - [x] `SmartBox::EnterPortalSpace` · 00573550 · legions 00543550 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [x] `SmartBox::ExitPortalSpace` · 00573560 · legions 00543560 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [x] `SmartBox::InPortalSpace` · 00573570 · legions 00543570 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-- [~] `SmartBox::RenderScreenshot` · 00573580 · legions 00543580 — the presented frame is copied instead of re-rendering the scene (bin/ac2/screenshot.rs)
+- [x] `SmartBox::RenderScreenshot` · 00573580 · legions 00543580 — ported: the shot is the world alone, without the HUD: ac2-client ui_scene/render.rs render_capturing tone-maps the world (and the portal space) into a capture target (ac2-gpu screenshot.rs capture_target) before any UI or viewport scene draws, and the shot reads that (bin/ac2 main.rs); the presented frame is read only when no world drew. The retail tiling (m_nScreenshotWidth x Height) stays replaced. Test screenshot_world_7160 the_screenshot_is_the_world_without_the_hud
 - [x] `SmartBox::SetCameraPosition` · 005735e0 · legions 005435e0
 - [x] `SmartBox::SetCameraDefaults` · 00573630 · legions 00543630
-- [ ] `SmartBox::RecvNotice_SetRegionID` · 005736e0 · legions 005436e0 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
+- [-] `SmartBox::RecvNotice_SetRegionID` · 005736e0 · legions 005436e0 — the region never changes: every release ships one region (0x0F000000) and one cell file (cell_1.dat), and Pyrealium CreatePlayer always names region 1 (pyrealium-server bootstrap.rs REGION), the region loaded at start, so WorldManager::SetRegion (CurRegion == rid) does nothing
 - [x] `SmartBox::SetWantNoticeOnNextFrameDrawn` · 005736f0 · legions 005436f0
-- [ ] `SmartBox::GetWantNoticeOnNextFrameDrawn` · 00573700 · legions 00543700 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
+- [x] `SmartBox::GetWantNoticeOnNextFrameDrawn` · 00573700 · legions 00543700 — audit: covered:  [crates/ac2-client/src/client.rs:82; crates/ac2-weenie/src/session.rs:861]
 - [-] `SmartBox::SmartBox` · 00573710 · legions 00543710 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [ ] `SmartBox::IsVisible` · 005737e0 · legions 005437e0 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
-- [ ] `SmartBox::Show` · 005737f0 · legions 005437f0 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
-- [ ] `SmartBox::Hide` · 00573800 · legions 00543800 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
-- [~] `SmartBox::InitPreferences` · 00573810 · legions 00543810 — ac2-client bin/ac2/main.rs reads the preferences; the far radius is applied in ac2-render, uncited
+- [-] `SmartBox::IsVisible` · 005737e0 · legions 005437e0 — replaced by design: window size and visibility belong to the Rust window and app mode [AGENTS.md:42; ARCHITECTURE.md (ac2-client window)]
+- [-] `SmartBox::Show` · 005737f0 · legions 005437f0 — replaced by design: window size and visibility belong to the Rust window and app mode [AGENTS.md:42; ARCHITECTURE.md (ac2-client window)]
+- [-] `SmartBox::Hide` · 00573800 · legions 00543800 — replaced by design: window size and visibility belong to the Rust window and app mode [AGENTS.md:42; ARCHITECTURE.md (ac2-client window)]
+- [x] `SmartBox::InitPreferences` · 00573810 · legions 00543810 — ported: ac2-render prefs.rs scene_options: LandscapeDrawDistance gives the far radius (terrain/far.rs far_radius_for_draw_distance, CellManager::SetFarRadius); LandscapeFrillDistance 0 turns the frills off (FrillRender::EnableFrillObjects(0): FrillSettings::enabled, scene/mod.rs draws none), 1 and 2 set the ring radius 1, 3 radius 2 (SetOutsideRadius; SetInsideRadius takes 10 times it); test the_scene_options_read_the_draw_distance_and_the_frill_distance
 - [x] `SmartBox::UpdatePlayer` · 00573930 · legions 00543930 — cells, ReEnterVisibility (EnterWorldSimple flags 0x11), PlayerReadyToEnterWorld, the entry camera
 - [-] `SmartBox::UpdateRenderTargets` · 005739f0 · legions 005439f0 — D3D device resources and render targets (ac2-gpu / wgpu replaces)
-- [ ] `SmartBox::Render` · 00573a10 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
-- [ ] `SmartBox::ResetWorldState` · 00573a60 · legions 00543a30 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
-- [~] `SmartBox::InitPlayer` · 00573b50 · legions 00543b20 — SetCameraDefaults once the body's Setup has loaded
+- [-] `SmartBox::Render` · 00573a10 — replaced by design: Turbine::Client::UseTime/KeepUIAlive call; Rust frame loop renders [ARCHITECTURE.md (ac2-client frame loop, ac2-render)]
+- [x] `SmartBox::ResetWorldState` · 00573a60 · legions 00543a30 — audit: covered: LeftWorld/Disconnected clears camera, remotes, cells [crates/ac2-client/src/client.rs:986-993]
+- [x] `SmartBox::InitPlayer` · 00573b50 · legions 00543b20 — audit: covered:  [crates/ac2-smartbox/src/player.rs:1]
 - [x] `SmartBox::UpdateCamera` · 00573bd0 · legions 00543ba0 — ac2-smartbox camera_collision.rs CameraCollision::trace / SceneCamera::update_collided: LOSCheck head ray (env only, 0.0004 lift, GetTargetOffset), ray to the desired place (camera-ethereal, CheckEnvOnly), indoor 0.2 m stand-off along the impact normal, outdoor camera object placement (EnterWorldSimple), m_cameraVelocity; tests camera_collision::tests, camera_collision_7230
-- [~] `SmartBox::RecvNotice_CreatePlayerObject` · 00574220 · legions 00544170 — the body loads on a loader thread; m_bBlockingLoad set
+- [x] `SmartBox::RecvNotice_CreatePlayerObject` · 00574220 · legions 00544170 — audit: covered:  [crates/ac2-client/src/client.rs:1060]
 - [x] `SmartBox::PlayerPhysicsUpdatedCallback` · 00574280 · legions 005441d0 — after every player physics quantum outside mouse look
-- [~] `SmartBox::HandleTeleport` · 005742d0 · legions 00544220 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+- [x] `SmartBox::HandleTeleport` · 005742d0 · legions 00544220 — teleport sets Client::take_turn_off_run_lock; world_input::begin_frame calls Controls::turn_off_run_lock (ActionInterpreter::TurnOffRunLock); test portal_7160
 - [-] `SmartBox::~SmartBox` · 005743e0 · legions 00544330 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [ ] `SmartBox::Init` · 005744f0 · legions 00544420 — needs port (check): SmartBox display size, region id, notice flag, show/hide, render, reset and init; uncited
-- [~] `SmartBox::UseTime` · 005746d0 · legions 005445d0 — UpdatePlayer, WorldManager::Update, the mouse-look camera, SceneCamera::slerp; no camera effects
+- [x] `SmartBox::Init` · 005744f0 · legions 00544420 — audit: covered: camera rig and prefs built by the client [crates/ac2-smartbox/src/camera_collision.rs:31; crates/ac2-smartbox/src/camera_rig.rs]
+- [x] `SmartBox::UseTime` · 005746d0 · legions 005445d0 — audit: covered: camera effects exist; catalog note stale [crates/ac2-smartbox/src/player.rs:127; crates/ac2-smartbox/src/camera_fx.rs:1]
 
-## `portal/client/src/smartbox/worldmanager/cellmanager.cpp.c` (6/14)
+## `portal/client/src/smartbox/worldmanager/cellmanager.cpp.c` (11/14)
 
 ### CellManager
 - [-] `CellManager::~CellManager` · 0057ba00 · legions 0054b2e0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 - [x] `CellManager::OnContextFinished` · 0057ba10 · legions 0054b2f0
 - [x] `CellManager::ReleaseCells` · 0057ba40 · legions 0054b320
-- [ ] `CellManager::SetFarRadius` · 0057baa0 · legions 0054b380 — needs port (check): CellManager far radius, region change, outside cell id, reset; uncited
-- [ ] `CellManager::NotifyChangeRegion` · 0057bac0 · legions 0054b3a0 — needs port (check): CellManager far radius, region change, outside cell id, reset; uncited
+- [x] `CellManager::SetFarRadius` · 0057baa0 · legions 0054b380 — audit: covered:  [crates/ac2-render/src/scene/mod.rs:354; crates/ac2-smartbox/src/cells.rs:25]
+- [-] `CellManager::NotifyChangeRegion` · 0057bac0 · legions 0054b3a0 — the region never changes: every release ships one region (0x0F000000) and one cell file (cell_1.dat), and Pyrealium CreatePlayer always names region 1 (pyrealium-server bootstrap.rs REGION), the region loaded at start, so WorldManager::SetRegion (CurRegion == rid) does nothing
 
 ### Position
-- [ ] `Position::get_outside_cell_id` · 0057bad0 · legions 0054b3b0 — needs port (check): CellManager far radius, region change, outside cell id, reset; uncited
+- [-] `Position::get_outside_cell_id` · 0057bad0 · legions 0054b3b0 — replaced by design: block_of/is_outside [crates/ac2-smartbox/src/cells.rs:32-38]
 
 ### CellManager
 - [x] `CellManager::CellManager` · 0057bb10 · legions 0054b3f0
 - [x] `CellManager::RequestAsyncLoadBlockRadius` · 0057bba0 · legions 0054b480 — ring requests to the loader threads
-- [~] `CellManager::RequestAsyncLoadBlockRadiusSceneObjects` · 0057bcd0 · legions 0054b5b0 — the near blocks' objects come with their sub-data, so nothing is left to request
-- [ ] `CellManager::ResetWorldState` · 0057be70 · legions 0054b750 — needs port (check): CellManager far radius, region change, outside cell id, reset; uncited
-- [~] `CellManager::FinishUpdateVisibleCells` · 0057be90 · legions 0054b770 — an interior keeps the near window around its block
+- [x] `CellManager::RequestAsyncLoadBlockRadiusSceneObjects` · 0057bcd0 · legions 0054b5b0 — audit: covered:  [crates/ac2-smartbox/src/cells.rs:303,11-17]
+- [x] `CellManager::ResetWorldState` · 0057be70 · legions 0054b750 — audit: covered: LeftWorld/Disconnected clears camera, remotes, cells [crates/ac2-client/src/client.rs:986-993]
+- [x] `CellManager::FinishUpdateVisibleCells` · 0057be90 · legions 0054b770 — audit: covered:  [crates/ac2-smartbox/src/cells.rs:303,11-17]
 - [x] `CellManager::AsyncGetCells` · 0057bf80 · legions 0054b850
-- [~] `CellManager::OnTopLevelRequestFinished` · 0057c040 · legions 0054b910 — an interior's visible cells in other blocks are not requested
+- [x] `CellManager::OnTopLevelRequestFinished` · 0057c040 · legions 0054b910 — audit: covered:  [crates/ac2-smartbox/src/cells.rs:303,11-17]
 - [x] `CellManager::UpdateVisibleCells` · 0057c360 · legions 0054bc30
 
-## `portal/client/src/smartbox/worldmanager/lscapemanager.cpp.c` (2/21)
+## `portal/client/src/smartbox/worldmanager/lscapemanager.cpp.c` (5/21)
 
 ### LScapeManager
-- [ ] `LScapeManager::GetBlockShift` · 0057a510 · legions 00549e70 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
+- [-] `LScapeManager::GetBlockShift` · 0057a510 · legions 00549e70 — replaced by design: Rust residency (near window resident, rest released) replaces visible-cell refcounts and block shifts [crates/ac2-smartbox/src/cells.rs:11-17]
 - [x] `LScapeManager::SetFarRadius` · 0057a590 · legions 00549ef0 — far radius consumed by FarTerrain::new; not changed by CameraManager::SetMapView (map view keeps the same residency radii)
-- [ ] `LScapeManager::GrabVisibleCells` · 0057a5b0 · legions 00549f10 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
-- [ ] `LScapeManager::ReleaseVisibleCells` · 0057a640 · legions 00549fa0 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
-- [~] `LScapeManager::Init` · 0057a780 · legions 0054a060 — near radius 1, far radius 4
-- [ ] `LScapeManager::ReloadLandBlocks` · 0057a7b0 · legions 0054a090 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
+- [-] `LScapeManager::GrabVisibleCells` · 0057a5b0 · legions 00549f10 — replaced by design: Rust residency (near window resident, rest released) replaces visible-cell refcounts and block shifts [crates/ac2-smartbox/src/cells.rs:11-17]
+- [-] `LScapeManager::ReleaseVisibleCells` · 0057a640 · legions 00549fa0 — replaced by design: Rust residency (near window resident, rest released) replaces visible-cell refcounts and block shifts [crates/ac2-smartbox/src/cells.rs:11-17]
+- [x] `LScapeManager::Init` · 0057a780 · legions 0054a060 — audit: covered:  [crates/ac2-smartbox/src/cells.rs:25,11]
+- [-] `LScapeManager::ReloadLandBlocks` · 0057a7b0 · legions 0054a090 — not needed: terrain refresh/edit hooks (LScapeRender::Refresh/SetVertexValue, WorldManager::Refresh); client reads static DATs. Server push of changed land is unverified (AGENTS.md:37)
 - [-] `LScapeManager::InitFreeBlocks` · 0057a810 · legions 0054a0f0 — landblock free-block pool (ac2-smartbox BlockPool loader threads replace it; AGENTS pool exception)
 - [-] `LScapeManager::CleanupFreeBlocks` · 0057a880 · legions 0054a160 — landblock free-block pool (ac2-smartbox BlockPool loader threads replace it; AGENTS pool exception)
-- [ ] `LScapeManager::ResetWorldState` · 0057a8d0 · legions 0054a1b0 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
-- [ ] `LScapeManager::NotifyChangeRegion` · 0057a8e0 · legions 0054a1c0 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
-- [ ] `LScapeManager::Refresh` · 0057a980 · legions 0054a260 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
+- [x] `LScapeManager::ResetWorldState` · 0057a8d0 · legions 0054a1b0 — ac2-client client.rs apply (LeftWorld/Disconnected, named there): the player, camera and remotes go and the visible cells are cleared (update_visible_cells(0)), which releases the blocks as CleanupFreeBlocks does
+- [-] `LScapeManager::NotifyChangeRegion` · 0057a8e0 · legions 0054a1c0 — the region never changes: every release ships one region (0x0F000000) and one cell file (cell_1.dat), and Pyrealium CreatePlayer always names region 1 (pyrealium-server bootstrap.rs REGION), the region loaded at start, so WorldManager::SetRegion (CurRegion == rid) does nothing
+- [-] `LScapeManager::Refresh` · 0057a980 · legions 0054a260 — not needed: terrain refresh/edit hooks (LScapeRender::Refresh/SetVertexValue, WorldManager::Refresh); client reads static DATs. Server push of changed land is unverified (AGENTS.md:37)
 - [-] `LScapeManager::ReleaseBlock` · 0057a9f0 · legions 0054a2d0 — landblock free-block pool (ac2-smartbox BlockPool loader threads replace it; AGENTS pool exception)
 - [x] `LScapeManager::GetLandBlock` · 0057aa60 · legions 0054a340 — crates/ac2-physics/src/los/land.rs:190 (LScapeManager::GetLandBlock: whether the block is resident)
-- [ ] `LScapeManager::ReleaseCells` · 0057ab30 · legions 0054a410 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
-- [ ] `LScapeManager::SetVertexValue` · 0057ac20 · legions 0054a500 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
+- [-] `LScapeManager::ReleaseCells` · 0057ab30 · legions 0054a410 — replaced by design: Rust residency (near window resident, rest released) replaces visible-cell refcounts and block shifts [crates/ac2-smartbox/src/cells.rs:11-17]
+- [-] `LScapeManager::SetVertexValue` · 0057ac20 · legions 0054a500 — not needed: terrain refresh/edit hooks (LScapeRender::Refresh/SetVertexValue, WorldManager::Refresh); client reads static DATs. Server push of changed land is unverified (AGENTS.md:37)
 - [-] `LScapeManager::GetFreeBlock` · 0057af50 · legions 0054a830 — landblock free-block pool (ac2-smartbox BlockPool loader threads replace it; AGENTS pool exception)
 - [-] `LScapeManager::~LScapeManager` · 0057b1b0 · legions 0054aa90 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [ ] `LScapeManager::AddBlockToRefreshList` · 0057b260 · legions 0054ab40 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
-- [ ] `LScapeManager::UpdateBlocks` · 0057b270 · legions 0054ab50 — needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
+- [-] `LScapeManager::AddBlockToRefreshList` · 0057b260 · legions 0054ab40 — not needed: terrain refresh/edit hooks (LScapeRender::Refresh/SetVertexValue, WorldManager::Refresh); client reads static DATs. Server push of changed land is unverified (AGENTS.md:37)
+- [-] `LScapeManager::UpdateBlocks` · 0057b270 · legions 0054ab50 — replaced by design: Rust residency (near window resident, rest released) replaces visible-cell refcounts and block shifts [crates/ac2-smartbox/src/cells.rs:11-17]
 - [-] `LScapeManager::LScapeManager` · 0057b8f0 · legions 0054b1d0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [~] `LScapeManager::UpdateVisibleCells` · 0057b980 · legions 0054b260 — the near window (radius 1) resident, the rest released
+- [x] `LScapeManager::UpdateVisibleCells` · 0057b980 · legions 0054b260 — audit: covered:  [crates/ac2-smartbox/src/cells.rs:25,11]
 
-## `portal/client/src/smartbox/worldmanager/worldmanager.cpp.c` (3/9)
+## `portal/client/src/smartbox/worldmanager/worldmanager.cpp.c` (4/9)
 
 ### WorldManager
 - [-] `WorldManager::WorldManager` · 0057c420 · legions 0054bcf0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [ ] `WorldManager::Init` · 0057c440 · legions 0054bd10 — needs port (check): WorldManager Init, SetRegion, Refresh, ResetWorldState; uncited
+- [-] `WorldManager::Init` · 0057c440 · legions 0054bd10 — replaced by design: builds landscape/cell/frill managers (called by WorldRender::Init); Rust client builds them directly [crates/ac2-smartbox/src/cells.rs:1-20; crates/ac2-client/src/client.rs]
 - [x] `WorldManager::IsBlockingForCells` · 0057c500 · legions 0054bdd0
 - [x] `WorldManager::Update` · 0057c510 · legions 0054bde0 — GameTime::UseTime, then unless blocking CObjectMaint::UseTime and the physics step
 - [x] `WorldManager::UpdateVisibleCells` · 0057c540 · legions 0054be10
-- [ ] `WorldManager::SetRegion` · 0057c570 · legions 0054be40 — needs port (check): WorldManager Init, SetRegion, Refresh, ResetWorldState; uncited
-- [ ] `WorldManager::Refresh` · 0057c5e0 · legions 0054beb0 — needs port (check): WorldManager Init, SetRegion, Refresh, ResetWorldState; uncited
+- [-] `WorldManager::SetRegion` · 0057c570 · legions 0054be40 — the region never changes: every release ships one region (0x0F000000) and one cell file (cell_1.dat), and Pyrealium CreatePlayer always names region 1 (pyrealium-server bootstrap.rs REGION), the region loaded at start, so WorldManager::SetRegion (CurRegion == rid) does nothing
+- [-] `WorldManager::Refresh` · 0057c5e0 · legions 0054beb0 — not needed: refresh after data change; client reads static DATs
 - [-] `WorldManager::~WorldManager` · 0057c610 · legions 0054bee0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [ ] `WorldManager::ResetWorldState` · 0057c6b0 · legions 0054bf80 — needs port (check): WorldManager Init, SetRegion, Refresh, ResetWorldState; uncited
+- [x] `WorldManager::ResetWorldState` · 0057c6b0 · legions 0054bf80 — audit: covered: LeftWorld/Disconnected clears camera, remotes, cells [crates/ac2-client/src/client.rs:986-993]
 
 ## `portal/shared/src/objects/iidutils.cpp.c` (11/13)
 
 ### IIDUtils
-- [ ] `IIDUtils::CreateUI` · 006bc300 · legions 006512a0 — needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
+- [-] `IIDUtils::CreateUI` · 006bc300 · legions 006512a0 — replaced by design: UI scene ids are made by UISceneManager::Init; ac2-ui keeps scene entities by Rust handle [crates/ac2-net/src/iid.rs:1-5]
 - [x] `IIDUtils::CreateTemporary` · 006bc340 · legions 006512e0 — ac2-smartbox temporary_ids.rs TEMPORARY_BASE: CreateTemporary(0), type 0x13 in the top byte, index 0
 - [x] `IIDUtils::GetType` · 006bc380 · legions 00651320 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 - [x] `IIDUtils::VerifyPlayer` · 006bc410 · legions 006513b0 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
@@ -383,4 +383,4 @@ Legend and workflow: [README](README.md).
 - [x] `IIDUtils::ReadBlock` · 006bc4e0 · legions 00651480 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 - [x] `IIDUtils::GetCameraParent` · 006bc4f0 · legions 00651490 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `IIDUtils::GetCameraTarget` · 006bc510 · legions 006514b0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
-- [ ] `IIDUtils::CreateStatic` · 006bc530 · legions 006514d0 — needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
+- [-] `IIDUtils::CreateStatic` · 006bc530 · legions 006514d0 — only caller LandDefs::InqLandblockIIDFromStaticObjectIID, reached only from its efun, which the wlib never calls (ac2-script catalog); a ground drop names its landblock as 0x00000000XXYY0000 in the captured packets Pyrealium checks (inventory_request.rs), not as a static IID

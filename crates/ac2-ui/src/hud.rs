@@ -180,6 +180,8 @@ pub struct GameplayHud {
     /// The Tracker's eyeball on the radar and its window (`ac2_macro::tracker`), hidden until the
     /// eyeball opens it.
     pub tracker: Option<crate::tracker_ui::TrackerUi>,
+    /// The automatic tools' settings window (`ac2_macro::automation`), opened from the Tracker's.
+    pub automation: Option<crate::automation_ui::AutomationUi>,
     /// The modern style's Edit layout mode (`modern_layout_edit`).
     pub modern_edit: Option<crate::modern_layout_edit::EditLayout>,
     /// The modern style's targeting banner (`modern_banner`).
@@ -547,6 +549,9 @@ pub fn build_styled_hud(
         crate::tracker_ui::TrackerUi::create(&mut tree, gameplay, &all_layouts, radar_top)
     });
     radar.place_eye(&mut tree, tracker.as_ref().and_then(|t| t.button()));
+    let automation = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .map(|gameplay| crate::automation_ui::AutomationUi::create(&mut tree, gameplay));
     // The modern Edit layout mode, made from the first chat window's layout.
     let modern_banner = (style == HudStyle::Modern)
         .then(|| {
@@ -639,6 +644,7 @@ pub fn build_styled_hud(
         book,
         help,
         tracker,
+        automation,
         modern_edit,
         modern_banner,
         guide_arrow,

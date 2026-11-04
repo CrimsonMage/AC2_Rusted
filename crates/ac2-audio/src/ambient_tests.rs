@@ -185,7 +185,7 @@ fn the_region_sound_desc_decodes() {
     for info in &data.desc.sounds {
         assert_eq!(info.env >> 24, 0x29, "an EnvInfo");
         for contin in &info.contin {
-            // Every Legions ambient sound is dominant-only music.
+            // Every ambient sound of the 7160 and 7230 region is dominant-only 2D music.
             assert!(contin.test(2) && contin.test(4), "{contin:?}");
             assert_eq!(contin.sound >> 24, 0x2C);
             assert!(!data.is_3d(contin.sound));
@@ -300,4 +300,56 @@ fn the_intermittent_sound_fires_on_its_timer_within_its_wait_and_repeats_exactly
     // Retail's `Random::rand` stream is fixed (its state is never reseeded), so the same
     // weighing gives the same schedule.
     assert_eq!(times, chime_times(60.0));
+}
+
+/// `IntermitObject::Play` rolls a pitch between `m_min_pitch` and `m_max_pitch` and, away from 1,
+/// calls `IntermitSoundObject::SetTempo_Internal` right after `Play_Internal`. The new playing
+/// sound has no buffer yet (`GetAudioPathAndBuffers` runs on its first `PlayInternal`, from the
+/// manager's `UseTime`), so `DirectXPlayingSound::SetFrequency` returns 0 and the sound plays at
+/// its own rate, in retail as here.
+#[test]
+fn an_intermittent_sounds_pitch_finds_no_buffer_yet() {
+    let sink = RecordingSink::new();
+    let mut manager = SoundManager::new(Box::new(sink.clone()), Arc::new(Chimes));
+    let mut ambient = AmbientSound::default();
+    let mut info = intermit(CHIMES, 2.0, 4.0);
+    info.bit_field = 1;
+    info.min_pitch = 1.5;
+    info.max_pitch = 1.5;
+    ambient.set_data(Some(Arc::new(AmbientData::new(
+        SoundDesc {
+            sounds: vec![AmbientSoundInfo {
+                sound_type: FOREST,
+                env: 0x2900_0001,
+                intermit: vec![info],
+                contin: Vec::new(),
+            }],
+        },
+        HashMap::new(),
+    ))));
+    update(
+        &mut ambient,
+        &mut manager,
+        1.0,
+        &[(FOREST, [5.0, 0.0, 0.0])],
+    );
+    for step in 1..=60 {
+        let now = 1.0 + f64::from(step) * 0.5;
+        ambient.use_time(now, &mut manager);
+        manager.wait_for_loads(WAIT);
+        manager.use_time(now);
+    }
+    let commands = sink.commands();
+    let started: Vec<u32> = commands
+        .iter()
+        .filter_map(|c| match c {
+            SinkCommand::Start { frequency, .. } => Some(*frequency),
+            _ => None,
+        })
+        .collect();
+    assert!(started.len() > 2, "{started:?}");
+    assert!(started.iter().all(|&f| f == 8000), "{started:?}");
+    assert!(!commands
+        .iter()
+        .any(|c| matches!(c, SinkCommand::Frequency { .. })));
 }

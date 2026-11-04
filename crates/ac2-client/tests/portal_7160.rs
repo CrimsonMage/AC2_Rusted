@@ -93,7 +93,13 @@ fn a_teleport_runs_the_portal_space_and_places_the_player_at_the_destination() {
     server
         .borrow_mut()
         .teleport_player(INTERIOR_CELL, INTERIOR_ORIGIN, 5, 6);
+    assert!(
+        !client.take_turn_off_run_lock(),
+        "no teleport, no run-lock release"
+    );
     let start = frame(&mut client, &server, &mut notices);
+    // `SmartBox::HandleTeleport` calls `ActionInterpreter::TurnOffRunLock` (Legions 0x00544220).
+    assert!(client.take_turn_off_run_lock());
     // `SmartBox::HandleTeleport`: the body leaves the world, the portal space is wanted, and the
     // destination is not resident yet (its cells load on the loader threads). The effect's
     // `Think` runs in the SmartBox step, before the events, so its phase starts the next frame.

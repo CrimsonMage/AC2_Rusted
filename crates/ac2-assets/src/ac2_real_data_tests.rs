@@ -440,6 +440,46 @@ fn total_icon_desc_merges_the_chain_and_applies_icon_atoms() {
     assert!(with_layers > 0);
 }
 
+/// `VisualDesc::GetTotalIconDesc` split for a local description (`ac2_icon_desc_parts`): the
+/// chain's layers, then the atoms of the global keys given, recombine to the whole description
+/// when the keys are the visual's own, and a description without global keys gets no atoms.
+#[test]
+fn icon_desc_parts_recombine_to_the_total_icon_desc() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let mut with_atoms = 0;
+    for did in dataset.ids_in_range(DatFileKind::Portal, 0x1F00_0000, 0x1FFF_FFFF) {
+        let visual = DataId::new(did);
+        let Some(total) = crate::ac2_total_icon_desc(&store, visual, None).unwrap() else {
+            continue;
+        };
+        let desc = store
+            .load_cached_packed::<crate::Ac2VisualDesc>(TypedResourceRef::new(
+                DatFileKind::Portal,
+                visual,
+                0,
+            ))
+            .unwrap()
+            .unwrap();
+        let own: Vec<_> = desc
+            .global_appearance
+            .iter()
+            .map(|(table, keys)| (*table, keys.to_vec()))
+            .collect();
+        let (chain, atoms) = crate::ac2_icon_desc_parts(&store, visual, own).unwrap();
+        with_atoms += atoms.len();
+        let mut recombined = crate::Ac2IconDesc { layers: chain };
+        for atom in &atoms {
+            recombined.apply_additive_layer(atom);
+        }
+        assert_eq!(recombined.layers, total.layers, "{did:08X}");
+        let (_, none) = crate::ac2_icon_desc_parts(&store, visual, Vec::new()).unwrap();
+        assert!(none.is_empty(), "{did:08X}: no global keys, no atoms");
+    }
+    eprintln!("{with_atoms} icon atoms from the visuals' own global keys");
+}
+
 /// `RenderMaterial::GetSubObjects` applies a material's own property table at load: the portal
 /// swirl particles' template (`0x2B000023`, under `pt_twirl.mi` and `pt_twirlfire2.mi`) streams
 /// its layer with depth writes on and its `DepthWrite` property off, so the particles draw
@@ -458,4 +498,65 @@ fn a_materials_own_properties_override_its_streamed_layer() {
         assert_eq!(layer.cull_mode, 1, "{did:08x} culls nothing");
         assert_eq!(layer.stages[0].texture, Some(DataId::new(texture)));
     }
+}
+
+/// `RenderDeviceD3D::SetupState` binds `SceneTool::GetFrameBufferTexture` to a stage whose
+/// `m_SpecialTexture` is 1 and `GetDistortionMap` to one whose is 2. The DATs' only such stage
+/// is the first of `unlit_framebuffertex_diffusealphamap.mat` (1), whose only instance is
+/// `pt_heatdistortion.mi`, and no particle system or mesh draws that instance (nor does any other
+/// record name it), so neither special texture is ever drawn.
+#[test]
+fn the_special_texture_stages_are_never_drawn() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let portal = |prefix: u32| -> Vec<u32> {
+        dataset
+            .ids_in_range(DatFileKind::Portal, prefix, prefix | 0x00FF_FFFF)
+            .collect()
+    };
+    let load = |did: u32| TypedResourceRef::new(DatFileKind::Portal, DataId::new(did), 0);
+    let special: Vec<(u32, u32)> = portal(0x2B00_0000)
+        .into_iter()
+        .filter_map(|did| {
+            let material = store
+                .load_cached_packed::<Ac2RenderMaterial>(load(did))
+                .ok()??;
+            let kind = material
+                .layers
+                .iter()
+                .flat_map(|layer| layer.stages.iter())
+                .map(|stage| stage.special_texture)
+                .find(|kind| *kind != 0)?;
+            Some((did, kind))
+        })
+        .collect();
+    assert_eq!(special, [(0x2B00_0065, 1)]);
+    let instances: Vec<u32> = portal(0x3100_0000)
+        .into_iter()
+        .filter(|did| {
+            store
+                .load_cached_packed::<Ac2MaterialInstance>(load(*did))
+                .ok()
+                .flatten()
+                .is_some_and(|instance| instance.material.raw() == 0x2B00_0065)
+        })
+        .collect();
+    assert_eq!(instances, [0x3100_0323]);
+    let drawn_by_particles = portal(0x3900_0000).into_iter().any(|did| {
+        store
+            .load_cached_packed::<crate::Ac2ParticleSystemDesc>(load(did))
+            .ok()
+            .flatten()
+            .is_some_and(|desc| desc.material.is_some_and(|m| m.raw() == 0x3100_0323))
+    });
+    assert!(!drawn_by_particles);
+    let drawn_by_meshes = portal(0x0600_0000).into_iter().any(|did| {
+        store
+            .load_cached_packed::<crate::ac2_mesh::Ac2Mesh>(load(did))
+            .ok()
+            .flatten()
+            .is_some_and(|mesh| mesh.materials.iter().any(|m| m.raw() == 0x3100_0323))
+    });
+    assert!(!drawn_by_meshes);
 }

@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use ac2_client::{Client, Command, FrameInput};
 use ac2_core::DataId;
-use ac2_net::protocol::{InvTransmuteAllDesc, ScriptRequest, StringVariable};
+use ac2_net::protocol::{InvTransmuteAllDesc, PackValue, ScriptRequest, StringVariable};
 use ac2_script::data::DatScriptData;
 use ac2_script::host::inventory_queries::InventoryQueries;
 use ac2_script::host::ScriptHost;
@@ -270,7 +270,8 @@ fn drags_and_drops_refresh_the_frame() {
     );
     assert!(inv.equipped.is_empty());
     assert_eq!(container(&inv, PLAYER)[..], [SWORD]);
-    // The money bag: 50 out as a coin stack at the end of the pack, then the rations in.
+    // The money bag, through the player script's IFuns: 50 out as a coin stack at the end of
+    // the pack, then the sword in.
     assert_eq!(inv.money, 250);
     let (inv, notices) = run(
         &mut client,
@@ -298,7 +299,26 @@ fn drags_and_drops_refresh_the_frame() {
         .expect("the coin stack is listed");
     assert_eq!(coin.stats.quantity, 50);
     assert!(coin.stats.stackable);
-    let (inv, _) = run(
+    // The sword into the bag: the player's script values it (`CMoneySystem` 0x4: its quantity
+    // times its value, int 612, "That item cannot be transformed into money." when that is 0)
+    // and sends `WM_Money` 0x7; the double pays the quantity.
+    let (inv, notices) = run(
+        &mut client,
+        &server,
+        Command::DragToMoneyBag {
+            item: SWORD,
+            quantity: 1,
+            from_slot: 0,
+            from_container: PLAYER,
+        },
+    );
+    assert_eq!(inv.money, 201, "{notices:?}");
+    assert_eq!(container(&inv, PLAYER)[..], [items[1]]);
+    assert!(notices.contains(&GameplayNotice::GhostMoneyBag(false)));
+    // An item the script does not list in the player's inventory is refused before sending:
+    // "That item is not in your inventory." (the side pack's list the script keeps is the known
+    // gap above).
+    let (inv, notices) = run(
         &mut client,
         &server,
         Command::DragToMoneyBag {
@@ -308,8 +328,14 @@ fn drags_and_drops_refresh_the_frame() {
             from_container: PACK,
         },
     );
-    assert_eq!(inv.money, 203);
-    assert_eq!(container(&inv, PACK)[..], [POTIONS]);
+    assert_eq!(inv.money, 201);
+    assert!(
+        matches!(
+            &notices[..],
+            [GameplayNotice::DisplayStringInfo { kind: 1, .. }]
+        ),
+        "{notices:?}"
+    );
     // More than the player has is refused before sending.
     let (_, _) = run(
         &mut client,
@@ -327,6 +353,15 @@ fn drags_and_drops_refresh_the_frame() {
         .map(|c| c.function)
         .collect();
     assert_eq!(calls, [0x820F_0001, 0x820F_0002]);
+    assert_eq!(
+        server.borrow().script_calls[1].arguments,
+        [
+            PackValue::LongInt(PLAYER),
+            PackValue::Int(0),
+            PackValue::Int(1),
+            PackValue::LongInt(SWORD),
+        ]
+    );
 }
 
 /// `gmCWInterface::TransmuteAllFromContainer`: the take goes to the server as the container's

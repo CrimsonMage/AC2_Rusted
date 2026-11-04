@@ -6,7 +6,9 @@ use ac2_net::protocol::{GameplayOptionsProfile, ScriptCall, ScriptMessage};
 
 use super::gameplay::player_qualities;
 use super::{OnlineSession, SessionEvent};
-use crate::shell::{room_refused, ChatCommands, ChatHistory, ChatState, ShellAction, Speaker};
+use crate::shell::{
+    room_refused, ChatCommands, ChatHistory, ChatState, ScriptHelp, ShellAction, Speaker,
+};
 
 impl OnlineSession {
     /// The registered chat commands, resolved from the DATs on the loader side.
@@ -30,6 +32,22 @@ impl OnlineSession {
     /// speech). Messages go to the server byte-exact; lines for the chat windows and
     /// commands the port does not run come back.
     pub fn process_text(&mut self, line: &str) -> Vec<SessionEvent> {
+        self.process_text_inner(line, None)
+    }
+
+    /// [`Self::process_text`] for a line whose aliases the caller expanded
+    /// (`gmCWInterface::ExpandText` over the script's `InqAlias`): `line` joins the history,
+    /// `expanded` runs.
+    pub fn process_text_expanded(&mut self, line: &str, expanded: &str) -> Vec<SessionEvent> {
+        self.process_text_inner(line, Some(expanded))
+    }
+
+    /// `CPlayerShell::ExpandableText`: whether `line`'s aliases are expanded.
+    pub fn chat_expandable(&self, line: &str) -> bool {
+        self.chat.expandable(line)
+    }
+
+    fn process_text_inner(&mut self, line: &str, expanded: Option<&str>) -> Vec<SessionEvent> {
         let q = player_qualities(&self.world);
         let weenie = q.weenie.as_ref();
         let name = weenie
@@ -44,9 +62,13 @@ impl OnlineSession {
             name: &name,
             monarch,
         };
-        let actions = self
-            .chat
-            .process_text(line, speaker, self.script.string_tables());
+        let tables = self.script.string_tables();
+        let actions = match expanded {
+            Some(expanded) => self
+                .chat
+                .process_expanded_text(line, expanded, speaker, tables),
+            None => self.chat.process_text(line, speaker, tables),
+        };
         let mut out = Vec::new();
         for action in actions {
             match action {
@@ -77,9 +99,10 @@ impl OnlineSession {
 
     /// `CWInterface::DisplayHelpText(cmd)`: the help the shell has for `cmd` (everything for an
     /// empty one) as lines for the chat windows.
-    pub fn display_help(&self, cmd: &str) -> Vec<SessionEvent> {
+    /// `script` is what the script's own help functions answered (`DoHelpInterp`).
+    pub fn display_help(&self, cmd: &str, script: &ScriptHelp) -> Vec<SessionEvent> {
         self.chat
-            .display_help(cmd, self.script.string_tables())
+            .display_help(cmd, self.script.string_tables(), script)
             .into_iter()
             .filter_map(|action| match action {
                 ShellAction::Notice(notice) => Some(SessionEvent::Notice(notice)),

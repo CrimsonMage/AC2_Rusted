@@ -95,6 +95,7 @@ impl NameTable for DatNames {
             .or_else(|| ac2_ui::hud_style::client_key_name(id).map(str::to_owned))
             .or_else(|| ac2_ui::ui_scale_pref::key_name(id).map(str::to_owned))
             .or_else(|| ac2_ui::damage_text_pref::key_name(id).map(str::to_owned))
+            .or_else(|| ac2_ui::hit_chance_pref::key_name(id).map(str::to_owned))
     }
 
     fn enum_name(&self, map: u32, label: u32) -> Option<String> {
@@ -107,13 +108,16 @@ impl NameTable for DatNames {
 }
 
 /// `StringStateInfo::GetTopGoreLevel` and `GetTopBloodLevel` of the language's `StringState`
-/// (the first of the local DAT), `None` without one.
-fn top_levels(store: &ResourceStore) -> Option<(u32, u32)> {
+/// (the first of the local DAT) with the command line's overrides, `None` without one.
+fn top_levels(store: &ResourceStore, overrides: ac2_db::TopLevelOverrides) -> Option<(u32, u32)> {
     let state = ac2_db::load_string_state(store, ac2_core::DataId::new(0x5800_0000))
         .ok()
         .flatten()?;
-    Some((state.settings[0], state.settings[1]))
+    Some(overrides.top_levels(&state))
 }
+
+/// The mesh type mapper (`CGfxObj::mesh_type` names).
+const MESH_TYPE_MAP: u32 = 0x4000_000F;
 
 /// The client's preferences: the file with the subsystems' preferences registered, over the DAT's
 /// names. The file's methods are reached through `Deref`.
@@ -122,27 +126,52 @@ pub struct ClientPrefs {
     /// The overall graphics quality level last applied (`set_overall_graphics_quality`): the
     /// ambient occlusion tier follows it.
     quality_level: Option<u32>,
+    /// The mesh types `CBaseMesh::DrawMesh` leaves out of the first-person player
+    /// (`EnumMapper::GetEnum(0x4000000F, "Head" | "Beard" | "Crest" | "Totem")`), those the DAT names.
+    head_mesh_types: Vec<u32>,
 }
 
 impl ClientPrefs {
     /// Reads `path` (an empty file when there is none) and registers the sound, render (graphics
     /// and display), camera and tooltip preferences. Runs before the frame loop.
     pub fn load(path: PathBuf, store: Arc<ResourceStore>) -> io::Result<Self> {
+        Self::load_with(path, store, ac2_db::TopLevelOverrides::default())
+    }
+
+    /// [`Self::load`] with the command line's `maxgore` / `greenblood` overrides, which cap the
+    /// gore and blood choices the FX section registers.
+    pub fn load_with(
+        path: PathBuf,
+        store: Arc<ResourceStore>,
+        overrides: ac2_db::TopLevelOverrides,
+    ) -> io::Result<Self> {
         let mut file = PrefsFile::load(path, DatNames::new(&store))?;
         let (bank, names) = file.parts_mut();
         ac2_audio::prefs::register(bank, names);
         ac2_render::prefs::register_graphics(bank, names);
         ac2_render::prefs::register_device(bank, names);
         ac2_smartbox::prefs::register(bank, names);
-        ac2_smartbox::fx_prefs::register(bank, names, top_levels(&store));
+        ac2_smartbox::fx_prefs::register(bank, names, top_levels(&store, overrides));
         ac2_ui::tooltip_prefs::register(bank, names);
         ac2_ui::hud_style::register(bank, names);
         ac2_ui::ui_scale_pref::register(bank, names);
         ac2_ui::damage_text_pref::register(bank, names);
+        ac2_ui::hit_chance_pref::register(bank, names);
+        let head_mesh_types = ["Head", "Beard", "Crest", "Totem"]
+            .into_iter()
+            .filter_map(|name| file.names().enum_label(MESH_TYPE_MAP, name))
+            .collect();
         Ok(Self {
             file,
             quality_level: None,
+            head_mesh_types,
         })
+    }
+
+    /// The mesh types a first-person player is drawn without (`CBaseMesh::DrawMesh` under
+    /// `HACK_bDrawingFirstPersonPlayer`): its head, beard, crest and totem.
+    pub fn head_mesh_types(&self) -> &[u32] {
+        &self.head_mesh_types
     }
 
     /// `Preferences::InqBool(0x40000004, 0x40000073)`: the saved graphics quality.
@@ -176,6 +205,17 @@ impl ClientPrefs {
             self.quality_level = Some(level);
         }
         applied
+    }
+
+    /// After an options apply: a graphics setup that matches a preset
+    /// (`ac2_render::prefs::matching_quality`, the level `Render::UpdateOverallGraphicsQuality`
+    /// saved with the apply) becomes the level the ambient occlusion and the scenery reach follow;
+    /// a custom one (0) keeps the last level.
+    pub fn follow_overall_graphics_quality(&mut self) {
+        let level = ac2_render::prefs::matching_quality(self.file.bank());
+        if level != 0 {
+            self.quality_level = Some(level);
+        }
     }
 
     /// The scene's graphics options as the bank holds them now (`ac2_render::prefs::scene_options`),
@@ -232,7 +272,8 @@ impl crate::Client {
     /// (`SoundManager::HandleApply`) and the camera's values (`CameraManager::HandleApply`). Returns
     /// the scene's graphics options for the view (`WorldScene::set_options`).
     pub fn apply_live_preferences(&mut self) -> Option<ac2_render::prefs::SceneOptions> {
-        let prefs = self.prefs.take()?;
+        let mut prefs = self.prefs.take()?;
+        prefs.follow_overall_graphics_quality();
         self.apply_sound_preferences(prefs.bank());
         self.apply_light_preferences(prefs.bank());
         self.apply_streak_preferences(prefs.bank());

@@ -35,10 +35,13 @@ game rules and server-visible behaviour exactly retail.
   async requests that `AsyncCache::UseTime` performs, as a per-frame time-budgeted drain of a
   channel fed by the workers. Verified (Legions 0x0065AE60): `AsyncCache::UseTime` is only that
   pump, a 25 ms `GetTickCount` budget over `LFQueue::Consume` of the pending callbacks, each run
-  then released by refcount. Not yet verified: whether `AddToDataGraph` matters outside tools,
-  and whether the Pyrealium server ever pushes updated portal objects (the retail on-disk
-  `AsyncCache` / `CMissingIteration` path exists for that). Read those before deleting the
-  related code, and record the findings here.
+  then released by refcount. Verified (2026-11-03): the Pyrealium server never pushes portal
+  objects. It sends only the end of the data download (`0x1003B`) before the character set, never
+  a begin (`0x1003A`, `CLCache::OnBeginDDD`), a data object (`0x10035`) or an answer to a
+  missing-DID `CCliDatRequestEvent` (`CLCache::AsyncGetFromOtherSources`; `pyrealium-server`
+  `crates/pyrealium/src/server.rs`), so the retail on-disk `AsyncCache` / `CMissingIteration`
+  download path is not ported. Not yet verified: whether `AddToDataGraph` matters outside tools;
+  read that before deleting the related code, and record the finding here.
 - Exception: the window resizes freely (a modern client), and the UI has a scale setting.
   Retail drew its UI pixel for pixel on the device's display, authored at 1024 x 768: every root
   is anchored to `RenderDevice::GetDisplayWidth` / `GetDisplayHeight`
@@ -93,6 +96,27 @@ game rules and server-visible behaviour exactly retail.
   texts made after it is applied (`OptionsEffect::DamageTextSize`,
   `ClientView::set_damage_text_size`, `DamageTexts::set_size`). The DATs have no larger Impact
   font to switch to, so the glyphs are grown from `impact_24`.
+- Exception: a creature's hit chance can show on its name plate. Retail showed it only in the
+  examination panel: the server ended a creature's `ExaminationProfile` (`WM_Examination` 0x9)
+  with "Chance to hit this target: " (`examination.stt` 0x9E78D75C) and the value (0xD81912CB, its
+  number the int variable 0xF6620CE8; every one of the 28,062 creature profiles in the 2017
+  captures has the row, last), and a name plate showed the name alone (`gm3DTextUI::AddName`).
+  The session keeps the latest value of every object profile it receives
+  (`ac2_weenie::OnlineSession::hit_chance`, `session/hit_chance.rs`). Two client-only switches in
+  the `Misc` section beside `DamageTextSize`, both off by default (`ac2_ui::hit_chance_pref`):
+  `ShowHitChanceOnNameplates` (key `0x7E000004`) puts the frame's values on the plates as
+  "Name 64%" in both HUD styles (`ClientFrame::hit_chances`, `hud_player::name_looks`), and
+  `ExamineNearbyForHitChance` (key `0x7E000005`) has the client ask for one creature's profile at
+  most once a second (`Client::examine_nearby_for_hit_chance`): a mobile object within 30 m on
+  the ground plane, in the camera's horizontal view, whose value is unknown or older than 60 s,
+  the nearest first. The request is the one the examination panel sends for an object
+  (`CExaminationSystem` 0xE: `WM_Examination` 0x7, `ExaminationRequest::object`, the General tab
+  word 0x203), sent only while the player examines nothing, and followed by the cleared request
+  the panel's close sends (`CExaminationSystem` 0xC) once its answer is in. The answer is kept and
+  not shown: the player's examination request, selection and panel do not change (retail's
+  examine always went through the selection and the panel, so the request is sent from the
+  session directly, not through `SetExaminationRequest`). A player examination of the same
+  object shows its answer as usual.
 - Exception: a window nobody placed takes its authored place proportionally. Retail applied a
   window location only where the profile held one (`UIMainFramework::ApplyLocations` for the
   entries of the player's `UISaveLocations`, run on `gmGamePlayUI::ListenToMessage` `0xffff0007`
@@ -567,7 +591,9 @@ game rules and server-visible behaviour exactly retail.
   `QUALITY_PRESETS` table stays as retail has it) and `RenderDeviceD3D::SetStageFilterMode` made a
   LINEAR min or mag filter ANISOTROPIC only while the preference was on, at the caps'
   `MaxAnisotropy`, with a LINEAR mip filter only while `TrilinearFiltering` was on. `apply_quality`
-  (`ac2_render::prefs`) sets `AnisotropicFiltering` after the preset at levels 4 and 5, and the
+  (`ac2_render::prefs`) sets `AnisotropicFiltering` after the preset at levels 4 and 5, so
+  `Render::UpdateOverallGraphicsQuality` (`matching_quality`, run on every options apply) expects
+  it on at those two levels where retail's comparison expected it off, and the
   samplers (`ac2_gpu::TextureFiltering`) clamp at 16 where the adapter has
   `ANISOTROPIC_FILTERING` (retail's caps check). wgpu allows a clamp above 1 only with min, mag
   and mip all linear, so a stage is anisotropic only when both its min and mag filters are linear
@@ -616,6 +642,10 @@ game rules and server-visible behaviour exactly retail.
   within 60 m (`frill::grass_pushers`, `grass_push` in `object.wgsl`): the part of a blade within
   0.75 m (times the body's scale) of a body's feet is carried out to that reach and sinks as it
   bends, its base planted. Retail's frills stood still and the bodies walked through them.
+  At `LandscapeFrillDistance` 0 (quality levels 1 to 3, and the registered default) no frill draws,
+  neither retail's ring nor the client's, as `SmartBox::InitPreferences` turns them off
+  (`FrillRender::EnableFrillObjects(0)`); 1 and 2 keep a ring radius of 1, 3 a radius of 2
+  (`FrillRender::SetOutsideRadius`).
   Frills keep retail's lit vertex program for their light (`object_modern.wgsl`
   `frill_retail_colour`): the sun's N.L, the point lights and the ambient summed and clamped in
   display space, times the stage's MODULATE2X albedo, decoded once, where other lit objects sum
@@ -642,6 +672,40 @@ game rules and server-visible behaviour exactly retail.
   Windows the client makes may draw a frame in nine pieces
   (`ac2_ui::compose::NINE_SLICE`: corners kept, edges and middle stretched) where retail drew a
   frame image only at its own size, stretched or tiled.
+- Exception: automatic tools (`ac2_macro::automation`, a modern addition; retail had none and
+  every action waited for the player). Each, once switched on, acts by itself, and everything it
+  does is one of the player's own gestures, carried out through the path that gesture takes
+  (`ac2_client::automation`, at the start of the next frame): no tool builds or sends a message of
+  its own, so what reaches the server is byte for byte what the gesture sends
+  (`automation_7160`). The settings window (`ac2_ui::automation_ui`: another `Book` of the gameplay
+  layout made as its own root, like the Tracker's, its choices bracketed words a press changes) is
+  opened by a Tools button in the Tracker window (the tools live in the same crate as the Tracker,
+  and the radar's ring has no second socket to copy for a button of their own); the choices are
+  saved per character in the config directory's `automation` folder (`<character id>.txt`),
+  read and written on a worker (`ac2_client::hud_automation`), and a new character starts with
+  both off. Auto-butcher: when a world object's `Usage_TargetType` (721) shares a bit with the
+  `Usage_ValidTargetTypes` (722) of an item in the pack (the butchering knives: 8), the object is
+  within the reach (6 m by default, Pyrealium's butchering reach; the client does not walk to it),
+  it was not tried before, and it is not eight or more levels below the player (quality 0x12E,
+  when both are known; AC2Hero `butcher.html`), the knife is used as its double-click does
+  (`Select`, `UseSelection`: `CUsageSystem` 0x9 arms the targeting pointer) and, once
+  `SetTargetingPointer` arms, the corpse is clicked (`Select`, `UseSelection`; the player's
+  script sends `WM_Usage`); it waits while the player attacks (an option) and between uses (2 s).
+  A refusal (`WM_Usage` 0x23), no pointer within 3 s or nothing reaching the pack within 5 s
+  switches it off with a chat line. "Only my kills" (on by default) uses a corpse only when its
+  examination names the player as its killer: a corpse's profile has "Killed by" (`examination.stt`
+  0x32A6B06F) with the killer's name in the StringInfo variable 0x23A664C8 (every one of the
+  5,302 corpse profiles in the 2017 captures; the name ends in a grammar tag such as " [M]",
+  matched without it against the character set's name). The tool asks for the profile quietly,
+  as the name plates' hit chance does (`OnlineSession::examine_quietly`: the panel's object
+  request, then the cleared one; the answer kept, not shown), the one request of the tools' own;
+  a corpse whose profile names no killer within 5 s is passed over. Off, it uses any corpse. Auto-rebuff: the player picks effects from the status strip's
+  list (`InqEffectList`) and, for each, a skill on the shortcut bar; when the effect is missing or
+  ends within the lead time (30 s), the skill's slot is pressed as the bar does
+  (`gmCWInterface::UseShortcut`). A skill not on the bar is never used (no other gesture casts
+  it); it waits out of combat (an option), above a vigor share (20%), for a special attack in
+  flight to end (an option), for the skill's own timer (`InqSkillTimeLeft`), and 2 s between
+  casts; a cast that does not renew its effect within 5 s is not tried for 60 s.
 - Exception: the launcher (`crates/ac2-launcher`, a modern addition; retail's was the separate
   `ac2launcher.exe`). It works as ThwargLauncher does: a server is a name, a connect string
   (`host:port`) and a type (`emu`: `Pyrealium`, `AC2E` or `Relaunch`; `AC2E` is Thwargle's server, which Pyrealium continues, and takes the same command line), and the launcher builds the client's
@@ -842,10 +906,11 @@ game rules and server-visible behaviour exactly retail.
   DATs, so the DVD's give `7160`). `scripts/pyrealium-login-test.sh` starts a server, logs on through
   `ac2-login-probe` to the character set and stops it; `scripts/pyrealium-server.sh` keeps one running
   for the client (`ac2 --server 127.0.0.1:9000 --account local`). Pyrealium is a separate project
-  the client does not build or reach into: the scripts run its installed executable (`PYREALIUM_BIN`)
-  with a settings file they write (`pyrealium run`), on a PostgreSQL server the user provides
-  (`PYREALIUM_POSTGRES`), each state directory its own database; the live suite drops each run's
-  database afterwards (`pyrealium db drop`). The in-process
+  the client does not build or reach into: `scripts/pyrealium-live-test.sh` runs the server
+  checkout's own `scripts/test-server.sh` (`PYREALIUM_DIR`, default `../pyrealium-server`), which
+  writes the settings and runs its executable (`PYREALIUM_BIN`, default that checkout's
+  `target/release/pyrealium`), each state directory with its own SQLite database file, dropped
+  after each run (`pyrealium db drop`). The in-process
   `legions-server-double` stays the 7160 path's test peer.
 - Effects (buffs and debuffs): the client is retail's. The server adds a timed effect to the player
   with `WM_Effect` 0x17 (an `EffectRecord` and its `Effect` state) and removes it with 0x16; the
@@ -1016,8 +1081,12 @@ game rules and server-visible behaviour exactly retail.
   quality (`gmCWInterface::GetIconID`) when it has no layers. The tools and the starter apparel
   have `ICON` = `default_icon.tga` (0x4100034b, the "?") and carry the real icon as four layers in
   their `VisualDesc` (e.g. 0x1f00058e: 0x41005961, 0x410048b4, 0x410048b5, 0x41004314).
-  `Request::TotalIcon` reads them (`ac2_assets::ac2_total_icon_desc`), `Client::total_icons` keeps
-  them, `inventory_frame` puts them under the wire's local layers, and `ItemUpdate` redraws the slot.
+  `Request::TotalIcon` reads the chain's layers and the icon atoms of the local description's
+  global appearance keys (`ac2_assets::ac2_icon_desc_parts`; retail takes the atoms only from
+  `this->m_global_app_mods`, not from the DAT chain's), `Client::item_icons` keeps them,
+  `item_icon_layers` merges the chain, the local layers (the drawn description, appearance FX
+  included) and the atoms in that order, a change of the global keys asks again, and `ItemUpdate`
+  redraws the slot.
 - Exception: a craft query that waits for DAT data is asked again by its panel. Retail's
   `gmCWInterface::InqCraftSkillList` / `InqRecipeList` (and the other craft queries) ran the
   player's script, which read the craft records from the DATs synchronously. Here the frame thread
@@ -1179,7 +1248,8 @@ game rules and server-visible behaviour exactly retail.
   (Turbine's billing service is gone); the options are parsed and kept. The local GUN port is
   `Preferences::InqBool(0x4000000F, 0x41000001)` read from the user's preferences file, absent
   being 0. `gmClient::RecvNotice_CharacterSet`'s trailing virtual call (`+0x9C`, after it sets
-  `S_fUseTurbineChatInsteadOfGUN`) is not modelled.
+  `S_fUseTurbineChatInsteadOfGUN`) is `Turbine::Client::StartupTurbineChat` (Legions 0x006A2A30),
+  whose chat manager is the built-in Turbine chat.
   (11) Scripts' `gTurbineGunUtils::GetWorldName`/`GetWorldSuffix` read `S_pTurbineGun`'s names
   as retail's do, so without `-gunserver` (the default) they are empty strings (the client's own
   `world_name` still feeds the assistance page). The GUN failure strings

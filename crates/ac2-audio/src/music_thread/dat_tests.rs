@@ -136,6 +136,7 @@ fn a_dat_segment_queued_plays_its_notes_and_the_next_measure_follows_the_groove(
     thread.use_time(0.0, None);
     for handle in 1..=COPIES {
         assert!(thread.play(SegmentInfo {
+            start: crate::sink::Boundary::Immediate,
             kind: SegmentKind::Secondary,
             handle,
             segment: Arc::clone(&music),
@@ -352,6 +353,7 @@ fn a_dat_band_segment_starting_reaches_a_note_segment_already_playing() {
     let mut thread = MusicThread::new();
     thread.use_time(0.0, None);
     assert!(thread.play(SegmentInfo {
+        start: crate::sink::Boundary::Immediate,
         kind: SegmentKind::Secondary,
         handle: 1,
         segment: Arc::clone(&note_music),
@@ -364,6 +366,7 @@ fn a_dat_band_segment_starting_reaches_a_note_segment_already_playing() {
     thread.send_events(&mut early);
     // The band segment starts at 0.5 s: the note segment's voice is told the band's sources.
     assert!(thread.play(SegmentInfo {
+        start: crate::sink::Boundary::Immediate,
         kind: SegmentKind::Secondary,
         handle: 2,
         segment: Arc::clone(&band_music),

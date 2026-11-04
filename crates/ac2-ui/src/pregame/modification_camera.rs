@@ -57,7 +57,8 @@ fn framing(race: u32, zoomed: bool) -> (f64, f64, f64, f64) {
     (scale, height, target, distance)
 }
 
-/// `InitCamera` then `UpdateCamera`: the eye at the race's height and distance fractions of the
+/// `InitCamera` then `UpdateCamera` (`Matrix4::LookAt` from the eye to the target with the world's
+/// z up, as the returned `Camera` is drawn): the eye at the race's height and distance fractions of the
 /// avatar's height (its box, scaled by the avatar's height when zoomed, the lower three
 /// quarters then skipped), looking at the target height on the avatar's axis, turned about it
 /// so the camera's heading is the rotation slider's position times 360 degrees.

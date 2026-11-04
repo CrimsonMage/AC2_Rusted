@@ -73,6 +73,8 @@ struct Drawn<'a> {
     adaptive: bool,
     /// The body's speed (`CPhysicsObj::GetVelocity`'s length), which a particle repulsor reads.
     speed: f32,
+    /// Mesh types the world pass leaves out (the first-person player's head parts).
+    hidden_mesh_types: &'a [u32],
 }
 
 /// The view's state.
@@ -162,32 +164,38 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
     // `CPhysicsObj`'s draw: a first-person camera that hides the avatar hides what it holds too
     // (the root parent is the player).
     let hidden = frame.player.as_ref().filter(|p| p.hidden).map(|p| p.id);
-    let player = frame.player.iter().filter(|p| !p.hidden).filter_map(|p| {
-        let visual = p.visual?;
-        Some(Drawn {
-            id: p.id,
-            player: true,
-            visual,
-            key: model_key(visual, &p.appearance),
-            appearance: &p.appearance,
-            cell: p.cell,
-            origin: p.origin,
-            rotation: p.rotation,
-            pose: &p.pose,
-            child_poses: &p.child_poses,
-            tint: ac2_smartbox::fx_objects::drawn_tint(
-                frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
-                p.anim_scale,
-            ),
-            body_scale: Vec3::ONE,
-            child_scale: p.child_scale,
-            follow: None,
-            held: None,
-            placement: None,
-            adaptive: true,
-            speed: Vec3::from(p.velocity).length(),
-        })
-    });
+    // `CPhysicsObj::Draw` skips a no-draw object (`is_nodraw`).
+    let player = frame
+        .player
+        .iter()
+        .filter(|p| !p.hidden && !frame.no_draw.contains(&p.id))
+        .filter_map(|p| {
+            let visual = p.visual?;
+            Some(Drawn {
+                id: p.id,
+                player: true,
+                visual,
+                key: model_key(visual, &p.appearance),
+                appearance: &p.appearance,
+                cell: p.cell,
+                origin: p.origin,
+                rotation: p.rotation,
+                pose: &p.pose,
+                child_poses: &p.child_poses,
+                tint: ac2_smartbox::fx_objects::drawn_tint(
+                    frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
+                    p.anim_scale,
+                ),
+                body_scale: Vec3::ONE,
+                child_scale: p.child_scale,
+                follow: None,
+                held: None,
+                placement: None,
+                adaptive: true,
+                speed: Vec3::from(p.velocity).length(),
+                hidden_mesh_types: &p.hidden_mesh_types,
+            })
+        });
     let others = frame
         .objects
         .iter()
@@ -197,7 +205,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             Some(holder) => holder.point.is_some(),
             None => o.in_world,
         })
-        .filter(|o| !frame.fx_looks.hidden.contains(&o.id))
+        .filter(|o| !frame.fx_looks.hidden.contains(&o.id) && !frame.no_draw.contains(&o.id))
         .filter(|o| hidden.is_none() || o.holder.map(|h| h.id) != hidden)
         .filter_map(|o| {
             let visual = o.visual?;
@@ -225,6 +233,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                 placement: o.holder.and_then(|holder| holder.orientation),
                 adaptive: o.adaptive_degrade,
                 speed: Vec3::from(o.velocity).length(),
+                hidden_mesh_types: &[],
             })
         });
     player.chain(others).collect()
@@ -595,6 +604,7 @@ impl ClientView {
                     ),
                     detail: lod.detail,
                     cell: drawn.cell,
+                    hidden_mesh_types: drawn.hidden_mesh_types.to_vec(),
                 })
             })
             .collect();
@@ -671,14 +681,26 @@ impl ClientView {
         depth: &wgpu::TextureView,
         world: bool,
     ) {
+        self.render_capturing(gpu, color, depth, world, None);
+    }
+
+    /// [`Self::render`], also drawing the world without the HUD into `capture` when given (the
+    /// screenshot, `SmartBox::RenderScreenshot`).
+    pub fn render_capturing(
+        &self,
+        gpu: &Gpu,
+        color: &wgpu::TextureView,
+        depth: &wgpu::TextureView,
+        world: bool,
+        capture: Option<&wgpu::TextureView>,
+    ) {
         profile_scope!("view.render");
         let (overlay, roots) = self.hud.layers_for_scenes();
         let draw_portal: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.portal.draw(pass);
-        crate::ui_scene::render_with_scenes(
+        crate::ui_scene::render_capturing(
             gpu,
             &self.presenter,
-            color,
-            depth,
+            (color, depth, capture),
             &self.hud.scale,
             [0.0; 3],
             overlay,

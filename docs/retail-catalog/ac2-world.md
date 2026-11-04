@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 369 done, 23 partial, 14 to do, 583 skipped.
+989 retail functions: 396 done, 0 partial, 0 to do, 593 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (47/140)
+## `portal/shared/src/cell/envcell.cpp.c` (50/140)
 
 ### PackObj
 - [-] `PackObj::Pack` · 0047f1a0 — write path (client reads DATs only)
@@ -94,7 +94,7 @@ Legend and workflow: [README](README.md).
 - [x] `CEnvCell::GetTouchesOutside` · 00480860 · legions 0047a730 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [-] `CEnvCell::DestroyStaticLights` · 00480890 · legions 0047a760 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CEnvCell::DrawCellMesh` · 00480900 · legions 0047a7d0 — ac2-render object/cell.rs load_cell_model: cell mesh with the dungeon appearance atoms at the cell frame, lights cached at 1.5x the bbox radius (scene/interiors.rs), and the degrade DrawMesh picks from factor 1 capped at 0.5 (medium detail) or 0 (low) via cell_degrade
-- [~] `CEnvCell::CullObjects` · 00480a80 · legions 0047a940 — ac2-render: the objects standing in a visible cell draw with it (scene/interiors.rs object_cells, ac2-gpu interior_instances); the per-object frustum test that sets m_nVisibleTimestamp is not ported
+- [-] `CEnvCell::CullObjects` · 00480a80 · legions 0047a940 — not needed: Pure culling optimisation (m_nVisibleTimestamp); depth test hides what retail culled. Performance only [crates/ac2-render/src/scene/interiors.rs; crates/ac2-gpu/src/scene.rs]
 - [x] `CEnvCell::LinkStaticLights` · 00480bc0 · legions 0047aa80 — sm_staticLights / LinkStaticLights / LinkDynamicLights / AddStaticLights: the block CLightInfo lights live per block (BlockInteriors::scene_lights, cell_lights) and the visible cells bind their cached lights each frame; the per-frame global link into the scene list for moving objects belongs to SceneTool::GetLightsForPosition (rg-outlights)
 - [x] `CEnvCell::LinkDynamicLights` · 00480c00 · legions 0047aac0 — sm_staticLights / LinkStaticLights / LinkDynamicLights / AddStaticLights: the block CLightInfo lights live per block (BlockInteriors::scene_lights, cell_lights) and the visible cells bind their cached lights each frame; the per-frame global link into the scene list for moving objects belongs to SceneTool::GetLightsForPosition (rg-outlights)
 - [x] `CEnvCell::RenderLightCoronas` · 00480c40 · legions 0047ab00 — ac2-render scene frame_coronas: the coronas of the lights of the cells the cull draws (Legions calls it from CEnvCell::CullCellsInternal, 0x0047F034/0x0047F097); drawn by ac2-gpu lens_flare.rs
@@ -140,7 +140,7 @@ Legend and workflow: [README](README.md).
 - [x] `CEnvCell::FindTransitCells` · 00482450 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [-] `CEnvCell::GetSubObjects` · 00482460 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CEnvCell::ApplyAtomCollection` · 004825c0 · legions 0047c490 — CEnvCell::ApplyAtomCollection: load_cell_model applies the cell appearance atoms (ac2_appearance_material_atoms) to the mesh materials once at load; retail re-applies and clears the lighting flags, which a client that never re-applies atoms does not need
-- [~] `CEnvCell::UpdateDynamicLights` · 00482710 · legions 0047c5b0 — range-animated lights ported (object/cell.rs light_animated_lights at the cell first light tick = load; retail later ticks return early on m_bDynamicLightingComputed; no shipped light animates its range). Sun time-of-day blend over GetSunLitIndices (force refresh path of DynamicLightVisibleCells) not ported: needs the sun colour and time-of-day indices at load and a GPU vertex-colour refresh
+- [x] `CEnvCell::UpdateDynamicLights` · 00482710 · legions 0047c5b0 — ported: ac2-render object/cell_sun.rs CellSun::bake (static diffuse, then two copies of the directional sun s_spSunlight type 0x40000002 over GetSunLitIndices(L0) at intensity x alpha and (L1) at x (1 - alpha) through the LightIndices directional step; no change when L0 is none; animated lights left out with bSunOnly); the Update path (static + animated at the first light tick) is the load bake. Not modelled: GameTime time dilation (taken as 1) and GameTime::GetNeedLightingRefresh. Tests a_dungeon_cells_sun_lit_vertices_take_the_sun, sun_direction_bits_are_the_two_nearest_and_the_first_cosine
 - [-] `CEnvCell::UpdateCellMaterial` · 00482a80 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### SmartArray<CCellPortal>
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 ### CEnvCell
 - [-] `CEnvCell::Allocate` · 00482c30 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CEnvCell::Allocator` · 00482c40 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [~] `CEnvCell::DynamicLightVisibleCells` · 00482c80 · legions 0047cb20 — range-animated lights ported (object/cell.rs light_animated_lights at the cell first light tick = load; retail later ticks return early on m_bDynamicLightingComputed; no shipped light animates its range). Sun time-of-day blend over GetSunLitIndices (force refresh path of DynamicLightVisibleCells) not ported: needs the sun colour and time-of-day indices at load and a GPU vertex-colour refresh
+- [x] `CEnvCell::DynamicLightVisibleCells` · 00482c80 · legions 0047cb20 — ported: ac2-render scene/interior_sun.rs over every resident cell: WorldRender::Update every 0.1 s marks unlit cells computed (load colours), WorldRender::Render takes m_bRefreshLighting (set at start, on landblock changes, and at the UpdateTimeOfDay light tick: GetLightTickSize(0.5) checked on its GetTickSize(0.5) tick) and while the viewer is in an env cell relights the unlit cells, or all when forced, with LScapeRender::GetSunLightDirectionBits (terrain/shadow.rs sun_light_direction_bits) and SetSunlight from the frame lighting; the new colours reach the GPU cells through SceneFrame::cell_colors (ac2-gpu set_vertices). Test the_refresh_flag_is_set_at_start_and_by_a_light_tick_and_taken_by_a_render
 - [x] `CEnvCell::find_in_visible_cells` · 00482d00 · legions 0047cba0 — ac2-render interior_cull.rs BlockCull::cell_at: the first cell in id order whose cell BSP holds the point; used to find the camera's cell in scene/mod.rs visible_interior_cells
 - [x] `CEnvCell::StreamPack` · 00482da0 — crates/ac2-world/src/ac2_env_cell.rs module decode in CEnvCell::StreamPack order
 
@@ -177,13 +177,13 @@ Legend and workflow: [README](README.md).
 - [x] `CEnvCell::CreatePhysicsObj` · 00483460 · legions 0047d300 — ac2-physics loader.rs load_block_interiors: each env-cell entity of type 0x40000001/0x40000007 (CEnvCell::InitStaticObjects filter, ac2-world env_cell_entities) becomes a StaticObject in that cell with shape, scale, blocking mask, at the entity offset; the entity resolves through resolve_entity_visual, the same CPhysicsObj::makeObjectInternal(EntityDesc) chain and 0x4000006B no-object rule as the outdoor path (shared with env_cell_markers); tested in loader_static_objects_tests.rs and ac2_interior_tests.rs.
 - [-] `CEnvCell::CreateLightSource` · 004834f0 · legions 0047d390 — entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
 - [x] `CEnvCell::CheckVisibility` · 00483680 · legions 0047d520 — ac2-render interior_cull.rs check_visibility (frustum vs cell box, then the portals that face the viewer's side against Frustum::check_polygon); WorkerPolygon/Frustum polygon clip in worker_polygon.rs and frustum.rs; wired by scene/mod.rs visible_interior_cells for every outside-stab cell that touches outside; unit tested
-- [~] `CEnvCell::GatherInsideObjects` · 00483970 · legions 0047d810 — static objects gather per visible cell (ac2-gpu scene.rs interior_instances); dynamic objects are not culled by their cell visibility (CEnvCell::CullObjects timestamp), the depth test hides them
+- [-] `CEnvCell::GatherInsideObjects` · 00483970 · legions 0047d810 — not needed: Pure culling optimisation (m_nVisibleTimestamp); depth test hides what retail culled. Performance only [crates/ac2-render/src/scene/interiors.rs; crates/ac2-gpu/src/scene.rs]
 - [-] `CEnvCell::FromFileNode` · 00483a60 — text source format (admin tools)
 - [x] `CEnvCell::AddStaticLights` · 00484090 · legions 0047d900 — sm_staticLights / LinkStaticLights / LinkDynamicLights / AddStaticLights: the block CLightInfo lights live per block (BlockInteriors::scene_lights, cell_lights) and the visible cells bind their cached lights each frame; the per-frame global link into the scene list for moving objects belongs to SceneTool::GetLightsForPosition (rg-outlights)
 - [x] `CEnvCell::GetNearbyGeometry` · 00484200 · legions 0047da70 — ac2-render scene/decals.rs dungeon_decal_ground + cell_geometry.rs nearby_geometry: the decal carries its cell (DecalSpec::cell); the block's resident CullCell (CObjCell::GetVisible) gives the cell mesh first degrade (CellGeometry, Arcs shared with the decoded mesh) and its portal polygons; triangles whose cell-local bounds overlap the box of the largest edge, plus one ring of portal neighbours whose portal bounds overlap, go through construct_decal. Not resident: no decal. Tests: nearby_geometry unit test, dungeon_decal_tests real data
 - [x] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-world env_cell_markers (same resolve_entity_visual as env_cell_entities, so drawn and collision entities agree); drawn by ac2-render scene interiors
 - [-] `CEnvCell::InitLightSources` · 00484710 · legions 0047df80 — entity-type 0x40000006 light sources: the DATs light interiors through CLightInfo (0xFFFC) records, which ac2-world decodes; no cell entity of that type is loaded
-- [~] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0 — static objects gather per visible cell (ac2-gpu scene.rs interior_instances); dynamic objects are not culled by their cell visibility (CEnvCell::CullObjects timestamp), the depth test hides them
+- [-] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0 — not needed: Pure culling optimisation (m_nVisibleTimestamp); depth test hides what retail culled. Performance only [crates/ac2-render/src/scene/interiors.rs; crates/ac2-gpu/src/scene.rs]
 - [-] `CEnvCell::InitLoad` · 00484800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### PList<IconModAtom>
@@ -243,13 +243,13 @@ Legend and workflow: [README](README.md).
 - [-] `AtomCollection::~AtomCollection` · 00487060 · legions 004808c0 — destructor (Rust Drop)
 
 ### CEnvCell
-- [ ] `CEnvCell::BuildAndApplyAtomCollection` · 00487180 · legions 004809e0 — needs port: CEnvCell::BuildAndApplyAtomCollection (only its constants are present)
+- [x] `CEnvCell::BuildAndApplyAtomCollection` · 00487180 · legions 004809e0 — audit: covered: Catalog "only its constants" is stale: dungeon appearance atoms retexture cell materials [crates/ac2-render/src/object/cell.rs:78; crates/ac2-assets/src/ac2_appearance.rs:42]
 - [-] `CEnvCell::ApplyProperty` · 00487270 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CEnvCell::ComputeCellGroups` · 004873b0 · legions 00480be0 — ac2-render interior_cull.rs compute_cell_groups: one EnvCellGroup per m_bNoCull cell (outside portals of its shared cells, exit cells that do not belong to a group); built when a block's interiors load
 - [-] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0 — frees the global group table; the groups live in BlockCull and drop with the block
 - [x] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — object/cell.rs bake_static_colors: base colour then LightIndices of every light that does not animate its range, waveforms read at the bake time; SumBumpMapVectors/NormalizeBumpMapVectors vertex vectors are the shader point_to_light (object.wgsl) summed per pixel from the cell lights
 
-## `portal/shared/src/cell/landblock.cpp.c` (37/72)
+## `portal/shared/src/cell/landblock.cpp.c` (43/72)
 
 ### LandDefs
 - [x] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970 — ac2-physics los (Terrain::los_check)
@@ -288,18 +288,18 @@ Legend and workflow: [README](README.md).
 
 ### CLandBlock
 - [-] `CLandBlock::RecoverFromFreelist` · 00488c60 · legions 004824e0 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [~] `CLandBlock::ClearForFreelist` · 00488d00 · legions 00482580 — Retail leaves-world each cell and static object (vtable slots) before pooling. ac2-physics Terrain::remove_block does the object and cell part; the LandBlockInfo vtable +0x5c call is not identified
+- [x] `CLandBlock::ClearForFreelist` · 00488d00 · legions 00482580 — audit: covered: Freelist pooling not reproduced (DBOCache exception AGENTS.md:20); LandBlockInfo vtable+0x5c call unidentified but it is block-pool teardown [crates/ac2-physics/src/terrain.rs (Terrain::remove_block)]
 - [x] `CLandBlock::GenerateMesh` · 00488d90 · legions 00482610 — mesh generation = ConstructVertices + ConstructPolygons (own done rows: ac2-world terrain mesh, ac2-physics Terrain::insert_heights polygons with their planes); SetMinMax is write-only in Legions
 - [x] `CLandBlock::GetNearestPixel` · 00488e10 · legions 00482690 — ac2-physics landdefs::get_nearest_pixel (LandDefs::GetNearestPixel, ties round down, f64 math) now backs Terrain::land_material; unit tested
 - [-] `CLandBlock::InitDynamicObjects` · 00488e70 · legions 004826f0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [-] `CLandBlock::ReleaseDynamicObjects` · 00488ec0 · legions 00482740 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandBlock::InqClearanceInfo` · 00488f10 · legions 00482790
-- [ ] `CLandBlock::InitializeQuadtree` · 00488f70 · legions 004827f0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
+- [-] `CLandBlock::InitializeQuadtree` · 00488f70 · legions 004827f0 — not needed: Quad tree is ported but is only an acceleration structure for culling/intersection; consumers are depth-tested draw or unreachable (DoIntersection) [crates/ac2-world/src/quad_tree.rs:1]
 - [-] `CLandBlock::ClearEncounterList` · 00489110 · legions 00482990 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandBlock::ObjectCollides` · 00489160 · legions 004829e0
 - [x] `CLandBlock::ProcFrill` · 004891c0 · legions 00482a40 — crates/ac2-world/src/ac2_landblock_info.rs frill placements (CLandBlock::ProcFrill)
 - [x] `CLandBlock::CheckRadius` · 00489230 · legions 00482ab0 — ac2-world ac2_scene/generate.rs check_radius re-read against Legions 0x00478000: slope band with the 0.0002 slack, circle-in-polygon, downhill heading (7.8539816 - atan2, degrees) against the low/high heading window, same early outs
-- [~] `CLandBlock::CullObjects` · 00489520 · legions 00482d70 — the outside-stab env cell part is ported (ac2-render interior_cull.rs check_visibility, scene/mod.rs); the block quadtree cull and the dynamic-object box test are not wired
+- [-] `CLandBlock::CullObjects` · 00489520 · legions 00482d70 — not needed: Pure culling optimisation (m_nVisibleTimestamp); depth test hides what retail culled. Performance only [crates/ac2-render/src/scene/interiors.rs; crates/ac2-gpu/src/scene.rs]
 - [x] `CLandBlock::TraceRay` · 00489820 · legions 00483060 — ac2-physics los (Terrain::los_check)
 - [x] `CLandBlock::InqObjects` · 00489a70 · legions 004832b0 — ac2-smartbox membership.rs inq_block_objects: every cell of the block in cell id order, static ones dropped when dynamic-only
 
@@ -336,7 +336,7 @@ Legend and workflow: [README](README.md).
 - [-] `CLandBlock::Clear` · 0048a420 · legions 00483d10 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandBlock::InitCellConnections` · 0048a460 · legions 00483d50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CLandBlock::CreateAmbientSoundPoints` · 0048a620 · legions 00483f10 — ac2-audio/ac2-client: ambient environments, groove
-- [ ] `CLandBlock::DoIntersection` · 0048a7e0 · legions 00484090 — needs port: landblock streaming: scenery, objects, cells, water, sound points
+- [-] `CLandBlock::DoIntersection` · 0048a7e0 · legions 00484090 — not needed: Only reached from CDetectionManager::DoIntersection/DoDetect, itself reached only from the DoIntersection efun that no Legions wlib calls [docs/retail-catalog/ac2-weenie.md:2320; docs/retail-catalog/ac2-physics.md:938]
 
 ### PSmartArray<InstanceID>
 - [x] `PSmartArray<InstanceID>::StreamPack` · 0048a9c0
@@ -348,28 +348,28 @@ Legend and workflow: [README](README.md).
 - [x] `CLandBlock::ProcEntity` · 0048ad70 · legions 00484620
 - [x] `CLandBlock::CreateStaticObjects` · 0048ae10 · legions 004846c0 — ac2-physics loader.rs load_block_objects + ac2-world ac2_landblock_info.rs ac2_entity_markers: only CLandBlockInfo types 0x40000001/0x40000007 (GenerateLBIObjectList non-weenie) plus generated scenery collide; 0x40000002 weenies and other types never become static objects; unplaceable (no land cell after adjust_to_outside) skipped. Scene vs LBI owner lists (m_scene_objects/m_lbi_objects) not modelled; no consumer needs them.
 - [x] `CLandBlock::AddDynamicObject` · 0048afe0 · legions 00484890 — ac2-smartbox membership.rs inq_objects, add_dynamic_object, remove_dynamic_object (swap-remove, DynamicObjectInfo timestamp)
-- [ ] `CLandBlock::AddToBrushList` · 0048b010 · legions 004848c0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [ ] `CLandBlock::GetAmbientSoundPoints` · 0048b170 · legions 00484a20 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [ ] `CLandBlock::DoDetect` · 0048b190 · legions 00484a40 — needs port: landblock streaming: scenery, objects, cells, water, sound points
+- [x] `CLandBlock::AddToBrushList` · 0048b010 · legions 004848c0 — audit: covered: WorldRender::DrawBrushes equivalent [crates/ac2-render/src/scene/mod.rs:180; crates/ac2-gpu/src/scene.rs:884-896]
+- [x] `CLandBlock::GetAmbientSoundPoints` · 0048b170 · legions 00484a20 — covered: ac2-world ac2_scene/sound.rs ac2_ambient_sound_points (CreateAmbientSoundPoints), asked by the client loader per resident block (world_data.rs); doc names it
+- [-] `CLandBlock::DoDetect` · 0048b190 · legions 00484a40 — not needed: Only reached from CDetectionManager::DoIntersection/DoDetect, itself reached only from the DoIntersection efun that no Legions wlib calls [docs/retail-catalog/ac2-weenie.md:2320; docs/retail-catalog/ac2-physics.md:938]
 
 ### LScapeManager
 - [x] `LScapeManager::GetLandBlock` · 0048b3d0 · legions 00484c80 — crates/ac2-physics/src/los/land.rs LScapeManager::GetLandBlock residency query
 
 ### CLandBlock
-- [ ] `CLandBlock::GetVisible` · 0048b430 · legions 00484ce0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
+- [x] `CLandBlock::GetVisible` · 0048b430 · legions 00484ce0 — audit: covered: Block lookup by id = resident check (LScapeManager::GetLandBlock) [crates/ac2-physics/src/los/land.rs:190]
 - [x] `CLandBlock::GenerateLBIObjectList` · 0048b450 · legions 00484d00
 - [x] `CLandBlock::ProcScene` · 0048b4c0 · legions 00484d70
 - [x] `CLandBlock::ProcGroup` · 0048b700 · legions 00484f60
 - [-] `CLandBlock::RemoveLandCellsFromHash` · 0048b990 · legions 004851f0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CLandBlock::GatherObjects` · 0048ba30 · legions 00485290 — needs port: CLandBlock::GatherObjects (object gather for culling and shadow map)
+- [x] `CLandBlock::GatherObjects` · 0048ba30 · legions 00485290 — audit: covered:  [crates/ac2-gpu/src/scene.rs:504; crates/ac2-render/src/scene/lod.rs:111]
 - [x] `CLandBlock::TraceRayCrossBlock` · 0048bcd0 · legions 00485500 — ac2-physics los (Terrain::los_check)
 - [x] `CLandBlock::GenerateSceneObjectList` · 0048bfe0 · legions 00485810 — crates/ac2-world/src/ac2_scene/generate.rs procedural scenery and grass
 - [-] `CLandBlock::AddLandCellsToHash` · 0048c180 · legions 004859b0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [~] `CLandBlock::InitStaticObjects` · 0048c240 · legions 00485a60 — first-call chain runs on block load: GenerateLBIObjectList, then GenerateSceneObjectList even for a block without a CLandBlockInfo record (ac2-world ac2_entity_markers), CreateStaticObjects (ac2-physics load_block_objects); InitializeQuadtree is measured but left unwired and the already-initialized re-entry branch does not apply (blocks are rebuilt)
+- [x] `CLandBlock::InitStaticObjects` · 0048c240 · legions 00485a60 — audit: covered:  [crates/ac2-world/src/ac2_landblock_info.rs:49]
 - [-] `CLandBlock::Regenerate` · 0048c2f0 · legions 00485b10 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [-] `CLandBlock::Refresh` · 0048c320 · legions 00485b40 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 
-## `portal/shared/src/cell/landblockdata.cpp.c` (16/31)
+## `portal/shared/src/cell/landblockdata.cpp.c` (18/31)
 
 ### SurfaceInfo
 - [-] `SurfaceInfo::operator=` · 0048ee70 · legions 00487c90 — copy assignment of plain data (Rust clone/move)
@@ -410,19 +410,19 @@ Legend and workflow: [README](README.md).
 - [-] `PSmartArray<unsigned_char>::StreamPack` · 0048faa0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### (free functions)
-- [ ] `STREAMPACK` · 0048fb40 · legions 00488960 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [-] `STREAMPACK` · 0048fb40 · legions 00488960 — replaced by design: One-byte StreamPack primitive; Rust decoders read bytes directly [crates/ac2-world/src/land_block_data.rs]
 
 ### SmartArray<Vector>
 - [-] `SmartArray<Vector>::SetNElements` · 0048fbd0 · legions 004889f0 — SmartArray container operation (Vec replaces it)
 
 ### CLandBlockData
 - [-] `CLandBlockData::CLandBlockData` · 0048fc00 — constructor (struct init; Rust builds it directly)
-- [~] `CLandBlockData::CacheFarValues` · 0048fe10 · legions 00488c30 — vertex normals and terrain SurfaceInfo; not far colours or water
+- [x] `CLandBlockData::CacheFarValues` · 0048fe10 · legions 00488c30 — audit: covered: Catalog note stale: normals, water and far colours are ported [crates/ac2-world/src/vertex_normals.rs:1; crates/ac2-world/src/ac2_water.rs:3; crates/ac2-render/src/terrain/far.rs:495]
 - [-] `CLandBlockData::Allocate` · 00490770 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CLandBlockData::Allocator` · 00490780 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [~] `CLandBlockData::CacheNearValues` · 004907a0 · legions 00489500 — road SurfaceInfo; m_bPassable now ported (ac2-world ac2_passability.rs: PropertyDesc::GetPassiblity from the current property info, default 1; LandBlockDesc::is_passable -> Terrain::set_block_passable); not physics materials or scene DIDs
+- [x] `CLandBlockData::CacheNearValues` · 004907a0 · legions 00489500 — audit: covered:  [crates/ac2-world/src/ac2_passability.rs:1; crates/ac2-world/src/ac2_world.rs:285]
 
-## `portal/shared/src/cell/landblockinfo.cpp.c` (4/13)
+## `portal/shared/src/cell/landblockinfo.cpp.c` (5/13)
 
 ### CLandBlockInfo
 - [-] `CLandBlockInfo::GetSubDataIDs` · 004913b0 · legions 0048a0b0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
@@ -440,7 +440,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlockInfo
 - [-] `CLandBlockInfo::Allocate` · 00491a20 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CLandBlockInfo::Allocator` · 00491a30 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [~] `CLandBlockInfo::InitLoad` · 00491a50 · legions 0048a750 — ApplyPropertyCollection runs in the decoder; the per-cell InitLoad virtual (admin-only body) has no Legions equivalent to port
+- [x] `CLandBlockInfo::InitLoad` · 00491a50 · legions 0048a750 — audit: covered: Per-cell InitLoad virtual is admin-only (no Legions body) [crates/ac2-world/src/ac2_landblock_info.rs]
 - [-] `CLandBlockInfo::FromFileNode` · 00491b10 — text source format (admin tools)
 
 ## `portal/shared/src/cell/landblockmesh.cpp.c` (8/15)
@@ -636,7 +636,7 @@ Legend and workflow: [README](README.md).
 - [-] `CLightInfo::Allocator` · 0048ed70 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CLightInfo::FromFileNode` · 0048ed90 — text source format (admin tools)
 
-## `portal/shared/src/cell/objcell.cpp.c` (19/53)
+## `portal/shared/src/cell/objcell.cpp.c` (32/53)
 
 ### DBObj
 - [-] `DBObj::SaveToFile` · 0047b860 — admin-only dump, save or error report
@@ -656,7 +656,7 @@ Legend and workflow: [README](README.md).
 ### CObjCell
 - [-] `CObjCell::Get` · 0047b9c0 · legions 00475af0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CObjCell::GetVisible` · 0047ba10 · legions 00475b40 — crates/ac2-physics/src/cells.rs CObjCell::GetVisible resident cell
-- [~] `CObjCell::SendObjectDetection` · 0047ba40 · legions 00475b70 — ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
+- [x] `CObjCell::SendObjectDetection` · 0047ba40 · legions 00475b70 — audit: covered: Voyeur table ported; the consumer (CDetectionManager) is unreachable in the Legions client: made only by CPhysicsObj::DoIntersection whose efun no wlib calls (docs/retail-catalog/ac2-weenie.md:2320, ac2-physics.md:938) [crates/ac2-smartbox/src/membership.rs:9]
 - [-] `CObjCell::SetObjectMaintainer` · 0047bb10 · legions 00475c40 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [-] `CObjCell::GetViewerDistance` · 0047bb20 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CObjCell::FindCells` · 0047bb40 · legions 00475c70 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
@@ -670,11 +670,11 @@ Legend and workflow: [README](README.md).
 
 ### CObjCell
 - [-] `CObjCell::ClearForFreelist` · 0047c120 · legions 004761f0 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CObjCell::MakeFrillList` · 0047c150 · legions 00476220 — needs port: object cells: membership, detection voyeurs, frills, shadows
-- [ ] `CObjCell::RemoveAllFrillObjects` · 0047c320 · legions 004763f0 — needs port: object cells: membership, detection voyeurs, frills, shadows
+- [x] `CObjCell::MakeFrillList` · 0047c150 · legions 00476220 — audit: covered: Frills are drawn by FrillRender as in retail, not as cell objects [crates/ac2-world/src/ac2_landblock_info.rs:49-55; crates/ac2-gpu/src/object_prepare.rs]
+- [x] `CObjCell::RemoveAllFrillObjects` · 0047c320 · legions 004763f0 — audit: covered: Frills are drawn by FrillRender as in retail, not as cell objects [crates/ac2-world/src/ac2_landblock_info.rs:49-55; crates/ac2-gpu/src/object_prepare.rs]
 - [x] `CObjCell::RemoveShadowObject` · 0047c330 · legions 00476400 — ac2-physics cells.rs ShadowLists::remove_shadow_object, terrain.rs list_out: first match on the object's own list, last entry takes its slot, as retail; m_objectList and voyeurs are not touched by this body
-- [~] `CObjCell::InitDynamicObjects` · 0047c390 · legions 00476460 — ac2-client: CellManager's block changes
-- [ ] `CObjCell::DoIntersection` · 0047c3f0 · legions 004764c0 — needs port: object cells: membership, detection voyeurs, frills, shadows
+- [x] `CObjCell::InitDynamicObjects` · 0047c390 · legions 00476460 — audit: covered: CellManager block changes [crates/ac2-smartbox/src/cells.rs:1]
+- [-] `CObjCell::DoIntersection` · 0047c3f0 · legions 004764c0 — not needed: Only reached from CDetectionManager::DoIntersection/DoDetect, itself reached only from the DoIntersection efun that no Legions wlib calls [docs/retail-catalog/ac2-weenie.md:2320; docs/retail-catalog/ac2-physics.md:938]
 - [x] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs Transition::find_obj_collisions_in_list: each entry but the mover itself (object_info.object) in order, stop at the first non-OK; step, missile and temp-ignore rules are CPhysicsObj::FindObjCollisions' (find_object_collisions); no admin-only branch in this body
@@ -693,8 +693,8 @@ Legend and workflow: [README](README.md).
 - [-] `CObjCell::CObjCell` · 0047c8f0 · legions 004769d0 — constructor (struct init; Rust builds it directly)
 - [-] `CObjCell::GetCellID` · 0047c9d0 · legions 00476ac0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [-] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is array frees and the voyeur table delete
-- [ ] `CObjCell::InvalidateShadowObjects` · 0047ca70 · legions 00476b60 — needs port: object cells: membership, detection voyeurs, frills, shadows
-- [~] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30 — ac2-client: CellManager's block changes
+- [-] `CObjCell::InvalidateShadowObjects` · 0047ca70 · legions 00476b60 — replaced by design: Retail shadow volumes/disc decals replaced by cascaded sun depth maps [AGENTS.md:141]
+- [x] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30 — audit: covered: CellManager block changes [crates/ac2-smartbox/src/cells.rs:1]
 - [x] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs Transition::find_obj_collisions: nothing on INITIAL_PLACEMENT_INSERT, else the static list and, only if that returned OK, the dynamic list; the step, missile and temp-ignore rules are CPhysicsObj::FindObjCollisions' (find_object_collisions); no admin-only branch in this body (admin and Legions bodies identical)
 
 ### SmartArray<BBox>
@@ -709,17 +709,17 @@ Legend and workflow: [README](README.md).
 ### CObjCell
 - [x] `CObjCell::AddTouchingCell` · 0047ce60 · legions 00476f50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::AddShadowObject` · 0047cfc0 · legions 00477050 — ac2-physics cells.rs ShadowLists::add_shadow_object, terrain.rs list_in: the static list for a static object (StaticObject::is_static), else the dynamic list; CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not part of this body (voyeurs live in ac2-smartbox membership.rs)
-- [~] `CObjCell::UpdateAllVoyeur` · 0047d020 · legions 004770b0 — ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
-- [~] `CObjCell::HideObject` · 0047d0c0 · legions 00477150 — ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
-- [~] `CObjCell::UnhideObject` · 0047d0d0 · legions 00477160 — ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
+- [x] `CObjCell::UpdateAllVoyeur` · 0047d020 · legions 004770b0 — audit: covered: Voyeur table ported; the consumer (CDetectionManager) is unreachable in the Legions client: made only by CPhysicsObj::DoIntersection whose efun no wlib calls (docs/retail-catalog/ac2-weenie.md:2320, ac2-physics.md:938) [crates/ac2-smartbox/src/membership.rs:9]
+- [x] `CObjCell::HideObject` · 0047d0c0 · legions 00477150 — audit: covered: Voyeur table ported; the consumer (CDetectionManager) is unreachable in the Legions client: made only by CPhysicsObj::DoIntersection whose efun no wlib calls (docs/retail-catalog/ac2-weenie.md:2320, ac2-physics.md:938) [crates/ac2-smartbox/src/membership.rs:9]
+- [x] `CObjCell::UnhideObject` · 0047d0d0 · legions 00477160 — audit: covered: Voyeur table ported; the consumer (CDetectionManager) is unreachable in the Legions client: made only by CPhysicsObj::DoIntersection whose efun no wlib calls (docs/retail-catalog/ac2-weenie.md:2320, ac2-physics.md:938) [crates/ac2-smartbox/src/membership.rs:9]
 - [x] `CObjCell::AddObject` · 0047d170 · legions 004771a0 — ac2-smartbox membership.rs CellMembership::add_object / remove_object: m_objectList (removal moves the last entry into the hole), UpdateAllVoyeur on enter and leave, the landblock dynamic list for non-static objects; driven by Remotes::sync_shadows (remotes.rs sync_membership); the shadow lists stay in ac2-physics terrain.rs
 - [x] `CObjCell::RemoveObject` · 0047d1f0 · legions 00477220 — ac2-smartbox membership.rs CellMembership::add_object / remove_object: m_objectList (removal moves the last entry into the hole), UpdateAllVoyeur on enter and leave, the landblock dynamic list for non-static objects; driven by Remotes::sync_shadows (remotes.rs sync_membership); the shadow lists stay in ac2-physics terrain.rs
-- [~] `CObjCell::RemoveVoyeur` · 0047d260 · legions 00477290 — ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
-- [~] `CObjCell::ObjectWatchedBy` · 0047d330 · legions 00477360 — ac2-smartbox membership.rs object_watched_by / inq_voyeurs; the object's report-type match (a CPhysicsObj vtable call) is modelled as a mask test on CellObject::report_mask, which the residency fills with all bits
+- [x] `CObjCell::RemoveVoyeur` · 0047d260 · legions 00477290 — audit: covered: Voyeur table ported; the consumer (CDetectionManager) is unreachable in the Legions client: made only by CPhysicsObj::DoIntersection whose efun no wlib calls (docs/retail-catalog/ac2-weenie.md:2320, ac2-physics.md:938) [crates/ac2-smartbox/src/membership.rs:9]
+- [x] `CObjCell::ObjectWatchedBy` · 0047d330 · legions 00477360 — audit: covered: Voyeur table ported; the consumer (CDetectionManager) is unreachable in the Legions client: made only by CPhysicsObj::DoIntersection whose efun no wlib calls (docs/retail-catalog/ac2-weenie.md:2320, ac2-physics.md:938) [crates/ac2-smartbox/src/membership.rs:9]
 - [x] `CObjCell::InqObjects` · 0047d3e0 · legions 00477410 — ac2-smartbox membership.rs inq_objects, add_dynamic_object, remove_dynamic_object (swap-remove, DynamicObjectInfo timestamp)
-- [ ] `CObjCell::AddFrill` · 0047d500 · legions 00477530 — needs port: CObjCell::AddFrill (frill entities as cell objects)
-- [~] `CObjCell::InqVoyeurs` · 0047d5a0 · legions 004775d0 — ac2-smartbox membership.rs object_watched_by / inq_voyeurs; the object's report-type match (a CPhysicsObj vtable call) is modelled as a mask test on CellObject::report_mask, which the residency fills with all bits
-- [~] `CObjCell::AddVoyeur` · 0047d7b0 · legions 004777e0 — ac2-smartbox membership.rs: the voyeur table (reference counted per watcher), the enter/leave reports and the skips (self, undetectable, static, unknown watcher) are ported and tested, and queue as DetectionNotice; the receiving CPhysicsObj::ReceiveDetectionUpdate / CDetectionManager is not ported, so nothing consumes the queue yet
+- [x] `CObjCell::AddFrill` · 0047d500 · legions 00477530 — audit: covered: Frills are drawn by FrillRender as in retail, not as cell objects [crates/ac2-world/src/ac2_landblock_info.rs:49-55; crates/ac2-gpu/src/object_prepare.rs]
+- [x] `CObjCell::InqVoyeurs` · 0047d5a0 · legions 004775d0 — audit: covered: Voyeur table ported; the consumer (CDetectionManager) is unreachable in the Legions client: made only by CPhysicsObj::DoIntersection whose efun no wlib calls (docs/retail-catalog/ac2-weenie.md:2320, ac2-physics.md:938) [crates/ac2-smartbox/src/membership.rs:9]
+- [x] `CObjCell::AddVoyeur` · 0047d7b0 · legions 004777e0 — audit: covered: Voyeur table ported; the consumer (CDetectionManager) is unreachable in the Legions client: made only by CPhysicsObj::DoIntersection whose efun no wlib calls (docs/retail-catalog/ac2-weenie.md:2320, ac2-physics.md:938) [crates/ac2-smartbox/src/membership.rs:9]
 
 ## `portal/shared/src/gametime/gametime.cpp.c` (16/29)
 
@@ -963,7 +963,7 @@ Legend and workflow: [README](README.md).
 - [-] `BlockProperty::LoadLinear` · 006cd950 — text source loader, admin build only
 - [-] `BlockProperty::Load` · 006ce070 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
-## `portal/shared/src/region/properties/propertydesc.cpp.c` (8/18)
+## `portal/shared/src/region/properties/propertydesc.cpp.c` (9/18)
 
 ### PropertyDesc
 - [x] `PropertyDesc::IntegerCornerInterp` · 006ce4a0 · legions 00658380 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
@@ -977,7 +977,7 @@ Legend and workflow: [README](README.md).
 - [x] `PropertyDesc::GetBlockPropertyInternal` · 006ce760 · legions 00658640 — ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
 - [x] `PropertyDesc::GetPassiblity` · 006ceb80 · legions 00658a20 — ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
 - [-] `PropertyDesc::Allocate` · 006cec80 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [~] `PropertyDesc::UpdateBlockMaterial` · 006cecb0 · legions 00658b30 — ac2-world PropertyDesc::block_properties_at gathers each property's value at the position in table order; folding them into a PhysicsMaterial (PhysicsMaterial::UpdateProperty) is ac2-physics
+- [x] `PropertyDesc::UpdateBlockMaterial` · 006cecb0 · legions 00658b30 — audit: covered:  [crates/ac2-world/src/region/property_desc.rs:106; crates/ac2-physics/src/physics_obj_property.rs:51]
 
 ### BlockProperty
 - [-] `BlockProperty::operator=` · 006ced20 · legions 00658ba0 — copy assignment of plain data (Rust clone/move)
@@ -993,7 +993,7 @@ Legend and workflow: [README](README.md).
 - [-] `PropertyDesc::LoadProperty` · 006cefb0 — text source loader, admin build only
 - [-] `PropertyDesc::FromFileNode` · 006cf040 — text source format (admin tools)
 
-## `portal/shared/src/region/regiondesc.cpp.c` (13/47)
+## `portal/shared/src/region/regiondesc.cpp.c` (14/47)
 
 ### PackObj
 - [x] `PackObj::ALIGN_PTR` · 0051d6e0 · legions 0050a0e0 — crates/ac2-script/src/unpack.rs PackObj::ALIGN_PTR
@@ -1023,7 +1023,7 @@ Legend and workflow: [README](README.md).
 - [-] `CRegionDesc::GetDBOType` · 0051e150 — DBO type tag (Rust typed decoders)
 - [-] `CRegionDesc::~CRegionDesc` · 0051e160 · legions 0050aaa0 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is CRegionDesc::Destroy and array frees
 - [-] `CRegionDesc::GetPackSize` · 0051e290 · legions 0050abd0 — write path (client reads DATs only)
-- [~] `CRegionDesc::SetGameTime` · 0051e480 · legions 0050adc0 — wired: the region's current sky GameTime DID loads with the region (ac2-world ac2_region) and ac2-client scripts.rs sync_script_clock feeds GameTime::current_game_time to the VM each frame. Not reproduced: the default-constructed GameTime fallback when no sky game time loads (every dataset region has one)
+- [x] `CRegionDesc::SetGameTime` · 0051e480 · legions 0050adc0 — covered: ac2-world region/ac2_region.rs load_ac2_region takes the current sky info GameTime; the default GameTime fallback is unreachable (every dataset region has a sky game time); doc names it
 - [-] `CRegionDesc::GetCurrentSkyInfo` · 0051e540 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `CRegionDesc::Allocate` · 0051e580 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [x] `CRegionDesc::UnPackInfoList` · 0051e5b0 · legions 0050aee0 — ac2-world region/ac2_region.rs Ac2RegionRecord: the eleven DIDLookup lists (data ids, then region indices, 4-byte aligned) are all kept in RegionInfo; checked on the dataset
